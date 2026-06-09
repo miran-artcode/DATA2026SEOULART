@@ -36,6 +36,16 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(['userId', 'kind']);
       allow delete: if true;
     }
+    match /quizzes/{id} {
+      allow read: if true;
+      allow create, update: if notTooBig() && request.resource.data.keys().hasAll(['title', 'userId']);
+      allow delete: if true;
+    }
+    match /quizAnswers/{id} {
+      allow read: if true;
+      allow create: if notTooBig() && request.resource.data.keys().hasAll(['quizId']);
+      allow update, delete: if false;   // 답안은 수정·삭제 불가(기록 보존)
+    }
 
     // 그 외 모든 경로는 차단
     match /{document=**} { allow read, write: if false; }

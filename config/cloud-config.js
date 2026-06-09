@@ -63,6 +63,12 @@
     async addFeedback(fb) { fb.createdAt = Date.now(); return add('feedback', fb); },
     async listFeedback(workId) { return (await all('feedback')).filter(f => f.workId === workId).sort((a, b) => a.createdAt - b.createdAt); },
     async saveNote(n) { n.updatedAt = Date.now(); if (!n.createdAt) n.createdAt = Date.now(); return add('notes', n, n.id); },
-    async listNotes(userId) { return (await all('notes')).filter(n => !userId || n.userId === userId).sort((a, b) => b.updatedAt - a.updatedAt); }
+    async listNotes(userId) { return (await all('notes')).filter(n => !userId || n.userId === userId).sort((a, b) => b.updatedAt - a.updatedAt); },
+    async saveQuiz(q) { if (!q.createdAt) q.createdAt = Date.now(); return add('quizzes', q, q.id); },
+    async listQuizzes() { return (await all('quizzes')).sort((a, b) => b.createdAt - a.createdAt); },
+    async getQuiz(id) { return (await all('quizzes')).find(q => q.id === id) || null; },
+    async deleteQuiz(id) { const r = await ready; if (r) await r.fs.deleteDoc(r.fs.doc(r.db, 'quizzes', id)); },
+    async addQuizAnswer(a) { a.createdAt = Date.now(); return add('quizAnswers', a); },
+    async listQuizAnswers(quizId) { return (await all('quizAnswers')).filter(a => !quizId || a.quizId === quizId); }
   };
 })(window);

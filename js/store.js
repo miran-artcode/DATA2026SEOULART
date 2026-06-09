@@ -12,7 +12,7 @@
 (function (global) {
   'use strict';
 
-  const K_WORKS = 'dn_works', K_FB = 'dn_feedback', K_NOTES = 'dn_notes';
+  const K_WORKS = 'dn_works', K_FB = 'dn_feedback', K_NOTES = 'dn_notes', K_QUIZ = 'dn_quizzes', K_QA = 'dn_quizans';
   const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { return []; } };
   const write = (k, v) => localStorage.setItem(k, JSON.stringify(v));
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -49,7 +49,17 @@
     },
     async listNotes(userId) {
       return read(K_NOTES).filter(n => !userId || n.userId === userId).sort((a, b) => b.updatedAt - a.updatedAt);
-    }
+    },
+    async saveQuiz(q) {
+      const list = read(K_QUIZ); q.id = q.id || uid(); q.createdAt = q.createdAt || Date.now();
+      const i = list.findIndex(x => x.id === q.id); if (i >= 0) list[i] = q; else list.push(q);
+      write(K_QUIZ, list); return q.id;
+    },
+    async listQuizzes() { return read(K_QUIZ).sort((a, b) => b.createdAt - a.createdAt); },
+    async getQuiz(id) { return read(K_QUIZ).find(q => q.id === id) || null; },
+    async deleteQuiz(id) { write(K_QUIZ, read(K_QUIZ).filter(q => q.id !== id)); },
+    async addQuizAnswer(a) { const list = read(K_QA); a.id = uid(); a.createdAt = Date.now(); list.push(a); write(K_QA, list); return a.id; },
+    async listQuizAnswers(quizId) { return read(K_QA).filter(a => !quizId || a.quizId === quizId); }
   };
 
   // 클라우드가 있으면 우선 사용하되, 실패 시 로컬로 폴백(네트워크가 끊겨도 수업이 멈추지 않도록)
@@ -72,11 +82,17 @@
     listFeedback: (id) => call('listFeedback', id),
     saveNote: (n) => call('saveNote', n),
     listNotes: (u) => call('listNotes', u),
+    saveQuiz: (q) => call('saveQuiz', q),
+    listQuizzes: () => call('listQuizzes'),
+    getQuiz: (id) => call('getQuiz', id),
+    deleteQuiz: (id) => call('deleteQuiz', id),
+    addQuizAnswer: (a) => call('addQuizAnswer', a),
+    listQuizAnswers: (id) => call('listQuizAnswers', id),
 
     // 교사 취합용: 로컬 데이터 전체 내보내기/불러오기(병합)
     exportAll() {
       return { app: 'DATA2026SEOULART', exportedAt: new Date().toISOString(),
-        works: read(K_WORKS), feedback: read(K_FB), notes: read(K_NOTES) };
+        works: read(K_WORKS), feedback: read(K_FB), notes: read(K_NOTES), quizzes: read(K_QUIZ), quizAnswers: read(K_QA) };
     },
     importJSON(data) {
       const merge = (k, items) => {
@@ -86,7 +102,8 @@
         write(k, Array.from(byId.values())); return items.length;
       };
       const a = merge(K_WORKS, data.works), b = merge(K_FB, data.feedback), c = merge(K_NOTES, data.notes);
-      return { works: a, feedback: b, notes: c };
+      const d = merge(K_QUIZ, data.quizzes), e = merge(K_QA, data.quizAnswers);
+      return { works: a, feedback: b, notes: c, quizzes: d, quizAnswers: e };
     }
   };
 
