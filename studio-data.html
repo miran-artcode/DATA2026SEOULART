@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>데이터 점 스튜디오 · 데이터가 춤추는 점</title>
+<link rel="stylesheet" href="css/site.css" />
+<style>
+  .dstudio { display: grid; grid-template-columns: 1fr 350px; gap: 16px; align-items: start; }
+  #dstage { position: relative; background: #07080d; border: 1px solid var(--line); border-radius: 14px; height: 70vh; min-height: 460px; overflow: hidden; }
+  #dstage canvas { display: block; }
+  .dpanel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; max-height: 78vh; overflow-y: auto; }
+  .dpanel details { border-bottom: 1px solid var(--line); }
+  .dpanel summary { cursor: pointer; padding: 12px 15px; font-weight: 700; font-size: 13.5px; list-style: none; }
+  .dpanel summary::-webkit-details-marker { display: none; }
+  .dpanel .sect { padding: 4px 15px 16px; }
+  @media (max-width: 880px) { .dstudio { grid-template-columns: 1fr; } #dstage { height: 52vh; } }
+</style>
+</head>
+<body>
+<div id="app-header"></div>
+
+<div class="wrap" style="max-width:1280px">
+  <div class="page-head">
+    <span class="eyebrow">데이터 점 스튜디오 · 5.10.4</span>
+    <h1>데이터가 춤추는 점</h1>
+    <p>우리 데이터를 점의 <b>크기·속도·방향(벡터)·밀도</b>로 번역해 움직이는 작품으로. 매핑은 ‘효과’가 아니라 <b>해석</b>이에요.</p>
+  </div>
+  <div id="idea"></div>
+
+  <div class="dstudio">
+    <section id="dstage"></section>
+
+    <aside class="dpanel">
+      <details open>
+        <summary>1 · 데이터</summary>
+        <div class="sect">
+          <label class="field">샘플 데이터</label>
+          <select id="sel-sample">
+            <option value="emotion">학급 감정 온도 (24명)</option>
+            <option value="temp">하루 기온 (24시간)</option>
+            <option value="steps">활동량(걸음) 12구간</option>
+            <option value="noise">교실 소음 18구간</option>
+          </select>
+          <label class="field">또는 직접 입력 (숫자, 쉼표/줄바꿈) <span class="info-ic" data-info="data-clean">ⓘ</span></label>
+          <textarea id="ta-data" rows="3" placeholder="예: 3, 4, 2, 5, 5, 1 …"></textarea>
+          <div style="display:flex; gap:8px; margin-top:8px">
+            <button id="btn-apply-data" class="btn sm">적용</button>
+            <button id="btn-upload-csv" class="btn sm">CSV 열기</button>
+            <input id="csv" type="file" accept=".csv,text/csv,text/plain" hidden />
+          </div>
+          <p class="muted" id="data-info" style="font-size:11.5px; margin-top:8px"></p>
+        </div>
+      </details>
+
+      <details open>
+        <summary>2 · 매핑 규칙</summary>
+        <div class="sect">
+          <label class="chk-row"><input type="checkbox" id="m-size" checked> 값 → 점의 크기 <span class="info-ic" data-info="map-size">ⓘ</span></label>
+          <label class="chk-row"><input type="checkbox" id="m-speed" checked> 변화량 → 속도 <span class="info-ic" data-info="map-speed">ⓘ</span></label>
+          <label class="chk-row"><input type="checkbox" id="m-dir" checked> 증가/감소 → 방향(벡터) <span class="info-ic" data-info="map-direction">ⓘ</span></label>
+          <label class="chk-row"><input type="checkbox" id="m-density" checked> 값 → 밀도(점 개수) <span class="info-ic" data-info="map-density">ⓘ</span></label>
+          <div style="margin-top:10px; display:flex; gap:8px">
+            <button id="btn-ruleA" class="btn sm">규칙 A 저장</button>
+            <button id="btn-ruleB" class="btn sm">규칙 B 저장</button>
+            <button id="btn-ab" class="btn sm">A/B 전환</button>
+          </div>
+          <p class="muted" style="font-size:11.5px; margin-top:6px">규칙 2안을 저장해 비교하면 탐구문제 3·4를 ‘눈으로’ 논증할 수 있어요.</p>
+        </div>
+      </details>
+
+      <details open>
+        <summary>3 · 움직임 · 색</summary>
+        <div class="sect">
+          <label class="field">기본 속도 <output id="o-speed">1</output></label><input id="r-speed" type="range" min="0" max="3" step="0.1" value="1">
+          <label class="field">진동 <output id="o-vib">1</output></label><input id="r-vib" type="range" min="0" max="4" step="0.1" value="1">
+          <label class="field">잔상(트레일) <output id="o-trail">200</output></label><input id="r-trail" type="range" min="20" max="255" step="5" value="200">
+          <label class="field">색</label>
+          <select id="sel-color"><option value="value">값 그라데이션(한↔난색)</option><option value="warm">난색</option><option value="cool">한색</option></select>
+        </div>
+      </details>
+
+      <details open>
+        <summary>4 · 의도 · 근거 <span class="badge core">저장 전 필수</span></summary>
+        <div class="sect">
+          <label class="field">데이터 주제(무엇의 데이터인가)</label>
+          <input id="in-dataname" type="text" placeholder="예: 우리 반 하루 감정 온도">
+          <label class="field">관람 경험 목표(의도, 한 문장)</label>
+          <input id="in-intent" type="text" placeholder="예: 시험기간의 들썩이는 마음을 점의 떨림으로">
+          <label class="field">조형/데이터 근거(최소 1개)</label>
+          <textarea id="in-evidence" rows="2" placeholder="예: 4교시에 변화가 가장 커서 그 구간 점을 빠르게 진동시켰다"></textarea>
+        </div>
+      </details>
+
+      <details open>
+        <summary>5 · 코치 · 저장 · 공유</summary>
+        <div class="sect">
+          <button id="btn-coach" class="btn wide" style="margin-bottom:8px">🧭 감상 코치에게 질문받기</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <button id="btn-img" class="btn sm">이미지 저장</button>
+            <button id="btn-note" class="btn sm">작업노트 저장</button>
+            <button id="btn-exhibit" class="btn sm accent2">전시하기</button>
+          </div>
+          <p class="muted" style="font-size:11.5px; margin-top:8px">⚠ 개인 데이터는 익명·집계로! 낙인찍지 않도록 설명은 상황·맥락 중심으로.</p>
+        </div>
+      </details>
+    </aside>
+  </div>
+  <p class="footer-note">인터랙션은 효과가 아니라 해석이에요 · 표본 수·한계를 작품 설명에 밝히세요</p>
+</div>
+
+<script src="vendor/p5.min.js"></script>
+<script src="js/explain.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ratelimit.js"></script>
+<script src="js/coach.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/studio-data.js"></script>
+</body>
+</html>

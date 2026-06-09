@@ -481,6 +481,23 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     }
   }
 
+  /* ----------------------------- 외부(사이트) 연동 훅 ----------------------------- */
+  // 멀티페이지 사이트(코치/전시)에서 현재 작품 맥락을 읽기 위한 최소한의 창구.
+  // 이 훅이 없어도 단일 파일(오프라인 백업)로는 그대로 동작한다.
+  function describeRules() {
+    const mm = { repel: '밀어내기', attract: '끌어당기기', swell: '부풀리기', scatter: '흩뿌리기', none: '없음' }[state.mouseMode];
+    const mic = AudioInput.enabled ? `마이크 볼륨→${state.micTarget}${state.freqOn ? '+주파수 반응' : ''}` : '';
+    return `마우스 ${mm}${state.clickExplode ? '+클릭폭발' : ''}${mic ? ' · ' + mic : ''}`;
+  }
+  window.ColorStudio = {
+    canvas: () => p5i && p5i.canvas,
+    hasAnalysis: () => !!analysis,
+    context: () => ({ kind: 'color', palette: analysis ? analysis.palette : [], K: state.K, N: state.N,
+      space: state.space, rules: describeRules(), intent: (state.meta && state.meta.intent) || '' }),
+    meta: () => state.meta,
+    settings: () => JSON.parse(JSON.stringify(state))
+  };
+
   /* ----------------------------- 시작 ----------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
     bindUI();

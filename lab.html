@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>알고리즘 분석실 · 데이터의 눈</title>
+<link rel="stylesheet" href="css/site.css" />
+</head>
+<body>
+<div id="app-header"></div>
+
+<div class="wrap">
+  <div class="page-head">
+    <span class="eyebrow">분석실</span>
+    <h1>한 그림, 일곱 개의 눈</h1>
+    <p>같은 그림을 7가지 알고리즘으로 분석합니다. 각 카드의 <b>ⓘ</b>로 쉬운→깊은 설명을, 결과 아래 <b>해석 메모</b>에 근거를 적으면 리포트로 모입니다.</p>
+  </div>
+  <div id="idea"></div>
+
+  <!-- 입력 -->
+  <div class="card">
+    <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center">
+      <button id="btn-upload" class="btn primary">🖼 이미지 업로드</button>
+      <input id="file" type="file" accept="image/*" hidden />
+      <label class="field" style="margin:0">데모
+        <select id="sel-demo" style="width:auto; display:inline-block; margin-left:6px">
+          <option value="sunset">석양</option><option value="abstract">추상</option><option value="forest">바다·숲</option>
+        </select>
+      </label>
+      <div style="flex:1"></div>
+      <canvas id="thumb" width="120" height="90" style="border:1px solid var(--line); border-radius:8px; background:#000"></canvas>
+    </div>
+    <p class="muted" style="font-size:12px; margin:10px 0 0">그림을 이 영역으로 끌어다 놓아도 됩니다. 분석은 모두 브라우저 안에서 처리돼요(이미지는 서버로 전송되지 않음).</p>
+  </div>
+
+  <!-- 조작 설정 -->
+  <div class="card" style="margin-top:16px">
+    <h3>조작 설정</h3>
+    <div class="grid c4">
+      <div><label class="field">K (대표색) <output id="out-k">8</output></label><input id="rng-k" type="range" min="2" max="16" value="8"></div>
+      <div><label class="field">색공간</label><select id="sel-space"><option value="rgb">RGB</option><option value="lab">LAB</option></select></div>
+      <div><label class="field">포스터화 단계 <output id="out-levels">4</output></label><input id="rng-levels" type="range" min="2" max="8" value="4"></div>
+      <div><label class="field">노탄 임계값 <output id="out-th">128</output></label><input id="rng-th" type="range" min="40" max="220" value="128"></div>
+      <div><label class="field">모자이크 칸 <output id="out-cell">16</output></label><input id="rng-cell" type="range" min="4" max="48" value="16"></div>
+    </div>
+    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+      <button id="btn-run" class="btn">🔬 다시 분석</button>
+      <button id="btn-report" class="btn accent2">📄 분석 리포트(.md)</button>
+      <button id="btn-save-note" class="btn">📝 작업노트에 저장</button>
+      <span id="busy" class="hide"><span class="spinner"></span> 분석 중…</span>
+    </div>
+  </div>
+
+  <!-- 색 분석 차트 -->
+  <h2 style="margin:26px 0 12px">색 분석 차트 <span class="muted" style="font-size:13px">— 각 차트 옆 ⓘ로 읽는 법을, 메모에 해석을</span></h2>
+  <div class="grid c3" id="charts">
+    <div class="card chart-card"><div class="chart-title">비율 도넛 <span data-info="chart-donut" class="info-ic">ⓘ</span></div><canvas id="cv-donut"></canvas><div class="swatches" id="pal-kmeans" style="margin-top:8px"></div><div class="memo"><textarea data-memo="donut" placeholder="해석 메모: 주인공 색은? 통일감/다채로움?"></textarea></div></div>
+    <div class="card chart-card"><div class="chart-title">정렬 막대 <span data-info="chart-bars" class="info-ic">ⓘ</span></div><canvas id="cv-bars"></canvas><div class="memo"><textarea data-memo="bars" placeholder="해석 메모: 1등·2등 색의 위계는?"></textarea></div></div>
+    <div class="card chart-card"><div class="chart-title">색공간 산점도 (군집 중심) <span data-info="chart-scatter" class="info-ic">ⓘ</span></div><canvas id="cv-scatter"></canvas><div class="memo"><textarea data-memo="scatter" placeholder="해석 메모: 군집이 잘 갈라졌나? K가 적절한가?"></textarea></div></div>
+    <div class="card chart-card"><div class="chart-title">RGB 채널 히스토그램 <span data-info="chart-rgbhist" class="info-ic">ⓘ</span></div><canvas id="cv-rgbhist"></canvas><div class="memo"><textarea data-memo="rgbhist" placeholder="해석 메모: 지배 색감은? 따뜻/차가움?"></textarea></div></div>
+    <div class="card chart-card"><div class="chart-title">색상환 분포 <span data-info="chart-wheel" class="info-ic">ⓘ</span></div><canvas id="cv-wheel"></canvas><div class="memo"><textarea data-memo="wheel" placeholder="해석 메모: 단색조? 보색 대비?"></textarea></div></div>
+    <div class="card chart-card"><div class="chart-title">명도 히스토그램 · 톤커브 <span data-info="chart-value" class="info-ic">ⓘ</span></div><canvas id="cv-value"></canvas><div class="memo"><textarea data-memo="value" placeholder="해석 메모: 밝은/어두운 톤? 대비?"></textarea></div></div>
+  </div>
+
+  <!-- 7가지 알고리즘 재창조 -->
+  <h2 style="margin:28px 0 12px">7가지 알고리즘 — 분석과 재창조</h2>
+  <div class="grid c3" id="algos">
+    <div class="card"><h3 class="with-info">① K-means 색 군집화 <span class="badge core">핵심</span> <span data-info="kmeans" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">대표색 치환</span><canvas id="rc-kmeans"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">놓친 것: 색이 <b>어디에</b> 있는지(위치)를 모릅니다. <span data-info="kmeans" style="cursor:pointer;color:var(--accent2)">자세히</span></p><div class="memo"><textarea data-memo="kmeans" placeholder="해석 메모"></textarea></div></div>
+    <div class="card"><h3 class="with-info">② 색 히스토그램 <span class="badge core">핵심</span> <span data-info="histogram" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">포스터화</span><canvas id="rc-poster"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">놓친 것: 색을 다 섞어 ‘센’ 것이라 <b>공간·형태</b>가 사라집니다.</p><div class="memo"><textarea data-memo="histogram" placeholder="해석 메모"></textarea></div></div>
+    <div class="card"><h3 class="with-info">③ 명도·노탄 <span class="badge core">핵심</span> <span data-info="notan" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">흑백 명암지도</span><canvas id="rc-notan"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">놓친 것: 색의 <b>의미·온도</b>가 사라집니다(임계값도 주관적).</p><div class="memo"><textarea data-memo="notan" placeholder="해석 메모"></textarea></div></div>
+    <div class="card"><h3 class="with-info">④ 에지 검출(Sobel) <span class="badge core">핵심</span> <span data-info="edge" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">선 드로잉</span><canvas id="rc-edge"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">놓친 것: 그림자 경계와 진짜 윤곽을 <b>구분 못</b> 합니다.</p><div class="memo"><textarea data-memo="edge" placeholder="해석 메모"></textarea></div></div>
+    <div class="card"><h3 class="with-info">⑤ 중앙값 분할 <span class="badge adv">심화</span> <span data-info="mediancut" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">또 다른 색 요약</span><canvas id="rc-median"></canvas></div><div class="swatches" id="pal-median" style="margin:8px 0 0"></div><p class="muted" style="font-size:12px;margin:8px 0 0">K-means와 비교 — ‘색을 요약하는 두 가지 길’.</p><div class="memo"><textarea data-memo="mediancut" placeholder="해석 메모: K-means와 무엇이 다른가?"></textarea></div></div>
+    <div class="card"><h3 class="with-info">⑥ 격자 평균·모자이크 <span class="badge adv">심화</span> <span data-info="mosaic" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">픽셀아트</span><canvas id="rc-mosaic"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">놓친 것: 형태와 무관하게 <b>기계적으로</b> 자릅니다.</p><div class="memo"><textarea data-memo="mosaic" placeholder="해석 메모"></textarea></div></div>
+    <div class="card"><h3 class="with-info">⑦ 구도 분석 <span class="badge adv">심화</span> <span data-info="composition" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">무게중심·삼분할</span><canvas id="rc-comp"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0" id="comp-info">밝기 무게중심과 삼분할선.</p><div class="memo"><textarea data-memo="composition" placeholder="해석 메모: 안정인가 긴장인가?"></textarea></div></div>
+    <div class="card" style="display:flex;flex-direction:column;justify-content:center;background:linear-gradient(160deg,rgba(78,195,255,.06),transparent)">
+      <h3>🧭 다음 행동</h3>
+      <p class="muted" style="font-size:13px">렌즈를 골라 변호하세요: <b>색=분위기 · 에지=구조 · 노탄=빛</b>. 어떤 렌즈가 이 작품의 의도를 가장 잘 드러내나요? 메모에 근거를 적고 리포트로 내보내세요.</p>
+      <button class="btn sm" data-info="ethics-ai" style="align-self:flex-start;margin-top:6px">⚖ 윤리·AI 기여 보기</button>
+    </div>
+  </div>
+  <p class="footer-note">분석은 손실이 있는 근사예요 · ⓘ에서 각 도구의 한계를 꼭 확인하세요</p>
+</div>
+
+<script src="js/kmeans.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/algos/algorithms.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/explain.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/lab.js"></script>
+</body>
+</html>

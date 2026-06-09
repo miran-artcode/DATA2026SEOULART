@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>교사 대시보드 · 데이터의 눈</title>
+<link rel="stylesheet" href="css/site.css" />
+</head>
+<body>
+<div id="app-header"></div>
+<div class="wrap">
+  <div class="page-head">
+    <span class="eyebrow">교사 대시보드</span>
+    <h1>학급 작업 한눈에 보기</h1>
+    <p>작품·성찰·피드백을 모아 봅니다. 저장 방식에 따라 <b id="mode-label">로컬</b> 데이터를 표시합니다.</p>
+  </div>
+  <div id="cloud-note"></div>
+
+  <div class="grid c4" id="stats"></div>
+
+  <div class="card" style="margin-top:16px">
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+      <button id="btn-export" class="btn accent2">⬇ 전체 내보내기(JSON)</button>
+      <button id="btn-import" class="btn">⬆ 학생 JSON 취합(병합)</button>
+      <input id="imp" type="file" accept="application/json,.json" multiple hidden />
+      <input id="q" type="text" placeholder="이름·반·제목 검색" style="width:auto; flex:1; min-width:160px">
+      <select id="f-kind" style="width:auto"><option value="">전체 유형</option><option value="color">색 군집</option><option value="data">데이터 점</option></select>
+    </div>
+    <p class="muted" style="font-size:12px;margin:10px 0 0">취합: 학생이 ‘설정/노트’를 내보낸 JSON을 받아 여기서 병합하면 한 화면에서 학급 전체를 봅니다(실시간 클라우드 미설정 시).</p>
+  </div>
+
+  <h2 style="margin:22px 0 10px">작품</h2>
+  <div class="card" style="overflow-x:auto"><table class="data" id="tbl-works"><thead><tr><th>제목</th><th>이름</th><th>반</th><th>유형</th><th>전시</th><th>의도</th><th>피드백</th><th>시각</th></tr></thead><tbody></tbody></table></div>
+
+  <h2 style="margin:22px 0 10px">성찰·메모</h2>
+  <div class="card" style="overflow-x:auto"><table class="data" id="tbl-notes"><thead><tr><th>이름</th><th>유형</th><th>제목</th><th>내용 요약</th><th>시각</th></tr></thead><tbody></tbody></table></div>
+  <p class="footer-note">미성년자 정보 보호 · 표시 이름 정책과 학교 방침을 준수하세요</p>
+</div>
+
+<script src="js/explain.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script>
+  document.getElementById('mode-label').textContent = Store.mode === 'cloud' ? '클라우드(실시간)' : '로컬(이 기기)';
+  if (Store.mode !== 'cloud') document.getElementById('cloud-note').innerHTML =
+    UI.callout('<b>실시간 클라우드 미설정</b> · 지금은 이 기기에 저장된 데이터만 보여요. <code>config/cloud-config.js</code>를 설정하면 한 링크에서 학급 전체가 실시간 공유됩니다(README 참고). 그 전엔 학생 JSON을 ‘취합’해 모으세요.', 'warn');
+
+  let works = [], notes = [], feedback = {};
+  const KIND = { color: '색 군집', data: '데이터 점', lab: '분석실', reflection: '성찰' };
+
+  async function load() {
+    works = await Store.listWorks();
+    notes = await Store.listNotes();
+    feedback = {};
+    for (const w of works) feedback[w.id] = (await Store.listFeedback(w.id)).length;
+    stats(); renderWorks(); renderNotes();
+  }
+  function stats() {
+    const students = new Set([...works.map(w => w.userId), ...notes.map(n => n.userId)].filter(Boolean));
+    const exhibited = works.filter(w => w.exhibited).length;
+    const fb = Object.values(feedback).reduce((a, b) => a + b, 0);
+    const cards = [['학생 수', students.size], ['작품', works.length], ['전시됨', exhibited], ['피드백', fb]];
+    document.getElementById('stats').innerHTML = cards.map(([k, v]) =>
+      `<div class="card" style="text-align:center"><div style="font-size:30px;font-weight:800;color:var(--accent)">${v}</div><div class="muted">${k}</div></div>`).join('');
+  }
+  function filt(list, fields) {
+    const q = document.getElementById('q').value.trim().toLowerCase();
+    const k = document.getElementById('f-kind').value;
+    return list.filter(x => (!k || x.kind === k) && (!q || fields(x).toLowerCase().includes(q)));
+  }
+  function renderWorks() {
+    const rows = filt(works, w => `${w.title} ${w.by} ${w.klass||''}`).map(w => `<tr>
+      <td>${UI.escapeHTML(w.title||'')}</td><td>${UI.escapeHTML(w.by||'')}</td><td>${UI.escapeHTML(w.klass||'')}</td>
+      <td>${KIND[w.kind]||w.kind}</td><td>${w.exhibited?'✅':''}</td>
+      <td style="max-width:260px">${UI.escapeHTML((w.intent||'').slice(0,80))}</td>
+      <td>${feedback[w.id]||0}</td><td>${new Date(w.updatedAt).toLocaleString('ko-KR')}</td></tr>`).join('');
+    document.querySelector('#tbl-works tbody').innerHTML = rows || '<tr><td colspan="8" class="muted">데이터 없음</td></tr>';
+  }
+  function renderNotes() {
+    const rows = filt(notes, n => `${n.by} ${n.title}`).map(n => {
+      let s = n.line || n.aiHelp || (n.memos ? Object.values(n.memos).join(' / ') : '') || '';
+      return `<tr><td>${UI.escapeHTML(n.by||'')}</td><td>${KIND[n.kind]||n.kind}</td><td>${UI.escapeHTML(n.title||'')}</td>
+        <td style="max-width:360px">${UI.escapeHTML(String(s).slice(0,120))}</td><td>${new Date(n.updatedAt).toLocaleString('ko-KR')}</td></tr>`;
+    }).join('');
+    document.querySelector('#tbl-notes tbody').innerHTML = rows || '<tr><td colspan="5" class="muted">데이터 없음</td></tr>';
+  }
+
+  document.getElementById('btn-export').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(Store.exportAll(), null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.download = 'class_data_' + Date.now() + '.json'; a.href = URL.createObjectURL(blob); a.click();
+    UI.toast('전체 데이터를 내보냈습니다.');
+  });
+  document.getElementById('btn-import').addEventListener('click', () => document.getElementById('imp').click());
+  document.getElementById('imp').addEventListener('change', async e => {
+    let total = { works: 0, feedback: 0, notes: 0 };
+    for (const f of e.target.files) {
+      try { const d = JSON.parse(await f.text()); const r = Store.importJSON(d); total.works += r.works; total.feedback += r.feedback; total.notes += r.notes; } catch (err) {}
+    }
+    UI.toast(`취합 완료: 작품 ${total.works} · 피드백 ${total.feedback} · 노트 ${total.notes}`); load();
+  });
+  document.getElementById('q').addEventListener('input', () => { renderWorks(); renderNotes(); });
+  document.getElementById('f-kind').addEventListener('change', () => { renderWorks(); renderNotes(); });
+
+  if (!Auth.isTeacher()) UI.toast('교사 계정으로 로그인하면 관리 기능이 모두 열려요(현재는 열람만).');
+  load();
+</script>
+</body>
+</html>

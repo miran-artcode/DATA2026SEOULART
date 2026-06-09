@@ -1,268 +1,89 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>그림이 분해되어 다시 연주되다 · 데이터 미디어아트 스튜디오</title>
-  <meta name="description" content="명화·작품 이미지를 K-means로 분석하고, 학생이 의도와 조작 설정으로 인터랙티브 제너러티브 미디어아트로 변환하는 수업용 웹 도구." />
-  <link rel="stylesheet" href="css/style.css" />
-  <!-- p5.js (로컬 동봉 = 오프라인/불안정 네트워크에서도 동작). 버전 1.9.4 -->
-  <script src="vendor/p5.min.js" defer></script>
-  <script src="js/kmeans.js" defer></script>
-  <script src="js/analysis.js" defer></script>
-  <script src="js/audio.js" defer></script>
-  <script src="js/particles.js" defer></script>
-  <script src="js/app.js" defer></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>데이터의 눈으로 그림 읽기 · 로그인</title>
+<meta name="description" content="분석에서 창작까지 — 데이터로 그림을 읽고, 인터랙티브 미디어아트로 재창조하는 수업 사이트." />
+<link rel="stylesheet" href="css/site.css" />
 </head>
 <body>
-  <!-- 상단 바 -->
-  <header class="topbar">
-    <div class="brand">
-      <span class="logo">◎</span>
-      <div>
-        <h1>그림이 분해되어 다시 연주되다</h1>
-        <p>데이터 미디어아트 스튜디오 — 분석하고, 설계하고, 연주하라</p>
+<div id="app-header"></div>
+
+<div class="wrap narrow">
+  <div class="page-head" style="text-align:center; margin-top:18px">
+    <span class="eyebrow">서울미술고등학교 · AI 융합수업</span>
+    <h1>데이터의 눈으로 그림 읽기 — 분석에서 창작까지</h1>
+    <p>그림과 데이터를 <b>여러 알고리즘으로 분석</b>하고, 당신의 <b>의도와 조작 설정</b>으로<br>
+       인터랙티브 제너러티브 미디어아트로 <b>재창조</b>합니다.</p>
+  </div>
+
+  <div class="grid c2" style="align-items:start">
+    <div class="card">
+      <h3>로그인 / 시작하기</h3>
+      <p class="muted" style="font-size:13px">처음이면 이름·반/번호·PIN을 정하면 계정이 만들어져요.</p>
+      <label class="field">이름</label>
+      <input id="f-name" type="text" placeholder="실명 또는 별명" autocomplete="off" />
+      <label class="field">반-번호 (선택)</label>
+      <input id="f-klass" type="text" placeholder="예: 2-7" autocomplete="off" />
+      <div class="grid c2">
+        <div>
+          <label class="field">PIN (숫자 4자리)</label>
+          <input id="f-pin" type="password" inputmode="numeric" maxlength="4" placeholder="****" autocomplete="off" />
+        </div>
+        <div>
+          <label class="field">표시 이름 (갤러리)</label>
+          <input id="f-display" type="text" placeholder="비우면 이름 사용" autocomplete="off" />
+        </div>
       </div>
+      <label class="field">역할</label>
+      <select id="f-role"><option value="student">학생</option><option value="teacher">교사</option></select>
+      <div style="margin-top:14px; display:flex; gap:8px">
+        <button id="btn-login" class="btn primary wide">시작하기 →</button>
+      </div>
+      <p class="muted" style="font-size:12px; margin-top:10px">
+        로그인 없이 <a href="hub.html">둘러보기</a>도 가능해요(저장·전시는 로그인 필요).</p>
     </div>
-    <div class="top-actions">
-      <button id="btn-upload" class="btn primary">🖼 이미지 업로드</button>
-      <button id="btn-analyze" class="btn">🔬 분석 실행</button>
-      <button id="btn-save-img" class="btn">⬇ 이미지 저장</button>
-      <button id="btn-help" class="btn ghost" title="도움말">？</button>
-      <button id="btn-toggle-panel" class="btn ghost only-mobile" title="설정 패널">⚙</button>
-    </div>
-  </header>
 
-  <main class="layout">
-    <!-- 캔버스(작품) -->
-    <section id="canvas-holder" class="stage">
-      <div id="busy" class="busy"><div class="spinner"></div><span>분석 중…</span></div>
-    </section>
-
-    <!-- 설정 패널 -->
-    <aside class="panel">
-
-      <details open>
-        <summary>1 · 이미지</summary>
-        <div class="sect">
-          <div class="row">
-            <label>데모 이미지</label>
-            <select id="sel-demo">
-              <option value="sunset">석양</option>
-              <option value="abstract">추상</option>
-              <option value="forest">바다·숲</option>
-            </select>
-          </div>
-          <p class="hint">파일을 캔버스로 끌어다 놓아도 됩니다. (저작권·출처는 아래 ‘윤리·리포트’에 기록)</p>
-          <div id="thumb-wrap" class="thumb-wrap"><canvas id="thumb"></canvas><span>원본</span></div>
-          <input id="file-input" type="file" accept="image/*" hidden />
-        </div>
-      </details>
-
-      <details open>
-        <summary>2 · 분석 (K-means)</summary>
-        <div class="sect">
-          <div class="row">
-            <label>K (대표색 개수) <output id="out-k">8</output></label>
-            <input id="rng-k" type="range" min="2" max="24" step="1" value="8" />
-          </div>
-          <div class="row two">
-            <div>
-              <label>색공간</label>
-              <select id="sel-space">
-                <option value="rgb">RGB</option>
-                <option value="lab">LAB(심화)</option>
-              </select>
-            </div>
-            <div>
-              <label>샘플링</label>
-              <select id="sel-sampling">
-                <option value="uniform">무작위</option>
-                <option value="bright">밝은영역</option>
-                <option value="dark">어두운영역</option>
-                <option value="edge">윤곽(에지)</option>
-              </select>
-            </div>
-          </div>
-          <div class="palette-head">
-            <span>팔레트 · 비율</span>
-            <button id="btn-shuffle" class="mini" title="같은 설정에서 다른 결과">🎲 다시</button>
-          </div>
-          <div id="palette" class="palette"></div>
-          <p id="palette-meta" class="hint"></p>
-        </div>
-      </details>
-
-      <details open>
-        <summary>3 · 점(입자)</summary>
-        <div class="sect">
-          <div class="row">
-            <label>N (점 개수) <output id="out-n">4,000</output></label>
-            <input id="rng-n" type="range" min="500" max="16000" step="100" value="4000" />
-          </div>
-          <div class="row">
-            <label>점 크기 <output id="out-size">3</output></label>
-            <input id="rng-size" type="range" min="0.5" max="12" step="0.5" value="3" />
-          </div>
-          <div class="row">
-            <label>색 모드</label>
-            <select id="sel-colormode">
-              <option value="cluster">대표색(군집)</option>
-              <option value="original">원본색</option>
-            </select>
-          </div>
-        </div>
-      </details>
-
-      <details open>
-        <summary>4 · 움직임</summary>
-        <div class="sect">
-          <div class="row">
-            <label>표현 모드</label>
-            <select id="sel-mode">
-              <option value="points">점</option>
-              <option value="lines">점 + 선(변위)</option>
-              <option value="3d">3D 조각</option>
-            </select>
-          </div>
-          <div class="row">
-            <label>복귀력(집중) <output id="out-return">0.08</output></label>
-            <input id="rng-return" type="range" min="0.005" max="0.3" step="0.005" value="0.08" />
-          </div>
-          <div class="row">
-            <label>진동 <output id="out-vibration">0</output></label>
-            <input id="rng-vibration" type="range" min="0" max="5" step="0.1" value="0" />
-          </div>
-          <div class="row">
-            <label>잔상(트레일) <output id="out-trail">255</output></label>
-            <input id="rng-trail" type="range" min="10" max="255" step="5" value="255" />
-          </div>
-          <label class="chk"><input id="chk-additive" type="checkbox" /> 발광(빛 번짐) 효과</label>
-          <div id="row-3d" class="threeD" style="display:none">
-            <div class="row">
-              <label>3D 회전 속도 <output id="out-rotate">0.004</output></label>
-              <input id="rng-rotate" type="range" min="0" max="0.03" step="0.001" value="0.004" />
-            </div>
-            <div class="row">
-              <label>3D 깊이(밝기→입체) <output id="out-depth">220</output></label>
-              <input id="rng-depth" type="range" min="0" max="500" step="10" value="220" />
-            </div>
-            <p class="hint">3D 모드에서는 캔버스를 드래그해 직접 돌릴 수 있어요.</p>
-          </div>
-        </div>
-      </details>
-
-      <details open>
-        <summary>5 · 인터랙션</summary>
-        <div class="sect">
-          <p class="grp">🖱 마우스</p>
-          <div class="row">
-            <label>마우스 반응</label>
-            <select id="sel-mouse">
-              <option value="repel">밀어내기</option>
-              <option value="attract">끌어당기기</option>
-              <option value="swell">부풀리기(크기↑)</option>
-              <option value="scatter">흩뿌리기</option>
-              <option value="none">없음</option>
-            </select>
-          </div>
-          <div class="row two">
-            <div>
-              <label>반경 <output id="out-mradius">130</output></label>
-              <input id="rng-mradius" type="range" min="30" max="320" step="10" value="130" />
-            </div>
-            <div>
-              <label>세기 <output id="out-mstrength">1</output></label>
-              <input id="rng-mstrength" type="range" min="0.2" max="3" step="0.1" value="1" />
-            </div>
-          </div>
-          <label class="chk"><input id="chk-explode" type="checkbox" checked /> 클릭 시 폭발</label>
-
-          <p class="grp">🎤 마이크(소리)</p>
-          <button id="btn-mic" class="btn wide">마이크 켜기</button>
-          <div class="row">
-            <label>감도 <output id="out-msens">1.2</output></label>
-            <input id="rng-msens" type="range" min="0.3" max="3" step="0.1" value="1.2" />
-          </div>
-          <div class="row">
-            <label>볼륨이 바꾸는 것</label>
-            <select id="sel-mtarget">
-              <option value="vibration">진동</option>
-              <option value="spread">확산</option>
-              <option value="size">크기</option>
-            </select>
-          </div>
-          <label class="chk"><input id="chk-freq" type="checkbox" checked /> 주파수(저·중·고음) → 밝기별 색 군집 반응</label>
-          <div id="mic-meters" class="meters">
-            <div class="meter"><span>음량</span><div class="bar"><i id="m-vol"></i></div></div>
-            <div class="meter"><span>저음</span><div class="bar"><i id="m-low"></i></div></div>
-            <div class="meter"><span>중음</span><div class="bar"><i id="m-mid"></i></div></div>
-            <div class="meter"><span>고음</span><div class="bar"><i id="m-high"></i></div></div>
-          </div>
-        </div>
-      </details>
-
-      <details>
-        <summary>6 · 프리셋</summary>
-        <div class="sect presets">
-          <button class="btn wide" data-preset="pointillism">🟤 점묘화(고요)</button>
-          <button class="btn wide" data-preset="living">🌬 살아있는 캔버스</button>
-          <button class="btn wide" data-preset="sound">🎵 소리로 연주</button>
-          <button class="btn wide" data-preset="nebula">🌌 성운·해체</button>
-          <button class="btn wide" data-preset="sculpture">🗿 3D 조각</button>
-        </div>
-      </details>
-
-      <details>
-        <summary>7 · 내보내기</summary>
-        <div class="sect">
-          <button id="btn-record" class="btn wide">● 영상 녹화</button>
-          <div class="row two">
-            <button id="btn-copy-palette" class="btn">팔레트 복사</button>
-            <button id="btn-report" class="btn">리포트(.md)</button>
-          </div>
-          <div class="row two">
-            <button id="btn-save-settings" class="btn">설정 저장</button>
-            <button id="btn-load-settings" class="btn">설정 불러오기</button>
-          </div>
-          <input id="settings-input" type="file" accept="application/json,.json" hidden />
-        </div>
-      </details>
-
-      <details>
-        <summary>8 · 윤리 · 리포트 정보</summary>
-        <div class="sect">
-          <div class="row"><label>작품명</label><input id="in-title" type="text" placeholder="예: 별이 빛나는 밤" /></div>
-          <div class="row"><label>작가</label><input id="in-artist" type="text" placeholder="예: 빈센트 반 고흐" /></div>
-          <div class="row"><label>출처·라이선스</label><input id="in-source" type="text" placeholder="예: 퍼블릭 도메인 / 출처 URL" /></div>
-          <div class="row"><label>제작자(학생)</label><input id="in-student" type="text" placeholder="이름/학번" /></div>
-          <div class="row"><label>관람 경험 목표(의도, 한 문장)</label><input id="in-intent" type="text" placeholder="예: 소리로 그림을 '연주'하는 경험" /></div>
-          <p class="hint warn">⚠ 마이크 음성은 저장되지 않고 실시간 분석값만 사용합니다. 색 분석·요약은 K-means(알고리즘)이며, 의도와 규칙 설계는 학생의 몫입니다.</p>
-        </div>
-      </details>
-
-    </aside>
-  </main>
-
-  <!-- 토스트 알림 -->
-  <div id="toast" class="toast"></div>
-
-  <!-- 도움말 모달 -->
-  <div id="modal-help" class="modal">
-    <div class="modal-box">
-      <button id="btn-help-close" class="modal-close">✕</button>
-      <h2>사용법 — 분석하고, 설계하고, 연주하기</h2>
-      <ol>
-        <li><b>이미지 넣기</b> · 상단 ‘이미지 업로드’ 또는 데모 선택(파일을 끌어다 놓아도 됨).</li>
-        <li><b>분석(K-means)</b> · K(대표색 개수)·색공간·샘플링을 바꾸면 그림의 색 구조가 어떻게 요약되는지 비교해 보세요. 팔레트의 색을 클릭하면 그 색 군집을 켜고 끌 수 있어요.</li>
-        <li><b>점 설계</b> · N(점 개수)과 크기, 색 모드(대표색/원본색)로 ‘해상도’와 ‘표현 전략’을 정합니다.</li>
-        <li><b>움직임</b> · 복귀력·진동·잔상·발광, 그리고 <b>3D 조각</b>(밝기→깊이) 모드.</li>
-        <li><b>인터랙션</b> · 마우스(밀기/끌기/부풀리기/흩뿌리기·클릭 폭발)와 마이크(볼륨→진동·확산·크기, 주파수→밝기별 색 군집 반응).</li>
-        <li><b>내보내기</b> · 이미지/영상 저장, 팔레트 복사, <b>분석 리포트·설계서(.md)</b>와 설정(JSON) 저장으로 수업 제출물을 만듭니다.</li>
-      </ol>
-      <p class="hint">탐구 질문: K를 바꾸면 색 구조는? 어떤 K가 분위기를 가장 잘 살리나? N이 정보·감정에 주는 영향은? 소리·마우스는 관람 경험을 어떻게 바꾸나?</p>
-      <p class="hint">※ K-means의 색 요약은 ‘정답’이 아니라 손실이 있는 근사·해석입니다.</p>
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <h3>두 가지 수업, 하나의 스튜디오</h3>
+        <p style="font-size:13.5px"><b>① 보이지 않는 질서 (5.10.5)</b> — 명화를 K-means로 분석해 대표색 점으로 치환, 소리·마우스로 ‘연주’.</p>
+        <p style="font-size:13.5px"><b>② 데이터가 춤추는 점 (5.10.4)</b> — 우리 데이터를 점의 크기·속도·방향·밀도로 변환해 움직이는 작품으로.</p>
+        <hr class="sep" />
+        <p class="muted" style="font-size:12.5px">7가지 분석 알고리즘 · 색 분석 차트 · 알고리즘 배움터 · 전시 갤러리 · 작업 노트 · AI 감상 코치까지.</p>
+      </div>
+      <div id="privacy-note"></div>
     </div>
   </div>
+  <p class="footer-note">© 서울미술고등학교 데이터 미디어아트 스튜디오 · 교육용</p>
+</div>
+
+<script src="js/explain.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script>
+  document.getElementById('privacy-note').innerHTML = UI.callout(
+    '<b>개인정보 안내</b> · PIN 4자리는 ‘실수 방지 잠금’ 수준이에요(진짜 보안 아님). 미성년자 정보이니 <b>학교 개인정보 방침</b>을 먼저 확인하고, 필요하면 표시 이름을 별명/코드로 바꾸세요.', 'warn');
+
+  const qs = new URLSearchParams(location.search);
+  const next = qs.get('next') || 'hub.html';
+  function doLogin() {
+    try {
+      Auth.login({
+        name: document.getElementById('f-name').value,
+        klass: document.getElementById('f-klass').value,
+        pin: document.getElementById('f-pin').value,
+        display: document.getElementById('f-display').value,
+        role: document.getElementById('f-role').value
+      });
+      location.href = next;
+    } catch (e) { UI.toast(e.message); }
+  }
+  document.getElementById('btn-login').addEventListener('click', doLogin);
+  document.getElementById('f-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  if (Auth.current()) UI.toast('이미 로그인되어 있어요. 상단 메뉴로 이동하세요.');
+</script>
 </body>
 </html>
