@@ -8,7 +8,23 @@
   --line: #2a3145; --text: #e8ecf6; --muted: #9aa3bd; --muted2: #767f9b;
   --accent: #ffb454; --accent2: #4ec3ff; --good: #51d88a; --danger: #ff5a6a; --adv: #c08bff;
   --radius: 14px; --maxw: 1200px;
+  --header: rgba(17, 21, 33, .86);
 }
+/* ☀ 밝은 테마 — 읽기·작업 화면을 밝게(작품 캔버스는 몰입을 위해 어둡게 유지) */
+:root[data-theme="light"] {
+  --bg: #f4f6fb; --bg2: #eaedf5;
+  --panel: #ffffff; --panel2: #f1f3f9; --panel3: #e7eaf3;
+  --line: #d8deec; --text: #1b2233; --muted: #5b6580; --muted2: #8089a0;
+  --header: rgba(255, 255, 255, .9);
+}
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, #e7ecff 0%, transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, #fff0e6 0%, transparent 55%),
+    var(--bg);
+}
+:root[data-theme="light"] .btn.ghost { background: transparent; }
+:root[data-theme="light"] .toast { background: #fff; color: var(--text); }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body {
@@ -26,7 +42,7 @@ a:hover { text-decoration: underline; }
 .site-header {
   position: sticky; top: 0; z-index: 40; height: 56px;
   display: flex; align-items: center; justify-content: space-between; gap: 14px;
-  padding: 0 18px; background: rgba(17, 21, 33, .86); backdrop-filter: blur(10px);
+  padding: 0 18px; background: var(--header); backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
 }
 .site-brand { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 15px; white-space: nowrap; }

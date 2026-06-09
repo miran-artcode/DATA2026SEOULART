@@ -68,6 +68,13 @@
         <h3>🎙 도슨트 해설 <span class="muted" style="font-size:12px">(자동 생성)</span></h3>
         <p style="line-height:1.75;margin:0">${esc(Docent.commentary(work))}</p>
       </div>` : '';
+    const rec = (work.settings && work.settings.record) || {};
+    const recItems = [['감각 먼저', rec.sense], ['무엇을 셌나', rec.count], ['뺀 것(생략)', rec.omit], ['척도·매핑 이유', rec.scale], ['놓친 진실(메타비평)', rec.miss]].filter(x => x[1]);
+    const recordHTML = recItems.length ? `
+      <div class="card" style="margin-top:16px">
+        <h3 class="with-info">📝 데이터 선택 기록 <span class="info-ic" data-info="data-humanism">ⓘ</span></h3>
+        ${recItems.map(([k, v]) => `<p style="margin:5px 0"><b>${k}</b> · ${esc(v)}</p>`).join('')}
+      </div>` : '';
     const notes = (work.userId ? (await Store.listNotes(work.userId)) : []).filter(hasContent).slice(0, 8);
     const processHTML = notes.length ? `
       <div class="card" style="margin-top:16px">
@@ -89,6 +96,7 @@
       </div>
 
       ${docentHTML}
+      ${recordHTML}
       ${processHTML}
 
       <div class="card" style="margin-top:16px">

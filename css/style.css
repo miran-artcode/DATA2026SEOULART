@@ -267,3 +267,11 @@ input[type="range"]::-moz-range-thumb {
 .km-level .km-ol, .km-level .km-ul { margin: 8px 0; padding-left: 20px; }
 .km-level .km-ol li, .km-level .km-ul li { margin: 5px 0; }
 .km-level code { background: var(--panel2); padding: 1px 6px; border-radius: 5px; }
+
+/* ☀ 밝은 테마 — 패널/배경을 밝게(작품 캔버스는 앱이 어둡게 칠해 '액자' 느낌 유지) */
+:root[data-theme="light"] {
+  --bg: #eef1f8; --bg2: #e6e9f2; --panel: #ffffff; --panel2: #f1f3f9;
+  --line: #d8deec; --text: #1b2233; --muted: #5b6580;
+}
+:root[data-theme="light"] .topbar { background: var(--panel); }
+:root[data-theme="light"] #pal-canvas { background: #0c0e16; }

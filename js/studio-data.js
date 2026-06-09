@@ -262,8 +262,10 @@
     return c.toDataURL('image/jpeg', 0.6);
   }
   function settings() {
+    const v = id => { const el = $('#' + id); return el ? el.value.trim() : ''; };
     return { mapping: state.mapping, baseSpeed: state.baseSpeed, vib: state.vib, trail: state.trail,
       dataName: $('#in-dataname').value || state.dataName,
+      record: { sense: v('rec-sense'), count: v('rec-count'), omit: v('rec-omit'), scale: v('rec-scale'), miss: v('rec-miss') },
       fields: state.dataset ? state.dataset.fields : [], rows: state.dataset ? state.dataset.rows : [] };
   }
   function requireUser() { const u = Auth.current(); if (!u) { UI.toast('로그인이 필요합니다.'); setTimeout(() => location.href = 'index.html?next=studio-data.html', 900); return null; } return u; }

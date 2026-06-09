@@ -7,6 +7,9 @@
 (function (global) {
   'use strict';
 
+  // 저장된 테마를 가능한 한 일찍 적용(깜빡임 최소화)
+  try { if (localStorage.getItem('dn_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) {}
+
   const NAV = [
     { label: '만들기', drop: [
       { href: 'studio-color.html', t: '색 군집 스튜디오', s: '명화를 대표색 점으로 (5.10.5)' },
@@ -46,6 +49,7 @@
       <header class="site-header">
         <a class="site-brand" href="hub.html"><span class="logo">◎</span> 데이터의 눈</a>
         <nav class="site-nav">${navHTML}</nav>
+        <button class="btn sm ghost" id="theme-toggle" title="밝은/어두운 테마" style="margin-right:4px">🌗</button>
         <div class="site-user" id="site-user"></div>
       </header>`;
 
@@ -59,7 +63,19 @@
     });
     document.addEventListener('click', () => document.querySelectorAll('.navdrop').forEach(o => o.classList.remove('open')));
 
+    const tt = document.getElementById('theme-toggle');
+    if (tt) { updateThemeIcon(tt); tt.addEventListener('click', UI.toggleTheme); }
     UI.renderUser();
+  };
+
+  function currentTheme() { return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
+  function updateThemeIcon(btn) { const light = currentTheme() === 'light'; btn.textContent = light ? '🌙' : '🌞'; btn.title = light ? '어둡게' : '밝게'; }
+  UI.toggleTheme = function () {
+    const next = currentTheme() === 'light' ? 'dark' : 'light';
+    if (next === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    else document.documentElement.removeAttribute('data-theme');
+    try { localStorage.setItem('dn_theme', next); } catch (e) {}
+    const tt = document.getElementById('theme-toggle'); if (tt) updateThemeIcon(tt);
   };
 
   UI.renderUser = function () {

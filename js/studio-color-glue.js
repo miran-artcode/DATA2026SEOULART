@@ -48,6 +48,17 @@
     bar.appendChild(bCoach); bar.appendChild(bExhibit);
     bCoach.addEventListener('click', coach);
     bExhibit.addEventListener('click', exhibitForm);
+
+    const bTheme = mk('🌗', '밝은/어두운 테마');
+    bar.appendChild(bTheme);
+    const setIcon = () => { bTheme.textContent = document.documentElement.getAttribute('data-theme') === 'light' ? '🌙' : '🌞'; };
+    setIcon();
+    bTheme.addEventListener('click', () => {
+      const light = document.documentElement.getAttribute('data-theme') === 'light';
+      if (light) { document.documentElement.removeAttribute('data-theme'); try { localStorage.setItem('dn_theme', 'dark'); } catch (e) {} }
+      else { document.documentElement.setAttribute('data-theme', 'light'); try { localStorage.setItem('dn_theme', 'light'); } catch (e) {} }
+      setIcon();
+    });
   }
 
   async function coach() {
