@@ -15,10 +15,11 @@
     const s = w.settings || {}, parts = [];
     if (w.kind === 'data') {
       parts.push('데이터: ' + (w.dataName || '—'));
-      const m = []; const mp = s.mapping || {};
-      if (mp.mSize) m.push('크기'); if (mp.mSpeed) m.push('속도'); if (mp.mDir) m.push('방향'); if (mp.mDensity) m.push('밀도'); if (mp.mAlpha) m.push('투명도'); if (mp.mShape) m.push('형태');
-      parts.push('매핑: ' + (m.join('·') || '—'));
-      if (s.color) parts.push('색: ' + (COLORLBL[s.color] || s.color));
+      const m = (window.Docent && Docent.mapSummary) ? Docent.mapSummary(s.mapping) : [];
+      if (m.length) parts.push('매핑: ' + m.join(' · '));
+      const cm = s.mapping && s.mapping.colorMode;
+      if (cm) parts.push('색: ' + ({ gradient: '그라데이션', category: '범주별', solid: '단색' }[cm] || cm));
+      else if (s.color) parts.push('색: ' + (COLORLBL[s.color] || s.color));
     } else if (w.kind === 'color') {
       if (s.K) parts.push('대표색 K=' + s.K);
       if (s.space) parts.push('색공간 ' + String(s.space).toUpperCase());

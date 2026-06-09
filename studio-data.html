@@ -15,6 +15,17 @@
   .dpanel summary::-webkit-details-marker { display: none; }
   .dpanel .sect { padding: 4px 15px 16px; }
   @media (max-width: 880px) { .dstudio { grid-template-columns: 1fr; } #dstage { height: 52vh; } }
+  .map-grid { display: flex; flex-direction: column; gap: 7px; }
+  .map-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+  .map-row > span:first-child { flex: 0 0 52px; color: var(--muted); }
+  .map-row select { flex: 1; }
+  .field-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .field-chips .chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .field-chips .chip.num { color: var(--accent2); border-color: rgba(78,195,255,.4); }
+  .field-chips .chip.cat { color: var(--good); border-color: rgba(81,216,138,.4); }
+  #label-config { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .label-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  input[type=color] { width: 42px; height: 26px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; cursor: pointer; vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -24,7 +35,7 @@
   <div class="page-head">
     <span class="eyebrow">데이터 점 스튜디오 · 5.10.4</span>
     <h1>데이터가 춤추는 점</h1>
-    <p>우리 데이터를 점의 <b>크기·속도·방향(벡터)·밀도</b>로 번역해 움직이는 작품으로. 매핑은 ‘효과’가 아니라 <b>해석</b>이에요.</p>
+    <p>우리 데이터(여러 열)를 점의 <b>크기·속도·방향·밀도·투명도·형태·색</b>으로 번역해 움직이는 작품으로. <b>어떤 열을 어떻게</b> 매핑할지 직접 설계하세요 — 매핑은 ‘효과’가 아니라 <b>해석</b>이에요.</p>
   </div>
   <div id="idea"></div>
 
@@ -37,49 +48,66 @@
         <div class="sect">
           <label class="field">샘플 데이터</label>
           <select id="sel-sample">
-            <option value="emotion">학급 감정 온도 (24명)</option>
-            <option value="temp">하루 기온 (24시간)</option>
-            <option value="steps">활동량(걸음) 12구간</option>
-            <option value="noise">교실 소음 18구간</option>
+            <option value="emotion">감정 온도 (시간·감정)</option>
+            <option value="classday">우리 반 하루 — 다중 열(시간·감정·활동량·활동)</option>
+            <option value="temp">하루 기온 (시간·기온)</option>
+            <option value="weather">날씨 로그 — 다중 열(시간·기온·습도·날씨)</option>
           </select>
-          <label class="field">또는 직접 입력 (숫자, 쉼표/줄바꿈) <span class="info-ic" data-info="data-clean">ⓘ</span></label>
-          <textarea id="ta-data" rows="3" placeholder="예: 3, 4, 2, 5, 5, 1 …"></textarea>
-          <div style="display:flex; gap:8px; margin-top:8px">
+          <label class="field" style="margin-top:10px">직접 입력 / 붙여넣기 (CSV·숫자) <span class="info-ic" data-info="data-clean">ⓘ</span></label>
+          <textarea id="ta-data" rows="4" placeholder="첫 줄에 열 이름(머리글)도 가능:&#10;시간,감정온도,활동&#10;9시,3,수업&#10;10시,4,발표"></textarea>
+          <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap">
             <button id="btn-apply-data" class="btn sm">적용</button>
             <button id="btn-upload-csv" class="btn sm">CSV 열기</button>
+            <button id="btn-template" class="btn sm ghost" title="작성 양식(CSV)을 내려받아 채워 오세요">⬇ 양식 받기</button>
             <input id="csv" type="file" accept=".csv,text/csv,text/plain" hidden />
           </div>
           <p class="muted" id="data-info" style="font-size:11.5px; margin-top:8px"></p>
+          <div id="field-list" class="field-chips"></div>
         </div>
       </details>
 
       <details open>
-        <summary>2 · 매핑 규칙</summary>
+        <summary>2 · 매핑 설정 — 무엇을 어떻게</summary>
         <div class="sect">
-          <label class="chk-row"><input type="checkbox" id="m-size" checked> 값 → 점의 크기 <span class="info-ic" data-info="map-size">ⓘ</span></label>
-          <label class="chk-row"><input type="checkbox" id="m-speed" checked> 변화량 → 속도 <span class="info-ic" data-info="map-speed">ⓘ</span></label>
-          <label class="chk-row"><input type="checkbox" id="m-dir" checked> 증가/감소 → 방향(벡터) <span class="info-ic" data-info="map-direction">ⓘ</span></label>
-          <label class="chk-row"><input type="checkbox" id="m-density" checked> 값 → 밀도(점 개수) <span class="info-ic" data-info="map-density">ⓘ</span></label>
-          <label class="chk-row"><input type="checkbox" id="m-alpha"> 값 → 투명도 <span class="info-ic" data-info="map-alpha">ⓘ</span></label>
-          <label class="chk-row"><input type="checkbox" id="m-shape"> 값 구간 → 형태(△○□) <span class="info-ic" data-info="map-shape">ⓘ</span></label>
-          <div style="margin-top:10px; display:flex; gap:8px">
+          <p class="muted" style="font-size:12px;margin:0 0 8px">데이터의 <b>어떤 열</b>을 점의 <b>어떤 특성</b>으로 바꿀지 골라요. (크기·속도·방향·밀도·투명도는 수치 열)</p>
+          <div class="map-grid">
+            <div class="map-row"><span>크기 ←</span><select id="map-size" data-map="size"></select><span class="info-ic" data-info="map-size">ⓘ</span></div>
+            <div class="map-row"><span>속도 ←</span><select id="map-speed" data-map="speed"></select><span class="info-ic" data-info="map-speed">ⓘ</span></div>
+            <div class="map-row"><span>방향 ←</span><select id="map-dir" data-map="direction"></select><span class="info-ic" data-info="map-direction">ⓘ</span></div>
+            <div class="map-row"><span>밀도 ←</span><select id="map-density" data-map="density"></select><span class="info-ic" data-info="map-density">ⓘ</span></div>
+            <div class="map-row"><span>투명도 ←</span><select id="map-alpha" data-map="alpha"></select><span class="info-ic" data-info="map-alpha">ⓘ</span></div>
+            <div class="map-row"><span>형태 ←</span><select id="map-shape" data-map="shape"></select><span class="info-ic" data-info="map-shape">ⓘ</span></div>
+          </div>
+          <hr class="sep" style="margin:12px 0">
+          <label class="field">색 방식 (색은 색상환에서 직접 선택)</label>
+          <select id="map-colormode">
+            <option value="gradient">수치 → 색 그라데이션</option>
+            <option value="category">범주(라벨)별 색 지정</option>
+            <option value="solid">단색</option>
+          </select>
+          <div id="color-field-row" class="map-row" style="margin-top:8px"><span>기준 열 ←</span><select id="map-colorfield"></select></div>
+          <div id="color-grad" style="display:flex;gap:14px;margin-top:8px;align-items:center">
+            <label style="font-size:12px">낮음 <input type="color" id="map-gradlow" value="#2e86de"></label>
+            <label style="font-size:12px">높음 <input type="color" id="map-gradhigh" value="#ff5a5f"></label>
+          </div>
+          <div id="color-solid" style="margin-top:8px;display:none"><label style="font-size:12px">색 <input type="color" id="map-solid" value="#ffb454"></label></div>
+          <div id="label-config"></div>
+          <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
             <button id="btn-ruleA" class="btn sm">규칙 A 저장</button>
             <button id="btn-ruleB" class="btn sm">규칙 B 저장</button>
             <button id="btn-ab" class="btn sm">A/B 전환</button>
           </div>
-          <p class="muted" style="font-size:11.5px; margin-top:6px">규칙 2안을 저장해 비교하면 탐구문제 3·4를 ‘눈으로’ 논증할 수 있어요.</p>
           <div id="ab-summary" style="font-size:11.5px; margin-top:6px; line-height:1.65"></div>
         </div>
       </details>
 
       <details open>
-        <summary>3 · 움직임 · 색</summary>
+        <summary>3 · 움직임 · 잔상</summary>
         <div class="sect">
           <label class="field">기본 속도 <output id="o-speed">1</output></label><input id="r-speed" type="range" min="0" max="3" step="0.1" value="1">
           <label class="field">진동 <output id="o-vib">1</output></label><input id="r-vib" type="range" min="0" max="4" step="0.1" value="1">
           <label class="field">잔상(트레일) <output id="o-trail">200</output></label><input id="r-trail" type="range" min="20" max="255" step="5" value="200">
-          <label class="field">색</label>
-          <select id="sel-color"><option value="value">값 그라데이션(한↔난색)</option><option value="warm">난색</option><option value="cool">한색</option></select>
+          <p class="muted" style="font-size:11.5px;margin-top:8px">속도·방향은 ‘변화량(데이터가 얼마나 변했나)’으로 움직여요 — 데이터의 특성이 곧 움직임이 됩니다.</p>
         </div>
       </details>
 
