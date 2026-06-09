@@ -45,12 +45,34 @@
     </div></div>`;
   }
 
+  const NOTE_KIND = { reflection: '성찰', lab: '분석 메모', data: '데이터 작업', color: '색 작업' };
+  function noteHTML(n) {
+    const when = n.updatedAt ? new Date(n.updatedAt).toLocaleDateString('ko-KR') : '';
+    let inner = '';
+    if (n.memos && Object.keys(n.memos).length) inner = Object.entries(n.memos).map(([k, v]) => `<b>${esc(k)}</b>: ${esc(v)}`).join('<br>');
+    else inner = [n.aiHelp && ('🤖 ' + esc(n.aiHelp)), n.myDecision && ('🙋 ' + esc(n.myDecision)), n.line && ('✍ ' + esc(n.line)), n.intent && ('의도: ' + esc(n.intent))].filter(Boolean).join('<br>');
+    return `<div class="lvl" style="margin:8px 0"><div class="lvl-b"><span class="badge">${NOTE_KIND[n.kind] || n.kind}</span>
+      <span class="muted" style="font-size:11px">${when}</span><div style="margin-top:4px">${inner || '<span class="muted">내용 없음</span>'}</div></div></div>`;
+  }
+  const hasContent = n => n.line || n.aiHelp || n.myDecision || (n.memos && Object.keys(n.memos).length) || n.intent;
+
   async function render() {
     work = await Store.getWork(id);
     if (!work) { $('#work-root').innerHTML = UI.callout('작품을 찾을 수 없어요. 클라우드 전시라면 같은 링크/네트워크인지 확인하세요.', 'warn'); return; }
     const fbs = await Store.listFeedback(id);
     const u = Auth.current();
     const st = story(work);
+    const docentHTML = window.Docent ? `
+      <div class="card" style="margin-top:16px">
+        <h3>🎙 도슨트 해설 <span class="muted" style="font-size:12px">(자동 생성)</span></h3>
+        <p style="line-height:1.75;margin:0">${esc(Docent.commentary(work))}</p>
+      </div>` : '';
+    const notes = (work.userId ? (await Store.listNotes(work.userId)) : []).filter(hasContent).slice(0, 8);
+    const processHTML = notes.length ? `
+      <div class="card" style="margin-top:16px">
+        <h3>🧭 작가의 과정·성찰 <span class="muted" style="font-size:12px">— 학습 과정도 작품의 일부예요</span></h3>
+        ${notes.map(noteHTML).join('')}
+      </div>` : '';
     $('#work-root').innerHTML = `
       <div class="card">
         ${work.thumb ? `<img src="${work.thumb}" alt="작품" style="width:100%;border-radius:12px;border:1px solid var(--line)">` : '<p class="muted">미리보기 없음</p>'}
@@ -64,6 +86,9 @@
         ${work.evidence ? `<p><b>조형/데이터 근거</b> · ${esc(work.evidence)}</p>` : ''}
         ${st.length ? `<p class="muted" style="font-size:13px"><b>데이터·알고리즘</b> · ${st.map(esc).join(' · ')}</p>` : ''}
       </div>
+
+      ${docentHTML}
+      ${processHTML}
 
       <div class="card" style="margin-top:16px">
         <h3 class="with-info">감상·비평 <span class="info-ic" data-info="critique">ⓘ</span> <span class="muted" style="font-size:12px">(${fbs.length})</span></h3>

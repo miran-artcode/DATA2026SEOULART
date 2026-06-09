@@ -9,7 +9,8 @@
   const COLORLBL = { value: '값 그라데이션', warm: '난색', cool: '한색' };
   const ADVANCE = 9000;
 
-  let works = [], idx = 0, playing = true, timer = null, progTimer = null, progStart = 0;
+  let works = [], allWorks = [], themeFilter = '', idx = 0, playing = true, timer = null, progTimer = null, progStart = 0;
+  const ord = w => (w.exhibitOrder == null ? 9999 : w.exhibitOrder);
 
   function baseURL() {
     const saved = localStorage.getItem('dn_exhibit_base');
@@ -35,6 +36,8 @@
   async function renderSlide() {
     const w = works[idx]; if (!w) return;
     const fbs = await Store.listFeedback(w.id);
+    const notes = w.userId ? (await Store.listNotes(w.userId)) : [];
+    const procCount = notes.filter(n => n.line || n.aiHelp || n.myDecision || (n.memos && Object.keys(n.memos).length)).length;
     const st = story(w);
     $('#kroot').innerHTML = `
       <div class="stage">
@@ -46,6 +49,8 @@
           ${w.intent ? `<div class="statement"><b>작가노트</b> — ${esc(w.intent)}</div>` : ''}
           ${w.evidence ? `<div class="statement muted">근거 · ${esc(w.evidence)}</div>` : ''}
           ${st ? `<div class="meta">${esc(st)}</div>` : ''}
+          ${procCount ? `<div class="meta">🧭 과정·성찰 ${procCount}편 — QR을 스캔해 학습 과정도 함께 보세요</div>` : ''}
+          ${window.Docent ? `<details class="meta"><summary style="cursor:pointer;color:var(--accent2)">🎙 도슨트 해설</summary><div style="margin-top:6px;line-height:1.7">${esc(Docent.commentary(w))}</div></details>` : ''}
           <div class="qr-box">
             <canvas id="qr"></canvas>
             <div class="cap"><b>📱 스캔하면 감상·비평</b><br>휴대폰으로 QR을 찍어 이 작품에 감상과 비평을 남겨 주세요.<br><span class="muted">현재 비평 ${fbs.length}개</span></div>
@@ -74,12 +79,28 @@
     if (p) { schedule(); restartProgress(); } else { clearTimeout(timer); $('#progress').style.transition = 'none'; }
   }
 
+  function applyFilterSort() {
+    works = allWorks.filter(w => !themeFilter || (w.theme || '') === themeFilter);
+    works.sort((a, b) => (ord(a) - ord(b)) || (b.updatedAt - a.updatedAt));
+    idx = 0;
+  }
+  function populateThemes() {
+    const sel = $('#k-theme'); if (!sel) return;
+    const themes = Array.from(new Set(allWorks.map(w => w.theme).filter(Boolean)));
+    if (!themes.length) { sel.classList.add('hide'); return; }
+    sel.classList.remove('hide');
+    sel.innerHTML = '<option value="">전체 테마</option>' + themes.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+    sel.addEventListener('change', () => { themeFilter = sel.value; applyFilterSort(); renderSlide(); if (playing) schedule(); });
+  }
+
   async function init() {
-    works = await Store.listWorks({ exhibited: true });
-    if (!works.length) {
+    allWorks = await Store.listWorks({ exhibited: true });
+    if (!allWorks.length) {
       $('#kroot').innerHTML = `<div class="empty">${UI.callout('아직 전시된 작품이 없어요. 스튜디오에서 ‘전시하기’로 작품을 올리면 여기 키오스크에 자동으로 나타납니다.', 'info')}</div>`;
       return;
     }
+    applyFilterSort();
+    populateThemes();
     $('#controls').hidden = false;
     $('#k-prev').addEventListener('click', () => { prev(); });
     $('#k-next').addEventListener('click', () => { next(); });

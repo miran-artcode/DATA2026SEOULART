@@ -64,7 +64,8 @@
   </div>
 
   <h2 style="margin:22px 0 10px">작품</h2>
-  <div class="card" style="overflow-x:auto"><table class="data" id="tbl-works"><thead><tr><th>제목</th><th>이름</th><th>반</th><th>유형</th><th>전시</th><th>의도</th><th>피드백</th><th>시각</th></tr></thead><tbody></tbody></table></div>
+  <div class="card" style="overflow-x:auto"><table class="data" id="tbl-works"><thead><tr><th>제목</th><th>이름</th><th>반</th><th>유형</th><th>전시</th><th>순서</th><th>테마</th><th>의도</th><th>피드백</th><th>시각</th></tr></thead><tbody></tbody></table>
+  <p class="muted" style="font-size:11.5px;margin:6px 0 0">큐레이션: ‘순서’와 ‘테마’를 입력하면 키오스크 전시 순서·묶음에 반영됩니다(자동 저장).</p></div>
 
   <h2 style="margin:22px 0 10px">성찰·메모</h2>
   <div class="card" style="overflow-x:auto"><table class="data" id="tbl-notes"><thead><tr><th>이름</th><th>유형</th><th>제목</th><th>내용 요약</th><th>시각</th></tr></thead><tbody></tbody></table></div>
@@ -128,12 +129,14 @@
     return list.filter(x => (!k || x.kind === k) && (!q || fields(x).toLowerCase().includes(q)));
   }
   function renderWorks() {
-    const rows = filt(works, w => `${w.title} ${w.by} ${w.klass||''}`).map(w => `<tr>
+    const rows = filt(works, w => `${w.title} ${w.by} ${w.klass||''} ${w.theme||''}`).map(w => `<tr>
       <td>${UI.escapeHTML(w.title||'')}</td><td>${UI.escapeHTML(w.by||'')}</td><td>${UI.escapeHTML(w.klass||'')}</td>
       <td>${KIND[w.kind]||w.kind}</td><td>${w.exhibited?'✅':''}</td>
-      <td style="max-width:260px">${UI.escapeHTML((w.intent||'').slice(0,80))}</td>
+      <td><input class="cur-order" data-id="${w.id}" type="number" value="${w.exhibitOrder!=null?w.exhibitOrder:''}" style="width:52px" placeholder="-"></td>
+      <td><input class="cur-theme" data-id="${w.id}" type="text" value="${UI.escapeHTML(w.theme||'')}" style="width:90px" placeholder="테마"></td>
+      <td style="max-width:240px">${UI.escapeHTML((w.intent||'').slice(0,80))}</td>
       <td>${feedback[w.id]||0}</td><td>${new Date(w.updatedAt).toLocaleString('ko-KR')}</td></tr>`).join('');
-    document.querySelector('#tbl-works tbody').innerHTML = rows || '<tr><td colspan="8" class="muted">데이터 없음</td></tr>';
+    document.querySelector('#tbl-works tbody').innerHTML = rows || '<tr><td colspan="10" class="muted">데이터 없음</td></tr>';
   }
   function renderNotes() {
     const rows = filt(notes, n => `${n.by} ${n.title}`).map(n => {
@@ -156,6 +159,14 @@
       try { const d = JSON.parse(await f.text()); const r = Store.importJSON(d); total.works += r.works; total.feedback += r.feedback; total.notes += r.notes; } catch (err) {}
     }
     UI.toast(`취합 완료: 작품 ${total.works} · 피드백 ${total.feedback} · 노트 ${total.notes}`); load();
+  });
+  document.getElementById('tbl-works').addEventListener('change', async (e) => {
+    const t = e.target, idv = t.dataset ? t.dataset.id : null; if (!idv) return;
+    const w = works.find(x => x.id === idv); if (!w) return;
+    if (t.classList.contains('cur-order')) w.exhibitOrder = t.value === '' ? null : +t.value;
+    else if (t.classList.contains('cur-theme')) w.theme = t.value.trim();
+    else return;
+    await Store.saveWork(w); UI.toast('큐레이션 저장됨');
   });
   document.getElementById('q').addEventListener('input', () => { renderStudents(); renderWorks(); renderNotes(); });
   document.getElementById('f-kind').addEventListener('change', () => { renderWorks(); renderNotes(); });
