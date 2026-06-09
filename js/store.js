@@ -52,19 +52,26 @@
     }
   };
 
-  // 클라우드가 있으면 그것을, 없으면 로컬을 사용
-  function backend() { return global.DN_CLOUD || Local; }
+  // 클라우드가 있으면 우선 사용하되, 실패 시 로컬로 폴백(네트워크가 끊겨도 수업이 멈추지 않도록)
+  async function call(method, ...args) {
+    const cloud = global.DN_CLOUD;
+    if (cloud && typeof cloud[method] === 'function') {
+      try { return await cloud[method](...args); }
+      catch (e) { console.warn('[store] 클라우드 ' + method + ' 실패 → 로컬 폴백', e && e.message); }
+    }
+    return Local[method](...args);
+  }
 
   const Store = {
     get mode() { return global.DN_CLOUD ? 'cloud' : 'local'; },
-    saveWork: (w) => backend().saveWork(w),
-    listWorks: (f) => backend().listWorks(f),
-    getWork: (id) => backend().getWork(id),
-    deleteWork: (id) => backend().deleteWork(id),
-    addFeedback: (fb) => backend().addFeedback(fb),
-    listFeedback: (id) => backend().listFeedback(id),
-    saveNote: (n) => backend().saveNote(n),
-    listNotes: (u) => backend().listNotes(u),
+    saveWork: (w) => call('saveWork', w),
+    listWorks: (f) => call('listWorks', f),
+    getWork: (id) => call('getWork', id),
+    deleteWork: (id) => call('deleteWork', id),
+    addFeedback: (fb) => call('addFeedback', fb),
+    listFeedback: (id) => call('listFeedback', id),
+    saveNote: (n) => call('saveNote', n),
+    listNotes: (u) => call('listNotes', u),
 
     // 교사 취합용: 로컬 데이터 전체 내보내기/불러오기(병합)
     exportAll() {

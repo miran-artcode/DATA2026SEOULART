@@ -83,18 +83,25 @@ python3 -m http.server 8000   # → http://localhost:8000
 
 ---
 
-## (선택) 실시간 클라우드 공유 — 한 링크에서 학급 전체
+## 실시간 클라우드 공유 — 한 링크에서 학급 전체 [연동됨]
 
-기본 저장은 **브라우저 로컬**입니다(서버 불필요, 오프라인). 실시간 공유를 켜려면(교사 1회 설정):
-1. [Firebase 콘솔](https://console.firebase.google.com)에서 무료 프로젝트 + 웹앱 생성 → 설정값 복사.
-2. `config/cloud-config.example.js` → `config/cloud-config.js`로 복사하고 `firebaseConfig` 채움.
-3. 각 HTML의 `<script src="js/store.js">` **앞**에 `<script src="config/cloud-config.js"></script>` 추가.
+`config/cloud-config.js`가 Firebase 프로젝트 **`data-art-2026`**(Firestore)에 연결되어 있어,
+모든 페이지가 자동으로 실시간 공유 모드로 동작합니다. 설정 전/네트워크 불가 시에는 **로컬 저장으로 자동 폴백**합니다.
 
-설정 전/오프라인이면 자동으로 로컬 저장으로 폴백합니다. 그 전에는 **교사 대시보드의 ‘취합’**으로
-학생이 내보낸 JSON을 병합해 학급 전체를 한 화면에서 볼 수 있습니다.
+**남은 1회 설정(교사) — Firestore 보안 규칙 게시:**
+1. [Firebase 콘솔](https://console.firebase.google.com) → `data-art-2026` → **Firestore Database → 규칙(Rules)** 탭.
+2. `config/firestore.rules` 내용을 붙여넣고 **게시(Publish)**.
+   - (현재 데이터베이스는 ‘잠금’ 상태라 게시 전에는 읽기/쓰기가 거부됩니다 → 자동으로 로컬 폴백.)
+3. 끝! 같은 링크를 연 학생들의 작품·피드백·노트가 실시간으로 공유됩니다.
 
-> ⚠ **개인정보**: PIN 4자리는 ‘실수 방지 잠금’ 수준(진짜 보안 아님). 미성년자 정보이므로 학교 방침을 우선하고,
-> 필요하면 표시 이름을 별명/코드로. 마이크 음성은 저장하지 않습니다.
+- **강제 로컬 전환**(점검·시험용): 주소 끝에 `?local=1` (예: `gallery.html?local=1`),
+  또는 콘솔에서 `localStorage.setItem('dn_cloud_off','1')` 후 새로고침.
+- 클라우드를 안 써도 **교사 대시보드 ‘취합’**으로 학생 JSON을 병합해 모을 수 있습니다.
+
+> ⚠ **보안/개인정보**: Firebase 웹 `apiKey`는 비밀이 아니라 공개 식별자입니다(노출 정상). 실제 보안은
+> `config/firestore.rules`로 합니다. 이 규칙은 *수업 기간 한정* 설정이며, 단원 종료 후 데이터 내보내기 →
+> 프로젝트 정리를 권장합니다. PIN 4자리는 ‘실수 방지 잠금’ 수준이고, 미성년자 정보이므로 학교 방침을 우선하세요.
+> 마이크 음성은 저장하지 않습니다.
 
 ## (선택) 실제 AI 모델 켜기
 `coach.js`의 설정(localStorage `dn_coach_cfg`)에 `{ enabled:true, apiKey 또는 mode:'proxy'+endpoint, model }`을 넣으면
