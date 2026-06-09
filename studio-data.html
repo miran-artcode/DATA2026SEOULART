@@ -48,10 +48,12 @@
         <div class="sect">
           <label class="field">샘플 데이터</label>
           <select id="sel-sample">
-            <option value="emotion">감정 온도 (시간·감정)</option>
-            <option value="classday">우리 반 하루 — 다중 열(시간·감정·활동량·활동)</option>
-            <option value="temp">하루 기온 (시간·기온)</option>
-            <option value="weather">날씨 로그 — 다중 열(시간·기온·습도·날씨)</option>
+            <option value="climate">🌡 기후위기 · 평균기온</option>
+            <option value="finedust">😷 대기오염 · 미세먼지</option>
+            <option value="inequality">⚖ 소득 불평등</option>
+            <option value="extinction">🏚 지역소멸 · 인구</option>
+            <option value="animal">🐾 동물권 · 유기동물</option>
+            <option value="emotion">🙂 (개인) 우리 반 감정</option>
           </select>
           <label class="field" style="margin-top:10px">직접 입력 / 붙여넣기 (CSV·숫자) <span class="info-ic" data-info="data-clean">ⓘ</span></label>
           <textarea id="ta-data" rows="4" placeholder="첫 줄에 열 이름(머리글)도 가능:&#10;시간,감정온도,활동&#10;9시,3,수업&#10;10시,4,발표"></textarea>
@@ -62,6 +64,7 @@
             <input id="csv" type="file" accept=".csv,text/csv,text/plain" hidden />
           </div>
           <p class="muted" id="data-info" style="font-size:11.5px; margin-top:8px"></p>
+          <p id="data-issue" style="font-size:11.5px; color:var(--good); margin:4px 0 0"></p>
           <div id="field-list" class="field-chips"></div>
         </div>
       </details>

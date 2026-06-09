@@ -208,7 +208,7 @@
     $('#q-chart').addEventListener('change', drawQuizChart);
     $('#q-submit').addEventListener('click', submitQuiz);
     // 시작: 데모 분석 + 풀기 목록
-    analyzeImage(ImageAnalysis.generateDemo('sunset', 640, 480));
+    analyzeImage(ImageAnalysis.generateDemo('starrynight', 640, 480));
     renderPlay();
   });
 })();

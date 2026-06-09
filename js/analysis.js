@@ -221,80 +221,70 @@
     cv.width = w; cv.height = h;
     const ctx = cv.getContext('2d');
 
-    if (name === 'abstract') {
-      // 추상: 겹치는 반투명 도형 (칸딘스키풍)
-      ctx.fillStyle = '#1d2540'; ctx.fillRect(0, 0, w, h);
-      const cols = ['#ff5a5f', '#ffb400', '#00b3a4', '#2e86de', '#e056fd', '#f6e58d'];
-      for (let i = 0; i < 26; i++) {
-        ctx.globalAlpha = 0.55;
-        ctx.fillStyle = cols[i % cols.length];
-        const x = Math.random() * w, y = Math.random() * h, r = 30 + Math.random() * 140;
-        ctx.beginPath();
-        if (i % 3 === 0) ctx.rect(x - r / 2, y - r / 2, r, r);
-        else ctx.arc(x, y, r / 2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-    } else if (name === 'forest') {
-      // 바다·숲: 차가운 그라데이션 + 물결 획
+    // 미술사조 대표작을 절차적으로 재현(저작권 안전). 색·구도·점묘 분석에 어울리게.
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    if (name === 'starrynight') {
+      // 후기인상주의 · 고흐 〈별이 빛나는 밤〉
       const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#0b486b'); g.addColorStop(0.5, '#3b8686'); g.addColorStop(1, '#79bd9a');
+      g.addColorStop(0, '#0a1a4f'); g.addColorStop(0.6, '#143a86'); g.addColorStop(1, '#1b2a4a');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 3;
-      for (let i = 0; i < 40; i++) {
-        ctx.beginPath();
-        const y = Math.random() * h;
-        ctx.moveTo(0, y);
-        for (let x = 0; x <= w; x += 40) ctx.lineTo(x, y + Math.sin(x * 0.05 + i) * 12);
-        ctx.stroke();
-      }
-    } else if (name === 'portrait') {
-      // 인물 습작(난색 피부톤) — 피부톤 팔레트·구도 분석용
-      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#3a2a3f'); g.addColorStop(1, '#5a3a2a');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = '#2a1a12'; ctx.beginPath(); ctx.ellipse(w / 2, h * 0.5, w * 0.26, h * 0.42, 0, 0, Math.PI * 2); ctx.fill();
-      const skin = ctx.createRadialGradient(w * 0.5, h * 0.46, 20, w * 0.5, h * 0.5, w * 0.25);
-      skin.addColorStop(0, '#f1c9a5'); skin.addColorStop(1, '#c98a63');
-      ctx.fillStyle = skin; ctx.beginPath(); ctx.ellipse(w / 2, h * 0.5, w * 0.19, h * 0.27, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(220,120,110,.4)'; ctx.beginPath(); ctx.arc(w * 0.42, h * 0.55, 22, 0, 7); ctx.arc(w * 0.58, h * 0.55, 22, 0, 7); ctx.fill();
-      ctx.fillStyle = '#2b2b3a'; ctx.beginPath(); ctx.arc(w * 0.43, h * 0.47, 9, 0, 7); ctx.arc(w * 0.57, h * 0.47, 9, 0, 7); ctx.fill();
-      ctx.strokeStyle = '#a8434a'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(w * 0.5, h * 0.58, 18, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
-    } else if (name === 'pointillism') {
-      // 쇠라풍 점묘(보색 점) — '점묘=색 군집화' 연결, 산점도 분석용
+      ctx.lineWidth = 3; ctx.globalAlpha = 0.5;
+      for (let i = 0; i < 60; i++) { ctx.strokeStyle = i % 2 ? '#9bbdf0' : '#e8c84a'; const cx = rnd(0, w), cy = rnd(0, h * 0.8), r = rnd(10, 60), a0 = rnd(0, 7); ctx.beginPath(); ctx.arc(cx, cy, r, a0, a0 + 3.6); ctx.stroke(); }
+      ctx.globalAlpha = 1;
+      for (let i = 0; i < 11; i++) { const sx = rnd(40, w - 40), sy = rnd(30, h * 0.55), rr = rnd(14, 30); const sg = ctx.createRadialGradient(sx, sy, 2, sx, sy, rr); sg.addColorStop(0, '#fff7c0'); sg.addColorStop(1, 'rgba(255,210,80,0)'); ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(sx, sy, rr, 0, 7); ctx.fill(); }
+      const moon = ctx.createRadialGradient(w * 0.82, h * 0.18, 4, w * 0.82, h * 0.18, 46); moon.addColorStop(0, '#ffe9a8'); moon.addColorStop(1, 'rgba(255,180,60,0)'); ctx.fillStyle = moon; ctx.beginPath(); ctx.arc(w * 0.82, h * 0.18, 46, 0, 7); ctx.fill();
+      ctx.fillStyle = '#0c1a14'; ctx.beginPath(); ctx.moveTo(w * 0.13, h); ctx.quadraticCurveTo(w * 0.04, h * 0.4, w * 0.12, h * 0.05); ctx.quadraticCurveTo(w * 0.2, h * 0.4, w * 0.18, h); ctx.fill();
+      ctx.fillStyle = 'rgba(8,12,30,0.92)'; ctx.fillRect(0, h * 0.82, w, h * 0.18);
+    } else if (name === 'rothko') {
+      // 추상표현주의 · 로스코 색면
+      ctx.fillStyle = '#7a1f12'; ctx.fillRect(0, 0, w, h);
+      const band = (y, hh, col) => { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = 40; ctx.fillStyle = col; ctx.fillRect(w * 0.12, y, w * 0.76, hh); ctx.restore(); };
+      band(h * 0.10, h * 0.34, '#e2541d'); band(h * 0.52, h * 0.36, '#f0a93b');
+    } else if (name === 'seurat') {
+      // 신인상주의 · 쇠라 점묘 (점묘 = 색 군집화)
       ctx.fillStyle = '#e8e0c8'; ctx.fillRect(0, 0, w, h);
       for (let i = 0; i < 9000; i++) {
         const x = Math.random() * w, y = Math.random() * h, t = y / h;
-        const base = t < 0.55 ? (Math.random() < 0.5 ? [120, 170, 220] : [210, 190, 120])
-                              : (Math.random() < 0.5 ? [110, 160, 70] : [200, 140, 90]);
-        ctx.fillStyle = `rgb(${base[0] + (Math.random() * 40 - 20) | 0},${base[1] + (Math.random() * 40 - 20) | 0},${base[2] + (Math.random() * 40 - 20) | 0})`;
+        const base = t < 0.55 ? (Math.random() < 0.5 ? [120, 170, 220] : [210, 190, 120]) : (Math.random() < 0.5 ? [110, 160, 70] : [200, 140, 90]);
+        ctx.fillStyle = `rgb(${base[0]+(Math.random()*40-20)|0},${base[1]+(Math.random()*40-20)|0},${base[2]+(Math.random()*40-20)|0})`;
         ctx.beginPath(); ctx.arc(x, y, 2.2, 0, 7); ctx.fill();
       }
-    } else if (name === 'monochrome') {
-      // 흑백 명도 습작 — 노탄·명도 히스토그램 분석용
-      const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#101014'); g.addColorStop(1, '#d8d8de');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      const tones = ['#1b1b22', '#3a3a44', '#6a6a76', '#9a9aa6', '#cfcfd8'];
-      for (let i = 0; i < 14; i++) {
-        ctx.fillStyle = tones[i % tones.length];
-        const x = Math.random() * w, y = Math.random() * h, s = 40 + Math.random() * 150;
-        if (i % 2) { ctx.beginPath(); ctx.arc(x, y, s / 2, 0, 7); ctx.fill(); }
-        else ctx.fillRect(x - s / 2, y - s / 2, s, s);
-      }
+    } else if (name === 'monet') {
+      // 인상주의 · 모네 〈수련〉
+      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#3f6f8e'); g.addColorStop(0.5, '#5b8f86'); g.addColorStop(1, '#2f5d6e');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); ctx.globalAlpha = 0.5;
+      const cols = ['#cfe3d4', '#9cc0d8', '#e9b9cf', '#b7d39a', '#f3e2a0', '#7fa9c9'];
+      for (let i = 0; i < 420; i++) { ctx.fillStyle = cols[i % cols.length]; ctx.beginPath(); ctx.ellipse(rnd(0, w), rnd(0, h), rnd(8, 26), rnd(4, 12), rnd(0, 3), 0, 7); ctx.fill(); }
+      ctx.globalAlpha = 1; for (let i = 0; i < 14; i++) { ctx.fillStyle = '#d96fa0'; ctx.beginPath(); ctx.arc(rnd(40, w - 40), rnd(40, h - 40), rnd(5, 11), 0, 7); ctx.fill(); }
+    } else if (name === 'hokusai') {
+      // 우키요에 · 호쿠사이 〈가나가와 해변의 높은 파도〉
+      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#dfe7ec'); g.addColorStop(1, '#9fb6c2'); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#3a4a63'; ctx.beginPath(); ctx.moveTo(w * 0.5, h * 0.42); ctx.lineTo(w * 0.66, h * 0.62); ctx.lineTo(w * 0.34, h * 0.62); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#eef2f5'; ctx.beginPath(); ctx.moveTo(w * 0.5, h * 0.42); ctx.lineTo(w * 0.56, h * 0.5); ctx.lineTo(w * 0.44, h * 0.5); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#1c3f6e'; ctx.beginPath(); ctx.moveTo(0, h); ctx.bezierCurveTo(w * 0.2, h * 0.5, w * 0.4, h * 0.5, w * 0.55, h * 0.7); ctx.bezierCurveTo(w * 0.7, h * 0.98, w * 0.3, h, 0, h); ctx.fill();
+      ctx.fillStyle = '#2e6aa6'; ctx.beginPath(); ctx.arc(w * 0.42, h * 0.66, w * 0.22, Math.PI, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#f3f7fa'; for (let i = 0; i < 240; i++) ctx.fillRect(rnd(0, w * 0.72), rnd(h * 0.5, h), rnd(1, 4), rnd(1, 4));
+    } else if (name === 'kandinsky') {
+      // 추상 · 칸딘스키
+      ctx.fillStyle = '#1d2540'; ctx.fillRect(0, 0, w, h);
+      const cols = ['#ff5a5f', '#ffb400', '#00b3a4', '#2e86de', '#e056fd', '#f6e58d'];
+      for (let i = 0; i < 26; i++) { ctx.globalAlpha = 0.6; ctx.fillStyle = cols[i % cols.length]; const x = rnd(0, w), y = rnd(0, h), r = rnd(30, 160); ctx.beginPath(); if (i % 3 === 0) ctx.rect(x - r / 2, y - r / 2, r, r); else ctx.arc(x, y, r / 2, 0, 7); ctx.fill(); }
+      ctx.globalAlpha = 1; ctx.lineWidth = 2; ctx.strokeStyle = '#fff';
+      for (let i = 0; i < 14; i++) { ctx.beginPath(); ctx.moveTo(rnd(0, w), rnd(0, h)); ctx.lineTo(rnd(0, w), rnd(0, h)); ctx.stroke(); }
+    } else if (name === 'malevich') {
+      // 절대주의 · 말레비치
+      ctx.fillStyle = '#efe9da'; ctx.fillRect(0, 0, w, h);
+      ctx.save(); ctx.translate(w * 0.48, h * 0.46); ctx.rotate(0.06); ctx.fillStyle = '#16161a'; ctx.fillRect(-w * 0.2, -w * 0.2, w * 0.4, w * 0.4); ctx.restore();
+      ctx.save(); ctx.translate(w * 0.76, h * 0.76); ctx.rotate(-0.15); ctx.fillStyle = '#d4202a'; ctx.fillRect(-w * 0.08, -w * 0.08, w * 0.16, w * 0.16); ctx.restore();
     } else {
-      // 석양(기본): 따뜻한 방사형 그라데이션 + 해 + 수평선
-      const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#2c1a4d'); g.addColorStop(0.45, '#c1346b');
-      g.addColorStop(0.7, '#ff7e5f'); g.addColorStop(1, '#ffd194');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      const sun = ctx.createRadialGradient(w * 0.5, h * 0.62, 10, w * 0.5, h * 0.62, 120);
-      sun.addColorStop(0, '#fff3b0'); sun.addColorStop(1, 'rgba(255,180,80,0)');
-      ctx.fillStyle = sun; ctx.beginPath(); ctx.arc(w * 0.5, h * 0.62, 120, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(40,10,40,0.55)'; ctx.fillRect(0, h * 0.72, w, h * 0.28);
-      ctx.fillStyle = 'rgba(20,5,30,0.8)';
-      for (let i = 0; i < 6; i++) {
-        const bw = w / 6, x = i * bw;
-        ctx.fillRect(x + bw * 0.3, h * 0.72 - (10 + Math.random() * 40), bw * 0.4, 60);
-      }
+      // 신조형주의 · 몬드리안 (기본)
+      ctx.fillStyle = '#f4f1e6'; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#c41e25'; ctx.fillRect(0, 0, w * 0.42, h * 0.46);
+      ctx.fillStyle = '#1d4e9c'; ctx.fillRect(0, h * 0.74, w * 0.30, h * 0.26);
+      ctx.fillStyle = '#f5cf2e'; ctx.fillRect(w * 0.80, h * 0.52, w * 0.20, h * 0.48);
+      ctx.fillStyle = '#111'; const L = 12;
+      ctx.fillRect(w * 0.42 - L / 2, 0, L, h); ctx.fillRect(w * 0.80 - L / 2, 0, L, h);
+      ctx.fillRect(0, h * 0.46 - L / 2, w * 0.42, L); ctx.fillRect(0, h * 0.74 - L / 2, w * 0.42, L); ctx.fillRect(w * 0.80, h * 0.52 - L / 2, w * 0.20, L);
     }
     return cv;
   }

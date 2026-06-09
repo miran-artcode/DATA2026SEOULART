@@ -14,6 +14,7 @@
     { label: '만들기', drop: [
       { href: 'studio-color.html', t: '색 군집 스튜디오', s: '명화를 대표색 점으로 (5.10.5)' },
       { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '우리 데이터가 춤추는 점 (5.10.4)' },
+      { href: 'studio-sound.html', t: '소리를 데이터로', s: '녹음·소리에서 특징 추출 (2단계)' },
       { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 차트 + 재창조' }
     ] },
     { label: '배우기', href: 'learn.html' },

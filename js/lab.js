@@ -175,6 +175,6 @@
     drop.addEventListener('drop', e => { if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
 
     let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(drawCharts, 200); });
-    loadDemo('sunset');
+    loadDemo('starrynight');
   });
 })();

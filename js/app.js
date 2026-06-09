@@ -684,6 +684,6 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     bindUI();
     syncControls();
     p5i = new p5(sketch);
-    setTimeout(() => loadDemo('sunset'), 120); // 시작하자마자 살아있는 화면
+    setTimeout(() => loadDemo('starrynight'), 120); // 시작하자마자 살아있는 화면
   });
 })();

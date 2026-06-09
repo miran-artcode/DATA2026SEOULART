@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>소리를 데이터로 · 데이터의 눈</title>
+<link rel="stylesheet" href="css/site.css" />
+<style>
+  #wave { width: 100%; height: 200px; background: #07080d; border: 1px solid var(--line); border-radius: 12px; display: block; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; margin-top: 8px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin-right: 5px; }
+  .rec-dot { color: var(--danger); animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+</style>
+</head>
+<body>
+<div id="app-header"></div>
+<div class="wrap">
+  <div class="page-head">
+    <span class="eyebrow">소리를 데이터로 · 학습 2단계</span>
+    <h1>소리를 데이터로</h1>
+    <p>소리는 <b>시간에 따른 진폭의 변화</b> — 곧 숫자의 흐름이에요. 녹음/파일에서 <b>음량·저음·중음·고음</b>을 뽑아 시계열 데이터로, 그리고 ‘춤추는 점’ 작품으로. <span class="with-info">데이터에 정서가 들어오는 단계 <span class="info-ic" data-info="sound-data">ⓘ</span></span></p>
+  </div>
+  <div id="idea"></div>
+
+  <div class="grid c2" style="align-items:start">
+    <div class="card">
+      <h3>1 · 소리 입력</h3>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+        <button id="btn-rec" class="btn primary">🎤 녹음 시작</button>
+        <button id="btn-file" class="btn">🎵 오디오 파일</button>
+        <input id="audio-file" type="file" accept="audio/*" hidden />
+        <button id="btn-sample" class="btn accent2">🛏 샘플: 아빠의 한 달 코골이</button>
+        <span id="rec-status" class="muted" style="font-size:12px"></span>
+      </div>
+      <p class="muted" style="font-size:11.5px;margin-top:8px">
+        형식: 마이크 실시간 또는 오디오 파일(wav·mp3·m4a·webm). 길이: <b>5~20초 권장</b>(짧게!). 약 0.15초마다 특징을 추출해요.<br>
+        ⚠ <b>음성 원본은 저장하지 않고</b> 특징값(숫자)만 사용합니다(아빠 잠꼬대·가장 즐거운 순간 소리도 안전하게).</p>
+    </div>
+
+    <div class="card">
+      <h3>3 · 데이터 선택 기록 <span class="info-ic" data-info="data-humanism">ⓘ</span></h3>
+      <label class="field">이 소리로 나는 <b>무엇을</b> 보여주고 싶나요?</label>
+      <textarea id="snd-intent" rows="2" placeholder="예: 아빠의 코골이에서 ‘하루의 무게’와 ‘곁에 있다는 감각’을"></textarea>
+      <label class="field">무엇을 ‘셌’고 무엇을 뺐나요? (예: 음량만? 저음 위주?)</label>
+      <input id="snd-omit" type="text" placeholder="예: 음량·저음을 강조, 말소리는 제외">
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>2 · 추출 미리보기 (시계열)</h3>
+    <canvas id="wave" width="900" height="200"></canvas>
+    <div class="legend">
+      <span><i style="background:#e8ecf6"></i>음량</span>
+      <span><i style="background:#ff5a5f"></i>저음</span>
+      <span><i style="background:#ffb454"></i>중음</span>
+      <span><i style="background:#4ec3ff"></i>고음</span>
+      <span class="muted" id="frame-info"></span>
+    </div>
+    <p id="sample-story" class="callout info" style="margin-top:12px; display:none"></p>
+    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+      <button id="btn-csv" class="btn" disabled>⬇ CSV 내보내기</button>
+      <button id="btn-send" class="btn accent2" disabled>→ 데이터 점 스튜디오로 보내기</button>
+    </div>
+  </div>
+  <p class="footer-note">소리에도 작가가 있어요 · 무엇을 강조하고 무엇을 버릴지가 곧 해석입니다</p>
+</div>
+
+<script src="js/explain.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/studio-sound.js"></script>
+</body>
+</html>

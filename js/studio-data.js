@@ -10,11 +10,14 @@
   const $ = s => document.querySelector(s);
   const esc = s => (window.UI ? UI.escapeHTML(s) : String(s));
 
+  // 예시 데이터를 '사회 문제'와 연결 — 의미 있는 시각화로(데이터=사회현상을 드러내는 시각자료).
   const SAMPLES = {
-    emotion: { name: '우리 반 하루 감정 온도', csv: '시간,감정온도\n9시,3\n10시,4\n11시,3\n12시,2\n13시,2\n14시,1\n15시,2\n16시,4\n17시,5' },
-    classday: { name: '우리 반 하루(다중)', csv: '시간,감정온도,활동량,활동\n9시,3,200,수업\n10시,4,800,발표\n11시,3,1500,토론\n12시,2,400,점심\n13시,2,300,휴식\n14시,1,3000,체육\n15시,2,1800,실습\n16시,4,900,정리\n17시,5,300,하교' },
-    temp: { name: '하루 기온(℃)', csv: '시간,기온\n0시,12\n3시,10\n6시,11\n9시,18\n12시,26\n15시,28\n18시,22\n21시,16' },
-    weather: { name: '날씨 로그(다중)', csv: '시간,기온,습도,날씨\n6시,11,80,흐림\n9시,18,60,맑음\n12시,26,45,맑음\n15시,28,40,맑음\n18시,22,55,구름\n21시,16,70,비' }
+    climate: { name: '기후위기 · 한반도 평균기온', issue: '🌡 기후위기 — 점이 점점 위로·뜨겁게. 이 변화를 세상에 어떻게 ‘보여줄’까요?', csv: '연도,평균기온\n1980,12.2\n1990,12.6\n2000,13.1\n2010,13.4\n2015,13.6\n2020,13.9\n2023,14.2' },
+    finedust: { name: '대기오염 · 월별 초미세먼지', issue: '😷 대기오염 — 봄철 농도가 치솟는 리듬. 보이지 않는 위협을 점으로.', csv: '월,초미세먼지\n1월,42\n2월,55\n3월,68\n4월,60\n5월,38\n6월,28\n7월,22\n8월,20\n9월,26\n10월,34\n11월,46\n12월,50' },
+    inequality: { name: '소득 불평등 · 분위별 월소득', issue: '⚖ 불평등 — 1분위와 10분위의 간극을 점의 크기·거리로.', csv: '소득분위,월소득\n1분위,90\n2분위,150\n3분위,210\n4분위,270\n5분위,340\n6분위,420\n7분위,520\n8분위,650\n9분위,850\n10분위,1300' },
+    extinction: { name: '지역소멸 · 지역별 인구·청년', issue: '🏚 지역소멸 — 농촌일수록 인구는 줄고 청년은 적게. 사라지는 것을 어떻게 기억할까?', csv: '지역,인구변화율,청년비율\n수도권,5,28\n광역시,-2,22\n중소도시,-8,16\n농촌,-15,9' },
+    animal: { name: '동물권 · 연도별 유기동물', issue: '🐾 동물권 — 늘어나는 유기동물 수. 숫자 뒤의 생명을 점으로.', csv: '연도,유기동물수\n2016,89000\n2017,102000\n2018,121000\n2019,135000\n2020,128000\n2021,118000\n2022,113000' },
+    emotion: { name: '(개인) 우리 반 하루 감정', issue: '🙂 내 삶의 데이터 — 숫자로는 평온해 보여도 사실은? (데이터 휴머니즘)', csv: '시간,감정온도,활동\n9시,3,수업\n10시,4,발표\n11시,3,토론\n12시,2,점심\n13시,2,휴식\n14시,1,체육\n15시,2,실습\n16시,4,정리\n17시,5,하교' }
   };
 
   const state = {
@@ -187,8 +190,9 @@
   const sketch = p => {
     p.setup = () => {
       const st = $('#dstage'); const c = p.createCanvas(st.clientWidth, st.clientHeight); c.parent(st); p.pixelDensity(1);
-      applyDataset(parseData(SAMPLES.emotion.csv), SAMPLES.emotion.name);
-      $('#in-dataname').value = state.dataName; $('#ta-data').value = SAMPLES.emotion.csv;
+      applyDataset(parseData(SAMPLES.climate.csv), SAMPLES.climate.name);
+      $('#in-dataname').value = state.dataName; $('#ta-data').value = SAMPLES.climate.csv;
+      const di = $('#data-issue'); if (di) di.textContent = SAMPLES.climate.issue;
     };
     p.windowResized = () => { const st = $('#dstage'); p.resizeCanvas(st.clientWidth, st.clientHeight); build(); };
     p.draw = () => {
@@ -297,7 +301,7 @@
     UI.mountIdeaBar('idea', 'data');
     p5i = new p5(sketch);
 
-    $('#sel-sample').addEventListener('change', e => { const s = SAMPLES[e.target.value]; if (!s) return; $('#ta-data').value = s.csv; $('#in-dataname').value = s.name; applyDataset(parseData(s.csv), s.name); });
+    $('#sel-sample').addEventListener('change', e => { const s = SAMPLES[e.target.value]; if (!s) return; $('#ta-data').value = s.csv; $('#in-dataname').value = s.name; applyDataset(parseData(s.csv), s.name); const di = $('#data-issue'); if (di) di.textContent = s.issue || ''; });
     $('#btn-apply-data').addEventListener('click', () => { const ds = parseData($('#ta-data').value); if (!ds) { UI.toast('데이터 형식을 확인하세요.'); return; } applyDataset(ds, $('#in-dataname').value || '내 데이터'); UI.toast('데이터를 적용했습니다.'); });
     $('#btn-upload-csv').addEventListener('click', () => $('#csv').click());
     $('#csv').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#ta-data').value = r.result; if (!$('#in-dataname').value) $('#in-dataname').value = f.name.replace(/\.[^.]+$/, ''); applyDataset(parseData(r.result), $('#in-dataname').value); }; r.readAsText(f); });
@@ -325,5 +329,20 @@
     $('#btn-img').addEventListener('click', saveImage);
     $('#btn-note').addEventListener('click', saveNote);
     $('#btn-exhibit').addEventListener('click', exhibit);
+
+    // 소리 스튜디오에서 보낸 데이터 받기
+    try {
+      const inc = localStorage.getItem('dn_sound_incoming');
+      if (inc) {
+        const d = JSON.parse(inc); localStorage.removeItem('dn_sound_incoming');
+        setTimeout(() => {
+          $('#ta-data').value = d.csv; $('#in-dataname').value = d.name || '소리 데이터';
+          if (d.intent) $('#in-intent').value = d.intent;
+          applyDataset(parseData(d.csv), d.name || '소리 데이터');
+          const di = $('#data-issue'); if (di) di.textContent = '🎤 소리에서 온 데이터 — 음량·저/중/고를 점으로';
+          UI.toast('소리 데이터를 불러왔어요.');
+        }, 400);
+      }
+    } catch (e) {}
   });
 })();
