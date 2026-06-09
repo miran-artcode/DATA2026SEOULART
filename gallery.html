@@ -50,6 +50,7 @@
     const sel = (name) => `<select id="fb-${name}"><option value="3">잘됨 ★★★</option><option value="2" selected>보통 ★★</option><option value="1">아쉬움 ★</option></select>`;
     const body = `
       ${w.thumb ? `<img src="${w.thumb}" style="width:100%;border-radius:10px;border:1px solid var(--line)">` : ''}
+      <p style="margin:8px 0"><a href="work.html?id=${id}">🔍 단독 페이지·비평(펠드먼 4단계) →</a></p>
       <p style="margin:12px 0 4px"><b>의도</b> · ${UI.escapeHTML(w.intent || '(없음)')}</p>
       ${w.evidence ? `<p style="margin:4px 0"><b>근거</b> · ${UI.escapeHTML(w.evidence)}</p>` : ''}
       ${w.dataName ? `<p class="muted" style="font-size:12px">데이터: ${UI.escapeHTML(w.dataName)}</p>` : ''}

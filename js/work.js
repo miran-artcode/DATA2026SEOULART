@@ -1,0 +1,111 @@
+/*
+ * work.js — 작품 단독 페이지: 작가노트 + 감상·비평(펠드먼 4단계)
+ * QR/갤러리에서 work.html?id=<workId> 로 진입.
+ */
+(function () {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const esc = (s) => UI.escapeHTML(s);
+  const KIND = { color: '색 군집', data: '데이터 점', lab: '분석' };
+  const COLORLBL = { value: '값 그라데이션', warm: '난색', cool: '한색' };
+  const id = new URLSearchParams(location.search).get('id');
+  let work = null;
+
+  function story(w) {
+    const s = w.settings || {}, parts = [];
+    if (w.kind === 'data') {
+      parts.push('데이터: ' + (w.dataName || '—'));
+      const m = []; const mp = s.mapping || {};
+      if (mp.mSize) m.push('크기'); if (mp.mSpeed) m.push('속도'); if (mp.mDir) m.push('방향'); if (mp.mDensity) m.push('밀도'); if (mp.mAlpha) m.push('투명도'); if (mp.mShape) m.push('형태');
+      parts.push('매핑: ' + (m.join('·') || '—'));
+      if (s.color) parts.push('색: ' + (COLORLBL[s.color] || s.color));
+    } else if (w.kind === 'color') {
+      if (s.K) parts.push('대표색 K=' + s.K);
+      if (s.space) parts.push('색공간 ' + String(s.space).toUpperCase());
+      if (s.N) parts.push('점 N=' + s.N);
+    }
+    return parts;
+  }
+
+  function critiqueCard(f) {
+    const stars = f.rating ? '★'.repeat(f.rating) + '☆'.repeat(5 - f.rating) : '';
+    const steps = [];
+    if (f.describe) steps.push(['① 기술', f.describe]);
+    if (f.analyze) steps.push(['② 분석', f.analyze]);
+    if (f.interpret) steps.push(['③ 해석', f.interpret]);
+    if (f.judge) steps.push(['④ 평가', f.judge]);
+    // 갤러리식 평점(있으면)
+    const old = (f.intent || f.evidence || f.interaction || f.ethics) ?
+      `<div class="muted" style="font-size:12px">의도 ${'★'.repeat(f.intent||0)} 근거 ${'★'.repeat(f.evidence||0)} 인터랙션 ${'★'.repeat(f.interaction||0)} 윤리 ${'★'.repeat(f.ethics||0)}</div>` : '';
+    return `<div class="lvl" style="margin:8px 0"><div class="lvl-b">
+      <b>${esc(f.by || '관람객')}</b> <span style="color:var(--accent)">${stars}</span>
+      ${f.comment ? `<div style="margin:4px 0">${esc(f.comment)}</div>` : ''}
+      ${old}
+      ${steps.map(([k, v]) => `<div style="margin:3px 0"><b style="color:var(--accent2)">${k}</b> ${esc(v)}</div>`).join('')}
+    </div></div>`;
+  }
+
+  async function render() {
+    work = await Store.getWork(id);
+    if (!work) { $('#work-root').innerHTML = UI.callout('작품을 찾을 수 없어요. 클라우드 전시라면 같은 링크/네트워크인지 확인하세요.', 'warn'); return; }
+    const fbs = await Store.listFeedback(id);
+    const u = Auth.current();
+    const st = story(work);
+    $('#work-root').innerHTML = `
+      <div class="card">
+        ${work.thumb ? `<img src="${work.thumb}" alt="작품" style="width:100%;border-radius:12px;border:1px solid var(--line)">` : '<p class="muted">미리보기 없음</p>'}
+        <h1 style="margin:14px 0 4px;font-size:24px">${esc(work.title || '제목 없음')}</h1>
+        <p class="muted" style="margin:0">${esc(work.by || '익명')} · <span class="badge">${KIND[work.kind] || work.kind}</span></p>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>작가노트</h3>
+        ${work.intent ? `<p><b>의도</b> · ${esc(work.intent)}</p>` : ''}
+        ${work.evidence ? `<p><b>조형/데이터 근거</b> · ${esc(work.evidence)}</p>` : ''}
+        ${st.length ? `<p class="muted" style="font-size:13px"><b>데이터·알고리즘</b> · ${st.map(esc).join(' · ')}</p>` : ''}
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3 class="with-info">감상·비평 <span class="info-ic" data-info="critique">ⓘ</span> <span class="muted" style="font-size:12px">(${fbs.length})</span></h3>
+        <div id="crit-list">${fbs.length ? fbs.map(critiqueCard).join('') : '<p class="muted">첫 감상을 남겨 보세요.</p>'}</div>
+
+        <hr class="sep">
+        <h3 style="font-size:15px">비평 남기기</h3>
+        <div class="grid c2">
+          <div><label class="field">이름(관람객)</label><input id="c-name" type="text" value="${u ? esc(u.display) : ''}" placeholder="이름 또는 별명"></div>
+          <div><label class="field">별점</label>
+            <select id="c-rating"><option value="5">★★★★★</option><option value="4">★★★★</option><option value="3" selected>★★★</option><option value="2">★★</option><option value="1">★</option></select></div>
+        </div>
+        <label class="field">한마디 감상</label>
+        <textarea id="c-comment" rows="2" placeholder="무엇이 마음에 남았나요? 근거와 함께"></textarea>
+
+        <details style="margin-top:10px">
+          <summary style="cursor:pointer;color:var(--accent2);font-weight:700;font-size:13.5px">＋ 펠드먼 4단계로 자세히 비평하기</summary>
+          <label class="field">① 기술 — 무엇이 보이나(객관)</label><textarea id="c-describe" rows="2" placeholder="예: 파란색이 화면의 대부분, 중앙에 밝은 점들"></textarea>
+          <label class="field">② 분석 — 색·명도·구도·리듬이 어떻게</label><textarea id="c-analyze" rows="2" placeholder="예: 보색 대비가 시선을 중앙으로 모음"></textarea>
+          <label class="field">③ 해석 — 무엇을 말하나(의도·감정)</label><textarea id="c-interpret" rows="2" placeholder="예: 불안 속의 한 줄기 평온"></textarea>
+          <label class="field">④ 평가 — 근거 있는 판단</label><textarea id="c-judge" rows="2" placeholder="예: 데이터를 절제해 의도가 분명, 설득력 있음"></textarea>
+        </details>
+        <button id="c-submit" class="btn primary" style="margin-top:12px">비평 등록</button>
+      </div>`;
+    UI.mountIdeaBar && null;
+    $('#c-submit').addEventListener('click', submit);
+  }
+
+  async function submit() {
+    const v = id => ($('#' + id) ? $('#' + id).value.trim() : '');
+    const name = v('c-name') || '관람객';
+    const comment = v('c-comment'), d = v('c-describe'), a = v('c-analyze'), i = v('c-interpret'), j = v('c-judge');
+    if (!comment && !d && !a && !i && !j) { UI.toast('한마디 또는 4단계 중 하나는 적어 주세요.'); return; }
+    const u = Auth.current();
+    await Store.addFeedback({
+      workId: id, userId: u ? u.userId : undefined, by: name, kind: 'critique',
+      rating: +$('#c-rating').value, comment, describe: d, analyze: a, interpret: i, judge: j
+    });
+    UI.toast('비평을 등록했습니다. 고맙습니다!');
+    render();
+  }
+
+  if (!id) { $('#work-root').innerHTML = UI.callout('작품 id가 없어요. 갤러리에서 작품을 선택하세요.', 'warn'); }
+  else render();
+})();

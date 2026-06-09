@@ -16,6 +16,7 @@
     { label: '배우기', href: 'learn.html' },
     { label: '나누기', drop: [
       { href: 'gallery.html', t: '전시 갤러리', s: '작품 감상 + 또래 피드백' },
+      { href: 'exhibit.html', t: '키오스크 전시', s: '큰 화면 슬라이드쇼 + QR 비평' },
       { href: 'notes.html', t: '작업 노트', s: '과정·버전·성찰 기록' }
     ] },
     { label: '교사', href: 'teacher.html' }
