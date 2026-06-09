@@ -173,5 +173,11 @@
     };
   };
 
+  /* ---------- 임의 팔레트로 재채색(색채 조화 적용 등) ---------- */
+  Algos.recolor = function (src, palette) {
+    const sm = small(src, 300);
+    return toCanvas(quantizeTo(sm.data, palette));
+  };
+
   global.Algos = Algos;
 })(window);

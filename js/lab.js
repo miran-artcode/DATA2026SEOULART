@@ -77,6 +77,14 @@
     const row = (name, arr) => `<div style="margin:7px 0"><div class="muted" style="font-size:11px;margin-bottom:3px">${name}</div><div class="swatches">${arr.map(c => `<div class="sw" style="background:rgb(${c.r},${c.g},${c.b})"></div>`).join('')}</div></div>`;
     $('#harmony-suggest').innerHTML = row('보색 Complementary', h.suggestions.complementary) +
       row('유사 Analogous', h.suggestions.analogous) + row('삼각 Triadic', h.suggestions.triadic) + row('분할보색 Split', h.suggestions.split);
+    applyHarmony('triadic'); // 기본 미리보기
+  }
+  const HARM_LBL = { complementary: '보색', analogous: '유사', triadic: '삼각', split: '분할보색' };
+  function applyHarmony(type) {
+    if (!src || !lastHarmony || !window.Algos) return;
+    const pal = lastHarmony.suggestions[type]; if (!pal) return;
+    blit('rc-harmony', Algos.recolor(src, pal));
+    const tag = $('#harm-tag'); if (tag) tag.textContent = (HARM_LBL[type] || '') + ' 조화';
   }
 
   /* 메모 저장/복원 */
@@ -138,6 +146,7 @@
     $('#btn-report').addEventListener('click', report);
     $('#btn-save-note').addEventListener('click', saveNote);
     document.querySelectorAll('[data-memo]').forEach(t => t.addEventListener('input', saveMemos));
+    document.querySelectorAll('[data-harm]').forEach(b => b.addEventListener('click', () => applyHarmony(b.dataset.harm)));
 
     // 드래그&드롭
     const drop = document.body;

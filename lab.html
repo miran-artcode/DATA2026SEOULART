@@ -70,7 +70,14 @@
     <div class="grid c2" style="align-items:start">
       <div id="harmony-suggest"></div>
       <div>
-        <p class="muted" style="font-size:12.5px;margin:0 0 8px">지배색을 기준으로 색상환에서 <b>보색·유사·삼각·분할보색</b> 팔레트를 제안해요. 작품 의도에 맞는 조화를 골라 재창조에 적용해 보세요.</p>
+        <p class="muted" style="font-size:12.5px;margin:0 0 8px">지배색을 기준으로 색상환에서 <b>보색·유사·삼각·분할보색</b> 팔레트를 제안해요. 아래에서 골라 <b>이 조화로 재창조</b>해 보세요.</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          <button class="btn sm" data-harm="complementary">보색</button>
+          <button class="btn sm" data-harm="analogous">유사</button>
+          <button class="btn sm" data-harm="triadic">삼각</button>
+          <button class="btn sm" data-harm="split">분할보색</button>
+        </div>
+        <div class="recreate"><span class="rc-tag" id="harm-tag">삼각 조화</span><canvas id="rc-harmony"></canvas></div>
         <div class="memo"><textarea data-memo="harmony" placeholder="해석 메모: 어떤 조화가 의도에 맞나? 원작은 어떤 조화를 쓰나?"></textarea></div>
       </div>
     </div>
