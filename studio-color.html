@@ -46,6 +46,9 @@
       <div id="busy" class="busy"><div class="spinner"></div><span>분석 중…</span></div>
     </section>
 
+    <!-- 너비 조절 드래그 바 -->
+    <div id="splitter" title="드래그하여 작품창/설정창 너비 조절 · 더블클릭하면 기본값"></div>
+
     <!-- 설정 패널 -->
     <aside class="panel">
 
@@ -73,20 +76,26 @@
         <summary>2 · 분석 (K-means)</summary>
         <div class="sect">
           <div class="row">
-            <label>K (대표색 개수) <output id="out-k">8</output></label>
-            <input id="rng-k" type="range" min="2" max="24" step="1" value="8" />
+            <label>K (대표색 개수) <output id="out-k">8</output>
+              <button id="btn-kmeans" class="mini" style="margin-left:6px" title="K-means가 무엇인지 쉬움/중간/전문가로 펼쳐 보기">ⓘ K‑means란?</button>
+            </label>
+            <div class="row two" style="margin-top:4px">
+              <input id="rng-k" type="range" min="1" max="64" step="1" value="8" title="드래그로 K를 빠르게 바꿔 보세요. K가 작으면 단순(추상), 크면 자세해져요." />
+              <input id="num-k" type="number" min="1" max="1000000" step="1" value="8" title="직접 숫자 입력(1~1,000,000). 큰 값은 이미지 색 수·성능에 맞춰 실제 K가 자동 조정됩니다." />
+            </div>
+            <p id="k-note" class="hint"></p>
           </div>
           <div class="row two">
             <div>
               <label>색공간</label>
-              <select id="sel-space">
+              <select id="sel-space" title="RGB는 화면색 그대로, LAB는 사람 눈에 가까워 군집이 더 자연스러워요. 두 가지를 비교해 보세요.">
                 <option value="rgb">RGB</option>
                 <option value="lab">LAB(심화)</option>
               </select>
             </div>
             <div>
               <label>샘플링</label>
-              <select id="sel-sampling">
+              <select id="sel-sampling" title="어느 영역의 색을 더 모을지 — 윤곽/밝은/어두운 영역을 강조해 결과를 바꿔 보세요.">
                 <option value="uniform">무작위</option>
                 <option value="bright">밝은영역</option>
                 <option value="dark">어두운영역</option>
@@ -95,10 +104,17 @@
             </div>
           </div>
           <div class="palette-head">
-            <span>팔레트 · 비율</span>
-            <button id="btn-shuffle" class="mini" title="같은 설정에서 다른 결과">🎲 다시</button>
+            <span>팔레트 · 비율 (너비 = 비율)</span>
+            <button id="btn-shuffle" class="mini" title="같은 설정에서 다른 시작점으로 다시 군집화">🎲 다시</button>
           </div>
-          <div id="palette" class="palette"></div>
+          <div id="palette" class="palette prop" title="각 색의 너비가 그림에서 차지하는 비율이에요. 색을 클릭하면 그 군집을 켜고 끌 수 있어요."></div>
+          <div class="pal-charts">
+            <div class="pal-tabs">
+              <button class="ptab on" data-pchart="donut" title="비율을 도넛 차트로">도넛</button>
+              <button class="ptab" data-pchart="hbars" title="비율을 막대 차트로">막대</button>
+            </div>
+            <canvas id="pal-canvas"></canvas>
+          </div>
           <p id="palette-meta" class="hint"></p>
         </div>
       </details>
@@ -133,6 +149,13 @@
               <option value="points">점</option>
               <option value="lines">점 + 선(변위)</option>
               <option value="3d">3D 조각</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>움직임 기준</label>
+            <select id="sel-motion" title="원위치 유지=원본 그림의 점 위치로 돌아가 그림을 유지. 자유=원위치를 잊고 마구잡이로 떠돌아요.">
+              <option value="hold">원위치 유지(그림 유지)</option>
+              <option value="free">자유 이동(마구잡이)</option>
             </select>
           </div>
           <div class="row">
@@ -272,6 +295,49 @@
       </ol>
       <p class="hint">탐구 질문: K를 바꾸면 색 구조는? 어떤 K가 분위기를 가장 잘 살리나? N이 정보·감정에 주는 영향은? 소리·마우스는 관람 경험을 어떻게 바꾸나?</p>
       <p class="hint">※ K-means의 색 요약은 ‘정답’이 아니라 손실이 있는 근사·해석입니다.</p>
+    </div>
+  </div>
+
+  <!-- K-means 설명 모달: 쉬움 / 중간 / 전문가 -->
+  <div id="modal-kmeans" class="modal">
+    <div class="modal-box">
+      <button id="km-close" class="modal-close">✕</button>
+      <h2>K‑means — 그림이 점으로 ‘치환’되는 원리</h2>
+      <div class="km-tabs">
+        <button class="km-tab on" data-kmtab="easy">🟡 쉬움</button>
+        <button class="km-tab" data-kmtab="mid">🔵 중간</button>
+        <button class="km-tab" data-kmtab="expert">🟣 전문가</button>
+      </div>
+
+      <div class="km-level show" data-kmlevel="easy">
+        <p>그림 속 <b>수많은 색</b>을 비슷한 것끼리 <b>K개의 무리</b>로 묶고, 각 무리의 <b>가운데 색(대표색)</b> 하나로 대신해요.</p>
+        <p class="km-ex">🖍 크레파스 100자루를 “빨강 계열·파랑 계열…” K개 상자에 나누고, 각 상자의 ‘가운데 색’ 하나만 골라 그 상자 전체를 대신하는 것과 같아요.</p>
+        <p>그래서 복잡한 그림이 <b>몇 개의 대표색 점</b>으로 단순해집니다. <b>K가 작으면</b> 더 단순(추상), <b>K가 크면</b> 더 자세해져요. 각 색의 <b>비율</b>은 그 색에 모인 점의 양이에요.</p>
+      </div>
+
+      <div class="km-level" data-kmlevel="mid">
+        <p>“군집(무리) · 중심(대표색) · 거리(색의 가까움)”를 <b>반복</b>합니다.</p>
+        <ol class="km-ol">
+          <li><b>시작</b> — 대표색 후보 K개를 서로 멀리 흩어 고릅니다(k‑means++).</li>
+          <li><b>배정</b> — 모든 색을 <b>가장 가까운</b> 대표색에 배정합니다.</li>
+          <li><b>갱신</b> — 각 무리에 모인 색들의 <b>평균</b>으로 대표색을 옮깁니다.</li>
+          <li><b>반복</b> — 더 이상 변하지 않을 때까지 ②③ 반복(수렴).</li>
+        </ol>
+        <p>각 픽셀(표본)은 자기와 가장 가까운 대표색으로 <b>치환</b>되어 ‘점’이 됩니다. 그 점들을 다시 찍어 작품을 만들어요.</p>
+      </div>
+
+      <div class="km-level" data-kmlevel="expert">
+        <p>색 사이 ‘거리’는 보통 <b>유클리드 거리</b>. 색공간 선택이 결과를 바꿉니다 — <code>RGB</code>는 화면 신호, <code>LAB</code>는 사람 지각에 가까워(균일) 군집이 더 자연스럽습니다.</p>
+        <ul class="km-ul">
+          <li><b>k‑means++</b> 초기화로 중심을 분산 → 나쁜 지역최소(local minimum) 위험을 줄입니다.</li>
+          <li>반복은 <b>군집 내 분산(WCSS)</b>을 단조 감소시키며 수렴합니다.</li>
+          <li><b>K↑</b> 면 WCSS↓(더 자세)이지만 잡음·과분할 위험. 적정 K는 ‘엘보우’ 등으로 가늠.</li>
+          <li><b>시드 고정</b> → 같은 입력에 같은 결과(재현 가능). 이 스튜디오는 시드를 고정/변경할 수 있어요.</li>
+          <li>K는 표본 색 수·성능을 넘을 수 없습니다(그래서 큰 입력은 자동 조정).</li>
+        </ul>
+      </div>
+
+      <p class="hint warn">이 분석이 놓친 것: 색이 화면 <b>‘어디에’ 있는지(위치)</b>·형태·붓질은 보지 못해요. 결과는 손실 있는 근사·해석입니다.</p>
     </div>
   </div>
 </body>

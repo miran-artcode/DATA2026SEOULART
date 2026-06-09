@@ -113,9 +113,19 @@
 
     if (this.angle !== undefined) this.angle += m.rotateSpeed;
 
+    const free = !!m.free, wander = m.wander || 0;
     for (let i = 0; i < n; i++) {
-      let ax = (this.hx[i] - this.px[i]) * ret;
-      let ay = (this.hy[i] - this.py[i]) * ret;
+      let ax, ay;
+      if (free) {
+        // 자유(마구잡이): 원본 위치로 복귀하지 않고 떠돈다.
+        // 화면 밖으로 흩어지지 않도록 중심으로 아주 약한 인력만 둔다.
+        ax = (cx - this.px[i]) * 0.004 + (Math.random() - 0.5) * wander;
+        ay = (cy - this.py[i]) * 0.004 + (Math.random() - 0.5) * wander;
+      } else {
+        // 원위치 유지: 원본 그림의 점 위치로 돌아가며 그림을 유지한다.
+        ax = (this.hx[i] - this.px[i]) * ret;
+        ay = (this.hy[i] - this.py[i]) * ret;
+      }
 
       // 기본 진동 + 마이크 볼륨 진동
       const totalVib = vib + volVib;

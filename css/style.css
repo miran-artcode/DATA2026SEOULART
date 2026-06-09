@@ -236,3 +236,34 @@ input[type="range"]::-moz-range-thumb {
   }
   body.panel-open .panel { transform: translateX(0); }
 }
+
+/* ===== Phase A: 비례 팔레트 · 팔레트 차트 · 너비 스플리터 · K-means 모달 ===== */
+#splitter { flex: 0 0 8px; cursor: col-resize; position: relative;
+  background: linear-gradient(90deg, transparent, var(--line), transparent); }
+#splitter::after { content: "⋮"; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: var(--muted); font-size: 14px; }
+#splitter:hover { background: var(--accent); }
+@media (max-width: 880px) { #splitter { display: none; } }
+
+#num-k { width: 100%; }
+.palette.prop { display: flex; flex-wrap: nowrap; gap: 0; height: 30px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); margin-top: 8px; }
+.palette.prop .pseg { flex-grow: 1; flex-basis: 0; min-width: 2px; height: 100%; border: 0; padding: 0; cursor: pointer; position: relative; transition: filter .12s; display: flex; align-items: center; justify-content: center; }
+.palette.prop .pseg:hover { filter: brightness(1.15); }
+.palette.prop .pseg .pct { font-size: 9.5px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); pointer-events: none; }
+.palette.prop .pseg.off { filter: grayscale(.85) brightness(.5); }
+
+.pal-charts { margin-top: 10px; }
+.pal-tabs { display: flex; gap: 6px; margin-bottom: 6px; }
+.ptab { font: inherit; font-size: 11.5px; color: var(--muted); background: var(--panel2); border: 1px solid var(--line); border-radius: 7px; padding: 3px 10px; cursor: pointer; }
+.ptab.on { color: #20140a; background: var(--accent); border-color: var(--accent); font-weight: 700; }
+#pal-canvas { width: 100%; background: #0c0e16; border: 1px solid var(--line); border-radius: 8px; display: block; }
+
+.modal-box { max-height: 88vh; overflow-y: auto; }
+.km-tabs { display: flex; gap: 6px; margin: 4px 0 12px; }
+.km-tab { font: inherit; font-size: 13px; color: var(--muted); background: var(--panel2); border: 1px solid var(--line); border-radius: 9px; padding: 6px 14px; cursor: pointer; }
+.km-tab.on { color: var(--text); border-color: var(--accent); background: rgba(255,180,84,.12); font-weight: 700; }
+.km-level { display: none; line-height: 1.7; font-size: 14px; }
+.km-level.show { display: block; }
+.km-level .km-ex { background: var(--panel2); border-left: 3px solid var(--accent); padding: 9px 12px; border-radius: 0 8px 8px 0; margin: 9px 0; color: #ffe3bd; }
+.km-level .km-ol, .km-level .km-ul { margin: 8px 0; padding-left: 20px; }
+.km-level .km-ol li, .km-level .km-ul li { margin: 5px 0; }
+.km-level code { background: var(--panel2); padding: 1px 6px; border-radius: 5px; }

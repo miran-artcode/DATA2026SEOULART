@@ -106,7 +106,7 @@
   /* ------------------------------------------------------------------ */
   function analyze(source, opts) {
     opts = opts || {};
-    const K = Math.max(2, Math.min(opts.K || 8, 32));
+    const reqK = Math.max(1, Math.floor(opts.K || 8));   // 학생이 입력한 K(클램프 전)
     const space = opts.space === 'lab' ? 'lab' : 'rgb';
     const sampling = opts.sampling || 'uniform';
     const N = Math.max(100, Math.min(opts.N || 4000, 30000));
@@ -135,6 +135,10 @@
     for (let i = 0; i < total; i += sampleStep) {
       data.push(toSpace(px[i * 4], px[i * 4 + 1], px[i * 4 + 2], space));
     }
+    // 실제 K: 입력값을 (표본 색 수, 성능 상한 1024)로 제한.
+    //   → "백만"을 입력해도 이미지의 색/성능이 한계이므로 그만큼만 쓴다(정직한 근사).
+    const PERF_CAP = 512;   // 성능 상한(반응성 유지). 그 이상은 자동 조정.
+    const K = Math.max(1, Math.min(reqK, data.length, PERF_CAP));
     const km = KMeans.cluster(data, K, { seed, maxIter: 24 });
 
     // 군집 중심을 RGB 팔레트로 환산 + 비율(%) 계산
@@ -201,7 +205,7 @@
     }
 
     return {
-      width: w, height: h, count: N, K, space, sampling, seed,
+      width: w, height: h, count: N, K, requestedK: reqK, maxK: Math.min(data.length, PERF_CAP), space, sampling, seed,
       palette,                       // [{r,g,b,ratio}] 비율 내림차순
       nx, ny, cluster: clusterArr, br: brArr,
       or: orr, og: ogg, ob: obb

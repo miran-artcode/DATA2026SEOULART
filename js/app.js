@@ -17,8 +17,8 @@
     // 점
     size: 3, colorMode: 'cluster',
     // 움직임
-    mode: 'points', returnForce: 0.08, vibration: 0, trail: 255, additive: false,
-    rotateSpeed: 0.004, depth: 220,
+    mode: 'points', motionMode: 'hold', returnForce: 0.08, vibration: 0, trail: 255, additive: false,
+    rotateSpeed: 0.004, depth: 220, palChart: 'donut',
     // 인터랙션(마우스)
     mouseMode: 'repel', mouseRadius: 130, mouseStrength: 1, clickExplode: true,
     // 인터랙션(마이크)
@@ -109,26 +109,84 @@
     system = Particles.create(analysis, imageRect(), { colorMode: state.colorMode, baseSize: state.size });
   }
 
-  // 팔레트(대표색 + 비율) 표시 — 클릭하면 해당 색 군집 켜기/끄기
+  // 팔레트(대표색 + 비율) 표시 — 너비를 비율대로(비례 띠), 클릭하면 군집 켜기/끄기
   function renderPalette() {
-    const box = $('#palette'); box.innerHTML = '';
-    analysis.palette.forEach((p, i) => {
-      const sw = document.createElement('button');
-      sw.className = 'swatch';
-      sw.style.background = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
-      sw.title = '클릭: 이 색 군집 켜기/끄기';
+    const box = $('#palette'); box.className = 'palette prop'; box.innerHTML = '';
+    const pal = analysis.palette;
+    const MAXSEG = 64;                         // 비례 띠는 상위 N개 + ‘기타’로 깔끔하게
+    const display = pal.length <= MAXSEG ? pal : pal.slice(0, MAXSEG);
+    display.forEach((p, i) => {
+      const seg = document.createElement('button');
+      seg.className = 'pseg';
+      seg.style.background = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
+      seg.style.flexGrow = Math.max(p.ratio, 0.0008);   // ← 비율만큼 너비 차지
       const pct = Math.round(p.ratio * 100);
-      sw.innerHTML = '<span class="pct">' + pct + '%</span>';
-      sw.addEventListener('click', () => {
+      seg.title = pct + '% · 클릭: 이 색 군집 켜기/끄기';
+      if (p.ratio > 0.06) seg.innerHTML = '<span class="pct">' + pct + '%</span>';
+      seg.addEventListener('click', () => {
         if (!system) return;
         const on = !system.visible[i];
         system.setVisibility(i, on);
-        sw.classList.toggle('off', !on);
+        seg.classList.toggle('off', !on);
       });
-      box.appendChild(sw);
+      box.appendChild(seg);
     });
-    $('#palette-meta').textContent =
-      'K=' + state.K + ' · ' + (state.space === 'lab' ? 'LAB' : 'RGB') + ' 색공간 · 비율 높은 순';
+    if (pal.length > MAXSEG) {
+      let ratio = 0; for (let i = MAXSEG; i < pal.length; i++) ratio += pal[i].ratio;
+      const seg = document.createElement('div');
+      seg.className = 'pseg'; seg.style.background = '#565b6e';
+      seg.style.flexGrow = Math.max(ratio, 0.0008);
+      seg.title = '기타 ' + fmt(pal.length - MAXSEG) + '색 (' + Math.round(ratio * 100) + '%)';
+      box.appendChild(seg);
+    }
+    const adjusted = analysis.requestedK > analysis.K;
+    const note = adjusted
+      ? '입력 K=' + fmt(analysis.requestedK) + ' → 실제 K=' + fmt(analysis.K) + ' (이미지 색 수·성능 한계로 자동 조정)'
+      : 'K=' + fmt(analysis.K);
+    $('#palette-meta').textContent = note + ' · ' + (state.space === 'lab' ? 'LAB' : 'RGB') + ' · 비율 높은 순';
+    const kn = $('#k-note'); if (kn) kn.textContent = adjusted ? '※ ' + note : '';
+    drawPalChart(state.palChart);
+  }
+
+  // 팔레트를 다양한 차트로: 도넛 / 막대 (점 수가 많으면 상위 N + ‘기타’로 묶음)
+  function drawPalChart(type) {
+    const cv = $('#pal-canvas'); if (!cv || !analysis) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = cv.clientWidth || cv.parentElement.clientWidth || 280;
+    const pal = analysis.palette, MAX = 24;
+    let items = pal;
+    if (pal.length > MAX) {
+      items = pal.slice(0, MAX);
+      let ratio = 0; for (let i = MAX; i < pal.length; i++) ratio += pal[i].ratio;
+      items = items.concat([{ r: 120, g: 124, b: 140, ratio: ratio, rest: pal.length - MAX }]);
+    }
+    const h = type === 'hbars' ? (12 + items.length * 15) : Math.round(w * 0.62);
+    cv.width = w * dpr; cv.height = h * dpr; cv.style.height = h + 'px';
+    const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+
+    if (type === 'hbars') {
+      const pad = 6, rowH = (h - pad * 2) / items.length;
+      const max = Math.max.apply(null, items.map(p => p.ratio).concat(0.001));
+      items.forEach((p, i) => {
+        const bw = (p.ratio / max) * (w - 64), y = pad + i * rowH;
+        ctx.fillStyle = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
+        ctx.fillRect(58, y + 1, Math.max(2, bw), rowH - 2);
+        ctx.fillStyle = '#9aa3bd'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillText(Math.round(p.ratio * 100) + '%', 52, y + rowH / 2 + 3);
+      });
+    } else { // donut
+      const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.42, r = R * 0.55; let a0 = -Math.PI / 2;
+      items.forEach(p => {
+        const a1 = a0 + p.ratio * Math.PI * 2;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.fillStyle = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
+        ctx.arc(cx, cy, R, a0, a1); ctx.closePath(); ctx.fill(); a0 = a1;
+      });
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#cdd3e6'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('상위 ' + Math.round((pal[0] ? pal[0].ratio : 0) * 100) + '%', cx, cy + 4);
+    }
   }
 
   /* ----------------------------- p5 스케치 ----------------------------- */
@@ -189,7 +247,8 @@
     return {
       motion: {
         returnForce: state.returnForce, damping: 0.86, vibration: state.vibration,
-        rotateSpeed: state.mode === '3d' && !dragging ? state.rotateSpeed : 0
+        rotateSpeed: state.mode === '3d' && !dragging ? state.rotateSpeed : 0,
+        free: state.motionMode === 'free', wander: 1.2 + state.vibration
       },
       mouse: {
         x: p.mouseX, y: p.mouseY,
@@ -350,12 +409,13 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
   /* ----------------------------- 컨트롤 ↔ 상태 동기화 ----------------------------- */
   // 화면의 입력값을 state 기준으로 다시 맞춘다(프리셋/불러오기 후 호출)
   function syncControls() {
-    setVal('#rng-k', state.K); setOut('#out-k', state.K);
+    setVal('#rng-k', Math.min(state.K, 64)); setVal('#num-k', state.K); setOut('#out-k', fmt(state.K));
     setVal('#sel-space', state.space); setVal('#sel-sampling', state.sampling);
     setVal('#rng-n', state.N); setOut('#out-n', fmt(state.N));
     setVal('#rng-size', state.size); setOut('#out-size', state.size);
     setVal('#sel-colormode', state.colorMode);
     setVal('#sel-mode', state.mode);
+    setVal('#sel-motion', state.motionMode);
     setVal('#rng-return', state.returnForce); setOut('#out-return', state.returnForce);
     setVal('#rng-vibration', state.vibration); setOut('#out-vibration', state.vibration);
     setVal('#rng-trail', state.trail); setOut('#out-trail', state.trail);
@@ -395,7 +455,25 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     holder.addEventListener('drop', e => { if (e.dataTransfer.files[0]) loadFromFile(e.dataTransfer.files[0]); });
 
     // 분석 파라미터(변경 시 재분석이 필요한 것들)
-    onRange('#rng-k', '#out-k', v => { state.K = v | 0; }, true);
+    // K: 슬라이더(빠른 범위) + 숫자 입력(1 ~ 1,000,000 까지). 실제 K는 이미지·성능 한계로 자동 조정.
+    const rngK = $('#rng-k'), numK = $('#num-k');
+    const setK = (v, reanalyze) => {
+      v = Math.max(1, Math.min(Math.floor(v || 1), 1000000));
+      state.K = v; setOut('#out-k', fmt(v));
+      if (rngK) rngK.value = Math.min(v, +rngK.max);
+      if (numK && document.activeElement !== numK) numK.value = v;
+      if (reanalyze) runAnalysis();
+    };
+    if (rngK) { rngK.addEventListener('input', () => setK(+rngK.value, false)); rngK.addEventListener('change', () => setK(+rngK.value, true)); }
+    if (numK) { numK.addEventListener('change', () => setK(+numK.value, true)); numK.addEventListener('keydown', e => { if (e.key === 'Enter') { setK(+numK.value, true); numK.blur(); } }); }
+    // 팔레트 차트 전환
+    document.querySelectorAll('[data-pchart]').forEach(b => b.addEventListener('click', () => {
+      state.palChart = b.dataset.pchart;
+      document.querySelectorAll('[data-pchart]').forEach(x => x.classList.toggle('on', x === b));
+      if (analysis) drawPalChart(state.palChart);
+    }));
+    // K-means 설명 모달(쉬움/중간/전문가)
+    bindKmeansModal();
     $('#sel-space').addEventListener('change', e => { state.space = e.target.value; runAnalysis(); });
     $('#sel-sampling').addEventListener('change', e => { state.sampling = e.target.value; runAnalysis(); });
     onRange('#rng-n', '#out-n', v => { state.N = v | 0; }, true, fmt);
@@ -407,6 +485,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
 
     // 움직임(실시간 반영)
     $('#sel-mode').addEventListener('change', e => { state.mode = e.target.value; $('#row-3d').style.display = state.mode === '3d' ? '' : 'none'; });
+    $('#sel-motion').addEventListener('change', e => state.motionMode = e.target.value);
     onRange('#rng-return', '#out-return', v => state.returnForce = v);
     onRange('#rng-vibration', '#out-vibration', v => state.vibration = v);
     onRange('#rng-trail', '#out-trail', v => state.trail = v | 0);
@@ -451,6 +530,80 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
 
     // 패널 열기/닫기(모바일)
     $('#btn-toggle-panel').addEventListener('click', () => document.body.classList.toggle('panel-open'));
+
+    initSplitter();
+    addTooltips();
+  }
+
+  // 각 항목에 마우스를 올리면 '무엇을 해야 하는지/왜 흥미로운지' 안내(동기부여)
+  function addTooltips() {
+    const sumTips = [
+      '먼저 그림을 넣어요 — 데모를 고르거나 파일을 끌어다 놓아도 돼요.',
+      'K-means로 색을 K개의 대표색으로 요약해요. K를 바꿔 분위기가 어떻게 변하는지 비교해 보세요.',
+      '점 개수(해상도)와 크기·색으로 표현 전략을 정해요.',
+      '복귀력·진동·잔상으로 움직임을 디자인 — ‘원위치 유지/자유’도 골라 보세요.',
+      '마우스·소리로 관람자가 작품을 ‘연주’하게 만들어요.',
+      '한 번에 분위기를 잡는 프리셋 — 적용 후 내 취향으로 다듬어요.',
+      '이미지·영상·리포트·설정으로 제출물을 만들어요.',
+      '출처·의도·AI 기여를 정직하게 기록해요(미술 + 윤리).'
+    ];
+    document.querySelectorAll('.panel > details > summary').forEach((s, i) => { if (sumTips[i]) s.title = sumTips[i]; });
+    const tip = (sel, t) => { const el = $(sel); if (el) el.title = t; };
+    tip('#rng-n', '점이 많을수록 자세하지만 무거워요. 메시지에 맞는 ‘해상도’를 골라 보세요.');
+    tip('#rng-size', '점 크기 — 작으면 섬세, 크면 대담해요.');
+    tip('#sel-colormode', '대표색 = 요약된 분위기 / 원본색 = 사진처럼 풍부.');
+    tip('#sel-mode', '점 / 점+선 / 3D 조각(밝기→깊이)으로 표현을 바꿔 보세요.');
+    tip('#rng-return', '클수록 그림을 단단히 유지, 작을수록 흩어져 떠돌아요.');
+    tip('#rng-vibration', '떨림의 세기 — 0이면 고요, 크면 들썩여요.');
+    tip('#rng-trail', '낮출수록 자취(궤적)가 남아 ‘흐름’이 보여요.');
+    tip('#chk-additive', '겹친 빛이 더 밝아지는 발광 효과 — 성운·네온 느낌.');
+    tip('#sel-mouse', '관람자의 마우스에 어떻게 반응할지 — 밀기/끌기/부풀리기/흩뿌리기.');
+    tip('#btn-mic', '마이크로 소리에 반응 — 잔잔한 곡엔 천천히, 격한 곡엔 폭발처럼 연주돼요.');
+    tip('#btn-report', '분석 리포트 + 인터랙션 설계서(.md)로 과정평가 제출물을 완성해요.');
+    tip('#btn-shuffle', '같은 설정이라도 시작점이 달라지면 결과가 살짝 달라져요(시드).');
+  }
+
+  // K-means 설명 모달: 쉬움 / 중간 / 전문가 탭 전환
+  function bindKmeansModal() {
+    const btn = $('#btn-kmeans'), modal = $('#modal-kmeans');
+    if (!btn || !modal) return;
+    btn.addEventListener('click', () => modal.classList.add('show'));
+    $('#km-close').addEventListener('click', () => modal.classList.remove('show'));
+    modal.addEventListener('click', e => { if (e.target.id === 'modal-kmeans') modal.classList.remove('show'); });
+    document.querySelectorAll('[data-kmtab]').forEach(b => b.addEventListener('click', () => {
+      const lv = b.dataset.kmtab;
+      document.querySelectorAll('[data-kmtab]').forEach(x => x.classList.toggle('on', x === b));
+      document.querySelectorAll('.km-level').forEach(s => s.classList.toggle('show', s.dataset.kmlevel === lv));
+    }));
+  }
+
+  // 작품창 ↔ 설정창 너비를 학생이 드래그로 조절(--panel-w 변경 + 캔버스 리사이즈)
+  function initSplitter() {
+    const split = $('#splitter'); if (!split) return;
+    let drag = false, raf = 0;
+    const apply = (clientX) => {
+      const layout = document.querySelector('.layout'); if (!layout) return;
+      const total = layout.clientWidth;
+      let w = total - clientX;                       // 패널은 오른쪽
+      w = Math.max(240, Math.min(w, total - 320));   // 패널 최소 240, 작품창 최소 320
+      document.documentElement.style.setProperty('--panel-w', w + 'px');
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        if (!p5i) return;
+        const holder = $('#canvas-holder');
+        p5i.resizeCanvas(holder.clientWidth, holder.clientHeight);
+        if (system) system.remap(imageRect(), false);
+      });
+    };
+    const start = () => { drag = true; document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; };
+    const end = () => { drag = false; document.body.style.cursor = ''; document.body.style.userSelect = ''; };
+    split.addEventListener('mousedown', e => { e.preventDefault(); start(); });
+    window.addEventListener('mousemove', e => { if (drag) apply(e.clientX); });
+    window.addEventListener('mouseup', end);
+    split.addEventListener('touchstart', () => start(), { passive: true });
+    window.addEventListener('touchmove', e => { if (drag && e.touches[0]) apply(e.touches[0].clientX); }, { passive: true });
+    window.addEventListener('touchend', end);
+    split.addEventListener('dblclick', () => { document.documentElement.style.setProperty('--panel-w', '348px'); apply(window.innerWidth - 348); });
   }
 
   // range 입력 도우미: 입력 중(input)에 콜백 + 출력 갱신, reanalyze면 변경 끝(change)에 재분석
