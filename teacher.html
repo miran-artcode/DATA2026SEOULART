@@ -29,6 +29,35 @@
     <p class="muted" style="font-size:12px;margin:10px 0 0">취합: 학생이 ‘설정/노트’를 내보낸 JSON을 받아 여기서 병합하면 한 화면에서 학급 전체를 봅니다(실시간 클라우드 미설정 시).</p>
   </div>
 
+  <div class="card" style="margin-top:16px">
+    <h3 class="with-info">🤖 AI 감상 코치 설정 <span class="info-ic" data-info="ethics-ai">ⓘ</span></h3>
+    <p class="muted" style="font-size:12.5px;margin:0 0 10px">기본은 <b>오프라인 코치</b>(키 불필요)예요. 실제 모델을 켜면 더 풍부한 질문을 받지만,
+      무료 한도(분당 요청 5·입력 10K·출력 4K)를 8명이 나눠 쓰면 한도 초과 시 자동으로 오프라인으로 폴백합니다.</p>
+    <div id="coach-warn"></div>
+    <label class="chk-row"><input type="checkbox" id="c-enabled"> 실제 모델 사용(체크 해제 시 항상 오프라인)</label>
+    <div class="grid c2" style="margin-top:6px">
+      <div>
+        <label class="field">방식</label>
+        <select id="c-mode"><option value="direct">직접 호출(이 브라우저에 키 저장)</option><option value="proxy">프록시 서버(권장·키 숨김)</option></select>
+        <label class="field">모델</label>
+        <select id="c-model"><option value="claude-haiku-4-5-20251001">Haiku 4.5 (가장 빠름·권장)</option><option value="claude-sonnet-4-6">Sonnet 4.6</option><option value="claude-opus-4-8">Opus 4.8</option></select>
+      </div>
+      <div>
+        <div id="row-key"><label class="field">API 키 (이 기기 브라우저에만 저장 · 저장소엔 안 올라감)</label>
+          <input id="c-key" type="password" placeholder="sk-ant-..." autocomplete="off"></div>
+        <div id="row-endpoint" class="hide"><label class="field">프록시 주소</label>
+          <input id="c-endpoint" type="text" placeholder="https://your-proxy.example.com/coach"></div>
+      </div>
+    </div>
+    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+      <button id="c-save" class="btn primary">설정 저장</button>
+      <button id="c-test" class="btn">연결 테스트</button>
+      <button id="c-clear" class="btn ghost">초기화</button>
+      <span class="muted" id="c-status" style="font-size:12px"></span>
+    </div>
+    <p class="muted" style="font-size:11.5px;margin:10px 0 0">⚠ ‘직접 호출’은 이 브라우저를 여는 사람이 키를 볼 수 있어요(교사 기기에서만 권장). 여러 학생이 쓰면 키 보호·중앙 한도 관리를 위해 <b>프록시</b>가 안전합니다.</p>
+  </div>
+
   <h2 style="margin:22px 0 10px">작품</h2>
   <div class="card" style="overflow-x:auto"><table class="data" id="tbl-works"><thead><tr><th>제목</th><th>이름</th><th>반</th><th>유형</th><th>전시</th><th>의도</th><th>피드백</th><th>시각</th></tr></thead><tbody></tbody></table></div>
 
@@ -43,6 +72,8 @@
 <script src="config/cloud-config.js"></script>
 <script src="js/store.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/ratelimit.js"></script>
+<script src="js/coach.js"></script>
 <script>
   document.getElementById('mode-label').textContent = Store.mode === 'cloud' ? '클라우드(실시간)' : '로컬(이 기기)';
   if (Store.mode !== 'cloud') document.getElementById('cloud-note').innerHTML =
@@ -106,6 +137,63 @@
 
   if (!Auth.isTeacher()) UI.toast('교사 계정으로 로그인하면 관리 기능이 모두 열려요(현재는 열람만).');
   load();
+
+  /* ----------------------------- 실시간 클라우드 연결 점검 ----------------------------- */
+  (async function probeCloud() {
+    const note = document.getElementById('cloud-note');
+    if (Store.mode !== 'cloud') return; // 강제 로컬 등은 기존 메시지 유지
+    try {
+      await window.DN_CLOUD.listWorks();        // 읽기 성공 → 규칙 게시됨
+      note.innerHTML = UI.callout('<b>실시간 공유 연결됨</b> · 같은 링크를 연 학생들의 작품·피드백이 실시간으로 모입니다(project <code>data-art-2026</code>).', 'info');
+    } catch (e) {
+      note.innerHTML = UI.callout('<b>클라우드 연결됨 · 규칙 게시 필요</b> · Firestore가 아직 ‘잠금’이라 읽기/쓰기가 거부됩니다(현재는 로컬 폴백). Firebase 콘솔 → Firestore → 규칙에 <code>config/firestore.rules</code>를 붙여넣고 게시하면 실시간 공유가 켜집니다.', 'warn');
+    }
+  })();
+
+  /* ----------------------------- AI 코치 설정 ----------------------------- */
+  (function coachSettings() {
+    const $ = id => document.getElementById(id);
+    const cfg = Coach.getConfig();
+    $('c-enabled').checked = !!cfg.enabled;
+    $('c-mode').value = cfg.mode === 'proxy' ? 'proxy' : 'direct';
+    if (cfg.model) $('c-model').value = cfg.model;
+    if (cfg.apiKey) $('c-key').value = cfg.apiKey;
+    if (cfg.endpoint) $('c-endpoint').value = cfg.endpoint;
+    syncMode();
+    document.getElementById('coach-warn').innerHTML =
+      UI.callout('키는 <b>이 브라우저(localStorage)에만</b> 저장되고 저장소·서버로 전송되지 않습니다. 무료 한도는 큐가 보호하며, 초과 시 학생 화면엔 자동으로 오프라인 질문이 나갑니다.', 'info');
+
+    function syncMode() {
+      const proxy = $('c-mode').value === 'proxy';
+      $('row-key').classList.toggle('hide', proxy);
+      $('row-endpoint').classList.toggle('hide', !proxy);
+    }
+    function refreshStatus() {
+      const s = Coach.status();
+      $('c-status').textContent = `남은 한도/분 — 요청 ${s.reqLeft} · 입력 ${s.inLeft} · 출력 ${s.outLeft}` + (s.queued ? ` · 대기 ${s.queued}` : '');
+    }
+    setInterval(refreshStatus, 2000); refreshStatus();
+
+    $('c-mode').addEventListener('change', syncMode);
+    $('c-save').addEventListener('click', () => {
+      const c = { enabled: $('c-enabled').checked, mode: $('c-mode').value, model: $('c-model').value,
+        apiKey: $('c-key').value.trim(), endpoint: $('c-endpoint').value.trim() };
+      Coach.setConfig(c);
+      UI.toast(c.enabled ? 'AI 코치 설정 저장 (실제 모델 사용)' : '저장됨 — 오프라인 코치 사용');
+    });
+    $('c-clear').addEventListener('click', () => { Coach.clearConfig(); $('c-enabled').checked = false; $('c-key').value = ''; $('c-endpoint').value = ''; UI.toast('코치 설정을 초기화했습니다.'); });
+    $('c-test').addEventListener('click', async () => {
+      // 저장된 설정 기준으로 1회 호출(샘플 맥락). enabled+키면 실제 모델, 아니면 오프라인.
+      const c = { enabled: $('c-enabled').checked, mode: $('c-mode').value, model: $('c-model').value,
+        apiKey: $('c-key').value.trim(), endpoint: $('c-endpoint').value.trim() };
+      Coach.setConfig(c);
+      UI.modal('🤖 코치 연결 테스트', '<div class="spinner"></div> 호출 중…(한도 대기 시 시간이 걸릴 수 있어요)');
+      const res = await Coach.ask({ kind: 'lab', intent: '연결 테스트', K: 6, palette: [{ r: 210, g: 120, b: 70, ratio: 0.4 }] });
+      const tag = res.source.indexOf('api') === 0 ? '<span class="badge good">실제 모델 응답 OK</span>' : '<span class="badge">오프라인(모델 미사용/폴백)</span>';
+      UI.modal('🤖 코치 연결 테스트 ' + tag,
+        `<div class="lvl-b">${UI.escapeHTML(res.text).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>')}</div>`);
+    });
+  })();
 </script>
 </body>
 </html>
