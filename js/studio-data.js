@@ -97,9 +97,34 @@
   };
 
   /* ----------------------------- 규칙 A/B ----------------------------- */
-  function snapRule() { return { mSize: state.mSize, mSpeed: state.mSpeed, mDir: state.mDir, mDensity: state.mDensity }; }
-  function applyRule(r) { if (!r) return; Object.assign(state, r); syncMap(); build(); }
-  function syncMap() { $('#m-size').checked = state.mSize; $('#m-speed').checked = state.mSpeed; $('#m-dir').checked = state.mDir; $('#m-density').checked = state.mDensity; }
+  function snapRule() { return { mSize: state.mSize, mSpeed: state.mSpeed, mDir: state.mDir, mDensity: state.mDensity, baseSpeed: state.baseSpeed, vib: state.vib, color: state.color }; }
+  function applyRule(r) { if (!r) return; Object.assign(state, r); syncControls(); build(); }
+  function syncControls() {
+    $('#m-size').checked = state.mSize; $('#m-speed').checked = state.mSpeed; $('#m-dir').checked = state.mDir; $('#m-density').checked = state.mDensity;
+    $('#r-speed').value = state.baseSpeed; $('#o-speed').textContent = state.baseSpeed;
+    $('#r-vib').value = state.vib; $('#o-vib').textContent = state.vib; $('#sel-color').value = state.color;
+  }
+  const COLORLBL = { value: '값색', warm: '난색', cool: '한색' };
+  function describeRule(r) {
+    if (!r) return '—';
+    const m = []; if (r.mSize) m.push('크기'); if (r.mSpeed) m.push('속도'); if (r.mDir) m.push('방향'); if (r.mDensity) m.push('밀도');
+    return `${m.join('·') || '매핑없음'} · 속도${r.baseSpeed}·진동${r.vib}·${COLORLBL[r.color] || r.color}`;
+  }
+  function diffRules(a, b) {
+    const d = []; const lbl = { mSize: '크기', mSpeed: '속도', mDir: '방향', mDensity: '밀도' };
+    Object.keys(lbl).forEach(k => { if (a[k] !== b[k]) d.push(lbl[k]); });
+    if (a.color !== b.color) d.push('색'); if (a.baseSpeed !== b.baseSpeed) d.push('기본속도'); if (a.vib !== b.vib) d.push('진동');
+    return d.join(', ');
+  }
+  function renderAB() {
+    const el = $('#ab-summary'); if (!el) return;
+    if (!ruleA && !ruleB) { el.innerHTML = ''; return; }
+    const s = [];
+    if (ruleA) s.push(`<b style="color:var(--good)">A</b> = ${describeRule(ruleA)}`);
+    if (ruleB) s.push(`<b style="color:var(--accent2)">B</b> = ${describeRule(ruleB)}`);
+    if (ruleA && ruleB) { const d = diffRules(ruleA, ruleB); s.push(`<b style="color:var(--accent)">차이</b>: ${d || '없음'} — ‘A/B 전환’으로 번갈아 보며 어느 쪽이 의도를 더 잘 전하는지 적어 보세요.`); }
+    el.innerHTML = s.join('<br>');
+  }
 
   /* ----------------------------- 코치 ----------------------------- */
   function rulesText() {
@@ -165,9 +190,9 @@
     rng('r-speed', 'o-speed', 'baseSpeed'); rng('r-vib', 'o-vib', 'vib'); rng('r-trail', 'o-trail', 'trail');
     $('#sel-color').addEventListener('change', e => state.color = e.target.value);
 
-    $('#btn-ruleA').addEventListener('click', () => { ruleA = snapRule(); UI.toast('규칙 A 저장됨'); });
-    $('#btn-ruleB').addEventListener('click', () => { ruleB = snapRule(); UI.toast('규칙 B 저장됨'); });
-    $('#btn-ab').addEventListener('click', () => { if (!ruleA || !ruleB) { UI.toast('먼저 규칙 A·B를 저장하세요.'); return; } abFlag = !abFlag; applyRule(abFlag ? ruleB : ruleA); UI.toast('적용: 규칙 ' + (abFlag ? 'B' : 'A')); });
+    $('#btn-ruleA').addEventListener('click', () => { ruleA = snapRule(); renderAB(); UI.toast('규칙 A 저장됨 — 설정을 바꿔 규칙 B도 저장해 비교하세요.'); });
+    $('#btn-ruleB').addEventListener('click', () => { ruleB = snapRule(); renderAB(); UI.toast('규칙 B 저장됨 — ‘A/B 전환’으로 비교하세요.'); });
+    $('#btn-ab').addEventListener('click', () => { if (!ruleA || !ruleB) { UI.toast('먼저 규칙 A·B를 저장하세요.'); return; } abFlag = !abFlag; applyRule(abFlag ? ruleB : ruleA); renderAB(); UI.toast('적용: 규칙 ' + (abFlag ? 'B' : 'A')); });
 
     $('#btn-coach').addEventListener('click', coach);
     $('#btn-img').addEventListener('click', saveImage);

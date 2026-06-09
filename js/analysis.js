@@ -244,6 +244,38 @@
         for (let x = 0; x <= w; x += 40) ctx.lineTo(x, y + Math.sin(x * 0.05 + i) * 12);
         ctx.stroke();
       }
+    } else if (name === 'portrait') {
+      // 인물 습작(난색 피부톤) — 피부톤 팔레트·구도 분석용
+      const g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#3a2a3f'); g.addColorStop(1, '#5a3a2a');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#2a1a12'; ctx.beginPath(); ctx.ellipse(w / 2, h * 0.5, w * 0.26, h * 0.42, 0, 0, Math.PI * 2); ctx.fill();
+      const skin = ctx.createRadialGradient(w * 0.5, h * 0.46, 20, w * 0.5, h * 0.5, w * 0.25);
+      skin.addColorStop(0, '#f1c9a5'); skin.addColorStop(1, '#c98a63');
+      ctx.fillStyle = skin; ctx.beginPath(); ctx.ellipse(w / 2, h * 0.5, w * 0.19, h * 0.27, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(220,120,110,.4)'; ctx.beginPath(); ctx.arc(w * 0.42, h * 0.55, 22, 0, 7); ctx.arc(w * 0.58, h * 0.55, 22, 0, 7); ctx.fill();
+      ctx.fillStyle = '#2b2b3a'; ctx.beginPath(); ctx.arc(w * 0.43, h * 0.47, 9, 0, 7); ctx.arc(w * 0.57, h * 0.47, 9, 0, 7); ctx.fill();
+      ctx.strokeStyle = '#a8434a'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(w * 0.5, h * 0.58, 18, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+    } else if (name === 'pointillism') {
+      // 쇠라풍 점묘(보색 점) — '점묘=색 군집화' 연결, 산점도 분석용
+      ctx.fillStyle = '#e8e0c8'; ctx.fillRect(0, 0, w, h);
+      for (let i = 0; i < 9000; i++) {
+        const x = Math.random() * w, y = Math.random() * h, t = y / h;
+        const base = t < 0.55 ? (Math.random() < 0.5 ? [120, 170, 220] : [210, 190, 120])
+                              : (Math.random() < 0.5 ? [110, 160, 70] : [200, 140, 90]);
+        ctx.fillStyle = `rgb(${base[0] + (Math.random() * 40 - 20) | 0},${base[1] + (Math.random() * 40 - 20) | 0},${base[2] + (Math.random() * 40 - 20) | 0})`;
+        ctx.beginPath(); ctx.arc(x, y, 2.2, 0, 7); ctx.fill();
+      }
+    } else if (name === 'monochrome') {
+      // 흑백 명도 습작 — 노탄·명도 히스토그램 분석용
+      const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#101014'); g.addColorStop(1, '#d8d8de');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      const tones = ['#1b1b22', '#3a3a44', '#6a6a76', '#9a9aa6', '#cfcfd8'];
+      for (let i = 0; i < 14; i++) {
+        ctx.fillStyle = tones[i % tones.length];
+        const x = Math.random() * w, y = Math.random() * h, s = 40 + Math.random() * 150;
+        if (i % 2) { ctx.beginPath(); ctx.arc(x, y, s / 2, 0, 7); ctx.fill(); }
+        else ctx.fillRect(x - s / 2, y - s / 2, s, s);
+      }
     } else {
       // 석양(기본): 따뜻한 방사형 그라데이션 + 해 + 수평선
       const g = ctx.createLinearGradient(0, 0, 0, h);
