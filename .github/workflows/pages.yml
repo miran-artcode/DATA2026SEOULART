@@ -1,0 +1,49 @@
+name: Deploy site to GitHub Pages
+
+# 정적 사이트(저장소 루트)를 GitHub Pages 로 배포한다.
+# Pages 가 비활성 상태면 configure-pages(enablement) 가 자동으로 켠다.
+# 게시 주소: https://<owner>.github.io/<repo>/  (프로젝트 페이지, 하위 경로)
+on:
+  push:
+    branches:
+      - main
+      - claude/stoic-hamilton-e4lmey
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble site (exclude VCS/CI files)
+        run: |
+          mkdir -p _site
+          rsync -a --exclude='.git' --exclude='.github' --exclude='_site' ./ _site/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -19,7 +19,7 @@
       { href: 'exhibit.html', t: '키오스크 전시', s: '큰 화면 슬라이드쇼 + QR 비평' },
       { href: 'notes.html', t: '작업 노트', s: '과정·버전·성찰 기록' }
     ] },
-    { label: '교사', href: 'teacher.html' }
+    { label: '교사', href: 'admin.html' }
   ];
 
   const UI = {};

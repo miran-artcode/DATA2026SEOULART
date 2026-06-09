@@ -21,7 +21,7 @@ hub.html  학생 허브
 
 work.html?id=…  작품 단독 페이지 (QR 진입 · 감상·비평 펠드먼 4단계)
 
-teacher.html  교사 대시보드 (전체 열람 · 취합 · 통계)
+admin.html  교사 대시보드 (전체 열람 · 취합 · 통계)
 
 [공유 데이터 계층] store.js — 기본 로컬, config/cloud-config.js 설정 시 실시간 클라우드
 [AI 감상 코치]   coach.js — 기본 오프라인(질문 생성), 선택 시 모델 호출(rate-limit 보호)
@@ -74,7 +74,7 @@ teacher.html  교사 대시보드 (전체 열람 · 취합 · 통계)
 - **큐레이션(교사)**: 교사 대시보드에서 작품마다 **전시 순서·테마**를 지정 → 키오스크가 순서대로 보여주고 테마별로 필터합니다.
 - QR 주소는 자동(현재 접속 주소)이며, 배포/교실 LAN 주소로 바꿀 수 있습니다(🔗 버튼). 같은 네트워크/링크면 관람객 비평이 실시간(클라우드)으로 모입니다.
 
-> 🔒 **교사 대시보드**(`teacher.html`)는 관리자 비밀번호로 잠겨 있습니다(관리자: `sooremond@gmail.com`). 정적 사이트의 *가벼운 잠금*(클라이언트 측, SHA‑256 해시 비교)이므로 강한 보안이 아니며, 민감정보는 올리지 마세요.
+> 🔒 **교사 대시보드**(`admin.html`)는 관리자 비밀번호로 잠겨 있습니다(관리자: `sooremond@gmail.com`). 정적 사이트의 *가벼운 잠금*(클라이언트 측, SHA‑256 해시 비교)이므로 강한 보안이 아니며, 민감정보는 올리지 마세요.
 
 ### 6) AI 감상 코치 — ‘답’이 아니라 ‘질문’
 팔레트·K·N·규칙·학생 의도를 읽어 **근거를 캐묻는 질문**을 생성합니다(‘AI 맹신 금지’ 가치).
@@ -94,8 +94,11 @@ teacher.html  교사 대시보드 (전체 열람 · 취합 · 통계)
 python3 -m http.server 8000   # → http://localhost:8000
 ```
 
-### 온라인 전시 (GitHub Pages)
-저장소 **Settings → Pages → Branch** 지정 → 발행 주소를 QR로. HTTPS라 마이크·녹화·클라우드가 정상 동작.
+### 온라인 전시 (GitHub Pages · 자동 배포)
+`.github/workflows/pages.yml`가 푸시할 때마다 자동 배포합니다. 발행 주소(프로젝트 페이지):
+**`https://seoulartai1-cell.github.io/data2026seoulart/`**
+- 워크플로가 Pages 자동 활성화를 시도합니다. 만약 막히면 한 번만 **Settings → Pages → Source = “GitHub Actions”** 로 지정하세요.
+- HTTPS라 마이크·녹화·클라우드가 정상 동작하고, 키오스크 QR도 이 주소를 가리킵니다.
 
 ---
 
@@ -121,7 +124,7 @@ python3 -m http.server 8000   # → http://localhost:8000
 
 ## (선택) 실제 AI 모델 코치 켜기 — 교사 대시보드에서
 
-**교사 대시보드(`teacher.html`) → ‘🤖 AI 감상 코치 설정’** 카드에서 켭니다(코드 수정 불필요):
+**교사 대시보드(`admin.html`) → ‘🤖 AI 감상 코치 설정’** 카드에서 켭니다(코드 수정 불필요):
 1. ‘실제 모델 사용’ 체크 → 방식·모델 선택 → **API 키 입력** → ‘설정 저장’.
 2. ‘연결 테스트’로 실제 응답 여부 확인(실패 시 자동 오프라인).
 
@@ -149,7 +152,7 @@ python3 -m http.server 8000   # → http://localhost:8000
 
 ## 파일 구조
 ```
-index.html hub.html lab.html learn.html gallery.html notes.html teacher.html
+index.html hub.html lab.html learn.html gallery.html notes.html admin.html
 studio-color.html  studio-data.html
 css/  site.css(공용)  style.css(색 군집 스튜디오)
 js/   ui.js explain.js guide.js          ← 공용 셸·설명(ⓘ)·안내(💡)
