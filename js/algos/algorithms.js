@@ -66,9 +66,12 @@
   Algos.notan = function (src, opts) {
     const th = (opts && opts.threshold != null) ? opts.threshold : 128;
     const levels = (opts && opts.levels) || 2;
+    const contrast = (opts && opts.contrast) || 0; // -1 ~ 1 (톤커브)
+    const cf = (259 * (contrast * 255 + 255)) / (255 * (259 - contrast * 255));
     const sm = small(src, 300), d = sm.data.data;
     for (let i = 0; i < d.length; i += 4) {
-      const L = lum(d[i], d[i + 1], d[i + 2]);
+      let L = lum(d[i], d[i + 1], d[i + 2]);
+      if (contrast) L = clamp(cf * (L - 128) + 128);
       let v;
       if (levels <= 2) v = L >= th ? 255 : 0;
       else { const stepv = 255 / (levels - 1); v = clamp(Math.round((L / 255 * (levels - 1))) * stepv); }

@@ -146,8 +146,8 @@
     }
   };
 
-  // 명도 히스토그램 + 톤커브 기준선
-  Charts.valueHist = function (cv, valueHist) {
+  // 명도 히스토그램 + 톤커브(대비 반영)
+  Charts.valueHist = function (cv, valueHist, contrast) {
     const { ctx, w, h } = setup(cv);
     const max = Math.max(1, ...valueHist);
     const g = ctx.createLinearGradient(0, 0, w, 0);
@@ -158,9 +158,16 @@
     ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
     // 하단 명도 띠
     ctx.fillStyle = g; ctx.fillRect(0, h - 5, w, 5);
-    // 톤커브 기준(항등선)
-    ctx.strokeStyle = 'rgba(255,180,84,.6)'; ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(0, h); ctx.lineTo(w, 0); ctx.stroke(); ctx.setLineDash([]);
+    // 톤커브 (대비 contrast: -1~1, 0이면 항등선)
+    const c = contrast || 0, cf = (259 * (c * 255 + 255)) / (255 * (259 - c * 255));
+    ctx.strokeStyle = 'rgba(255,180,84,.85)'; ctx.lineWidth = 1.6;
+    if (!c) ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    for (let x = 0; x <= w; x += 4) {
+      const L = (x / w) * 255; let L2 = cf * (L - 128) + 128; L2 = L2 < 0 ? 0 : L2 > 255 ? 255 : L2;
+      const y = h - (L2 / 255) * h; x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
   };
 
   global.Charts = Charts;

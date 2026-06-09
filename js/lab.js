@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   const $ = s => document.querySelector(s);
-  const state = { K: 8, space: 'rgb', levels: 4, th: 128, cell: 16, seed: 12345 };
+  const state = { K: 8, space: 'rgb', levels: 4, th: 128, notan: 2, contrast: 0, cell: 16, seed: 12345 };
   let src = null, lastPalette = [], lastComp = null, lastStats = null, lastHarmony = null;
   const MEMO_KEY = 'dn_lab_memos';
 
@@ -45,7 +45,7 @@
         renderHarmony(lastPalette);
 
         blit('rc-poster', Algos.posterize(src, { levels: state.levels }).recreate);
-        blit('rc-notan', Algos.notan(src, { threshold: state.th }).recreate);
+        blit('rc-notan', Algos.notan(src, { threshold: state.th, levels: state.notan, contrast: state.contrast / 100 }).recreate);
         blit('rc-edge', Algos.edges(src, {}).recreate);
         const mc = Algos.medianCut(src, { K: state.K }); blit('rc-median', mc.recreate); swatches('pal-median', mc.palette);
         blit('rc-mosaic', Algos.mosaic(src, { cell: state.cell }).recreate);
@@ -63,7 +63,7 @@
     Charts.scatter($('#cv-scatter'), lastStats.samples, lastPalette);
     Charts.rgbHist($('#cv-rgbhist'), lastStats.rgbHist);
     Charts.wheel($('#cv-wheel'), lastStats.hueBins);
-    Charts.valueHist($('#cv-value'), lastStats.valueHist);
+    Charts.valueHist($('#cv-value'), lastStats.valueHist, state.contrast / 100);
   }
   function renderHarmony(pal) {
     if (!pal || !pal.length || !window.Harmony) return;
@@ -141,6 +141,8 @@
     bindRange('rng-k', 'out-k', 'K');
     bindRange('rng-levels', 'out-levels', 'levels');
     bindRange('rng-th', 'out-th', 'th');
+    bindRange('rng-notan', 'out-notan', 'notan');
+    bindRange('rng-contrast', 'out-contrast', 'contrast');
     bindRange('rng-cell', 'out-cell', 'cell');
     $('#btn-run').addEventListener('click', runAll);
     $('#btn-report').addEventListener('click', report);
