@@ -51,6 +51,7 @@
     for (let i = 0; i < n; i++) {
       let r, g, b;
       if (mode === 'original') { r = a.or[i]; g = a.og[i]; b = a.ob[i]; }
+      else if (mode === 'mono') { r = g = b = Math.max(0, Math.min(255, Math.round(a.br[i] * 255))); } // 명암(흑백) 렌즈
       else { const p = a.palette[a.cluster[i]]; r = p.r; g = p.g; b = p.b; }
       this.colStr[i] = 'rgb(' + r + ',' + g + ',' + b + ')';
     }
@@ -64,10 +65,11 @@
   // 캔버스 크기에 맞춰 home 좌표 재계산(정규화 좌표 → 화면 좌표)
   System.prototype.remap = function (rect, resetPos) {
     this.rect = rect;
-    const a = this.a, n = this.n;
+    const a = this.a, n = this.n, cell = this.opts.mosaicCell || 0;
     for (let i = 0; i < n; i++) {
-      const hx = rect.x + a.nx[i] * rect.w;
-      const hy = rect.y + a.ny[i] * rect.h;
+      let hx = rect.x + a.nx[i] * rect.w;
+      let hy = rect.y + a.ny[i] * rect.h;
+      if (cell > 0) { hx = Math.floor(hx / cell) * cell + cell / 2; hy = Math.floor(hy / cell) * cell + cell / 2; } // 모자이크 격자에 스냅
       this.hx[i] = hx; this.hy[i] = hy;
       if (resetPos) { this.px[i] = hx; this.py[i] = hy; }
     }

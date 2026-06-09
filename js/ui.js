@@ -17,7 +17,10 @@
       { href: 'studio-sound.html', t: '소리를 데이터로', s: '녹음·소리에서 특징 추출 (2단계)' },
       { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 차트 + 재창조' }
     ] },
-    { label: '배우기', href: 'learn.html' },
+    { label: '배우기', drop: [
+      { href: 'learn.html', t: '알고리즘 배움터', s: '쉬운→깊은 설명' },
+      { href: 'critique.html', t: '데이터 비평 읽기', s: '차트를 비판적으로 (질문 3층위)' }
+    ] },
     { label: '나누기', drop: [
       { href: 'gallery.html', t: '전시 갤러리', s: '작품 감상 + 또래 피드백' },
       { href: 'exhibit.html', t: '키오스크 전시', s: '큰 화면 슬라이드쇼 + QR 비평' },

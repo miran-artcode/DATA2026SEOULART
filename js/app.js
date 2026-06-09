@@ -15,7 +15,7 @@
     // 분석
     K: 8, space: 'rgb', sampling: 'uniform', N: 4000, seed: 12345,
     // 점
-    size: 3, colorMode: 'cluster',
+    size: 3, colorMode: 'cluster', mosaicCell: 0,
     // 움직임
     mode: 'points', motionMode: 'hold', returnForce: 0.08, vibration: 0, trail: 255, additive: false,
     rotateSpeed: 0.004, depth: 220, palChart: 'donut',
@@ -106,7 +106,7 @@
 
   function rebuildSystem() {
     if (!analysis) return;
-    system = Particles.create(analysis, imageRect(), { colorMode: state.colorMode, baseSize: state.size });
+    system = Particles.create(analysis, imageRect(), { colorMode: state.colorMode, baseSize: state.size, mosaicCell: state.mosaicCell });
     updatePointInfo();
   }
   function updatePointInfo() {
@@ -420,6 +420,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     setVal('#rng-n', state.N); setOut('#out-n', fmt(state.N));
     setVal('#rng-size', state.size); setOut('#out-size', state.size);
     setVal('#sel-colormode', state.colorMode);
+    setVal('#rng-mcell', state.mosaicCell); setOut('#out-mcell', state.mosaicCell);
     setVal('#sel-mode', state.mode);
     setVal('#sel-motion', state.motionMode);
     setVal('#rng-return', state.returnForce); setOut('#out-return', state.returnForce);
@@ -488,6 +489,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     // 점(재분석 없이 시스템만 갱신)
     onRange('#rng-size', '#out-size', v => { state.size = v; if (system) system.opts.baseSize = v; });
     $('#sel-colormode').addEventListener('change', e => { state.colorMode = e.target.value; if (system) system.setColorMode(state.colorMode); });
+    onRange('#rng-mcell', '#out-mcell', v => { state.mosaicCell = v | 0; if (system) { system.opts.mosaicCell = state.mosaicCell; system.remap(imageRect(), true); } });
 
     // 움직임(실시간 반영)
     $('#sel-mode').addEventListener('change', e => { state.mode = e.target.value; $('#row-3d').style.display = state.mode === '3d' ? '' : 'none'; });
@@ -685,6 +687,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     bindUI();
     syncControls();
     p5i = new p5(sketch);
+    setVal('#sel-demo', 'starrynight');
     setTimeout(() => loadDemo('starrynight'), 120); // 시작하자마자 살아있는 화면
   });
 })();

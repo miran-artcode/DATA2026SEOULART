@@ -141,8 +141,14 @@
             <select id="sel-colormode">
               <option value="cluster">대표색(군집)</option>
               <option value="original">원본색</option>
+              <option value="mono">명암(흑백)</option>
             </select>
           </div>
+          <div class="row">
+            <label>표현 렌즈 · 모자이크 격자 <output id="out-mcell">0</output></label>
+            <input id="rng-mcell" type="range" min="0" max="40" step="2" value="0" />
+          </div>
+          <p class="hint">0=점묘 · 값이 크면 점이 격자에 모여 ‘모자이크/픽셀’ 느낌(다른 알고리즘 표현). ‘색 모드=명암’과 함께 쓰면 흑백 모자이크.</p>
         </div>
       </details>
 
