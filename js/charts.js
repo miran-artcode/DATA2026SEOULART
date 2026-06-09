@@ -170,5 +170,30 @@
     ctx.stroke(); ctx.setLineDash([]);
   };
 
+  // 색 분포 히트맵: x=색상(빨강→보라), y=밝기(아래 어두움→위 밝음), 칸 색=그 색, 진하기=밀도
+  Charts.heatmap = function (cv, samples) {
+    const { ctx, w, h } = setup(cv);
+    const HX = 36, HY = 16, grid = new Float64Array(HX * HY); let max = 0;
+    (samples || []).forEach(s => {
+      const r = s[0], g = s[1], b = s[2], mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+      if (d < 14) return;
+      let hue; if (mx === r) hue = ((g - b) / d) % 6; else if (mx === g) hue = (b - r) / d + 2; else hue = (r - g) / d + 4;
+      hue = (hue * 60 + 360) % 360;
+      const L = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      const xx = Math.min(HX - 1, Math.floor(hue / 360 * HX)), yy = Math.min(HY - 1, Math.floor(L * HY));
+      const i = yy * HX + xx; grid[i]++; if (grid[i] > max) max = grid[i];
+    });
+    const cw = w / HX, ch = h / HY;
+    for (let y = 0; y < HY; y++) for (let x = 0; x < HX; x++) {
+      const v = grid[y * HX + x]; if (v <= 0) continue;
+      ctx.globalAlpha = Math.min(1, 0.16 + v / (max || 1) * 0.84);
+      ctx.fillStyle = `hsl(${x / HX * 360},75%,${Math.max(28, Math.min(72, (y + 0.5) / HY * 100))}%)`;
+      ctx.fillRect(x * cw, h - (y + 1) * ch, cw + 0.6, ch + 0.6);
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = css('--muted'); ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('← 색상(빨강→보라) →', w / 2, h - 3);
+  };
+
   global.Charts = Charts;
 })(window);

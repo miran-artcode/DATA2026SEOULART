@@ -71,10 +71,11 @@
             <option value="harmony">색채 조화 맞히기</option>
             <option value="temp">색 온도(난색/한색)</option>
             <option value="composition">구도(무게중심)</option>
+            <option value="free">주관식 — 직접 답 입력(게임형)</option>
             <option value="custom">직접 만들기(서술형 보기)</option>
           </select>
           <label class="field">함께 보여줄 차트</label>
-          <select id="q-chart"><option value="donut">비율 도넛</option><option value="bars">정렬 막대</option><option value="wheel">색상환</option></select>
+          <select id="q-chart"><option value="donut">비율 도넛</option><option value="bars">정렬 막대</option><option value="wheel">색상환</option><option value="heatmap">색 분포 히트맵</option></select>
           <div class="qchart" style="margin-top:8px"><canvas id="q-chart-canvas"></canvas></div>
         </div>
         <div>
@@ -83,6 +84,10 @@
           <div id="q-options-edit" style="margin-top:8px"></div>
           <label class="field">해설 · 선택 이유 <span class="muted" style="font-size:11px">(정답 공개 후 표시)</span></label>
           <textarea id="q-explain" rows="2" placeholder="왜 그렇게 분석했는지 근거를 적어요"></textarea>
+          <label class="field">💡 힌트 (선택) — 푸는 사람에게 줄 단서</label>
+          <input id="q-hint" type="text" placeholder="예: 가장 넓은 조각을 보세요">
+          <label class="field">🧑 내 이야기 (선택) — 내 일상/사진이면 들려주세요</label>
+          <input id="q-story" type="text" placeholder="예: 어제 우리 동네 노을을 직접 찍었어요">
         </div>
       </div>
 

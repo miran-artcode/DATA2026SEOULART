@@ -48,7 +48,7 @@
   function drawThumb(src) { const c = $('#q-thumb'), ar = src.width / src.height; c.width = 92; c.height = Math.round(92 / ar); c.getContext('2d').drawImage(src, 0, 0, c.width, c.height); }
   function drawQuizChart() {
     if (!qAn) return; const cv = $('#q-chart-canvas'), t = $('#q-chart').value;
-    if (t === 'bars') Charts.bars(cv, qAn.palette); else if (t === 'wheel') Charts.wheel(cv, qStats.hueBins); else Charts.donut(cv, qAn.palette);
+    if (t === 'bars') Charts.bars(cv, qAn.palette); else if (t === 'wheel') Charts.wheel(cv, qStats.hueBins); else if (t === 'heatmap') Charts.heatmap(cv, qStats.samples); else Charts.donut(cv, qAn.palette);
   }
 
   /* ----------------------------- 문제 생성 ----------------------------- */
@@ -78,17 +78,22 @@
       const labels = ['왼쪽', '가운데', '오른쪽'];
       return { question: '밝기 무게중심(시선이 모이는 곳)이 어디에 가깝나요?', options: labels.map(l => ({ label: l })), answer: labels.indexOf(correct) };
     }
+    if (qtype === 'free') return { question: '', free: true, answers: [] };
     return { question: '', options: [{ label: '' }, { label: '' }, { label: '' }, { label: '' }], answer: 0, custom: true };
   }
   function onTypeChange() {
     if (!qAn) { UI.toast('먼저 이미지를 분석하세요(데모 선택 또는 업로드).'); return; }
     const type = $('#q-type').value;
     qGen = generateQuestion(type);
-    if (!qGen.custom) $('#q-question').value = qGen.question;
+    if (!qGen.custom && !qGen.free) $('#q-question').value = qGen.question;
     renderOptionsEdit();
   }
   function renderOptionsEdit() {
     const host = $('#q-options-edit'); host.innerHTML = '';
+    if (qGen.free) {
+      host.innerHTML = '<label class="field">정답 (여러 표현 허용: 쉼표로 구분)</label><input id="q-free-answer" type="text" placeholder="예: 빨강, 빨간색, red"><p class="muted" style="font-size:11px;margin-top:4px">문제는 위 칸에 자유롭게 — 점 개수·매핑·느낌 무엇이든 물어보세요!</p>';
+      return;
+    }
     if (qGen.custom) {
       host.innerHTML = '<label class="field">보기(정답을 ◉로 선택)</label>' +
         qGen.options.map((o, i) => '<div style="display:flex;gap:8px;align-items:center;margin:4px 0"><input type="radio" name="q-correct" value="' + i + '"' + (i === 0 ? ' checked' : '') + '><input type="text" class="q-optin" data-i="' + i + '" placeholder="보기 ' + (i + 1) + '"></div>').join('');
@@ -111,8 +116,13 @@
     if (!u) { UI.toast('출제하려면 로그인하세요.'); setTimeout(() => location.href = 'index.html?next=quiz.html', 900); return; }
     if (!qAn || !qGen) { UI.toast('먼저 이미지를 분석하세요.'); return; }
     const type = $('#q-type').value;
-    let question = $('#q-question').value.trim(), options = qGen.options, answer = qGen.answer;
-    if (qGen.custom) {
+    let question = $('#q-question').value.trim(), options = qGen.options, answer = qGen.answer, answers = null;
+    if (qGen.free) {
+      if (!question) { UI.toast('문제를 입력하세요.'); return; }
+      answers = ($('#q-free-answer') ? $('#q-free-answer').value : '').split(',').map(x => x.trim()).filter(Boolean);
+      if (!answers.length) { UI.toast('정답을 1개 이상 입력하세요(쉼표로 여러 개).'); return; }
+      options = [];
+    } else if (qGen.custom) {
       options = Array.from(document.querySelectorAll('.q-optin')).map(inp => ({ label: inp.value.trim() }));
       if (options.some(o => !o.label)) { UI.toast('보기 4개를 모두 채워 주세요.'); return; }
       const sel = document.querySelector('input[name="q-correct"]:checked'); answer = sel ? +sel.value : 0;
@@ -122,13 +132,15 @@
     const cv = $('#q-chart-canvas');
     const quiz = {
       userId: u.userId, by: u.display, klass: u.klass, title: $('#q-title').value.trim() || question || '분석 퀴즈',
-      qtype: type, question, options, answer, explanation: $('#q-explain').value.trim(),
+      qtype: type, question, options, answer, answers, explanation: $('#q-explain').value.trim(),
+      hint: ($('#q-hint') ? $('#q-hint').value.trim() : ''), story: ($('#q-story') ? $('#q-story').value.trim() : ''),
       tags: Array.from(qTags), difficulty: $('#q-diff').value,
       thumb: thumbURL(qSrc), chartImg: cv ? cv.toDataURL('image/png') : '', chartType: $('#q-chart').value
     };
     await Store.saveQuiz(quiz);
     UI.toast('🎉 퀴즈를 출제했습니다!');
     qTags.clear(); $('#q-title').value = ''; $('#q-explain').value = '';
+    if ($('#q-hint')) $('#q-hint').value = ''; if ($('#q-story')) $('#q-story').value = '';
     document.querySelectorAll('.tag-chip.on').forEach(c => c.classList.remove('on'));
     switchTab('play'); renderPlay();
   }
@@ -149,23 +161,38 @@
   async function playQuiz(id) {
     const q = await Store.getQuiz(id); if (!q) return;
     const u = Auth.current();
-    const body =
+    const isFree = q.qtype === 'free';
+    const head =
       '<div class="qimg">' + (q.thumb ? '<img src="' + q.thumb + '">' : '') + (q.chartImg ? '<img src="' + q.chartImg + '">' : '') + '</div>' +
+      (q.story ? '<p class="muted" style="font-size:12.5px;margin:8px 0 0">🧑 ' + esc(q.story) + '</p>' : '') +
       '<h3 style="margin:12px 0 4px">' + esc(q.question) + '</h3>' +
       '<div class="muted" style="font-size:12px;margin-bottom:8px">' + esc(q.by || '') + ' · ' + esc(q.difficulty || '') + (q.tags && q.tags.length ? ' · ' + q.tags.map(esc).join('·') : '') + '</div>' +
-      '<div id="qa-options">' + q.options.map((o, i) =>
-        '<button class="qopt" data-i="' + i + '">' + (o.color ? '<span class="sw" style="background:' + o.color + '"></span>' : '') + esc(o.label || '이 색') + '</button>').join('') + '</div>' +
-      '<div id="qa-result"></div>';
-    UI.modal(esc(q.title || '퀴즈'), body, '맞혀 보세요!');
+      (q.hint ? '<button id="qa-hint-btn" class="btn sm ghost" style="margin-bottom:8px">💡 힌트 보기</button><div id="qa-hint" class="hide" style="font-size:12.5px;color:var(--accent2);margin-bottom:8px"></div>' : '');
+    const interact = isFree
+      ? '<div style="display:flex;gap:8px"><input id="qa-input" type="text" placeholder="정답을 입력하세요" style="flex:1"><button id="qa-go" class="btn primary">제출</button></div>'
+      : '<div id="qa-options">' + (q.options || []).map((o, i) => '<button class="qopt" data-i="' + i + '">' + (o.color ? '<span class="sw" style="background:' + o.color + '"></span>' : '') + esc(o.label || '이 색') + '</button>').join('') + '</div>';
+    UI.modal(esc(q.title || '퀴즈'), head + interact + '<div id="qa-result"></div>', '맞혀 보세요!');
     const already = done.has(id);
-    document.querySelectorAll('#qa-options .qopt').forEach(btn => btn.addEventListener('click', async () => {
-      const choice = +btn.dataset.i, correct = choice === q.answer;
-      document.querySelectorAll('#qa-options .qopt').forEach((b, i) => { b.disabled = true; if (i === q.answer) b.classList.add('correct'); else if (i === choice) b.classList.add('wrong'); });
+    if (q.hint) { const hb = $('#qa-hint-btn'); if (hb) hb.addEventListener('click', () => { const hv = $('#qa-hint'); hv.textContent = '💡 ' + q.hint; hv.classList.remove('hide'); hb.classList.add('hide'); }); }
+    const reveal = async (correct) => {
       $('#qa-result').innerHTML = '<div class="callout ' + (correct ? '' : 'warn') + '" style="margin-top:12px"><span class="ic">' + (correct ? '🎉' : '🤔') + '</span><div><b>' + (correct ? '정답!' : '아쉬워요') + '</b>' +
+        (isFree && q.answers ? '<br>정답: ' + q.answers.map(esc).join(' / ') : '') +
         (q.explanation ? '<br><b>출제자 해설</b>: ' + esc(q.explanation) : '') + '</div></div>';
-      if (!already) { markDone(id); await Store.addQuizAnswer({ quizId: id, userId: u ? u.userId : undefined, by: u ? u.display : '익명', correct: correct, choice }); }
+      if (!already) { markDone(id); await Store.addQuizAnswer({ quizId: id, userId: u ? u.userId : undefined, by: u ? u.display : '익명', correct: correct }); }
       renderPlay();
-    }));
+    };
+    if (isFree) {
+      const go = $('#qa-go'), inp = $('#qa-input');
+      const submit = () => { const norm = s => String(s || '').trim().toLowerCase().replace(/\s+/g, ''); const ok = (q.answers || []).some(a => norm(a) === norm(inp.value)); go.disabled = true; inp.disabled = true; reveal(ok); };
+      if (go) go.addEventListener('click', submit);
+      if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+    } else {
+      document.querySelectorAll('#qa-options .qopt').forEach(btn => btn.addEventListener('click', () => {
+        const choice = +btn.dataset.i, correct = choice === q.answer;
+        document.querySelectorAll('#qa-options .qopt').forEach((b, i) => { b.disabled = true; if (i === q.answer) b.classList.add('correct'); else if (i === choice) b.classList.add('wrong'); });
+        reveal(correct);
+      }));
+    }
     if (already) $('#qa-result').innerHTML = '<p class="muted" style="margin-top:10px">이미 푼 퀴즈예요(점수는 한 번만 반영).</p>';
   }
 

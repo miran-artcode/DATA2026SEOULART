@@ -65,6 +65,7 @@
     Charts.rgbHist($('#cv-rgbhist'), lastStats.rgbHist);
     Charts.wheel($('#cv-wheel'), lastStats.hueBins);
     Charts.valueHist($('#cv-value'), lastStats.valueHist, state.contrast / 100);
+    Charts.heatmap($('#cv-heatmap'), lastStats.samples);
   }
   function renderHarmony(pal) {
     if (!pal || !pal.length || !window.Harmony) return;
@@ -108,7 +109,7 @@
   /* 리포트 */
   function report() {
     const m = getMemos();
-    const labels = { donut: '비율 도넛', bars: '정렬 막대', scatter: '색공간 산점도', rgbhist: 'RGB 히스토그램', wheel: '색상환', value: '명도/톤',
+    const labels = { donut: '비율 도넛', bars: '정렬 막대', scatter: '색공간 산점도', rgbhist: 'RGB 히스토그램', wheel: '색상환', value: '명도/톤', heatmap: '색 분포 히트맵',
       kmeans: 'K-means', histogram: '색 히스토그램(포스터화)', notan: '명도·노탄', edge: '에지(Sobel)', mediancut: '중앙값 분할', mosaic: '모자이크', composition: '구도', harmony: '색채 조화' };
     let md = `# 알고리즘 분석 리포트 (부록 A)\n\n## 전처리\n- 색공간 ${state.space.toUpperCase()} · K=${state.K} · 포스터 ${state.levels}단 · 노탄 임계값 ${state.th} · 모자이크 ${state.cell}px\n\n`;
     md += `## 팔레트 (K-means, 비율 내림차순)\n| # | HEX | RGB | 비율 |\n|---|---|---|---|\n`;

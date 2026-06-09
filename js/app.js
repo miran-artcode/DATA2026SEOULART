@@ -156,6 +156,7 @@
   // 팔레트를 다양한 차트로: 도넛 / 막대 (점 수가 많으면 상위 N + ‘기타’로 묶음)
   function drawPalChart(type) {
     const cv = $('#pal-canvas'); if (!cv || !analysis) return;
+    if (type === 'heatmap') { if (window.Charts && sourceCanvas) { const st = Charts.computeStats(sourceCanvas); Charts.heatmap(cv, st.samples); } return; }
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = cv.clientWidth || cv.parentElement.clientWidth || 280;
     const pal = analysis.palette, MAX = 24;

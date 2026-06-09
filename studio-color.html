@@ -13,6 +13,7 @@
   <script src="js/analysis.js" defer></script>
   <script src="js/audio.js" defer></script>
   <script src="js/particles.js" defer></script>
+  <script src="js/charts.js" defer></script>
   <script src="js/app.js" defer></script>
   <!-- 사이트 연동(코치·전시·허브로 이동). 단일 파일로 쓸 땐 없어도 그대로 동작 -->
   <script src="js/auth.js" defer></script>
@@ -115,6 +116,7 @@
             <div class="pal-tabs">
               <button class="ptab on" data-pchart="donut" title="비율을 도넛 차트로">도넛</button>
               <button class="ptab" data-pchart="hbars" title="비율을 막대 차트로">막대</button>
+              <button class="ptab" data-pchart="heatmap" title="색 분포 히트맵(색상×밝기)">히트맵</button>
             </div>
             <canvas id="pal-canvas"></canvas>
           </div>
