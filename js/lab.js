@@ -5,7 +5,7 @@
   'use strict';
   const $ = s => document.querySelector(s);
   const state = { K: 8, space: 'rgb', levels: 4, th: 128, cell: 16, seed: 12345 };
-  let src = null, lastPalette = [], lastComp = null, lastStats = null;
+  let src = null, lastPalette = [], lastComp = null, lastStats = null, lastHarmony = null;
   const MEMO_KEY = 'dn_lab_memos';
 
   function setBusy(on) { $('#busy').classList.toggle('hide', !on); }
@@ -42,6 +42,7 @@
 
         lastStats = Charts.computeStats(src);
         drawCharts();
+        renderHarmony(lastPalette);
 
         blit('rc-poster', Algos.posterize(src, { levels: state.levels }).recreate);
         blit('rc-notan', Algos.notan(src, { threshold: state.th }).recreate);
@@ -64,6 +65,19 @@
     Charts.wheel($('#cv-wheel'), lastStats.hueBins);
     Charts.valueHist($('#cv-value'), lastStats.valueHist);
   }
+  function renderHarmony(pal) {
+    if (!pal || !pal.length || !window.Harmony) return;
+    const h = window.Harmony.analyze(pal); lastHarmony = h;
+    const rel = [];
+    if (h.relations.complementary) rel.push('보색 대비');
+    if (h.relations.triadic) rel.push('삼각 조화');
+    if (h.relations.analogous) rel.push('유사색 조화');
+    $('#harmony-relations').innerHTML = `지배색 <b>${h.dominantName}</b> (${h.dominantHue}°) · ` +
+      (rel.length ? '발견된 관계: <b style="color:var(--accent)">' + rel.join(', ') + '</b>' : '뚜렷한 조화 관계는 약해요(중성·복합 팔레트).');
+    const row = (name, arr) => `<div style="margin:7px 0"><div class="muted" style="font-size:11px;margin-bottom:3px">${name}</div><div class="swatches">${arr.map(c => `<div class="sw" style="background:rgb(${c.r},${c.g},${c.b})"></div>`).join('')}</div></div>`;
+    $('#harmony-suggest').innerHTML = row('보색 Complementary', h.suggestions.complementary) +
+      row('유사 Analogous', h.suggestions.analogous) + row('삼각 Triadic', h.suggestions.triadic) + row('분할보색 Split', h.suggestions.split);
+  }
 
   /* 메모 저장/복원 */
   function loadMemos() {
@@ -80,11 +94,12 @@
   function report() {
     const m = getMemos();
     const labels = { donut: '비율 도넛', bars: '정렬 막대', scatter: '색공간 산점도', rgbhist: 'RGB 히스토그램', wheel: '색상환', value: '명도/톤',
-      kmeans: 'K-means', histogram: '색 히스토그램(포스터화)', notan: '명도·노탄', edge: '에지(Sobel)', mediancut: '중앙값 분할', mosaic: '모자이크', composition: '구도' };
+      kmeans: 'K-means', histogram: '색 히스토그램(포스터화)', notan: '명도·노탄', edge: '에지(Sobel)', mediancut: '중앙값 분할', mosaic: '모자이크', composition: '구도', harmony: '색채 조화' };
     let md = `# 알고리즘 분석 리포트 (부록 A)\n\n## 전처리\n- 색공간 ${state.space.toUpperCase()} · K=${state.K} · 포스터 ${state.levels}단 · 노탄 임계값 ${state.th} · 모자이크 ${state.cell}px\n\n`;
     md += `## 팔레트 (K-means, 비율 내림차순)\n| # | HEX | RGB | 비율 |\n|---|---|---|---|\n`;
     md += lastPalette.map((p, i) => `| ${i + 1} | ${hex(p)} | ${p.r},${p.g},${p.b} | ${Math.round(p.ratio * 100)}% |`).join('\n');
     if (lastComp) md += `\n\n## 구도\n- 밝기 무게중심 (${lastComp.centroid.x}, ${lastComp.centroid.y}) · 좌우균형 ${Math.round(lastComp.balanceLR * 100)}% · 상하균형 ${Math.round(lastComp.balanceTB * 100)}%\n`;
+    if (lastHarmony) { const rel = [lastHarmony.relations.complementary && '보색', lastHarmony.relations.triadic && '삼각', lastHarmony.relations.analogous && '유사'].filter(Boolean).join(', '); md += `\n## 색채 조화\n- 지배색 ${lastHarmony.dominantName}(${lastHarmony.dominantHue}°) · 관계: ${rel || '약함'}\n`; }
     md += `\n## 해석 메모\n`;
     const keys = Object.keys(labels).filter(k => m[k]);
     md += keys.length ? keys.map(k => `### ${labels[k]}\n${m[k]}`).join('\n\n') : '_(메모가 비어 있습니다. 각 카드 아래에 근거를 적어 보세요.)_';

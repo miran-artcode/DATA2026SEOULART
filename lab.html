@@ -63,6 +63,19 @@
     <div class="card chart-card"><div class="chart-title">명도 히스토그램 · 톤커브 <span data-info="chart-value" class="info-ic">ⓘ</span></div><canvas id="cv-value"></canvas><div class="memo"><textarea data-memo="value" placeholder="해석 메모: 밝은/어두운 톤? 대비?"></textarea></div></div>
   </div>
 
+  <!-- 색채 조화 -->
+  <div class="card" style="margin-top:18px">
+    <h3 class="with-info">색채 조화 분석 · 추천 <span class="badge core">색채 이론</span> <span class="info-ic" data-info="harmony">ⓘ</span></h3>
+    <p id="harmony-relations" class="muted" style="font-size:13.3px;margin:0 0 6px"></p>
+    <div class="grid c2" style="align-items:start">
+      <div id="harmony-suggest"></div>
+      <div>
+        <p class="muted" style="font-size:12.5px;margin:0 0 8px">지배색을 기준으로 색상환에서 <b>보색·유사·삼각·분할보색</b> 팔레트를 제안해요. 작품 의도에 맞는 조화를 골라 재창조에 적용해 보세요.</p>
+        <div class="memo"><textarea data-memo="harmony" placeholder="해석 메모: 어떤 조화가 의도에 맞나? 원작은 어떤 조화를 쓰나?"></textarea></div>
+      </div>
+    </div>
+  </div>
+
   <!-- 7가지 알고리즘 재창조 -->
   <h2 style="margin:28px 0 12px">7가지 알고리즘 — 분석과 재창조</h2>
   <div class="grid c3" id="algos">
@@ -86,6 +99,7 @@
 <script src="js/analysis.js"></script>
 <script src="js/algos/algorithms.js"></script>
 <script src="js/charts.js"></script>
+<script src="js/harmony.js"></script>
 <script src="js/explain.js"></script>
 <script src="js/guide.js"></script>
 <script src="js/auth.js"></script>
