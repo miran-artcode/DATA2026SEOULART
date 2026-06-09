@@ -85,6 +85,19 @@
     </div>
   </div>
 
+  <!-- 색각 다양성 시뮬레이션 -->
+  <div class="card" style="margin-top:16px">
+    <h3 class="with-info">색각 다양성(색맹) 시뮬레이션 <span class="badge core">접근성</span> <span class="info-ic" data-info="cvd">ⓘ</span></h3>
+    <p class="muted" style="font-size:12.5px;margin:0 0 8px">내 색이 색각이 다른 사람에게 어떻게 보일까요? 구분이 사라지면 <b>명도·형태·패턴</b>으로도 정보를 주세요.</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn sm" data-cvd="normal">정상</button>
+      <button class="btn sm" data-cvd="deutan">녹색맹(가장 흔함)</button>
+      <button class="btn sm" data-cvd="protan">적색맹</button>
+      <button class="btn sm" data-cvd="tritan">청색맹</button>
+    </div>
+    <div class="recreate" style="max-width:420px"><span class="rc-tag" id="cvd-tag">정상</span><canvas id="rc-cvd"></canvas></div>
+  </div>
+
   <!-- 7가지 알고리즘 재창조 -->
   <h2 style="margin:28px 0 12px">7가지 알고리즘 — 분석과 재창조</h2>
   <div class="grid c3" id="algos">

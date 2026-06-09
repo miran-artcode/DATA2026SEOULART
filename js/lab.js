@@ -52,6 +52,7 @@
         const comp = Algos.composition(src); lastComp = comp; blit('rc-comp', comp.recreate);
         const lr = Math.round(comp.balanceLR * 100), tb = Math.round(comp.balanceTB * 100);
         $('#comp-info').innerHTML = `무게중심 (${comp.centroid.x}, ${comp.centroid.y}) · 좌우 ${lr}:${100 - lr} · 상하 ${tb}:${100 - tb}`;
+        applyCVD('normal');
       } catch (e) { console.error(e); UI.toast('분석 오류: ' + e.message); }
       finally { setBusy(false); }
     }, 10));
@@ -85,6 +86,12 @@
     const pal = lastHarmony.suggestions[type]; if (!pal) return;
     blit('rc-harmony', Algos.recolor(src, pal));
     const tag = $('#harm-tag'); if (tag) tag.textContent = (HARM_LBL[type] || '') + ' 조화';
+  }
+  const CVD_LBL = { normal: '정상', deutan: '녹색맹', protan: '적색맹', tritan: '청색맹' };
+  function applyCVD(type) {
+    if (!src || !window.Algos) return;
+    blit('rc-cvd', Algos.cvd(src, type).recreate);
+    const tag = $('#cvd-tag'); if (tag) tag.textContent = CVD_LBL[type] || '정상';
   }
 
   /* 메모 저장/복원 */
@@ -149,6 +156,7 @@
     $('#btn-save-note').addEventListener('click', saveNote);
     document.querySelectorAll('[data-memo]').forEach(t => t.addEventListener('input', saveMemos));
     document.querySelectorAll('[data-harm]').forEach(b => b.addEventListener('click', () => applyHarmony(b.dataset.harm)));
+    document.querySelectorAll('[data-cvd]').forEach(b => b.addEventListener('click', () => applyCVD(b.dataset.cvd)));
 
     // 드래그&드롭
     const drop = document.body;

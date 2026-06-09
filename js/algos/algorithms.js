@@ -182,5 +182,23 @@
     return toCanvas(quantizeTo(sm.data, palette));
   };
 
+  /* ---------- 색각 다양성(색맹) 시뮬레이션 ---------- */
+  const CVD = {
+    normal: null,
+    protan: [0.567, 0.433, 0, 0.558, 0.442, 0, 0, 0.242, 0.758],   // 적색맹
+    deutan: [0.625, 0.375, 0, 0.70, 0.30, 0, 0, 0.30, 0.70],       // 녹색맹(가장 흔함)
+    tritan: [0.95, 0.05, 0, 0, 0.433, 0.567, 0, 0.475, 0.525]      // 청색맹
+  };
+  Algos.cvd = function (src, type) {
+    const sm = small(src, 300), d = sm.data.data, m = CVD[type];
+    if (m) for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i + 1], b = d[i + 2];
+      d[i] = clamp(r * m[0] + g * m[1] + b * m[2]);
+      d[i + 1] = clamp(r * m[3] + g * m[4] + b * m[5]);
+      d[i + 2] = clamp(r * m[6] + g * m[7] + b * m[8]);
+    }
+    return { recreate: toCanvas(sm.data) };
+  };
+
   global.Algos = Algos;
 })(window);
