@@ -9,7 +9,7 @@
   const COLORLBL = { value: '값 그라데이션', warm: '난색', cool: '한색' };
   const ADVANCE = 9000;
 
-  let works = [], allWorks = [], themeFilter = '', idx = 0, playing = true, timer = null, progTimer = null, progStart = 0;
+  let works = [], allWorks = [], themeFilter = '', idx = 0, playing = true, timer = null, progTimer = null, progStart = 0, liveCtl = null;
   const ord = w => (w.exhibitOrder == null ? 9999 : w.exhibitOrder);
 
   function baseURL() {
@@ -36,13 +36,14 @@
 
   async function renderSlide() {
     const w = works[idx]; if (!w) return;
+    if (liveCtl) { liveCtl.stop(); liveCtl = null; }
     const fbs = await Store.listFeedback(w.id);
     const notes = w.userId ? (await Store.listNotes(w.userId)) : [];
     const procCount = notes.filter(n => n.line || n.aiHelp || n.myDecision || (n.memos && Object.keys(n.memos).length)).length;
     const st = story(w);
     $('#kroot').innerHTML = `
       <div class="stage">
-        <div class="art">${w.thumb ? `<img src="${w.thumb}" alt="작품">` : '<span class="muted">미리보기 없음</span>'}</div>
+        <div class="art"><canvas id="kiosk-canvas" style="width:92%;height:86%;border-radius:12px"></canvas></div>
         <div class="info">
           <div class="eyebrow2">데이터의 눈 · 학생 전시</div>
           <h1>${esc(w.title || '제목 없음')}</h1>
@@ -59,6 +60,7 @@
         </div>
       </div>`;
     if (window.QR) QR.draw($('#qr'), workURL(w.id), { size: 150, margin: 2 });
+    const kc = $('#kiosk-canvas'); if (kc && window.Player) liveCtl = Player.mount(kc, w, { interactive: false });
     $('#k-counter').textContent = (idx + 1) + ' / ' + works.length;
     restartProgress();
   }

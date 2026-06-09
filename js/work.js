@@ -83,7 +83,8 @@
       </div>` : '';
     $('#work-root').innerHTML = `
       <div class="card">
-        ${work.thumb ? `<img src="${work.thumb}" alt="작품" style="width:100%;border-radius:12px;border:1px solid var(--line)">` : '<p class="muted">미리보기 없음</p>'}
+        <canvas id="live-canvas" style="width:100%;aspect-ratio:4/3;background:#07080d;border-radius:12px;border:1px solid var(--line);display:block"></canvas>
+        <p class="muted" style="font-size:11px;margin:6px 0 0">▶ 살아 움직이는 재생 · 마우스를 올려 반응을 느껴 보세요</p>
         <h1 style="margin:14px 0 4px;font-size:24px">${esc(work.title || '제목 없음')}</h1>
         <p class="muted" style="margin:0">${esc(work.by || '익명')} · <span class="badge">${KIND[work.kind] || work.kind}</span></p>
       </div>
@@ -122,7 +123,8 @@
         </details>
         <button id="c-submit" class="btn primary" style="margin-top:12px">비평 등록</button>
       </div>`;
-    UI.mountIdeaBar && null;
+    const lc = document.getElementById('live-canvas');
+    if (lc && window.Player) { if (window._wPlayer) window._wPlayer.stop(); window._wPlayer = Player.mount(lc, work, { interactive: true }); }
     $('#c-submit').addEventListener('click', submit);
   }
 

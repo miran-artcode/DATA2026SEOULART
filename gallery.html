@@ -26,6 +26,7 @@
 <script src="config/cloud-config.js"></script>
 <script src="js/store.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/player.js"></script>
 <script>
   const KIND = { color: '색 군집', data: '데이터 점', lab: '분석' };
   async function render() {
@@ -49,7 +50,7 @@
       </div></div>`).join('') : '<p class="muted">아직 피드백이 없어요. 첫 피드백을 남겨 보세요.</p>';
     const sel = (name) => `<select id="fb-${name}"><option value="3">잘됨 ★★★</option><option value="2" selected>보통 ★★</option><option value="1">아쉬움 ★</option></select>`;
     const body = `
-      ${w.thumb ? `<img src="${w.thumb}" style="width:100%;border-radius:10px;border:1px solid var(--line)">` : ''}
+      <canvas id="gal-live" style="width:100%;aspect-ratio:4/3;background:#07080d;border-radius:10px;border:1px solid var(--line);display:block"></canvas>
       <p style="margin:8px 0"><a href="work.html?id=${id}">🔍 단독 페이지·비평(펠드먼 4단계) →</a></p>
       <p style="margin:12px 0 4px"><b>의도</b> · ${UI.escapeHTML(w.intent || '(없음)')}</p>
       ${w.evidence ? `<p style="margin:4px 0"><b>근거</b> · ${UI.escapeHTML(w.evidence)}</p>` : ''}
@@ -66,6 +67,7 @@
       <textarea id="fb-comment" rows="2" placeholder="존중하며, 구체적인 근거로"></textarea>
       <button class="btn primary" id="fb-submit" style="margin-top:10px">피드백 등록</button>`;
     UI.modal(UI.escapeHTML(w.title || '작품') + ` <span class="badge">${KIND[w.kind] || ''}</span>`, body, UI.escapeHTML(w.by || ''));
+    if (window.Player) { if (window._gP) window._gP.stop(); const gc = document.getElementById('gal-live'); if (gc) window._gP = Player.mount(gc, w, { interactive: true }); const cl = document.querySelector('#ui-modal .modal-close'); if (cl) cl.addEventListener('click', () => window._gP && window._gP.stop()); }
     document.getElementById('fb-submit').addEventListener('click', async () => {
       if (!u) { UI.toast('피드백하려면 로그인하세요.'); return; }
       await Store.addFeedback({ workId: id, by: u.display, userId: u.userId,

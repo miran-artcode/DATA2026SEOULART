@@ -649,6 +649,16 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
       space: state.space, rules: describeRules(), intent: (state.meta && state.meta.intent) || '' }),
     meta: () => state.meta,
     settings: () => JSON.parse(JSON.stringify(state)),
+    // 전시 재생용: 원본 이미지를 작게 dataURL 로 (작품을 다시 점으로 살려내기)
+    sourceURL: (maxDim) => {
+      if (!sourceCanvas) return '';
+      maxDim = maxDim || 380;
+      const ar = sourceCanvas.width / sourceCanvas.height;
+      const w = Math.min(maxDim, sourceCanvas.width), h = Math.round(w / ar);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(sourceCanvas, 0, 0, w, h);
+      return c.toDataURL('image/jpeg', 0.72);
+    },
     // 분석실 등 외부에서 이미지(dataURL)를 보내 스튜디오에서 이어 작업
     loadImageURL: (url, title) => {
       const img = new Image();

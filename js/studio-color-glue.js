@@ -94,7 +94,7 @@
       let thumb = '';
       if (cv) { const w = 360, h = Math.round(w * cv.height / cv.width); const t = document.createElement('canvas'); t.width = w; t.height = h; t.getContext('2d').drawImage(cv, 0, 0, w, h); thumb = t.toDataURL('image/jpeg', 0.6); }
       await Store.saveWork({ userId: u.userId, by: u.display, klass: u.klass, kind: 'color', title, intent, evidence,
-        settings: window.ColorStudio.settings(), meta, thumb, exhibited: true });
+        settings: window.ColorStudio.settings(), meta, thumb, srcImg: window.ColorStudio.sourceURL(), exhibited: true });
       document.getElementById('glue-modal').style.display = 'none';
       toast('🎉 갤러리에 전시했습니다!');
     });
