@@ -18,6 +18,10 @@
 
   <div class="grid c4" id="stats"></div>
 
+  <h2 style="margin:22px 0 10px">학습 현황 (수준별 자동 추정)</h2>
+  <div class="card" style="overflow-x:auto"><table class="data" id="tbl-students"><thead><tr><th>이름</th><th>반</th><th>작품</th><th>전시</th><th>노트</th><th>피드백</th><th>근거기록</th><th>수준</th></tr></thead><tbody></tbody></table></div>
+  <p class="muted" style="font-size:11.5px;margin:6px 0 0">수준은 활동량(작품·전시·노트·피드백·근거 기록)에 따른 <b>자동 추정</b>이며, 성적 평가가 아니라 지도 참고용입니다.</p>
+
   <div class="card" style="margin-top:16px">
     <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
       <button id="btn-export" class="btn accent2">⬇ 전체 내보내기(JSON)</button>
@@ -79,15 +83,34 @@
   if (Store.mode !== 'cloud') document.getElementById('cloud-note').innerHTML =
     UI.callout('<b>실시간 클라우드 미설정</b> · 지금은 이 기기에 저장된 데이터만 보여요. <code>config/cloud-config.js</code>를 설정하면 한 링크에서 학급 전체가 실시간 공유됩니다(README 참고). 그 전엔 학생 JSON을 ‘취합’해 모으세요.', 'warn');
 
-  let works = [], notes = [], feedback = {};
+  let works = [], notes = [], feedback = {}, allFb = [];
   const KIND = { color: '색 군집', data: '데이터 점', lab: '분석실', reflection: '성찰' };
 
   async function load() {
     works = await Store.listWorks();
     notes = await Store.listNotes();
-    feedback = {};
-    for (const w of works) feedback[w.id] = (await Store.listFeedback(w.id)).length;
-    stats(); renderWorks(); renderNotes();
+    feedback = {}; allFb = [];
+    for (const w of works) { const items = await Store.listFeedback(w.id); feedback[w.id] = items.length; allFb.push(...items); }
+    stats(); renderStudents(); renderWorks(); renderNotes();
+  }
+
+  function studentLevel(s) {
+    const score = s.exhibited * 2 + s.works + s.notes + s.fb + (s.evidence ? 1 : 0);
+    if (score >= 5) return ['심화', 'adv'];
+    if (score >= 2) return ['중간', 'good'];
+    return ['기초', ''];
+  }
+  function renderStudents() {
+    const map = new Map();
+    const get = (id, name, klass) => { if (!map.has(id)) map.set(id, { name, klass: klass || '', works: 0, exhibited: 0, notes: 0, fb: 0, evidence: false }); const s = map.get(id); if (name && !s.name) s.name = name; if (klass && !s.klass) s.klass = klass; return s; };
+    works.forEach(w => { if (!w.userId) return; const s = get(w.userId, w.by, w.klass); s.works++; if (w.exhibited) s.exhibited++; if (w.evidence) s.evidence = true; });
+    notes.forEach(n => { if (!n.userId) return; get(n.userId, n.by).notes++; });
+    allFb.forEach(f => { if (!f.userId) return; get(f.userId, f.by).fb++; });
+    const q = document.getElementById('q').value.trim().toLowerCase();
+    const rows = [...map.values()].filter(s => !q || (s.name || '').toLowerCase().includes(q))
+      .sort((a, b) => (b.exhibited - a.exhibited) || (b.works - a.works))
+      .map(s => { const [lvl, cls] = studentLevel(s); return `<tr><td>${UI.escapeHTML(s.name || '')}</td><td>${UI.escapeHTML(s.klass)}</td><td>${s.works}</td><td>${s.exhibited}</td><td>${s.notes}</td><td>${s.fb}</td><td>${s.evidence ? '✅' : ''}</td><td><span class="badge ${cls}">${lvl}</span></td></tr>`; }).join('');
+    document.querySelector('#tbl-students tbody').innerHTML = rows || '<tr><td colspan="8" class="muted">데이터 없음</td></tr>';
   }
   function stats() {
     const students = new Set([...works.map(w => w.userId), ...notes.map(n => n.userId)].filter(Boolean));
@@ -132,7 +155,7 @@
     }
     UI.toast(`취합 완료: 작품 ${total.works} · 피드백 ${total.feedback} · 노트 ${total.notes}`); load();
   });
-  document.getElementById('q').addEventListener('input', () => { renderWorks(); renderNotes(); });
+  document.getElementById('q').addEventListener('input', () => { renderStudents(); renderWorks(); renderNotes(); });
   document.getElementById('f-kind').addEventListener('change', () => { renderWorks(); renderNotes(); });
 
   if (!Auth.isTeacher()) UI.toast('교사 계정으로 로그인하면 관리 기능이 모두 열려요(현재는 열람만).');
