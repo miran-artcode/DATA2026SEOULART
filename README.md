@@ -96,7 +96,7 @@ python3 -m http.server 8000   # → http://localhost:8000
 
 ### 온라인 전시 (GitHub Pages · 자동 배포)
 `.github/workflows/pages.yml`가 푸시할 때마다 자동 배포합니다. 발행 주소(프로젝트 페이지):
-**`https://seoulartai1-cell.github.io/data2026seoulart/`**
+**`https://seoulartai1-cell.github.io/DATA2026SEOULART/`**
 - 워크플로가 Pages 자동 활성화를 시도합니다. 만약 막히면 한 번만 **Settings → Pages → Source = “GitHub Actions”** 로 지정하세요.
 - HTTPS라 마이크·녹화·클라우드가 정상 동작하고, 키오스크 QR도 이 주소를 가리킵니다.
 
