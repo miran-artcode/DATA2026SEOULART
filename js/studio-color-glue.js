@@ -89,5 +89,20 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', injectButtons);
+  // 분석실에서 보낸 이미지(dataURL)가 있으면 스튜디오에 불러오기
+  function checkIncomingImage() {
+    const url = localStorage.getItem('dn_studio_image');
+    if (!url) return;
+    const title = localStorage.getItem('dn_studio_image_title') || '분석실에서 받은 이미지';
+    localStorage.removeItem('dn_studio_image'); localStorage.removeItem('dn_studio_image_title');
+    // 스튜디오 자체 데모 로드(약 120ms) 이후에 적용되도록 약간 지연
+    setTimeout(() => {
+      if (window.ColorStudio && ColorStudio.loadImageURL) {
+        ColorStudio.loadImageURL(url, title);
+        toast('분석실에서 보낸 ‘' + title + '’ 이미지를 불러왔어요.');
+      }
+    }, 700);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => { injectButtons(); checkIncomingImage(); });
 })();

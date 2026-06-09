@@ -157,6 +157,17 @@
     document.querySelectorAll('[data-memo]').forEach(t => t.addEventListener('input', saveMemos));
     document.querySelectorAll('[data-harm]').forEach(b => b.addEventListener('click', () => applyHarmony(b.dataset.harm)));
     document.querySelectorAll('[data-cvd]').forEach(b => b.addEventListener('click', () => applyCVD(b.dataset.cvd)));
+    const send = $('#btn-send-studio');
+    if (send) send.addEventListener('click', () => {
+      const cv = document.getElementById('rc-harmony');
+      if (!cv || !cv.width) { UI.toast('먼저 분석하세요.'); return; }
+      try {
+        localStorage.setItem('dn_studio_image', cv.toDataURL('image/png'));
+        localStorage.setItem('dn_studio_image_title', ($('#harm-tag') ? $('#harm-tag').textContent : '조화') + ' 재창조');
+      } catch (e) { UI.toast('이미지 전달 실패(용량).'); return; }
+      UI.toast('색 군집 스튜디오로 보냅니다…');
+      setTimeout(() => location.href = 'studio-color.html', 500);
+    });
 
     // 드래그&드롭
     const drop = document.body;

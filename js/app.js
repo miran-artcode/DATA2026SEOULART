@@ -495,7 +495,20 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     context: () => ({ kind: 'color', palette: analysis ? analysis.palette : [], K: state.K, N: state.N,
       space: state.space, rules: describeRules(), intent: (state.meta && state.meta.intent) || '' }),
     meta: () => state.meta,
-    settings: () => JSON.parse(JSON.stringify(state))
+    settings: () => JSON.parse(JSON.stringify(state)),
+    // 분석실 등 외부에서 이미지(dataURL)를 보내 스튜디오에서 이어 작업
+    loadImageURL: (url, title) => {
+      const img = new Image();
+      img.onload = () => {
+        const cv = document.createElement('canvas');
+        cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+        cv.getContext('2d').drawImage(img, 0, 0);
+        sourceCanvas = cv;
+        if (title) { state.meta.title = title; const t = document.getElementById('in-title'); if (t) t.value = title; }
+        showThumb(); runAnalysis();
+      };
+      img.src = url;
+    }
   };
 
   /* ----------------------------- 시작 ----------------------------- */
