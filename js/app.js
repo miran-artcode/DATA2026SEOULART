@@ -107,6 +107,11 @@
   function rebuildSystem() {
     if (!analysis) return;
     system = Particles.create(analysis, imageRect(), { colorMode: state.colorMode, baseSize: state.size });
+    updatePointInfo();
+  }
+  function updatePointInfo() {
+    const el = $('#point-info');
+    if (el && system) el.textContent = '현재 점 ' + fmt(system.n) + '개 — 적으면 또렷한 점(추상), 많으면 촘촘(사진처럼). 그림이 ‘점으로 치환’된 거예요.';
   }
 
   // 팔레트(대표색 + 비율) 표시 — 너비를 비율대로(비례 띠), 클릭하면 군집 켜기/끄기
