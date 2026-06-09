@@ -17,7 +17,7 @@
 
   const state = {
     data: SAMPLES.emotion.slice(), dataName: SAMPLE_NAME.emotion,
-    mSize: true, mSpeed: true, mDir: true, mDensity: true,
+    mSize: true, mSpeed: true, mDir: true, mDensity: true, mAlpha: false, mShape: false,
     baseSpeed: 1, vib: 1, trail: 200, color: 'value'
   };
   let ruleA = null, ruleB = null, abFlag = false;
@@ -61,6 +61,14 @@
     if (state.color === 'cool') return p5.color(`hsl(${180 + v * 70}, 80%, ${45 + v * 20}%)`);
     return p5.color(`hsl(${(1 - v) * 220}, 82%, ${48 + v * 18}%)`); // 값: 한색→난색
   }
+  // 값 구간 → 형태 (낮음 △ · 중간 ○ · 높음 □)
+  function drawShape(ctx, x, y, r, shape) {
+    ctx.beginPath();
+    if (shape === 'sq') ctx.rect(x - r, y - r, r * 2, r * 2);
+    else if (shape === 'tri') { ctx.moveTo(x, y - r * 1.25); ctx.lineTo(x + r * 1.1, y + r * 0.9); ctx.lineTo(x - r * 1.1, y + r * 0.9); ctx.closePath(); }
+    else ctx.arc(x, y, r, 0, 6.283);
+    ctx.fill();
+  }
 
   /* ----------------------------- p5 스케치 ----------------------------- */
   const sketch = p => {
@@ -91,27 +99,30 @@
         o.px += o.vx; o.py += o.vy;
         const r = 1.5 + (state.mSize ? v * 7 : 1.5);
         ctx.fillStyle = colorOf(v, p).toString();
-        ctx.beginPath(); ctx.arc(o.px, o.py, r, 0, 6.283); ctx.fill();
+        ctx.globalAlpha = state.mAlpha ? (0.18 + v * 0.82) : 1;
+        drawShape(ctx, o.px, o.py, r, state.mShape ? (v < 0.34 ? 'tri' : v < 0.67 ? 'circle' : 'sq') : 'circle');
       }
+      ctx.globalAlpha = 1; // 트레일 페이드에 영향 없도록 복원
     };
   };
 
   /* ----------------------------- 규칙 A/B ----------------------------- */
-  function snapRule() { return { mSize: state.mSize, mSpeed: state.mSpeed, mDir: state.mDir, mDensity: state.mDensity, baseSpeed: state.baseSpeed, vib: state.vib, color: state.color }; }
+  function snapRule() { return { mSize: state.mSize, mSpeed: state.mSpeed, mDir: state.mDir, mDensity: state.mDensity, mAlpha: state.mAlpha, mShape: state.mShape, baseSpeed: state.baseSpeed, vib: state.vib, color: state.color }; }
   function applyRule(r) { if (!r) return; Object.assign(state, r); syncControls(); build(); }
   function syncControls() {
     $('#m-size').checked = state.mSize; $('#m-speed').checked = state.mSpeed; $('#m-dir').checked = state.mDir; $('#m-density').checked = state.mDensity;
+    $('#m-alpha').checked = state.mAlpha; $('#m-shape').checked = state.mShape;
     $('#r-speed').value = state.baseSpeed; $('#o-speed').textContent = state.baseSpeed;
     $('#r-vib').value = state.vib; $('#o-vib').textContent = state.vib; $('#sel-color').value = state.color;
   }
   const COLORLBL = { value: '값색', warm: '난색', cool: '한색' };
   function describeRule(r) {
     if (!r) return '—';
-    const m = []; if (r.mSize) m.push('크기'); if (r.mSpeed) m.push('속도'); if (r.mDir) m.push('방향'); if (r.mDensity) m.push('밀도');
+    const m = []; if (r.mSize) m.push('크기'); if (r.mSpeed) m.push('속도'); if (r.mDir) m.push('방향'); if (r.mDensity) m.push('밀도'); if (r.mAlpha) m.push('투명'); if (r.mShape) m.push('형태');
     return `${m.join('·') || '매핑없음'} · 속도${r.baseSpeed}·진동${r.vib}·${COLORLBL[r.color] || r.color}`;
   }
   function diffRules(a, b) {
-    const d = []; const lbl = { mSize: '크기', mSpeed: '속도', mDir: '방향', mDensity: '밀도' };
+    const d = []; const lbl = { mSize: '크기', mSpeed: '속도', mDir: '방향', mDensity: '밀도', mAlpha: '투명도', mShape: '형태' };
     Object.keys(lbl).forEach(k => { if (a[k] !== b[k]) d.push(lbl[k]); });
     if (a.color !== b.color) d.push('색'); if (a.baseSpeed !== b.baseSpeed) d.push('기본속도'); if (a.vib !== b.vib) d.push('진동');
     return d.join(', ');
@@ -128,7 +139,7 @@
 
   /* ----------------------------- 코치 ----------------------------- */
   function rulesText() {
-    const on = []; if (state.mSize) on.push('값→크기'); if (state.mSpeed) on.push('변화량→속도'); if (state.mDir) on.push('증가/감소→방향'); if (state.mDensity) on.push('값→밀도');
+    const on = []; if (state.mSize) on.push('값→크기'); if (state.mSpeed) on.push('변화량→속도'); if (state.mDir) on.push('증가/감소→방향'); if (state.mDensity) on.push('값→밀도'); if (state.mAlpha) on.push('값→투명도'); if (state.mShape) on.push('값→형태');
     return on.join(', ') || '매핑 없음';
   }
   function mdToHtml(t) {
@@ -187,6 +198,9 @@
     $('#csv').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#ta-data').value = r.result; $('#btn-apply-data').click(); }; r.readAsText(f); });
 
     chk('m-size', 'mSize'); chk('m-speed', 'mSpeed'); chk('m-dir', 'mDir'); chk('m-density', 'mDensity');
+    // 투명도·형태는 그리기 단계에서만 적용 → 재생성 불필요(점 위치 유지)
+    $('#m-alpha').addEventListener('change', e => state.mAlpha = e.target.checked);
+    $('#m-shape').addEventListener('change', e => state.mShape = e.target.checked);
     rng('r-speed', 'o-speed', 'baseSpeed'); rng('r-vib', 'o-vib', 'vib'); rng('r-trail', 'o-trail', 'trail');
     $('#sel-color').addEventListener('change', e => state.color = e.target.value);
 

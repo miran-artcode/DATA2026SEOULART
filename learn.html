@@ -62,7 +62,7 @@
   document.getElementById('algo-cards').innerHTML =
     ['kmeans', 'histogram', 'notan', 'edge', 'mediancut', 'mosaic', 'composition'].map(card).join('');
   document.getElementById('map-cards').innerHTML =
-    ['map-size', 'map-speed', 'map-direction', 'map-density', 'data-clean'].map(card).join('');
+    ['map-size', 'map-speed', 'map-direction', 'map-density', 'map-alpha', 'map-shape', 'data-clean'].map(card).join('');
   document.getElementById('ethics-card').innerHTML = card('ethics-ai').replace('<div class="card">', '').replace(/<\/div>$/, '');
   UI.mountIdeaBar('idea', 'learn');
 </script>
