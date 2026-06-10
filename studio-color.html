@@ -149,6 +149,16 @@
             <input id="rng-mcell" type="range" min="0" max="40" step="2" value="0" />
           </div>
           <p class="hint">0=점묘 · 값이 크면 점이 격자에 모여 ‘모자이크/픽셀’ 느낌(다른 알고리즘 표현). ‘색 모드=명암’과 함께 쓰면 흑백 모자이크.</p>
+          <div class="row">
+            <label>표현 렌즈 · 구조
+              <button id="btn-lens" class="mini" style="margin-left:6px" title="에지·구도 렌즈가 무엇인지 보기">ⓘ 렌즈란?</button></label>
+            <select id="sel-lens">
+              <option value="none">없음(점묘)</option>
+              <option value="edge">에지 — 윤곽선만 살리기(선묘)</option>
+              <option value="composition">구도 — 삼분할·시선 무게중심</option>
+            </select>
+          </div>
+          <p class="hint">같은 그림도 ‘분석의 눈’을 바꾸면 다르게 보여요 — <b>에지</b>는 윤곽이 강한 점만 또렷하게 남겨 선묘처럼, <b>구도</b>는 삼분할 격자와 주황 ◎ <b>시선 무게중심</b>을 겹쳐 화면의 균형을 드러냅니다. <b>처음엔 K-means 색의 눈, 점점 다양한 분석의 눈으로.</b></p>
         </div>
       </details>
 
@@ -350,6 +360,23 @@
       </div>
 
       <p class="hint warn">이 분석이 놓친 것: 색이 화면 <b>‘어디에’ 있는지(위치)</b>·형태·붓질은 보지 못해요. 결과는 손실 있는 근사·해석입니다.</p>
+    </div>
+  </div>
+
+  <!-- 표현 렌즈 설명: 에지 · 구도 -->
+  <div id="modal-lens" class="modal">
+    <div class="modal-box">
+      <button id="lens-close" class="modal-close">✕</button>
+      <h2>표현 렌즈 — 같은 그림, 다른 ‘분석의 눈’</h2>
+      <p>K-means는 <b>색</b>의 눈이에요. 같은 그림도 다른 알고리즘으로 보면 다른 것이 보입니다. “처음엔 K-means 하나로, 점점 다양한 렌즈로.”</p>
+
+      <h3 style="margin:16px 0 4px">🪡 에지(윤곽) — Sobel</h3>
+      <p>색이 <b>급격히 바뀌는 경계</b>(윤곽선)를 찾아요. 평평한 면의 점은 옅어져 사라지고 <b>윤곽의 점만 또렷이</b> 남아 ‘선묘(드로잉)’처럼 보입니다.</p>
+      <p class="hint warn">놓친 것: 에지는 <b>색의 의미를 몰라요.</b> 진짜 물체 윤곽과 강한 그림자 경계를 구분하지 못하고, 부드러운 그라데이션은 잘 못 잡습니다.</p>
+
+      <h3 style="margin:16px 0 4px">🎯 구도 — 삼분할 · 시선 무게중심</h3>
+      <p><b>삼분할 격자</b>와, 윤곽·밝기로 가중한 <b>시선 무게중심(주황 ◎)</b>을 겹쳐 화면의 <b>균형</b>을 드러내요. 무게중심이 삼분할 교차점(파워포인트)에 가까울수록 ‘안정된 구도’로 읽힙니다.</p>
+      <p class="hint warn">놓친 것: ‘느낌’을 무게로 <b>거칠게 근사</b>할 뿐 — 작지만 강렬한 빨강처럼 의미상 중요한 작은 요소는 약하게 잡혀요. 삼분할은 하나의 관습일 뿐, 모든 명작이 따르지는 않습니다.</p>
     </div>
   </div>
 </body>

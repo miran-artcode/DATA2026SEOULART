@@ -15,7 +15,7 @@
     // 분석
     K: 8, space: 'rgb', sampling: 'uniform', N: 4000, seed: 12345,
     // 점
-    size: 3, colorMode: 'cluster', mosaicCell: 0,
+    size: 3, colorMode: 'cluster', mosaicCell: 0, lens: 'none',
     // 움직임
     mode: 'points', motionMode: 'hold', returnForce: 0.08, vibration: 0, trail: 255, additive: false,
     rotateSpeed: 0.004, depth: 220, palChart: 'donut',
@@ -106,7 +106,7 @@
 
   function rebuildSystem() {
     if (!analysis) return;
-    system = Particles.create(analysis, imageRect(), { colorMode: state.colorMode, baseSize: state.size, mosaicCell: state.mosaicCell });
+    system = Particles.create(analysis, imageRect(), { colorMode: state.colorMode, baseSize: state.size, mosaicCell: state.mosaicCell, lens: state.lens });
     updatePointInfo();
   }
   function updatePointInfo() {
@@ -369,6 +369,8 @@
     const mouseName = { none: '없음', repel: '밀어내기', attract: '끌어당기기', swell: '부풀리기', scatter: '흩뿌리기' }[state.mouseMode];
     const targetName = { vibration: '진동', spread: '확산', size: '크기', explode: '폭발' }[state.micTarget];
     const modeName = { points: '점', lines: '점+선', '3d': '3D 조각' }[state.mode];
+    const lensName = { none: '없음', edge: '에지(윤곽)', composition: '구도(삼분할·무게중심)' }[state.lens] || '없음';
+    const colorModeName = { cluster: '대표색', original: '원본색', mono: '명암(흑백)' }[state.colorMode] || state.colorMode;
 
     const md = `# 분석 리포트 & 인터랙션 설계서
 ## 「그림이 분해되어 다시 연주되다」
@@ -388,7 +390,7 @@ ${rows}
 
 ### B) 인터랙션 설계서
 - 관람 경험 목표(한 문장): ${m.intent || '(미기재)'}
-- 점 개수 N(최종): **${fmt(state.N)}** · 점 크기 ${state.size} · 색 모드 ${state.colorMode === 'cluster' ? '대표색' : '원본색'}
+- 점 개수 N(최종): **${fmt(state.N)}** · 점 크기 ${state.size} · 색 모드 ${colorModeName} · 표현 렌즈 ${lensName}${state.mosaicCell ? ' · 모자이크 격자 ' + state.mosaicCell : ''}
 - 표현 모드: ${modeName} · 복귀력 ${state.returnForce} · 진동 ${state.vibration} · 잔상 ${state.trail} · 발광 ${state.additive ? 'ON' : 'OFF'}
 - 입력 → 출력 규칙
   1. **마우스**(반경 ${state.mouseRadius}, 세기 ${state.mouseStrength}) → ${mouseName}${state.clickExplode ? ' · 클릭 시 폭발' : ''}
@@ -421,6 +423,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     setVal('#rng-size', state.size); setOut('#out-size', state.size);
     setVal('#sel-colormode', state.colorMode);
     setVal('#rng-mcell', state.mosaicCell); setOut('#out-mcell', state.mosaicCell);
+    setVal('#sel-lens', state.lens);
     setVal('#sel-mode', state.mode);
     setVal('#sel-motion', state.motionMode);
     setVal('#rng-return', state.returnForce); setOut('#out-return', state.returnForce);
@@ -481,6 +484,8 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     }));
     // K-means 설명 모달(쉬움/중간/전문가)
     bindKmeansModal();
+    // 표현 렌즈(에지·구도) 설명 모달
+    bindLensModal();
     $('#sel-space').addEventListener('change', e => { state.space = e.target.value; runAnalysis(); });
     $('#sel-sampling').addEventListener('change', e => { state.sampling = e.target.value; runAnalysis(); });
     onRange('#rng-n', '#out-n', v => { state.N = v | 0; }, true, fmt);
@@ -490,6 +495,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     onRange('#rng-size', '#out-size', v => { state.size = v; if (system) system.opts.baseSize = v; });
     $('#sel-colormode').addEventListener('change', e => { state.colorMode = e.target.value; if (system) system.setColorMode(state.colorMode); });
     onRange('#rng-mcell', '#out-mcell', v => { state.mosaicCell = v | 0; if (system) { system.opts.mosaicCell = state.mosaicCell; system.remap(imageRect(), true); } });
+    $('#sel-lens').addEventListener('change', e => { state.lens = e.target.value; if (system) system.setLens(state.lens); });
 
     // 움직임(실시간 반영)
     $('#sel-mode').addEventListener('change', e => { state.mode = e.target.value; $('#row-3d').style.display = state.mode === '3d' ? '' : 'none'; });
@@ -559,7 +565,8 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     const tip = (sel, t) => { const el = $(sel); if (el) el.title = t; };
     tip('#rng-n', '점이 많을수록 자세하지만 무거워요. 메시지에 맞는 ‘해상도’를 골라 보세요.');
     tip('#rng-size', '점 크기 — 작으면 섬세, 크면 대담해요.');
-    tip('#sel-colormode', '대표색 = 요약된 분위기 / 원본색 = 사진처럼 풍부.');
+    tip('#sel-colormode', '대표색 = 요약된 분위기 / 원본색 = 사진처럼 풍부 / 명암 = 흑백.');
+    tip('#sel-lens', '구조 렌즈 — 에지(윤곽선만 살려 선묘처럼) · 구도(삼분할·시선 무게중심을 드러냄). “처음엔 K-means 색의 눈, 점점 다양한 분석의 눈으로.”');
     tip('#sel-mode', '점 / 점+선 / 3D 조각(밝기→깊이)으로 표현을 바꿔 보세요.');
     tip('#rng-return', '클수록 그림을 단단히 유지, 작을수록 흩어져 떠돌아요.');
     tip('#rng-vibration', '떨림의 세기 — 0이면 고요, 크면 들썩여요.');
@@ -583,6 +590,15 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
       document.querySelectorAll('[data-kmtab]').forEach(x => x.classList.toggle('on', x === b));
       document.querySelectorAll('.km-level').forEach(s => s.classList.toggle('show', s.dataset.kmlevel === lv));
     }));
+  }
+
+  // 표현 렌즈 설명 모달(에지·구도) 열고 닫기
+  function bindLensModal() {
+    const btn = $('#btn-lens'), modal = $('#modal-lens');
+    if (!btn || !modal) return;
+    btn.addEventListener('click', () => modal.classList.add('show'));
+    const close = $('#lens-close'); if (close) close.addEventListener('click', () => modal.classList.remove('show'));
+    modal.addEventListener('click', e => { if (e.target.id === 'modal-lens') modal.classList.remove('show'); });
   }
 
   // 작품창 ↔ 설정창 너비를 학생이 드래그로 조절(--panel-w 변경 + 캔버스 리사이즈)

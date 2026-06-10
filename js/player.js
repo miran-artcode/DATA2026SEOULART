@@ -71,6 +71,32 @@
   }
 
   /* ---------- 색 군집 작품 ---------- */
+  // 다운스케일 그레이스케일에서 한 점의 소벨(윤곽) 세기 0~1
+  function sobelAt(g, w, h, x, y) {
+    if (x < 1 || y < 1 || x >= w - 1 || y >= h - 1) return 0.2;
+    const i = y * w + x;
+    const gx = -g[i - w - 1] - 2 * g[i - 1] - g[i + w - 1] + g[i - w + 1] + 2 * g[i + 1] + g[i + w + 1];
+    const gy = -g[i - w - 1] - 2 * g[i - w] - g[i - w + 1] + g[i + w - 1] + 2 * g[i + w] + g[i + w + 1];
+    return Math.min(1, Math.hypot(gx, gy));
+  }
+  // 구도 렌즈 오버레이(삼분할 격자 + 파워포인트 + 시선 무게중심) — 스튜디오와 동일
+  function drawCompositionP(ctx, b, cx, cy) {
+    const x1 = b.ox + b.w / 3, x2 = b.ox + b.w * 2 / 3, y1 = b.oy + b.h / 3, y2 = b.oy + b.h * 2 / 3;
+    ctx.save();
+    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.beginPath();
+    ctx.moveTo(x1, b.oy); ctx.lineTo(x1, b.oy + b.h);
+    ctx.moveTo(x2, b.oy); ctx.lineTo(x2, b.oy + b.h);
+    ctx.moveTo(b.ox, y1); ctx.lineTo(b.ox + b.w, y1);
+    ctx.moveTo(b.ox, y2); ctx.lineTo(b.ox + b.w, y2);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    [[x1, y1], [x2, y1], [x1, y2], [x2, y2]].forEach(p => { ctx.beginPath(); ctx.arc(p[0], p[1], 3, 0, 6.283); ctx.fill(); });
+    ctx.strokeStyle = '#ff7a45'; ctx.fillStyle = 'rgba(255,122,69,0.18)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, 12, 0, 6.283); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - 18, cy); ctx.lineTo(cx + 18, cy); ctx.moveTo(cx, cy - 18); ctx.lineTo(cx, cy + 18); ctx.stroke();
+    ctx.restore();
+  }
   function buildColor(work, img, W, H) {
     const s = work.settings || {};
     const ar = img.width / img.height, pad = 14;
@@ -79,24 +105,39 @@
     const sc = document.createElement('canvas'), sw = 160, sh = Math.max(1, Math.round(sw / ar));
     sc.width = sw; sc.height = sh; const sctx = sc.getContext('2d'); sctx.drawImage(img, 0, 0, sw, sh);
     const d = sctx.getImageData(0, 0, sw, sh).data;
+    const lens = s.lens || 'none';
+    // 에지/구도 렌즈면 다운스케일 그레이스케일을 미리 만들어 점별 윤곽 세기를 잰다.
+    let gray = null;
+    if (lens === 'edge' || lens === 'composition') {
+      gray = new Float32Array(sw * sh);
+      for (let i = 0; i < sw * sh; i++) gray[i] = (0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2]) / 255;
+    }
     const N = Math.max(600, Math.min(s.N || 3000, 4500)), arr = [];
+    let csx = 0, csy = 0, csw = 0;          // 시선 무게중심 누적
     for (let k = 0; k < N; k++) {
       const sx = Math.floor(Math.random() * sw), sy = Math.floor(Math.random() * sh), idx = (sy * sw + sx) * 4;
       const hx = ox + (sx + Math.random()) / sw * w, hy = oy + (sy + Math.random()) / sh * h;
-      arr.push({ hx, hy, px: hx, py: hy, vx: 0, vy: 0, col: 'rgb(' + d[idx] + ',' + d[idx + 1] + ',' + d[idx + 2] + ')' });
+      const edge = gray ? sobelAt(gray, sw, sh, sx, sy) : 1;
+      arr.push({ hx, hy, px: hx, py: hy, vx: 0, vy: 0, col: 'rgb(' + d[idx] + ',' + d[idx + 1] + ',' + d[idx + 2] + ')', edge });
+      const wgt = gray ? (0.08 + edge) : (0.2 + (0.299 * d[idx] + 0.587 * d[idx + 1] + 0.114 * d[idx + 2]) / 255);
+      csx += hx * wgt; csy += hy * wgt; csw += wgt;
     }
-    return { kind: 'color', P: arr, size: s.size || 3, trail: 235 };
+    return { kind: 'color', P: arr, size: s.size || 3, trail: 235, lens, box: { ox, oy, w, h }, cx: csw ? csx / csw : ox + w / 2, cy: csw ? csy / csw : oy + h / 2 };
   }
   function stepColor(ctx, st, W, H, mouse) {
     ctx.fillStyle = 'rgba(12,14,22,' + (st.trail / 255) + ')'; ctx.fillRect(0, 0, W, H);
-    const r = st.size;
+    const r = st.size, edge = st.lens === 'edge';
     for (const o of st.P) {
       let ax = (o.hx - o.px) * 0.08, ay = (o.hy - o.py) * 0.08;
       ax += (Math.random() - 0.5) * 0.5; ay += (Math.random() - 0.5) * 0.5;
       if (mouse) { const dx = o.px - mouse.x, dy = o.py - mouse.y, d2 = dx * dx + dy * dy; if (d2 < 14000) { const d = Math.sqrt(d2) + .1, f = (1 - d / 118) * 5; ax += dx / d * f; ay += dy / d * f; } }
       o.vx = (o.vx + ax) * 0.88; o.vy = (o.vy + ay) * 0.88; o.px += o.vx; o.py += o.vy;
-      ctx.fillStyle = o.col; ctx.fillRect(o.px - r, o.py - r, r * 2, r * 2);
+      let rr = r;
+      if (edge) { rr = r * (0.3 + o.edge * 1.7); ctx.globalAlpha = 0.08 + o.edge * 0.92; if (rr < 0.4) continue; }
+      ctx.fillStyle = o.col; ctx.fillRect(o.px - rr, o.py - rr, rr * 2, rr * 2);
     }
+    ctx.globalAlpha = 1;
+    if (st.lens === 'composition') drawCompositionP(ctx, st.box, st.cx, st.cy);
   }
 
   /* ---------- 마운트 ---------- */

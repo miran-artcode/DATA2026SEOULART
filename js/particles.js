@@ -33,6 +33,8 @@
     this.ds = new Float32Array(n);   // 이번 프레임에 그릴 크기
     this.cluster = analysis.cluster;
     this.br = analysis.br;
+    this.ed = analysis.ed;                 // 점별 윤곽(에지) 세기 0~1 (있으면)
+    this.lens = this.opts.lens || 'none';  // 구조 렌즈: none / edge / composition
 
     // 점 색(문자열) 미리 계산: 대표색 / 원본색
     this.colStr = new Array(n);
@@ -62,17 +64,26 @@
     this.visible[clusterIndex] = on;
   };
 
+  // 구조 렌즈 전환(분석을 다시 하지 않고 표현만 바꿈)
+  System.prototype.setLens = function (mode) { this.lens = mode || 'none'; };
+
   // 캔버스 크기에 맞춰 home 좌표 재계산(정규화 좌표 → 화면 좌표)
   System.prototype.remap = function (rect, resetPos) {
     this.rect = rect;
     const a = this.a, n = this.n, cell = this.opts.mosaicCell || 0;
+    let sx = 0, sy = 0, sw = 0;                 // 구도 렌즈용 '시선 무게중심' 누적
     for (let i = 0; i < n; i++) {
       let hx = rect.x + a.nx[i] * rect.w;
       let hy = rect.y + a.ny[i] * rect.h;
       if (cell > 0) { hx = Math.floor(hx / cell) * cell + cell / 2; hy = Math.floor(hy / cell) * cell + cell / 2; } // 모자이크 격자에 스냅
       this.hx[i] = hx; this.hy[i] = hy;
       if (resetPos) { this.px[i] = hx; this.py[i] = hy; }
+      // 윤곽이 강하거나(시선이 머무는 곳) 밝은 점에 더 큰 무게 → 시각적 무게중심
+      const wgt = this.ed ? (0.08 + this.ed[i]) : (0.12 + (this.br ? this.br[i] : 0.5));
+      sx += hx * wgt; sy += hy * wgt; sw += wgt;
     }
+    this.cwx = sw ? sx / sw : rect.x + rect.w / 2;
+    this.cwy = sw ? sy / sw : rect.y + rect.h / 2;
   };
 
   // 폭발: (cx,cy)에서 바깥으로 한 번 강하게 밀어냄
@@ -213,6 +224,7 @@
     const focal = 900, depth = view.depth;
     const cx = this.rect.x + this.rect.w / 2, cy = this.rect.y + this.rect.h / 2;
     const ca = Math.cos(this.angle), sa = Math.sin(this.angle);
+    const edgeLens = this.lens === 'edge' && this.ed;   // 에지 렌즈: 윤곽이 강한 점만 또렷하게
 
     let lastStyle = null;
     for (let k = 0; k < n; k++) {
@@ -231,6 +243,12 @@
         sy = cy + y * scale;
         size = this.ds[i] * scale;
       }
+      if (edgeLens) {
+        // 윤곽 세기에 따라 크기·투명도를 조절 → 평평한 면은 사라지고 '선묘'만 남음
+        const e = this.ed[i];
+        size *= 0.3 + e * 1.7;
+        ctx.globalAlpha = 0.08 + e * 0.92;
+      }
       if (size < 0.4) continue;
 
       const style = this.colStr[i];
@@ -246,7 +264,32 @@
     }
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = 1;
+    if (this.lens === 'composition') drawComposition(ctx, this.rect, this.cwx, this.cwy); // 삼분할·무게중심 오버레이
   };
+
+  // 구도 렌즈: 삼분할 격자 + 파워포인트(교차점) + 시선 무게중심을 겹쳐 그린다.
+  function drawComposition(ctx, rect, cx, cy) {
+    const x1 = rect.x + rect.w / 3, x2 = rect.x + rect.w * 2 / 3;
+    const y1 = rect.y + rect.h / 3, y2 = rect.y + rect.h * 2 / 3;
+    ctx.save();
+    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.32)';
+    ctx.beginPath();
+    ctx.moveTo(x1, rect.y); ctx.lineTo(x1, rect.y + rect.h);
+    ctx.moveTo(x2, rect.y); ctx.lineTo(x2, rect.y + rect.h);
+    ctx.moveTo(rect.x, y1); ctx.lineTo(rect.x + rect.w, y1);
+    ctx.moveTo(rect.x, y2); ctx.lineTo(rect.x + rect.w, y2);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    [[x1, y1], [x2, y1], [x1, y2], [x2, y2]].forEach(p => { ctx.beginPath(); ctx.arc(p[0], p[1], 3, 0, TAU); ctx.fill(); });
+    // 시선 무게중심(주황 ◎ + 십자선): 삼분할 교차점에 가까울수록 '안정된 구도'
+    ctx.strokeStyle = '#ff7a45'; ctx.fillStyle = 'rgba(255,122,69,0.18)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, 13, 0, TAU); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx - 20, cy); ctx.lineTo(cx + 20, cy);
+    ctx.moveTo(cx, cy - 20); ctx.lineTo(cx, cy + 20);
+    ctx.stroke();
+    ctx.restore();
+  }
 
   function create(analysis, rect, opts) { return new System(analysis, rect, opts); }
 

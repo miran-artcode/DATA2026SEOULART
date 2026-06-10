@@ -165,11 +165,13 @@
     const centroidsSpace = palette.map(p => p._cen);
     palette.forEach(p => { delete p._cen; });
 
+    // 에지(윤곽) 세기 맵: 항상 한 번 계산(샘플링 가중치 + '에지 렌즈'의 점별 세기 양쪽에 사용).
+    const emap = edgeMap(gray, w, h);
+
     // (3) 점 샘플링: 방식별 가중치 맵 만들기
     const weights = new Float32Array(total);
     if (sampling === 'edge') {
-      const e = edgeMap(gray, w, h);
-      for (let i = 0; i < total; i++) weights[i] = 0.05 + e[i]; // 윤곽 강조
+      for (let i = 0; i < total; i++) weights[i] = 0.05 + emap[i]; // 윤곽 강조
     } else if (sampling === 'bright') {
       for (let i = 0; i < total; i++) weights[i] = 0.05 + bright[i];      // 밝은 곳 ↑
     } else if (sampling === 'dark') {
@@ -181,7 +183,7 @@
 
     // (4) 점 리스트(JSON 같은 구조, 성능 위해 Typed Array로)
     const nx = new Float32Array(N), ny = new Float32Array(N);
-    const clusterArr = new Int16Array(N), brArr = new Float32Array(N);
+    const clusterArr = new Int16Array(N), brArr = new Float32Array(N), edArr = new Float32Array(N);
     const orr = new Uint8Array(N), ogg = new Uint8Array(N), obb = new Uint8Array(N);
     for (let k = 0; k < N; k++) {
       const i = idx[k];
@@ -192,6 +194,7 @@
       const r = px[i * 4], g = px[i * 4 + 1], b = px[i * 4 + 2];
       orr[k] = r; ogg[k] = g; obb[k] = b;
       brArr[k] = bright[i];
+      edArr[k] = emap[i];          // 점이 놓인 곳의 윤곽(에지) 세기 0~1 — '에지 렌즈'용
       // 가장 가까운 대표색(군집)에 배정 = "대표색 점으로 치환"
       const v = toSpace(r, g, b, space);
       let best = 0, bestD = Infinity;
@@ -207,7 +210,7 @@
     return {
       width: w, height: h, count: N, K, requestedK: reqK, maxK: Math.min(data.length, PERF_CAP), space, sampling, seed,
       palette,                       // [{r,g,b,ratio}] 비율 내림차순
-      nx, ny, cluster: clusterArr, br: brArr,
+      nx, ny, cluster: clusterArr, br: brArr, ed: edArr,
       or: orr, og: ogg, ob: obb
     };
   }
