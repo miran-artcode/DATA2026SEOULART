@@ -6,6 +6,7 @@
   'use strict';
   const $ = s => document.querySelector(s);
   const esc = (s) => UI.escapeHTML(s);
+  const rubSel = id => '<select id="' + id + '"><option value="0">— 미평가 —</option><option value="3">상 ●●●</option><option value="2">중 ●●</option><option value="1">하 ●</option></select>';
   const KIND = { color: '색 군집', data: '데이터 점', lab: '분석' };
   const COLORLBL = { value: '값 그라데이션', warm: '난색', cool: '한색' };
   const id = new URLSearchParams(location.search).get('id');
@@ -38,10 +39,11 @@
     // 갤러리식 평점(있으면)
     const old = (f.intent || f.evidence || f.interaction || f.ethics) ?
       `<div class="muted" style="font-size:12px">의도 ${'★'.repeat(f.intent||0)} 근거 ${'★'.repeat(f.evidence||0)} 인터랙션 ${'★'.repeat(f.interaction||0)} 윤리 ${'★'.repeat(f.ethics||0)}</div>` : '';
+    const rub = f.rubric ? `<div class="muted" style="font-size:12px">🎯 매핑의도 ${'●'.repeat(f.rubric.intent||0)} · 판단흔적 ${'●'.repeat(f.rubric.trace||0)} · 도구주체성 ${'●'.repeat(f.rubric.agency||0)} · 감각귀환 ${'●'.repeat(f.rubric.ret||0)}</div>` : '';
     return `<div class="lvl" style="margin:8px 0"><div class="lvl-b">
       <b>${esc(f.by || '관람객')}</b> <span style="color:var(--accent)">${stars}</span>
       ${f.comment ? `<div style="margin:4px 0">${esc(f.comment)}</div>` : ''}
-      ${old}
+      ${old}${rub}
       ${steps.map(([k, v]) => `<div style="margin:3px 0"><b style="color:var(--accent2)">${k}</b> ${esc(v)}</div>`).join('')}
     </div></div>`;
   }
@@ -121,6 +123,15 @@
           <label class="field">③ 해석 — 무엇을 말하나(의도·감정)</label><textarea id="c-interpret" rows="2" placeholder="예: 불안 속의 한 줄기 평온"></textarea>
           <label class="field">④ 평가 — 근거 있는 판단</label><textarea id="c-judge" rows="2" placeholder="예: 데이터를 절제해 의도가 분명, 설득력 있음"></textarea>
         </details>
+        <details style="margin-top:6px">
+          <summary style="cursor:pointer;color:var(--good);font-weight:700;font-size:13.5px">＋ 4영역 평가(자기·동료) <span class="info-ic" data-info="rubric">ⓘ</span></summary>
+          <div class="grid c2">
+            <div><label class="field">① 매핑의 의도성</label>${rubSel('rb-intent')}</div>
+            <div><label class="field">② 판단의 흔적</label>${rubSel('rb-trace')}</div>
+            <div><label class="field">③ 도구에 대한 주체성</label>${rubSel('rb-agency')}</div>
+            <div><label class="field">④ 감각으로의 귀환</label>${rubSel('rb-return')}</div>
+          </div>
+        </details>
         <button id="c-submit" class="btn primary" style="margin-top:12px">비평 등록</button>
       </div>`;
     const lc = document.getElementById('live-canvas');
@@ -132,11 +143,14 @@
     const v = id => ($('#' + id) ? $('#' + id).value.trim() : '');
     const name = v('c-name') || '관람객';
     const comment = v('c-comment'), d = v('c-describe'), a = v('c-analyze'), i = v('c-interpret'), j = v('c-judge');
-    if (!comment && !d && !a && !i && !j) { UI.toast('한마디 또는 4단계 중 하나는 적어 주세요.'); return; }
+    const rb = { intent: +v('rb-intent'), trace: +v('rb-trace'), agency: +v('rb-agency'), ret: +v('rb-return') };
+    const hasRb = rb.intent || rb.trace || rb.agency || rb.ret;
+    if (!comment && !d && !a && !i && !j && !hasRb) { UI.toast('한마디·4단계·4영역 중 하나는 남겨 주세요.'); return; }
     const u = Auth.current();
     await Store.addFeedback({
       workId: id, userId: u ? u.userId : undefined, by: name, kind: 'critique',
-      rating: +$('#c-rating').value, comment, describe: d, analyze: a, interpret: i, judge: j
+      rating: +$('#c-rating').value, comment, describe: d, analyze: a, interpret: i, judge: j,
+      rubric: hasRb ? rb : null
     });
     UI.toast('비평을 등록했습니다. 고맙습니다!');
     render();

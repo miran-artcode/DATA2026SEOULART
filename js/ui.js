@@ -21,7 +21,8 @@
     ] },
     { label: '배우기', drop: [
       { href: 'learn.html', t: '알고리즘 배움터', s: '쉬운→깊은 설명' },
-      { href: 'critique.html', t: '데이터 비평 읽기', s: '차트를 비판적으로 (질문 3층위)' }
+      { href: 'critique.html', t: '데이터 비평 읽기', s: '차트를 비판적으로 (질문 3층위)' },
+      { href: 'journey.html', t: '학습 여정 지도', s: '4단계·2축·평가 4영역' }
     ] },
     { label: '나누기', drop: [
       { href: 'gallery.html', t: '전시 갤러리', s: '작품 감상 + 또래 피드백' },

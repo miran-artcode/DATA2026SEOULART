@@ -301,6 +301,25 @@
     UI.mountIdeaBar('idea', 'data');
     p5i = new p5(sketch);
 
+    // 요소별 안내(마우스 오버) — 학생이 무엇을 할지/왜 흥미로운지
+    (function () {
+      const tips = [
+        '먼저 데이터를 골라요 — 사회문제 샘플 또는 직접 입력/CSV. 작성 양식도 받을 수 있어요.',
+        '어떤 열을 점의 어떤 특성(크기·속도·방향·밀도·색·형태)으로 바꿀지 직접 설계해요.',
+        '기본 속도·진동·잔상으로 움직임의 결을 정해요.',
+        '‘객관적 데이터’ 뒤의 내 선택을 적어요 — 무엇을 셌고 무엇을 일부러 뺐는지.',
+        '저장·전시 전에 의도 한 문장 + 근거 1개를 채워요(근거가 먼저).',
+        '코치에게 질문받고, 이미지·작업노트·전시로 내보내요.'
+      ];
+      document.querySelectorAll('.dpanel > details > summary').forEach((s, i) => { if (tips[i]) s.title = tips[i]; });
+      const tip = (sel, t) => { const el = $(sel); if (el) el.title = t; };
+      tip('#r-speed', '전체 속도 — 작으면 잔잔, 크면 활발해요.');
+      tip('#r-vib', '떨림 — 0이면 고요, 크면 들썩여요.');
+      tip('#r-trail', '낮출수록 자취(궤적)가 남아 ‘흐름’이 보여요.');
+      tip('#map-colormode', '수치는 그라데이션, 범주는 라벨별 색 — 색상환에서 직접 골라요.');
+      tip('#sel-sample', '사회문제와 연결된 예시 — 의미 있는 시각화로.');
+    })();
+
     $('#sel-sample').addEventListener('change', e => { const s = SAMPLES[e.target.value]; if (!s) return; $('#ta-data').value = s.csv; $('#in-dataname').value = s.name; applyDataset(parseData(s.csv), s.name); const di = $('#data-issue'); if (di) di.textContent = s.issue || ''; });
     $('#btn-apply-data').addEventListener('click', () => { const ds = parseData($('#ta-data').value); if (!ds) { UI.toast('데이터 형식을 확인하세요.'); return; } applyDataset(ds, $('#in-dataname').value || '내 데이터'); UI.toast('데이터를 적용했습니다.'); });
     $('#btn-upload-csv').addEventListener('click', () => $('#csv').click());
