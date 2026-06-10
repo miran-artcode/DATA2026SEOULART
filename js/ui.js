@@ -16,6 +16,7 @@
       { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '우리 데이터가 춤추는 점 (5.10.4)' },
       { href: 'studio-sound.html', t: '소리를 데이터로', s: '녹음·소리에서 특징 추출 (2단계)' },
       { href: 'studio-life.html', t: '내 삶을 데이터로', s: '사진·챗봇 대화 → 데이터 (3단계)' },
+      { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: '사진 속 사물을 AI로 → 점·데이터' },
       { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터 → 작품 (4단계)' },
       { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 차트 + 재창조' }
     ] },
