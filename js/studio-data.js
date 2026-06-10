@@ -330,17 +330,17 @@
     $('#btn-note').addEventListener('click', saveNote);
     $('#btn-exhibit').addEventListener('click', exhibit);
 
-    // 소리 스튜디오에서 보낸 데이터 받기
+    // 소리·사진·챗봇·프로젝트 스튜디오에서 보낸 데이터 받기
     try {
-      const inc = localStorage.getItem('dn_sound_incoming');
+      const inc = localStorage.getItem('dn_data_incoming');
       if (inc) {
-        const d = JSON.parse(inc); localStorage.removeItem('dn_sound_incoming');
+        const d = JSON.parse(inc); localStorage.removeItem('dn_data_incoming');
         setTimeout(() => {
-          $('#ta-data').value = d.csv; $('#in-dataname').value = d.name || '소리 데이터';
+          $('#ta-data').value = d.csv; $('#in-dataname').value = d.name || '가져온 데이터';
           if (d.intent) $('#in-intent').value = d.intent;
-          applyDataset(parseData(d.csv), d.name || '소리 데이터');
-          const di = $('#data-issue'); if (di) di.textContent = '🎤 소리에서 온 데이터 — 음량·저/중/고를 점으로';
-          UI.toast('소리 데이터를 불러왔어요.');
+          applyDataset(parseData(d.csv), d.name || '가져온 데이터');
+          const di = $('#data-issue'); if (di) di.textContent = d.issue || '🔗 다른 스튜디오에서 온 데이터';
+          UI.toast('데이터를 불러왔어요.');
         }, 400);
       }
     } catch (e) {}

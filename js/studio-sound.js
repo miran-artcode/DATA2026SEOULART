@@ -118,7 +118,7 @@
   function sendToData() {
     if (!rows.length) return;
     const payload = { name: '소리 데이터', csv: toCSV(), intent: $('#snd-intent').value.trim(), omit: $('#snd-omit').value.trim() };
-    try { localStorage.setItem('dn_sound_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
+    try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
     UI.toast('데이터 점 스튜디오로 보냅니다…');
     setTimeout(() => location.href = 'studio-data.html', 600);
   }
