@@ -110,7 +110,8 @@
     const space = opts.space === 'lab' ? 'lab' : 'rgb';
     const sampling = opts.sampling || 'uniform';
     const N = Math.max(100, Math.min(opts.N || 4000, 30000));
-    const maxDim = opts.maxDim || 320;
+    // K가 매우 크면 더 많은 픽셀이 필요(색 수 확보) — 입력 K에 맞춰 분석 해상도를 키운다.
+    const maxDim = opts.maxDim || (reqK > 6000 ? 600 : reqK > 1500 ? 460 : 320);
     const seed = opts.seed != null ? opts.seed : 12345;
     const rng = KMeans.makeRNG(seed);
 
@@ -129,17 +130,21 @@
       bright[i] = L;
     }
 
-    // (2) K-means 입력: 픽셀을 골고루 표본추출(최대 6000개)해서 학습
-    const sampleStep = Math.max(1, Math.floor(total / 6000));
+    // (2) K-means 입력: 픽셀을 골고루 표본추출해서 학습.
+    //   K가 크면 군집당 표본이 부족하지 않도록 표본 수를 K에 맞춰 늘린다(성능 위해 상한).
+    const sampleTarget = Math.max(6000, Math.min(reqK * 6, 60000));
+    const sampleStep = Math.max(1, Math.floor(total / sampleTarget));
     const data = [];
     for (let i = 0; i < total; i += sampleStep) {
       data.push(toSpace(px[i * 4], px[i * 4 + 1], px[i * 4 + 2], space));
     }
-    // 실제 K: 입력값을 (표본 색 수, 성능 상한 1024)로 제한.
-    //   → "백만"을 입력해도 이미지의 색/성능이 한계이므로 그만큼만 쓴다(정직한 근사).
-    const PERF_CAP = 512;   // 성능 상한(반응성 유지). 그 이상은 자동 조정.
+    // 실제 K: 입력값을 (표본 색 수, 성능 상한)로 제한.
+    //   → 수만 개까지 입력할 수 있지만, 이미지의 실제 색 수와 k-means 비용(K에 비례)이 한계라
+    //      그 한도 안에서만 쓴다(정직한 근사). 큰 K일수록 반복 횟수를 줄여 멈춤을 막는다.
+    const PERF_CAP = 50000;
     const K = Math.max(1, Math.min(reqK, data.length, PERF_CAP));
-    const km = KMeans.cluster(data, K, { seed, maxIter: 24 });
+    const maxIter = K <= 64 ? 24 : K <= 256 ? 14 : K <= 1024 ? 10 : K <= 4096 ? 6 : K <= 12000 ? 4 : 2;
+    const km = KMeans.cluster(data, K, { seed, maxIter });
 
     // 군집 중심을 RGB 팔레트로 환산 + 비율(%) 계산
     // (LAB 중심은 직접 역변환 대신, 그 군집에 속한 원본 RGB들의 평균색을 쓴다.)
