@@ -1,6 +1,6 @@
 /*
  * studio-life.js — 내 삶을 데이터로 (학습 3단계)
- * 사진(즐거운 순간) → 밝기·따뜻함·색다양성, 챗봇 대화 → 화자·길이·물음표 를 데이터로.
+ * 사진(즐거운 순간) → 밝기·대비·따뜻함·생생함·다양함·북적임·주색, 챗봇 대화 → 화자·길이·물음표 를 데이터로.
  * 무엇을 데이터로 삼을지 학생이 정한다(그 선택이 곧 해석).
  */
 (function () {
@@ -10,19 +10,51 @@
   let rows = [], cols = [], mode = 'photo', dataName = '내 삶의 데이터';
 
   function hueOf(r, g, b) { const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; if (d < 16) return -1; let h; if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; return (h * 60 + 360) % 360; }
+  function hueName(h) { if (h < 0) return '무채색'; if (h < 15 || h >= 345) return '빨강'; if (h < 45) return '주황'; if (h < 70) return '노랑'; if (h < 160) return '초록'; if (h < 200) return '청록'; if (h < 255) return '파랑'; if (h < 290) return '보라'; return '자홍'; }
 
-  /* ----------------------------- 사진 ----------------------------- */
+  /* ----------------------------- 사진(여러 특징을 실제로 측정) ----------------------------- */
+  // 밝기·대비(σ)·따뜻함·생생함(채도)·다양함(색 엔트로피)·북적임(에지 밀도)·주색 을 픽셀에서 계산.
   function featImg(img) {
-    const sw = 64, sh = Math.max(1, Math.round(64 * img.height / img.width));
+    const sw = 96, sh = Math.max(1, Math.round(96 * img.height / img.width));
     const c = document.createElement('canvas'); c.width = sw; c.height = sh;
-    const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, sw, sh);
-    const d = ctx.getImageData(0, 0, sw, sh).data, n = d.length / 4;
-    let L = 0, warm = 0, cool = 0; const hues = {};
-    for (let i = 0; i < d.length; i += 4) {
-      const r = d[i], g = d[i + 1], b = d[i + 2]; L += (0.299 * r + 0.587 * g + 0.114 * b);
-      const h = hueOf(r, g, b); if (h >= 0) { if (h < 70 || h > 320) warm++; else if (h >= 160 && h <= 260) cool++; hues[Math.floor(h / 30)] = 1; }
+    const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.drawImage(img, 0, 0, sw, sh);
+    const d = ctx.getImageData(0, 0, sw, sh).data, n = sw * sh;
+    const gray = new Float32Array(n);
+    let Lsum = 0, L2 = 0, satSum = 0, warmW = 0, coolW = 0, satTot = 0;
+    const hueBins = new Float64Array(12);
+    for (let p = 0; p < n; p++) {
+      const i = p * 4, r = d[i], g = d[i + 1], b = d[i + 2];
+      const L = 0.299 * r + 0.587 * g + 0.114 * b; gray[p] = L; Lsum += L; L2 += L * L;
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510, dd = (mx - mn) / 255;
+      const sat = dd === 0 ? 0 : dd / (1 - Math.abs(2 * l - 1) + 1e-6);   // HSL 채도
+      satSum += sat;
+      const h = hueOf(r, g, b);
+      if (h >= 0) { const w = sat; if (h < 70 || h > 320) warmW += w; else if (h >= 160 && h <= 260) coolW += w; satTot += w; hueBins[Math.floor(h / 30) % 12] += w; }
     }
-    return { 밝기: Math.round(L / n / 255 * 100), 따뜻함: Math.max(0, Math.min(100, Math.round((warm - cool) / n * 100 + 50))), 색다양성: Object.keys(hues).length * 8 };
+    const meanL = Lsum / n, stdL = Math.sqrt(Math.max(0, L2 / n - meanL * meanL));
+    // 색 엔트로피(다양함): 채도 가중 색상 히스토그램의 Shannon 엔트로피(0~1 정규화)
+    let tot = 0; for (let i = 0; i < 12; i++) tot += hueBins[i];
+    let ent = 0; if (tot > 0) for (let i = 0; i < 12; i++) { const pp = hueBins[i] / tot; if (pp > 0) ent -= pp * Math.log2(pp); }
+    // 북적임(에지 밀도): Sobel 그라디언트 평균
+    let edge = 0; for (let y = 1; y < sh - 1; y++) for (let x = 1; x < sw - 1; x++) {
+      const ii = y * sw + x;
+      const gx = -gray[ii - sw - 1] - 2 * gray[ii - 1] - gray[ii + sw - 1] + gray[ii - sw + 1] + 2 * gray[ii + 1] + gray[ii + sw + 1];
+      const gy = -gray[ii - sw - 1] - 2 * gray[ii - sw] - gray[ii - sw + 1] + gray[ii + sw - 1] + 2 * gray[ii + sw] + gray[ii + sw + 1];
+      edge += Math.hypot(gx, gy);
+    }
+    // 주색(채도 가중 최다 색상)
+    let domBin = -1, domVal = 0; for (let i = 0; i < 12; i++) if (hueBins[i] > domVal) { domVal = hueBins[i]; domBin = i; }
+    const grayish = satTot / n < 0.08;
+    const clamp = v => Math.max(0, Math.min(100, Math.round(v)));
+    return {
+      밝기: clamp(meanL / 255 * 100),
+      대비: clamp(stdL / 128 * 160),
+      따뜻함: clamp((warmW - coolW) / Math.max(1, satTot) * 50 + 50),
+      생생함: clamp(satSum / n * 130),
+      다양함: clamp(ent / Math.log2(12) * 100),
+      북적임: clamp(edge / n / 320 * 100),
+      주색: grayish ? '무채색' : hueName(domBin * 30 + 15)
+    };
   }
   function addPhotos(files) {
     const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
@@ -33,8 +65,9 @@
         const t = featImg(img);
         rows.push(Object.assign({ 순간: rows.length + 1 }, t));
         const thumb = document.createElement('img'); thumb.src = url; $('#ph-grid').appendChild(thumb);
-        if (--pending === 0) { cols = ['순간', '밝기', '따뜻함', '색다양성']; dataName = '즐거운 순간(사진)'; renderPreview('#ph-preview'); enable(); }
+        if (--pending === 0) { cols = ['순간', '밝기', '대비', '따뜻함', '생생함', '다양함', '북적임', '주색']; dataName = '즐거운 순간(사진)'; renderPreview('#ph-preview'); enable(); }
       };
+      img.onerror = () => { URL.revokeObjectURL(url); if (--pending === 0) { cols = ['순간', '밝기', '대비', '따뜻함', '생생함', '다양함', '북적임', '주색']; renderPreview('#ph-preview'); enable(); } };
       img.src = url;
     });
   }
