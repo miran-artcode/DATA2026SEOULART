@@ -6,19 +6,45 @@
 <title>데이터의 눈으로 그림 읽기 · 로그인</title>
 <meta name="description" content="분석에서 창작까지 — 데이터로 그림을 읽고, 인터랙티브 미디어아트로 재창조하는 수업 사이트." />
 <link rel="stylesheet" href="css/site.css" />
+<style>
+  .hero { text-align: center; margin: 24px 0 4px; }
+  .hero h1 { font-size: clamp(23px, 4.4vw, 36px); line-height: 1.24; margin: 8px 0 12px; }
+  .hero h1 .accent { color: var(--accent); }
+  .hero .lead { color: var(--muted); font-size: 14.5px; max-width: 660px; margin: 0 auto; line-height: 1.65; }
+  .hero .lead b { color: var(--text); }
+  .hero-journey { display: flex; align-items: stretch; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 18px auto 2px; }
+  .hero-journey .hj { flex: 1 1 140px; max-width: 190px; background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--c); border-radius: 12px; padding: 12px 10px 11px; text-align: center; }
+  .hero-journey .hj .n { width: 28px; height: 28px; border-radius: 50%; background: var(--c); color: #0a0c12; font-weight: 800; display: grid; place-items: center; margin: 0 auto 7px; font-size: 15px; }
+  .hero-journey .hj b { display: block; font-size: 13.5px; }
+  .hero-journey .hj small { color: var(--muted); font-size: 11px; }
+  .hero-journey .arr { align-self: center; color: var(--muted2); font-weight: 800; }
+  @media (max-width: 760px) { .hero-journey .arr { display: none; } .hero-journey .hj { flex-basis: 44%; max-width: none; } }
+  .feat-chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 6px 0 10px; }
+  .feat-chips span { font-size: 12px; background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; }
+</style>
 </head>
 <body>
 <div id="app-header"></div>
 
 <div class="wrap narrow">
-  <div class="page-head" style="text-align:center; margin-top:18px">
-    <span class="eyebrow">서울미술고등학교 · AI 융합수업</span>
-    <h1>데이터의 눈으로 그림 읽기 — 분석에서 창작까지</h1>
-    <p>그림과 데이터를 <b>여러 알고리즘으로 분석</b>하고, 당신의 <b>의도와 조작 설정</b>으로<br>
-       인터랙티브 제너러티브 미디어아트로 <b>재창조</b>합니다.</p>
+  <div class="hero">
+    <span class="eyebrow">서울미술고등학교 · AI 융합 미술수업</span>
+    <h1>데이터의 눈으로 그림을 읽고,<br><span class="accent">의미를 담아</span> 다시 그리다</h1>
+    <p class="lead">그림·소리·내 삶·사회를 <b>데이터로 분석</b>하고, 나의 <b>의도</b>로 <b>인터랙티브 미디어아트</b>로 재창조해요.<br>
+      알고리즘은 도구일 뿐 — <b>무엇을 셀지, 무엇을 강조할지</b>가 곧 작가의 선택입니다.</p>
   </div>
 
-  <div class="grid c2" style="align-items:start">
+  <div class="hero-journey" aria-label="4단계 심화 여정">
+    <div class="hj" style="--c:var(--accent2)"><span class="n">1</span><b>그림을 데이터로</b><small>직관적 출발</small></div>
+    <span class="arr">→</span>
+    <div class="hj" style="--c:var(--good)"><span class="n">2</span><b>소리를 데이터로</b><small>정서를 담다</small></div>
+    <span class="arr">→</span>
+    <div class="hj" style="--c:var(--accent)"><span class="n">3</span><b>내 삶을 데이터로</b><small>의미·당위성</small></div>
+    <span class="arr">→</span>
+    <div class="hj" style="--c:var(--danger)"><span class="n">4</span><b>사회문제로</b><small>사회적 발언</small></div>
+  </div>
+
+  <div class="grid c2" style="align-items:start; margin-top:20px">
     <div class="card">
       <h3>로그인 / 시작하기</h3>
       <p class="muted" style="font-size:13px">처음이면 이름·반/번호·PIN을 정하면 계정이 만들어져요.</p>
@@ -47,16 +73,21 @@
 
     <div>
       <div class="card" style="margin-bottom:16px">
-        <h3>두 가지 수업, 하나의 스튜디오</h3>
-        <p style="font-size:13.5px"><b>① 보이지 않는 질서 (5.10.5)</b> — 명화를 K-means로 분석해 대표색 점으로 치환, 소리·마우스로 ‘연주’.</p>
-        <p style="font-size:13.5px"><b>② 데이터가 춤추는 점 (5.10.4)</b> — 우리 데이터를 점의 크기·속도·방향·밀도로 변환해 움직이는 작품으로.</p>
-        <hr class="sep" />
-        <p class="muted" style="font-size:12.5px">7가지 분석 알고리즘 · 색 분석 차트 · 알고리즘 배움터 · 전시 갤러리 · 작업 노트 · AI 감상 코치까지.</p>
+        <h3>이 스튜디오에서 할 수 있는 것</h3>
+        <div class="feat-chips">
+          <span>🎨 K-means 색 군집</span>
+          <span>🔬 7가지 분석 렌즈</span>
+          <span>🤖 객체 감지 · AI의 눈</span>
+          <span>🎤 소리 · 🧑 사진 데이터화</span>
+          <span>🖼 전시 갤러리 · 🔍 비평</span>
+          <span>🧭 AI 감상 코치</span>
+        </div>
+        <p class="muted" style="font-size:12.5px; margin:2px 0 0">분석 결과는 ‘정답’이 아니라 하나의 <b>해석</b>이에요. 그 해석 위에 <b>나의 메시지</b>를 얹는 게 이 수업의 핵심이에요.</p>
       </div>
       <div id="privacy-note"></div>
     </div>
   </div>
-  <p class="footer-note">© 서울미술고등학교 데이터 미디어아트 스튜디오 · 교육용</p>
+  <p class="footer-note">© 2026 <b>MRIAN HWANG</b> · 데이터의 눈 — 데이터 미디어아트 스튜디오 · 교육용</p>
 </div>
 
 <script src="js/explain.js"></script>
