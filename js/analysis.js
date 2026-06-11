@@ -109,7 +109,8 @@
     const reqK = Math.max(1, Math.floor(opts.K || 8));   // 학생이 입력한 K(클램프 전)
     const space = opts.space === 'lab' ? 'lab' : 'rgb';
     const sampling = opts.sampling || 'uniform';
-    const N = Math.max(100, Math.min(opts.N || 4000, 30000));
+    // 점 개수 N: K가 크면 그만큼 점이 많아야 K색이 실제로 보인다 → N을 최소 K만큼 확보.
+    const N = Math.max(100, Math.min(Math.max(opts.N || 4000, Math.min(reqK, 40000)), 50000));
     // K가 매우 크면 더 많은 픽셀이 필요(색 수 확보) — 입력 K에 맞춰 분석 해상도를 키운다.
     const maxDim = opts.maxDim || (reqK > 6000 ? 600 : reqK > 1500 ? 460 : 320);
     const seed = opts.seed != null ? opts.seed : 12345;
