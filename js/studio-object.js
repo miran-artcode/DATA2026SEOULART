@@ -104,6 +104,7 @@
 
   function summarize() {
     const sum = $('#od-summary'); if (!sum) return;
+    ObjArt.refresh();
     if (!detections.length) {
       sum.innerHTML = '<b>감지 0개.</b> AI는 ‘사진’으로 배웠어요 — 명화·추상화·단순한 그림 앞에서는 <b>거의 못 보거나 엉뚱하게</b> 봅니다. 이게 바로 ‘AI의 눈’의 한계예요.';
       $('#btn-od-csv').disabled = true; $('#btn-od-send').disabled = true; return;
@@ -196,8 +197,97 @@
     srcCanvas = cv; applyDetections(baked, '오프라인 예시 장면 · baked 감지(네트워크 없이도 작동) — 실제 AI 감지는 사진을 업로드해 보세요.');
   }
 
+  /* ----------------------------- 춤추는 점(감지 → 미디어아트) ----------------------------- */
+  // 감지된 사물 하나하나를 '점'으로: 위치=사진 속 중심, 크기=박스 크기, 색=사물종류,
+  // 떨림=(1−신뢰도). AI가 또렷이 본 건 단단히, 흐릿하게 본 건 떨리며 떠오른다.
+  const ObjArt = (function () {
+    let cv = null, ctx = null, raf = null, playing = true, T = 0, pts = [];
+    let motion = 'hover';
+    const TAU = Math.PI * 2;
+
+    function dot(x, y, r, hue, a) {
+      const A = Math.min(0.95, a);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r * 2.0);
+      g.addColorStop(0, 'hsla(' + hue.toFixed(0) + ',85%,62%,' + A.toFixed(2) + ')');
+      g.addColorStop(1, 'hsla(' + hue.toFixed(0) + ',85%,55%,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 2.0, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'hsla(' + hue.toFixed(0) + ',92%,78%,' + Math.min(1, A + 0.2).toFixed(2) + ')';
+      ctx.beginPath(); ctx.arc(x, y, Math.max(1.5, r * 0.45), 0, TAU); ctx.fill();
+    }
+
+    function build() {
+      pts = []; if (!cv || !srcCanvas || !detections.length) return;
+      const sw = srcCanvas.width, sh = srcCanvas.height, A = sw * sh;
+      detections.forEach(d => {
+        const [bx, by, bw, bh] = d.bbox;
+        const area = Math.min(1, (bw * bh) / A);
+        pts.push({
+          hx: 0.06 + ((bx + bw / 2) / sw) * 0.88, hy: 0.08 + ((by + bh / 2) / sh) * 0.84,
+          r: 4 + Math.sqrt(area) * 46, hue: colorFor(d.class), conf: d.score, label: ko(d.class), ph: Math.random() * TAU
+        });
+      });
+    }
+
+    function draw() {
+      if (!ctx) return;
+      const W = cv.width, H = cv.height, n = pts.length;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#07080d'; ctx.fillRect(0, 0, W, H);
+      if (!n) {
+        ctx.fillStyle = '#5b6480'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('사물을 감지하면, 찾은 것들이 여기서 떠올라 춤춰요', W / 2, H / 2);
+        return;
+      }
+      const pad = 30, IW = W - pad * 2, IH = H - pad * 2;
+      const showLabel = $('#od-art-label') ? $('#od-art-label').checked : true;
+      for (let i = 0; i < n; i++) {
+        const p = pts[i], tremor = 4 + (1 - p.conf) * 26;   // 신뢰도 낮을수록 더 떨림
+        let x, y;
+        if (motion === 'swarm') {
+          const orb = 18 + (1 - p.conf) * 40;
+          x = pad + (0.5 + (p.hx - 0.5) * 0.5) * IW + Math.cos(T * 0.9 + p.ph) * orb;
+          y = pad + (0.5 + (p.hy - 0.5) * 0.5) * IH + Math.sin(T * 1.1 + p.ph) * orb;
+        } else if (motion === 'rise') {
+          const frac = (((p.hy + T * (0.05 + p.r * 0.0015) + p.ph * 0.15) % 1) + 1) % 1;
+          x = pad + (p.hx + Math.sin(T * 1.2 + p.ph) * 0.02) * IW;
+          y = pad + (1 - frac) * IH;
+        } else {                                            // hover
+          x = pad + p.hx * IW + Math.cos(T * 1.3 + p.ph) * tremor;
+          y = pad + p.hy * IH + Math.sin(T * 1.6 + p.ph) * tremor;
+        }
+        const r = p.r * (0.88 + 0.12 * Math.sin(T * 2 + p.ph));
+        ctx.globalCompositeOperation = 'lighter';
+        dot(x, y, r, p.hue, 0.42 + p.conf * 0.4);
+        ctx.globalCompositeOperation = 'source-over';
+        if (showLabel) {
+          ctx.fillStyle = 'rgba(255,255,255,0.82)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText(p.label, x, y + r + 13);
+        }
+      }
+    }
+
+    function loop(ts) { if (!playing) { raf = null; return; } T = ts / 1000; draw(); raf = requestAnimationFrame(loop); }
+    function start() { if (!raf && playing) raf = requestAnimationFrame(loop); }
+    function refresh() { build(); if (!raf) { draw(); start(); } }
+    function setPlay(on) { playing = on; const b = $('#od-art-play'); if (b) b.textContent = on ? '⏸ 멈춤' : '▶ 재생'; if (on) start(); }
+
+    function init() {
+      cv = $('#od-art'); if (!cv) return; ctx = cv.getContext('2d');
+      $('#od-art-motion').addEventListener('change', e => { motion = e.target.value; });
+      $('#od-art-play').addEventListener('click', () => setPlay(!playing));
+      const modal = $('#od-art-modal');
+      $('#btn-od-art-info').addEventListener('click', () => { modal.hidden = false; });
+      $('#od-art-modal-x').addEventListener('click', () => { modal.hidden = true; });
+      modal.addEventListener('click', e => { if (e.target.id === 'od-art-modal') modal.hidden = true; });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.hidden = true; });
+      refresh();
+    }
+    return { init, refresh };
+  })();
+
   /* ----------------------------- 시작 ----------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
+    ObjArt.init();
     $('#btn-od-upload').addEventListener('click', () => $('#od-file').click());
     $('#od-file').addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
     $('#btn-od-detect').addEventListener('click', detectReal);

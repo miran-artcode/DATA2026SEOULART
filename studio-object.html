@@ -14,6 +14,13 @@
   .od-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .limit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 640px) { .limit-grid { grid-template-columns: 1fr; } }
+  #od-art { width: 100%; height: 360px; background: #07080d; border: 1px solid var(--line); border-radius: 12px; display: block; }
+  .art-modal { position: fixed; inset: 0; background: rgba(4,5,10,.72); display: flex; align-items: center; justify-content: center; z-index: 60; padding: 18px; }
+  .art-modal[hidden] { display: none; }
+  .art-modal-box { position: relative; max-width: 600px; max-height: 84vh; overflow: auto; background: var(--panel, #11131d); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; box-shadow: 0 18px 60px rgba(0,0,0,.5); }
+  .art-modal-x { position: absolute; top: 12px; right: 14px; background: none; border: none; color: var(--muted, #9aa3bd); font-size: 20px; cursor: pointer; }
+  .art-modal-box .map-row { display: flex; gap: 8px; padding: 5px 0; border-top: 1px dashed var(--line); font-size: 13px; }
+  .art-modal-box .map-row b { color: var(--accent2, #ffb454); min-width: 92px; }
 </style>
 </head>
 <body>
@@ -69,7 +76,26 @@
       <button id="btn-od-csv" class="btn" disabled>⬇ CSV 내보내기</button>
       <button id="btn-od-send" class="btn accent2" disabled>→ 데이터 점 스튜디오로 보내기</button>
     </div>
-    <p class="muted" style="font-size:11.5px;margin-top:8px">보내면 <b>사물·중심x·중심y·크기·신뢰도</b> 열로 ‘춤추는 점’ 작품을 만들 수 있어요(예: 색=사물, 크기=크기).</p>
+    <p class="muted" style="font-size:11.5px;margin-top:8px">보내면 <b>사물·중심x·중심y·크기·신뢰도</b> 열로 데이터 점 스튜디오에서 더 깊이 다룰 수 있어요. 또는 바로 아래에서 ‘춤추는 점’으로 봐요.</p>
+  </div>
+
+  <div class="card" id="od-art-card" style="margin-top:16px">
+    <h3>✦ 춤추는 점 — 감지된 사물이 사진에서 떠올라요
+      <button id="btn-od-art-info" class="btn ghost" style="font-size:12px; padding:3px 10px; margin-left:6px">ⓘ 어떻게?</button>
+    </h3>
+    <p class="muted" style="font-size:11.5px; margin:2px 0 10px">AI가 찾은 사물 하나하나가 <b>점</b>이 돼요 — <b>사진 속 제 위치</b>에서 떠오르고, <b>박스 크기 → 점 크기</b>, <b>사물 종류 → 색</b>, 그리고 <b>신뢰도가 낮을수록 더 떨려요</b>(AI의 망설임이 그대로 흔들림이 됩니다).</p>
+    <canvas id="od-art" width="900" height="360"></canvas>
+    <div class="od-tools" style="margin-top:10px">
+      <label class="field" style="margin:0">움직임
+        <select id="od-art-motion">
+          <option value="hover">제자리 떠오름 — 본디 자리에서 떨며 떠요</option>
+          <option value="swarm">군무 — 한데 모여 함께 흐르기</option>
+          <option value="rise">상승 — 거품처럼 떠올라요</option>
+        </select>
+      </label>
+      <label class="chk" style="margin:0"><input id="od-art-label" type="checkbox" checked /> 이름표 보이기</label>
+      <button id="od-art-play" class="btn">⏸ 멈춤</button>
+    </div>
   </div>
 
   <div class="card" style="margin-top:16px">
@@ -82,6 +108,19 @@
   </div>
 
   <p class="footer-note">도구는 의도를 ‘대체’하지 않고 ‘뒤따른다’ · AI가 본 것 위에, 내가 무엇을 말할지를 얹어요</p>
+</div>
+
+<div id="od-art-modal" class="art-modal" hidden>
+  <div class="art-modal-box">
+    <button id="od-art-modal-x" class="art-modal-x" aria-label="닫기">✕</button>
+    <h3 style="margin-top:0">감지된 사물이 어떻게 ‘춤추는 점’이 되나요?</h3>
+    <p style="font-size:13px; color:var(--muted,#9aa3bd); margin:0 0 12px">AI는 사물마다 <b>네모(박스)·이름·신뢰도</b>를 내놓아요. 그 숫자들을 점의 <b>위치·크기·색·떨림</b>으로 바꾸면, 사진이 살아 움직이는 작품이 됩니다.</p>
+    <div class="map-row"><b>위치</b><span>박스의 <b>중심(x, y)</b> → 점이 사진 속 그 자리에서 떠올라요. 구도가 그대로 살아나요.</span></div>
+    <div class="map-row"><b>크기</b><span>박스가 <b>클수록</b>(화면을 많이 차지할수록) 점이 커져요.</span></div>
+    <div class="map-row"><b>색</b><span>사물의 <b>종류</b>마다 다른 색 — 같은 사람끼리, 같은 차끼리 같은 빛.</span></div>
+    <div class="map-row"><b>떨림</b><span><b>신뢰도가 낮을수록</b> 더 많이 흔들려요. ‘이게 맞나…?’ 하는 AI의 <b>망설임</b>이 눈에 보이는 떨림이 됩니다.</span></div>
+    <p style="font-size:13px; margin:14px 0 0; padding-top:12px; border-top:1px solid var(--line)"><b>그래서 무엇을 말할까요?</b> AI가 또렷이 본 것은 단단히, 흐릿하게 본 것은 떨리게 — “도구가 <b>확신하는 것과 망설이는 것</b>”을 한 화면에서 보여 줄 수 있어요. 감지 0개일 땐 텅 빈 화면 그 자체가 ‘AI가 못 보는 세계’에 대한 발언이 되고요.</p>
+  </div>
 </div>
 
 <script src="js/explain.js"></script>
