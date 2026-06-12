@@ -9,6 +9,9 @@
   'use strict';
   const $ = s => document.querySelector(s);
   const esc = s => (window.UI ? UI.escapeHTML(s) : String(s));
+  // 캔버스 배경 팔레트(작품의 '공기'). 색 스튜디오와 동일한 6종.
+  const BGS = { night: [7, 8, 13], black: [0, 0, 0], ink: [18, 10, 26], slate: [22, 26, 34], paper: [244, 240, 230], white: [248, 249, 252] };
+  const bgRGB = () => { const c = BGS[state.bg] || BGS.night; return c[0] + ',' + c[1] + ',' + c[2]; };
 
   // 예시 데이터를 '사회 문제'와 연결 — 의미 있는 시각화로(데이터=사회현상을 드러내는 시각자료).
   const SAMPLES = {
@@ -28,7 +31,8 @@
       gradLow: '#2e86de', gradHigh: '#ff5a5f', solid: '#ffb454',
       catColors: {}, catShapes: {}
     },
-    baseSpeed: 1, vib: 1, trail: 200, layout: 'timeline', motionStyle: 'vibrate'
+    baseSpeed: 1, vib: 1, trail: 200, layout: 'timeline', motionStyle: 'vibrate',
+    pointScale: 1, cohesion: 1, bg: 'night'
   };
   let ruleA = null, ruleB = null, abFlag = false, P = null, p5i = null;
 
@@ -235,12 +239,12 @@
     };
     p.windowResized = () => { const st = $('#dstage'); p.resizeCanvas(st.clientWidth, st.clientHeight); build(); };
     p.draw = () => {
-      const ctx = p.drawingContext;
-      ctx.fillStyle = state.trail >= 255 ? 'rgb(7,8,13)' : 'rgba(7,8,13,' + (state.trail / 255) + ')';
+      const ctx = p.drawingContext, bg = bgRGB();
+      ctx.fillStyle = state.trail >= 255 ? 'rgb(' + bg + ')' : 'rgba(' + bg + ',' + (state.trail / 255) + ')';
       ctx.fillRect(0, 0, p.width, p.height);
       if (!P || !state.dataset) return;
       const m = state.mapping, mAct = p.mouseX > 0 && p.mouseY > 0 && p.mouseX < p.width && p.mouseY < p.height;
-      const style = state.motionStyle, t = p.frameCount * 0.05;
+      const style = state.motionStyle, t = p.frameCount * 0.05, coh = state.cohesion;
       for (const o of P) {
         const i = o.ri;
         const sv = m.size ? norm(m.size, i) : 0.5;
@@ -250,25 +254,25 @@
         // 움직임 방식: 어떤 ‘식’으로 움직일지
         let ax, ay;
         if (style === 'orbit') {                         // home 주위를 도는 궤도
-          ax = (o.hx - o.px) * 0.06; ay = (o.hy - o.py) * 0.06;
+          ax = (o.hx - o.px) * 0.06 * coh; ay = (o.hy - o.py) * 0.06 * coh;
           const dx = o.px - o.hx, dy = o.py - o.hy;
           ax += -dy * 0.05 * (0.5 + speed); ay += dx * 0.05 * (0.5 + speed);
           ax += (Math.random() - 0.5) * state.vib * speed * 0.5; ay += (Math.random() - 0.5) * state.vib * speed * 0.5;
         } else if (style === 'wave') {                   // 시간에 따라 출렁이는 파동
-          ax = (o.hx - o.px) * 0.06; ay = (o.hy - o.py) * 0.05;
+          ax = (o.hx - o.px) * 0.06 * coh; ay = (o.hy - o.py) * 0.05 * coh;
           ay += Math.sin(t + o.ph + i * 0.25) * speed * 1.3;
           ax += (Math.random() - 0.5) * state.vib * speed * 0.4;
         } else if (style === 'burst') {                  // 방향대로 분출(약한 복귀)
-          ax = (o.hx - o.px) * 0.02; ay = (o.hy - o.py) * 0.02;
+          ax = (o.hx - o.px) * 0.02 * coh; ay = (o.hy - o.py) * 0.02 * coh;
           ay += dir * speed * 0.9; ax += (Math.random() - 0.5) * state.vib * speed; ay += (Math.random() - 0.5) * state.vib * speed;
         } else {                                         // vibrate(기본): 제자리 진동 + 방향 드리프트
-          ax = (o.hx - o.px) * 0.06; ay = (o.hy - o.py) * 0.03;
+          ax = (o.hx - o.px) * 0.06 * coh; ay = (o.hy - o.py) * 0.03 * coh;
           ay += dir * speed * 0.55;
           ax += (Math.random() - 0.5) * state.vib * speed; ay += (Math.random() - 0.5) * state.vib * speed;
         }
         if (mAct) { const dx = o.px - p.mouseX, dy = o.py - p.mouseY, d2 = dx * dx + dy * dy; if (d2 < 9000) { const d = Math.sqrt(d2) + .1, f = (1 - d / 95) * 4; ax += dx / d * f; ay += dy / d * f; } }
         o.vx = (o.vx + ax) * 0.9; o.vy = (o.vy + ay) * 0.9; o.px += o.vx; o.py += o.vy;
-        const r = 1.5 + sv * 7 * (m.size ? 1 : 0.45);
+        const r = (1.5 + sv * 7 * (m.size ? 1 : 0.45)) * state.pointScale;
         ctx.globalAlpha = m.alpha ? (0.18 + norm(m.alpha, i) * 0.82) : 1;
         ctx.fillStyle = colorAt(i);
         drawShape(ctx, o.px, o.py, r, shapeAt(i));
@@ -278,9 +282,9 @@
   };
 
   /* ----------------------------- 규칙 A/B ----------------------------- */
-  function snapRule() { return JSON.parse(JSON.stringify({ mapping: state.mapping, baseSpeed: state.baseSpeed, vib: state.vib, trail: state.trail, layout: state.layout, motionStyle: state.motionStyle })); }
-  function applyRule(r) { if (!r) return; state.mapping = JSON.parse(JSON.stringify(r.mapping)); state.baseSpeed = r.baseSpeed; state.vib = r.vib; state.trail = r.trail; state.layout = r.layout || 'timeline'; state.motionStyle = r.motionStyle || 'vibrate'; syncMotion(); populateFieldSelects(); renderColorUI(); build(); }
-  function syncMotion() { $('#r-speed').value = state.baseSpeed; $('#o-speed').textContent = state.baseSpeed; $('#r-vib').value = state.vib; $('#o-vib').textContent = state.vib; $('#r-trail').value = state.trail; $('#o-trail').textContent = state.trail; const sl = $('#sel-layout'); if (sl) sl.value = state.layout; const sm = $('#sel-motionstyle'); if (sm) sm.value = state.motionStyle; }
+  function snapRule() { return JSON.parse(JSON.stringify({ mapping: state.mapping, baseSpeed: state.baseSpeed, vib: state.vib, trail: state.trail, layout: state.layout, motionStyle: state.motionStyle, pointScale: state.pointScale, cohesion: state.cohesion, bg: state.bg })); }
+  function applyRule(r) { if (!r) return; state.mapping = JSON.parse(JSON.stringify(r.mapping)); state.baseSpeed = r.baseSpeed; state.vib = r.vib; state.trail = r.trail; state.layout = r.layout || 'timeline'; state.motionStyle = r.motionStyle || 'vibrate'; state.pointScale = r.pointScale != null ? r.pointScale : 1; state.cohesion = r.cohesion != null ? r.cohesion : 1; state.bg = r.bg || 'night'; syncMotion(); populateFieldSelects(); renderColorUI(); build(); }
+  function syncMotion() { $('#r-speed').value = state.baseSpeed; $('#o-speed').textContent = state.baseSpeed; $('#r-vib').value = state.vib; $('#o-vib').textContent = state.vib; $('#r-trail').value = state.trail; $('#o-trail').textContent = state.trail; const sl = $('#sel-layout'); if (sl) sl.value = state.layout; const sm = $('#sel-motionstyle'); if (sm) sm.value = state.motionStyle; const ps = $('#r-pscale'); if (ps) { ps.value = state.pointScale; $('#o-pscale').textContent = state.pointScale; } const co = $('#r-coh'); if (co) { co.value = state.cohesion; $('#o-coh').textContent = state.cohesion; } const sb = $('#sel-data-bg'); if (sb) sb.value = state.bg; }
   const MLBL = { size: '크기', speed: '속도', direction: '방향', density: '밀도', alpha: '투명도', shape: '형태' };
   function describeRule(r) {
     const m = r.mapping, parts = [];
@@ -324,7 +328,7 @@
   }
   function settings() {
     const v = id => { const el = $('#' + id); return el ? el.value.trim() : ''; };
-    return { mapping: state.mapping, baseSpeed: state.baseSpeed, vib: state.vib, trail: state.trail, layout: state.layout, motionStyle: state.motionStyle,
+    return { mapping: state.mapping, baseSpeed: state.baseSpeed, vib: state.vib, trail: state.trail, layout: state.layout, motionStyle: state.motionStyle, pointScale: state.pointScale, cohesion: state.cohesion, bg: state.bg,
       dataName: $('#in-dataname').value || state.dataName,
       record: { sense: v('rec-sense'), count: v('rec-count'), omit: v('rec-omit'), scale: v('rec-scale'), miss: v('rec-miss') },
       fields: state.dataset ? state.dataset.fields : [], rows: state.dataset ? state.dataset.rows : [] };
@@ -396,8 +400,10 @@
     $('#map-solid').addEventListener('input', e => state.mapping.solid = e.target.value);
 
     rng('r-speed', 'o-speed', 'baseSpeed'); rng('r-vib', 'o-vib', 'vib'); rng('r-trail', 'o-trail', 'trail');
+    rng('r-pscale', 'o-pscale', 'pointScale'); rng('r-coh', 'o-coh', 'cohesion');
     $('#sel-layout').addEventListener('change', e => { state.layout = e.target.value; build(); });
     $('#sel-motionstyle').addEventListener('change', e => { state.motionStyle = e.target.value; });
+    $('#sel-data-bg').addEventListener('change', e => { state.bg = e.target.value; });
 
     $('#btn-ruleA').addEventListener('click', () => { ruleA = snapRule(); renderAB(); UI.toast('규칙 A 저장됨 — 매핑을 바꿔 규칙 B도 저장해 비교하세요.'); });
     $('#btn-ruleB').addEventListener('click', () => { ruleB = snapRule(); renderAB(); UI.toast('규칙 B 저장됨 — ‘A/B 전환’으로 비교하세요.'); });
