@@ -192,6 +192,57 @@
     document.body.appendChild(f);
   };
 
+  // 어려운 낱말에 점선 밑줄 + 호버 정의(낱말 사전). 본문 프로즈 안에서 용어별 '첫 1회'만.
+  const GLOSS = {
+    'K-means': '비슷한 색을 K개의 무리로 묶고, 무리마다 ‘가운데 색’ 하나로 대신하는 방법.',
+    '알고리즘': '컴퓨터가 따르는, 차례가 정해진 방법(라면 끓이는 순서처럼).',
+    '군집': '비슷한 것끼리 모은 한 덩어리.',
+    '매핑': '데이터를 그림의 무언가(크기·색·위치)에 이어 주는 것.',
+    '정규화': '크기가 제각각인 숫자를 0~1로 맞춰 공평히 비교하는 것.',
+    '헤르츠': '1초에 떨리는 횟수 — 적으면 낮은 소리, 많으면 높은 소리.'
+  };
+  UI.glossify = function () {
+    try {
+      if (document.getElementById('gloss-style')) return;
+      const st = document.createElement('style'); st.id = 'gloss-style';
+      st.textContent = '.gloss{border-bottom:1px dotted currentColor;cursor:help;position:relative}' +
+        '.gloss-pop{position:absolute;left:0;bottom:130%;width:max-content;max-width:250px;background:#11131d;color:#e8ecf6;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:7px 10px;font-size:12px;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;visibility:hidden;transform:translateY(4px);transition:.15s;z-index:50;pointer-events:none;white-space:normal;font-weight:400}' +
+        '.gloss:hover .gloss-pop,.gloss:focus .gloss-pop{opacity:1;visibility:visible;transform:translateY(0)}';
+      document.head.appendChild(st);
+      const SKIP = { SCRIPT: 1, STYLE: 1, A: 1, BUTTON: 1, INPUT: 1, TEXTAREA: 1, SELECT: 1, OPTION: 1, CODE: 1, H1: 1 };
+      const terms = Object.keys(GLOSS), seen = {};
+      const roots = document.querySelectorAll('.page-head, .card, .callout, .hint');
+      roots.forEach(root => {
+        if (terms.every(t => seen[t])) return;
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+          acceptNode(n) {
+            if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+            let p = n.parentNode;
+            while (p && p !== root.parentNode) { if (SKIP[p.nodeName] || (p.classList && p.classList.contains('gloss'))) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        });
+        const nodes = []; let nd; while ((nd = walker.nextNode())) nodes.push(nd);
+        nodes.forEach(textNode => {
+          for (const term of terms) {
+            if (seen[term]) continue;
+            const idx = textNode.nodeValue.indexOf(term);
+            if (idx < 0) continue;
+            seen[term] = 1;
+            const after = textNode.splitText(idx);
+            after.nodeValue = after.nodeValue.slice(term.length);
+            const span = document.createElement('span');
+            span.className = 'gloss'; span.tabIndex = 0; span.textContent = term;
+            const pop = document.createElement('span'); pop.className = 'gloss-pop'; pop.textContent = GLOSS[term];
+            span.appendChild(pop);
+            after.parentNode.insertBefore(span, after);
+            break;   // 한 텍스트노드당 한 번
+          }
+        });
+      });
+    } catch (e) { /* 용어 툴팁은 보조 기능 — 실패해도 페이지는 그대로 동작 */ }
+  };
+
   global.UI = UI;
-  document.addEventListener('DOMContentLoaded', () => { UI.mountHeader(); UI.mountFooter(); });
+  document.addEventListener('DOMContentLoaded', () => { UI.mountHeader(); UI.mountFooter(); UI.glossify(); });
 })(window);
