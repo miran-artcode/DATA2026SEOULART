@@ -192,6 +192,8 @@
     const sel = { motion: 'stream', size: '자동', hue: '자동', y: '자동' };
     const TAU = Math.PI * 2;
     const CAT_HUE = {};
+    const BGS_SND = { night: '#07080d', black: '#000000', ink: '#120a1a', slate: '#161a22', paper: '#f4f0e6', white: '#f8f9fc' };
+    let danceMul = 1, sizeMul = 1, bgKey = 'night';
 
     const keys = () => numericKeys();
     const catKey = () => (rows[0] && typeof rows[0].상황 === 'string') ? '상황' : null;
@@ -263,32 +265,33 @@
       if (!ctx) return;
       const W = cv.width, H = cv.height, n = pts.length;
       ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = '#07080d'; ctx.fillRect(0, 0, W, H);
+      const isLight = bgKey === 'paper' || bgKey === 'white';
+      ctx.fillStyle = BGS_SND[bgKey] || '#07080d'; ctx.fillRect(0, 0, W, H);
       if (!n) {
-        ctx.fillStyle = '#5b6480'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillStyle = isLight ? '#6b7280' : '#5b6480'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText('소리를 녹음·불러오거나 코골이 샘플을 누르면 점들이 춤을 춰요', W / 2, H / 2);
         return;
       }
       const pad = 28, IW = W - pad * 2, IH = H - pad * 2, m = sel.motion;
-      ctx.globalCompositeOperation = 'lighter';     // 겹치면 빛처럼 합쳐지게
+      ctx.globalCompositeOperation = isLight ? 'source-over' : 'lighter';     // 어두우면 겹쳐 빛처럼
       const head = (T * 0.10) % 1;                   // 흐름 모드의 재생 헤드
       for (let i = 0; i < n; i++) {
-        const p = pts[i], base = 3 + p.s * 16, prog = n < 2 ? 0.5 : i / (n - 1);
+        const p = pts[i], base = (3 + p.s * 16) * sizeMul, prog = n < 2 ? 0.5 : i / (n - 1);
         let x, y, r, a;
         if (m === 'stream') {
           x = pad + prog * IW;
-          y = pad + (1 - p.yv) * IH + Math.sin(T * 2 + p.ph) * (4 + p.flux * 22);
+          y = pad + (1 - p.yv) * IH + Math.sin(T * 2 + p.ph) * (4 + p.flux * 22) * danceMul;
           const near = Math.max(0, 1 - Math.abs(prog - head) * 14);
           r = base * (1 + near * 1.4); a = 0.30 + p.vol * 0.4 + near * 0.5;
         } else if (m === 'swarm') {
-          const orb = 2 + p.flux * 26;
+          const orb = (2 + p.flux * 26) * danceMul;
           x = pad + p.sx * IW + Math.cos(T * 1.1 + p.ph) * orb;
           y = pad + p.sy * IH + Math.sin(T * 1.3 + p.ph) * orb;
           r = base * (0.82 + 0.18 * Math.sin(T * 1.6 + p.ph)); a = 0.34 + p.vol * 0.5;
         } else {                                      // wave — 이퀄라이저
           x = pad + prog * IW;
           const osc = Math.sin(T * 2.2 + i * 0.5);
-          y = pad + IH * 0.5 + osc * (8 + p.flux * 60) * (0.4 + p.yv * 0.8);
+          y = pad + IH * 0.5 + osc * (8 + p.flux * 60) * danceMul * (0.4 + p.yv * 0.8);
           r = base * (0.8 + 0.5 * Math.abs(osc)); a = 0.30 + p.vol * 0.5;
         }
         dot(x, y, r, p.hue, a);
@@ -322,6 +325,9 @@
       cv = $('#art'); if (!cv) return; ctx = cv.getContext('2d');
       $('#art-motion').addEventListener('change', e => { sel.motion = e.target.value; });
       ['size', 'hue', 'y'].forEach(role => { const el = $('#art-' + role); if (el) el.addEventListener('change', e => { sel[role] = e.target.value; build(); }); });
+      const dR = $('#art-dance'); if (dR) dR.addEventListener('input', e => { danceMul = +e.target.value; $('#o-art-dance').textContent = (+e.target.value).toFixed(1); });
+      const sR = $('#art-sizemul'); if (sR) sR.addEventListener('input', e => { sizeMul = +e.target.value; $('#o-art-size').textContent = (+e.target.value).toFixed(1); });
+      const bR = $('#art-bg'); if (bR) bR.addEventListener('change', e => { bgKey = e.target.value; });
       $('#art-play').addEventListener('click', () => setPlay(!playing));
       const modal = $('#art-modal');
       $('#btn-art-info').addEventListener('click', () => { modal.hidden = false; });
