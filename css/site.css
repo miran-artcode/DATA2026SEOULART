@@ -3,24 +3,26 @@
    「데이터의 눈으로 그림 읽기」 수업 사이트. 단일 도구(style.css)와 색을 맞춰 통일.
    ============================================================================= */
 :root {
-  --bg: #0c0e16; --bg2: #0a0c12;
-  --panel: #141826; --panel2: #1b2030; --panel3: #222840;
-  --line: #2a3145; --text: #e8ecf6; --muted: #9aa3bd; --muted2: #767f9b;
+  /* 표면 위계: 배경(bg) < 카드/패널(panel) < 중첩(panel2/3). 미묘하지만 또렷한 명도 차로 ‘떠 있게’. */
+  --bg: #0a0c13; --bg2: #06080d;
+  --panel: #151a27; --panel2: #1d2331; --panel3: #262d3e;
+  --line: #28303f; --text: #e9edf6; --muted: #99a2ba; --muted2: #6f7790;
   --accent: #ffb454; --accent2: #4ec3ff; --good: #51d88a; --danger: #ff5a6a; --adv: #c08bff;
   --radius: 14px; --maxw: 1200px;
-  --header: rgba(17, 21, 33, .86);
+  --header: rgba(13, 16, 24, .82);
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.24);
 }
 /* ☀ 밝은 테마 — 읽기·작업 화면을 밝게(작품 캔버스는 몰입을 위해 어둡게 유지) */
 :root[data-theme="light"] {
-  --bg: #f4f6fb; --bg2: #eaedf5;
-  --panel: #ffffff; --panel2: #f1f3f9; --panel3: #e7eaf3;
-  --line: #d8deec; --text: #1b2233; --muted: #5b6580; --muted2: #8089a0;
-  --header: rgba(255, 255, 255, .9);
+  --bg: #f5f7fa; --bg2: #eceff5;
+  --panel: #ffffff; --panel2: #f3f5f9; --panel3: #e9edf4;
+  --line: #e4e8f1; --text: #1a2233; --muted: #5b6580; --muted2: #8a92a6;
+  --header: rgba(255, 255, 255, .85);
+  --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 22px rgba(16,24,40,.07);
 }
 :root[data-theme="light"] body {
   background:
-    radial-gradient(1200px 600px at 80% -10%, #e7ecff 0%, transparent 60%),
-    radial-gradient(900px 500px at -10% 10%, #fff0e6 0%, transparent 55%),
+    radial-gradient(1100px 600px at 50% -20%, rgba(110,124,255,.05) 0%, transparent 62%),
     var(--bg);
 }
 :root[data-theme="light"] .btn.ghost { background: transparent; }
@@ -30,8 +32,7 @@ html, body { margin: 0; }
 body {
   font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
   background:
-    radial-gradient(1200px 600px at 80% -10%, #15192a 0%, transparent 60%),
-    radial-gradient(900px 500px at -10% 10%, #161226 0%, transparent 55%),
+    radial-gradient(1100px 600px at 50% -20%, rgba(110,124,255,.06) 0%, transparent 62%),
     var(--bg);
   color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; line-height: 1.5;
 }
@@ -69,9 +70,9 @@ a:hover { text-decoration: underline; }
 .site-user .dot.off { background: var(--muted2); box-shadow: none; }
 
 /* ----------------------------- 레이아웃 컨테이너 ----------------------------- */
-.wrap { max-width: var(--maxw); margin: 0 auto; padding: 22px 18px 70px; }
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 30px 20px 76px; }
 .wrap.narrow { max-width: 860px; }
-.page-head { margin: 8px 0 18px; }
+.page-head { margin: 10px 0 24px; }
 .page-head h1 { font-size: 24px; margin: 0 0 6px; letter-spacing: -.3px; }
 .page-head p { color: var(--muted); margin: 0; font-size: 14px; }
 .eyebrow { color: var(--accent); font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
@@ -83,7 +84,7 @@ a:hover { text-decoration: underline; }
 @media (max-width: 900px) { .grid.c3, .grid.c4 { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .grid.c2, .grid.c3, .grid.c4 { grid-template-columns: 1fr; } }
 
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
 .card h2, .card h3 { margin: 0 0 10px; }
 .card h3 { font-size: 16px; }
 .card.hover { transition: .16s; cursor: pointer; }
