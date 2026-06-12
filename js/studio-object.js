@@ -11,8 +11,9 @@
 (function () {
   'use strict';
   const $ = s => document.querySelector(s);
-  const TF = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js';
-  const SSD = 'https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js';
+  // 모델 스크립트는 외부 CDN에서 받아온다 — 한 곳이 막히면 다음 곳으로 폴백(학교망 대비).
+  const TF = ['https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js', 'https://unpkg.com/@tensorflow/tfjs@4.22.0/dist/tf.min.js'];
+  const SSD = ['https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js', 'https://unpkg.com/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js'];
   const COLS = ['사물', '중심x', '중심y', '크기', '신뢰도'];
 
   // COCO 80범주 → 한국어(자주 나오는 것 위주, 없으면 원어)
@@ -35,6 +36,7 @@
   let detections = [];      // [{bbox:[x,y,w,h], class, score}]
   let model = null;         // cocoSsd 모델(로드되면)
   let busy = false;
+  let live = false, liveStream = null, liveVideo = null;   // 실시간 카메라(웹캠/휴대폰)
 
   function setStatus(msg, kind) {
     const el = $('#od-status'); if (!el) return;
@@ -147,15 +149,65 @@
 
   /* ----------------------------- 모델 로드 + 감지 ----------------------------- */
   function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('load fail')); document.head.appendChild(s); }); }
+  // 여러 CDN을 순서대로 시도 — 하나가 막혀도 다음에서 받는다(학교망/차단 대비).
+  async function loadFirst(urls) { let err; for (const u of urls) { try { await loadScript(u); return; } catch (e) { err = e; } } throw (err || new Error('all CDNs failed')); }
   async function ensureModel() {
     if (model) return model;
     setStatus('AI 모델을 불러오는 중… (처음 한 번, 약 5–6MB · 브라우저에서만 실행)');
-    if (!window.tf) await loadScript(TF);
-    if (!window.cocoSsd) await loadScript(SSD);
+    if (!window.tf) await loadFirst(TF);
+    if (!window.cocoSsd) await loadFirst(SSD);
     model = await window.cocoSsd.load({ base: 'lite_mobilenet_v2' });   // 가장 가벼운 모델(교실용)
     return model;
   }
+
+  /* ----------------------------- 실시간 카메라(웹캠/휴대폰) ----------------------------- */
+  // 카메라를 켜서 프레임마다 감지 → 박스를 실시간으로. HTTPS(깃허브 페이지)에서 휴대폰 뒷카메라도 됨.
+  async function startLive() {
+    if (live) return;
+    try {
+      setStatus('카메라를 켜는 중…');
+      const m = await ensureModel();
+      liveStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+      liveVideo = document.createElement('video'); liveVideo.playsInline = true; liveVideo.muted = true; liveVideo.srcObject = liveStream;
+      await liveVideo.play();
+      live = true;
+      const b = $('#btn-od-cam'); if (b) { b.textContent = '■ 카메라 끄기'; b.classList.add('rec'); }
+      setStatus('📹 실시간 감지 중 — 카메라를 사물(사람·컵·휴대폰·의자…)에 향해 보세요. 영상은 저장되지 않아요.');
+      requestAnimationFrame(liveStep);
+    } catch (e) {
+      live = false;
+      if (e && (e.name === 'NotAllowedError' || e.name === 'NotFoundError' || e.name === 'NotReadableError'))
+        setStatus('카메라를 쓸 수 없어요 — 권한 거부/카메라 없음일 수 있어요. 주소창의 카메라 허용을 확인해 주세요(휴대폰도 HTTPS면 가능).', 'warn');
+      else
+        setStatus('카메라/모델을 켜지 못했어요(모델 CDN 차단일 수 있어요). 잠시 후 다시 시도하거나 다른 네트워크에서 열어 보세요.', 'warn');
+    }
+  }
+  function stopLive() {
+    live = false;
+    if (liveStream) { liveStream.getTracks().forEach(t => t.stop()); liveStream = null; }
+    liveVideo = null;
+    const b = $('#btn-od-cam'); if (b) { b.textContent = '📹 실시간 카메라'; b.classList.remove('rec'); }
+  }
+  function toggleLive() { if (live) { stopLive(); setStatus('카메라를 껐어요.'); } else startLive(); }
+  async function liveStep() {
+    if (!live || !liveVideo || !model) return;
+    if (liveVideo.readyState >= 2 && liveVideo.videoWidth) {
+      try {
+        const dets = await model.detect(liveVideo, 20);
+        if (!live) return;
+        // 비디오 프레임을 srcCanvas에 복사 → 기존 render()·CSV·‘춤추는 점’이 그대로 동작
+        if (!srcCanvas || srcCanvas.width !== liveVideo.videoWidth || srcCanvas.height !== liveVideo.videoHeight) {
+          srcCanvas = document.createElement('canvas'); srcCanvas.width = liveVideo.videoWidth; srcCanvas.height = liveVideo.videoHeight;
+        }
+        srcCanvas.getContext('2d').drawImage(liveVideo, 0, 0, srcCanvas.width, srcCanvas.height);
+        detections = dets.filter(d => d.score >= 0.45).sort((a, b) => b.score - a.score).slice(0, 20);
+        render(); summarize();
+      } catch (e) { /* 프레임 단위 오류는 건너뜀 */ }
+    }
+    if (live) requestAnimationFrame(liveStep);
+  }
   async function detectReal() {
+    stopLive();
     if (busy || !srcCanvas) return; busy = true;
     const btn = $('#btn-od-detect'); if (btn) { btn.disabled = true; btn.textContent = '🤖 감지 중…'; }
     try {
@@ -169,6 +221,7 @@
 
   /* ----------------------------- 입력 ----------------------------- */
   function loadImage(img, title, autoDetect) {
+    stopLive();
     const cv = document.createElement('canvas');
     const maxDim = 720, ar = img.width / img.height;
     cv.width = Math.min(maxDim, img.width); cv.height = Math.round(cv.width / ar);
@@ -185,6 +238,7 @@
     img.src = url;
   }
   function loadArtDemo(name) {
+    stopLive();
     if (!window.ImageAnalysis) return;
     setStatus('명화 불러오는 중…');
     ImageAnalysis.loadPainting(name, (cv, title, isFallback) => {
@@ -193,6 +247,7 @@
     });
   }
   function loadStreetDemo() {
+    stopLive();
     const { cv, baked } = drawStreet(720, 480);
     srcCanvas = cv; applyDetections(baked, '오프라인 예시 장면 · baked 감지(네트워크 없이도 작동) — 실제 AI 감지는 사진을 업로드해 보세요.');
   }
@@ -291,6 +346,7 @@
     $('#btn-od-upload').addEventListener('click', () => $('#od-file').click());
     $('#od-file').addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
     $('#btn-od-detect').addEventListener('click', detectReal);
+    $('#btn-od-cam').addEventListener('click', toggleLive);
     $('#btn-od-street').addEventListener('click', loadStreetDemo);
     $('#sel-od-art').addEventListener('change', e => { if (e.target.value) loadArtDemo(e.target.value); });
     $('#btn-od-csv').addEventListener('click', exportCSV);
