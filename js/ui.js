@@ -11,6 +11,7 @@
   try { if (localStorage.getItem('dn_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) {}
 
   const NAV = [
+    { label: '사용 안내', href: 'start.html' },
     { label: '만들기', drop: [
       { href: 'studio-color.html', t: '색 군집 스튜디오', s: '명화를 대표색 점으로 · 1단계 기초' },
       { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '데이터를 춤추는 점으로 · 1단계 기초' },
