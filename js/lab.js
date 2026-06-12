@@ -60,6 +60,7 @@
   function drawCharts() {
     if (!lastStats || !lastPalette.length) return;
     Charts.donut($('#cv-donut'), lastPalette);
+    if ($('#cv-rose')) Charts.rose($('#cv-rose'), lastPalette);
     Charts.bars($('#cv-bars'), lastPalette);
     Charts.scatter($('#cv-scatter'), lastStats.samples, lastPalette);
     Charts.rgbHist($('#cv-rgbhist'), lastStats.rgbHist);

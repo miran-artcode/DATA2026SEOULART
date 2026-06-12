@@ -59,6 +59,7 @@
   <h2 style="margin:26px 0 12px">색 분석 차트 <span class="muted" style="font-size:13px">— 각 차트 옆 ⓘ로 읽는 법을, 메모에 해석을</span></h2>
   <div class="grid c3" id="charts">
     <div class="card chart-card"><div class="chart-title">비율 도넛 <span data-info="chart-donut" class="info-ic">ⓘ</span></div><canvas id="cv-donut"></canvas><div class="swatches" id="pal-kmeans" style="margin-top:8px"></div><div class="memo"><textarea data-memo="donut" placeholder="해석 메모: 주인공 색은? 통일감/다채로움?"></textarea></div></div>
+    <div class="card chart-card"><div class="chart-title">방사형 막대 (길이=비율)</div><canvas id="cv-rose"></canvas><div class="memo"><textarea data-memo="rose" placeholder="해석 메모: 가장 긴 막대(주인공 색)는? 색상이 한쪽으로 치우쳤나?"></textarea></div></div>
     <div class="card chart-card"><div class="chart-title">정렬 막대 <span data-info="chart-bars" class="info-ic">ⓘ</span></div><canvas id="cv-bars"></canvas><div class="memo"><textarea data-memo="bars" placeholder="해석 메모: 1등·2등 색의 위계는?"></textarea></div></div>
     <div class="card chart-card"><div class="chart-title">색공간 산점도 (군집 중심) <span data-info="chart-scatter" class="info-ic">ⓘ</span></div><canvas id="cv-scatter"></canvas><div class="memo"><textarea data-memo="scatter" placeholder="해석 메모: 군집이 잘 갈라졌나? K가 적절한가?"></textarea></div></div>
     <div class="card chart-card"><div class="chart-title">RGB 채널 히스토그램 <span data-info="chart-rgbhist" class="info-ic">ⓘ</span></div><canvas id="cv-rgbhist"></canvas><div class="memo"><textarea data-memo="rgbhist" placeholder="해석 메모: 지배 색감은? 따뜻/차가움?"></textarea></div></div>

@@ -20,7 +20,7 @@
     size: 3, colorMode: 'cluster', mosaicCell: 0, lens: 'none', pointShape: 'circle', pointAlpha: 1, bg: 'night',
     // 움직임
     mode: 'points', motionMode: 'hold', returnForce: 0.08, vibration: 0, trail: 255, additive: false,
-    rotateSpeed: 0.004, depth: 220, rotAxis: 'y', palChart: 'donut',
+    rotateSpeed: 0.004, depth: 220, rotAxis: 'y', palChart: 'rose',
     // 자유 이동 세부(떠돎·소용돌이·중심 인력)
     freeWander: 1.2, freeSwirl: 0, freePull: 0.004,
     // 장(場) 힘: 중력·좌우 흐름·값 기반 방향·색 기반 방향
@@ -195,7 +195,7 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = cv.clientWidth || cv.parentElement.clientWidth || 280;
     const pal = analysis.palette;
-    const scatter = (type === 'wheel' || type === 'bubble');
+    const scatter = (type === 'wheel' || type === 'bubble' || type === 'rose');
     // K가 클 때 ‘기타 회색 덩어리’가 커 보이는 문제 완화 — 차트별로 실제 색을 넉넉히 보여준다.
     const MAX = scatter ? 120 : (type === 'treemap' ? 160 : (type === 'donut' ? 28 : 40));
     let items = pal;
@@ -251,6 +251,22 @@
         ctx.fillStyle = css(p); ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.arc(x, y, sz, 0, Math.PI * 2); ctx.fill();
       });
       ctx.globalAlpha = 1; ctx.fillStyle = '#7f879c'; ctx.textAlign = 'center'; ctx.fillText('가로=색상 · 세로=선명함(채도) · 크기=비율', w / 2, h - 4);
+    } else if (type === 'rose') {                       // 방사형 막대 — 각 색=막대, 길이=비율(중심→바깥)
+      const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.45;
+      // 색상(hue)으로 정렬 → 비슷한 색이 이웃해 원형 색띠처럼. 무채색(채도 낮음)은 모아 밝기순.
+      const arr = items.map(p => { const hsl = rgb2hsl(p.r, p.g, p.b); return { p, h: hsl[0], s: hsl[1], l: hsl[2] }; })
+        .sort((a, b) => (a.s < 0.12 && b.s < 0.12) ? a.l - b.l : (a.s < 0.12 ? -1 : (b.s < 0.12 ? 1 : a.h - b.h)));
+      const n = arr.length, maxR = Math.max.apply(null, items.map(p => p.ratio).concat(0.001)), aw = Math.PI * 2 / n;
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1;
+      [1 / 3, 2 / 3, 1].forEach(f => { ctx.beginPath(); ctx.arc(cx, cy, R * f, 0, Math.PI * 2); ctx.stroke(); });
+      arr.forEach((o, i) => {
+        const a0 = -Math.PI / 2 + i * aw, a1 = a0 + aw * 0.9;
+        const rr = Math.max(R * 0.03, R * (o.p.ratio / maxR));   // 길이 = 비율(최대값 기준 정규화)
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, rr, a0, a1); ctx.closePath();
+        ctx.fillStyle = css(o.p); ctx.fill();
+      });
+      ctx.fillStyle = '#7f879c'; ctx.textAlign = 'center'; ctx.font = '10px sans-serif';
+      ctx.fillText('각 막대 = 색 · 길이 = 비율 · 색상 순 배열', cx, h - 4);
     } else {                                            // 도넛
       const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.42, r = R * 0.55; let a0 = -Math.PI / 2;
       items.forEach(p => {
@@ -740,7 +756,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     vibration: ['진동', '매 순간 점이 무작위로 떨리는 세기. 0이면 고요, 크면 들썩여 ‘살아있는’ 느낌. 마이크 소리와 합쳐 더 강해질 수 있어요.'],
     trail: ['잔상(트레일)', '한 프레임에 배경을 얼마나 지울지. 255=완전히 지워 또렷, 낮을수록 지난 위치의 자취(궤적)가 남아 ‘흐름·움직임’이 보여요.'],
     additive: ['발광(빛 번짐)', '겹친 점의 색을 더해(가산 혼합) 밝아지게 — 성운·네온처럼 빛나는 느낌. 어두운 배경에서 강렬해요.'],
-    palchart: ['팔레트 차트', '같은 비율 데이터도 ‘틀’을 바꾸면 다르게 읽혀요 — 도넛·막대(비율), 트리맵(면적=비율), 색상환(각도=색상·중심에서 멀수록 밝음), 거품(가로=색상·세로=채도·크기=비율), 히트맵(색상×밝기 분포).']
+    palchart: ['팔레트 차트', '같은 비율 데이터도 ‘틀’을 바꾸면 다르게 읽혀요 — <b>방사형 막대</b>(각 색이 막대, <b>길이=비율</b>, 색상 순으로 둘러 배열), 도넛·막대(비율), 트리맵(면적=비율), 색상환(각도=색상·중심에서 멀수록 밝음), 거품(가로=색상·세로=채도·크기=비율), 히트맵(색상×밝기 분포). 위의 ‘비율 띠’는 너비가 곧 비율이에요.']
   };
   function bindOptInfo() {
     const modal = $('#modal-opt'); if (!modal) return;

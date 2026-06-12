@@ -87,6 +87,29 @@
     });
   };
 
+  // 방사형 막대(rose) — 각 색이 막대, 길이=비율, 색상 순으로 둘러 배열
+  Charts.rose = function (cv, palette) {
+    const { ctx, w, h } = setup(cv, cv.clientWidth * 0.62);
+    const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.44;
+    const toHsl = (r, g, b) => {
+      r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), mn = Math.min(r, g, b); let hh, s, l = (mx + mn) / 2;
+      if (mx === mn) { hh = s = 0; } else { const dd = mx - mn; s = l > 0.5 ? dd / (2 - mx - mn) : dd / (mx + mn); hh = mx === r ? (g - b) / dd + (g < b ? 6 : 0) : mx === g ? (b - r) / dd + 2 : (r - g) / dd + 4; hh /= 6; }
+      return [hh * 360, s, l];
+    };
+    const arr = palette.map(p => { const c = toHsl(p.r, p.g, p.b); return { p, h: c[0], s: c[1], l: c[2] }; })
+      .sort((a, b) => (a.s < 0.12 && b.s < 0.12) ? a.l - b.l : (a.s < 0.12 ? -1 : (b.s < 0.12 ? 1 : a.h - b.h)));
+    const n = arr.length, maxR = Math.max(...palette.map(p => p.ratio), 0.001), aw = Math.PI * 2 / n;
+    ctx.strokeStyle = 'rgba(127,127,127,0.18)'; ctx.lineWidth = 1;
+    [1 / 3, 2 / 3, 1].forEach(f => { ctx.beginPath(); ctx.arc(cx, cy, R * f, 0, Math.PI * 2); ctx.stroke(); });
+    arr.forEach((o, i) => {
+      const a0 = -Math.PI / 2 + i * aw, a1 = a0 + aw * 0.9, rr = Math.max(R * 0.03, R * (o.p.ratio / maxR));
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, rr, a0, a1); ctx.closePath();
+      ctx.fillStyle = `rgb(${o.p.r},${o.p.g},${o.p.b})`; ctx.fill();
+    });
+    ctx.fillStyle = css('--muted'); ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('길이 = 비율 · 색상 순', cx, h - 4);
+  };
+
   // 색공간 산점도 + 군집 중심
   Charts.scatter = function (cv, samples, palette) {
     const { ctx, w, h } = setup(cv);
