@@ -151,6 +151,7 @@
   }
   function colorOf(k, i) { return (FEAT[k] && FEAT[k][0]) || SERIES_FALLBACK[i % SERIES_FALLBACK.length]; }
   function renderViz() {
+    Art.refresh();
     const cv = $('#wave'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
     ctx.fillStyle = '#07080d'; ctx.fillRect(0, 0, W, H);
     const keys = numericKeys();
@@ -182,6 +183,156 @@
     setTimeout(() => location.href = 'studio-data.html', 600);
   }
 
+  /* ----------------------------- 춤추는 점(미디어아트) ----------------------------- */
+  // 추출한 소리 특징(rows)을 '이 페이지 안에서 바로' 움직이는 점 작품으로 보여준다.
+  // 매핑(크기·색·높이)은 사용자가 고르고, 춤(진동)=변화·빛=음량은 자동으로 맡는다.
+  const Art = (function () {
+    let cv = null, ctx = null, raf = null, playing = true, T = 0, lastSig = '';
+    let pts = [];
+    const sel = { motion: 'stream', size: '자동', hue: '자동', y: '자동' };
+    const TAU = Math.PI * 2;
+    const CAT_HUE = {};
+
+    const keys = () => numericKeys();
+    const catKey = () => (rows[0] && typeof rows[0].상황 === 'string') ? '상황' : null;
+
+    // 한 특징을 0..1로 정규화
+    function normArr(key) {
+      const n = rows.length; if (!n) return [];
+      if (key === '시간' || key === '밤') return rows.map((_, i) => n < 2 ? 0.5 : i / (n - 1));
+      let mn = Infinity, mx = -Infinity;
+      rows.forEach(r => { const v = +r[key]; if (v < mn) mn = v; if (v > mx) mx = v; });
+      const sp = (mx - mn) || 1;
+      return rows.map(r => (((+r[key]) || 0) - mn) / sp);
+    }
+    // role에 실제로 쓸 특징('자동'이면 역할별 선호 특징)
+    function roleKey(role) {
+      const ks = keys(); if (!ks.length) return null;
+      const v = sel[role];
+      if (v && v !== '자동' && (ks.includes(v) || v === catKey())) return v;
+      const pref = { size: ['음량', '깊이'], hue: ['음높이', '날카로움', '상황'], y: ['음높이', '깊이', '중음', '변화'] }[role] || [];
+      return pref.find(k => ks.includes(k) || k === catKey()) || ks[0];
+    }
+    // 범주(상황)별 색상(고정 팔레트 우선)
+    function catHue(v) {
+      if (CAT_HUE[v] != null) return CAT_HUE[v];
+      const fixed = { 평일: 205, 야근: 8, 월급날: 145, 주말: 275, 아픈날: 40 };
+      CAT_HUE[v] = fixed[v] != null ? fixed[v] : (Object.keys(CAT_HUE).length * 47) % 360;
+      return CAT_HUE[v];
+    }
+
+    function build() {
+      pts = []; const n = rows.length; if (!cv || !n) return;
+      const ks = keys();
+      const sizeK = roleKey('size'), hueK = roleKey('hue'), yK = roleKey('y');
+      const isCatHue = hueK === catKey();
+      const sizeN = sizeK ? normArr(sizeK) : null;
+      const yN = yK ? normArr(yK) : null;
+      const hueN = (hueK && !isCatHue) ? normArr(hueK) : null;
+      const fluxN = ks.includes('변화') ? normArr('변화') : (ks.includes('뒤척임') ? normArr('뒤척임') : null);
+      const volN = ks.includes('음량') ? normArr('음량') : sizeN;
+      // 군무 기준점의 x축: 날카로움(있으면) → 아니면 색 특징 → 아니면 시간
+      const xKey = ks.includes('날카로움') ? '날카로움' : ((hueK && !isCatHue) ? hueK : (ks[0] || '시간'));
+      const xN = normArr(xKey);
+      for (let i = 0; i < n; i++) {
+        pts.push({
+          i,
+          s: sizeN ? sizeN[i] : 0.5,
+          yv: yN ? yN[i] : 0.5,
+          hue: isCatHue ? catHue(rows[i].상황) : (hueN ? (250 - hueN[i] * 270 + 360) % 360 : 200),
+          flux: fluxN ? fluxN[i] : 0.3,
+          vol: volN ? volN[i] : 0.5,
+          ph: Math.random() * TAU,
+          sx: 0.08 + (xN[i] || 0) * 0.84,
+          sy: 0.12 + (1 - (yN ? yN[i] : 0.5)) * 0.76
+        });
+      }
+    }
+
+    function dot(x, y, r, hue, a) {
+      const A = Math.min(0.95, a);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r * 2.2);
+      g.addColorStop(0, 'hsla(' + hue.toFixed(0) + ',85%,62%,' + A.toFixed(2) + ')');
+      g.addColorStop(1, 'hsla(' + hue.toFixed(0) + ',85%,55%,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 2.2, 0, TAU); ctx.fill();
+      ctx.fillStyle = 'hsla(' + hue.toFixed(0) + ',92%,76%,' + Math.min(1, A + 0.2).toFixed(2) + ')';
+      ctx.beginPath(); ctx.arc(x, y, Math.max(1, r * 0.5), 0, TAU); ctx.fill();
+    }
+
+    function draw() {
+      if (!ctx) return;
+      const W = cv.width, H = cv.height, n = pts.length;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#07080d'; ctx.fillRect(0, 0, W, H);
+      if (!n) {
+        ctx.fillStyle = '#5b6480'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('소리를 녹음·불러오거나 코골이 샘플을 누르면 점들이 춤을 춰요', W / 2, H / 2);
+        return;
+      }
+      const pad = 28, IW = W - pad * 2, IH = H - pad * 2, m = sel.motion;
+      ctx.globalCompositeOperation = 'lighter';     // 겹치면 빛처럼 합쳐지게
+      const head = (T * 0.10) % 1;                   // 흐름 모드의 재생 헤드
+      for (let i = 0; i < n; i++) {
+        const p = pts[i], base = 3 + p.s * 16, prog = n < 2 ? 0.5 : i / (n - 1);
+        let x, y, r, a;
+        if (m === 'stream') {
+          x = pad + prog * IW;
+          y = pad + (1 - p.yv) * IH + Math.sin(T * 2 + p.ph) * (4 + p.flux * 22);
+          const near = Math.max(0, 1 - Math.abs(prog - head) * 14);
+          r = base * (1 + near * 1.4); a = 0.30 + p.vol * 0.4 + near * 0.5;
+        } else if (m === 'swarm') {
+          const orb = 2 + p.flux * 26;
+          x = pad + p.sx * IW + Math.cos(T * 1.1 + p.ph) * orb;
+          y = pad + p.sy * IH + Math.sin(T * 1.3 + p.ph) * orb;
+          r = base * (0.82 + 0.18 * Math.sin(T * 1.6 + p.ph)); a = 0.34 + p.vol * 0.5;
+        } else {                                      // wave — 이퀄라이저
+          x = pad + prog * IW;
+          const osc = Math.sin(T * 2.2 + i * 0.5);
+          y = pad + IH * 0.5 + osc * (8 + p.flux * 60) * (0.4 + p.yv * 0.8);
+          r = base * (0.8 + 0.5 * Math.abs(osc)); a = 0.30 + p.vol * 0.5;
+        }
+        dot(x, y, r, p.hue, a);
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    function loop(ts) { if (!playing) { raf = null; return; } T = ts / 1000; draw(); raf = requestAnimationFrame(loop); }
+    function start() { if (!raf && playing) raf = requestAnimationFrame(loop); }
+
+    function fillSelectors() {
+      const ks = keys(), cat = catKey();
+      ['size', 'hue', 'y'].forEach(role => {
+        const el = $('#art-' + role); if (!el) return;
+        let opts = '<option value="자동">자동</option>' + ks.map(k => '<option value="' + k + '">' + k + '</option>').join('');
+        if (cat && role === 'hue') opts += '<option value="상황">상황(색 구분)</option>';
+        const cur = sel[role];
+        el.innerHTML = opts;
+        el.value = (cur === '자동' || ks.includes(cur) || cur === cat) ? cur : '자동';
+      });
+    }
+
+    function refresh() {
+      const sig = keys().join(',') + '|' + (catKey() || '');
+      if (sig !== lastSig) { lastSig = sig; fillSelectors(); }
+      build(); if (!raf) { draw(); start(); }
+    }
+    function setPlay(on) { playing = on; const b = $('#art-play'); if (b) b.textContent = on ? '⏸ 멈춤' : '▶ 재생'; if (on) start(); }
+
+    function init() {
+      cv = $('#art'); if (!cv) return; ctx = cv.getContext('2d');
+      $('#art-motion').addEventListener('change', e => { sel.motion = e.target.value; });
+      ['size', 'hue', 'y'].forEach(role => { const el = $('#art-' + role); if (el) el.addEventListener('change', e => { sel[role] = e.target.value; build(); }); });
+      $('#art-play').addEventListener('click', () => setPlay(!playing));
+      const modal = $('#art-modal');
+      $('#btn-art-info').addEventListener('click', () => { modal.hidden = false; });
+      $('#art-modal-x').addEventListener('click', () => { modal.hidden = true; });
+      modal.addEventListener('click', e => { if (e.target.id === 'art-modal') modal.hidden = true; });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.hidden = true; });
+      fillSelectors(); refresh();
+    }
+    return { init, refresh };
+  })();
+
   document.addEventListener('DOMContentLoaded', () => {
     UI.mountIdeaBar('idea', 'data');
     $('#btn-rec').addEventListener('click', toggleMic);
@@ -190,6 +341,7 @@
     $('#btn-sample').addEventListener('click', snoringSample);
     $('#btn-csv').addEventListener('click', exportCSV);
     $('#btn-send').addEventListener('click', sendToData);
+    Art.init();
     renderViz();
   });
 })();

@@ -7,10 +7,21 @@
 <link rel="stylesheet" href="css/site.css" />
 <style>
   #wave { width: 100%; height: 200px; background: #07080d; border: 1px solid var(--line); border-radius: 12px; display: block; }
+  #art { width: 100%; height: 320px; background: #07080d; border: 1px solid var(--line); border-radius: 12px; display: block; cursor: crosshair; }
   .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; margin-top: 8px; }
   .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin-right: 5px; }
   .rec-dot { color: var(--danger); animation: blink 1s steps(2) infinite; }
   @keyframes blink { 50% { opacity: .2; } }
+  .art-controls .field { margin: 0; }
+  .art-controls select { min-width: 120px; }
+  .art-modal { position: fixed; inset: 0; background: rgba(4,5,10,.72); display: flex; align-items: center; justify-content: center; z-index: 60; padding: 18px; }
+  .art-modal[hidden] { display: none; }
+  .art-modal-box { position: relative; max-width: 640px; max-height: 84vh; overflow: auto; background: var(--panel, #11131d); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; box-shadow: 0 18px 60px rgba(0,0,0,.5); }
+  .art-modal-box h3 { margin: 0 0 10px; }
+  .art-modal-box .map-row { display: flex; gap: 8px; align-items: baseline; padding: 5px 0; border-top: 1px dashed var(--line); font-size: 13px; }
+  .art-modal-box .map-row b { color: var(--accent2, #ffb454); min-width: 88px; display: inline-block; }
+  .art-modal-x { position: absolute; top: 12px; right: 14px; background: none; border: none; color: var(--muted, #9aa3bd); font-size: 20px; cursor: pointer; line-height: 1; }
+  .art-modal-x:hover { color: #fff; }
 </style>
 </head>
 <body>
@@ -61,7 +72,43 @@
       <button id="btn-send" class="btn accent2" disabled>→ 데이터 점 스튜디오로 보내기</button>
     </div>
   </div>
+  <div class="card" id="art-card" style="margin-top:16px">
+    <h3>✦ 춤추는 점 — 이 소리로 만든 미디어아트
+      <button id="btn-art-info" class="btn ghost" style="font-size:12px; padding:3px 10px; margin-left:6px">ⓘ 변환·의도</button>
+    </h3>
+    <p class="muted" style="font-size:11.5px; margin:2px 0 10px">추출한 특징을 <b>이 페이지에서 바로</b> 움직이는 점 작품으로 봐요. 무엇을 점의 <b>크기·색·높이·춤</b>에 연결할지 골라보세요 — 같은 소리도 매핑에 따라 전혀 다른 작품이 됩니다. (데이터 점 스튜디오로 보내면 더 깊이 다듬어요.)</p>
+    <canvas id="art" width="900" height="320"></canvas>
+    <div class="art-controls" style="display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; align-items:flex-end">
+      <label class="field">움직임
+        <select id="art-motion">
+          <option value="stream">흐름 — 시간 따라 흐르고, 지나갈 때 반짝</option>
+          <option value="swarm">군무 — 특징 공간에 떠서 함께 숨쉬기</option>
+          <option value="wave">파동 — 이퀄라이저처럼 위아래로 춤</option>
+        </select>
+      </label>
+      <label class="field">크기 ← <select id="art-size"></select></label>
+      <label class="field">색 ← <select id="art-hue"></select></label>
+      <label class="field">높이 ← <select id="art-y"></select></label>
+      <button id="art-play" class="btn">⏸ 멈춤</button>
+    </div>
+    <p class="muted" style="font-size:11px; margin-top:8px">‘춤(진동)’의 세기는 <b>변화(요동)</b> 특징이, ‘빛(밝기)’은 <b>음량</b>이 자동으로 맡아요. 코골이 샘플은 <b>색 = 상황</b>(평일·야근·월급날·주말·아픈날)으로도 칠할 수 있어요.</p>
+  </div>
   <p class="footer-note">소리에도 작가가 있어요 · 무엇을 강조하고 무엇을 버릴지가 곧 해석입니다</p>
+</div>
+
+<div id="art-modal" class="art-modal" hidden>
+  <div class="art-modal-box">
+    <button id="art-modal-x" class="art-modal-x" aria-label="닫기">✕</button>
+    <h3>소리가 어떻게 ‘춤추는 점’이 되나요?</h3>
+    <p style="font-size:13px; color:var(--muted,#9aa3bd); margin:0 0 12px">소리는 눈에 안 보이죠. 그래서 <b>숫자로 바꾼 뒤(특징 추출)</b>, 그 숫자를 점의 <b>위치·크기·색·움직임</b>으로 다시 바꿔요. 이게 ‘데이터 → 그림’ 변환이에요.</p>
+    <p style="font-size:13px; margin:0 0 6px"><b>음높이(Hz, 헤르츠)란?</b> 1초에 공기가 떨리는 <b>횟수</b>예요. 적게 떨리면(낮은 Hz) 둥둥거리는 <b>저음</b>, 많이 떨리면(높은 Hz) 삐- 하는 <b>고음</b>. 예: 100Hz는 낮은 남자 목소리, 1000Hz는 높은 휘파람쯤.</p>
+    <div class="map-row"><b>크기</b><span>고른 특징이 클수록 점이 커져요 (기본: 음량).</span></div>
+    <div class="map-row"><b>색</b><span>고른 특징이 낮으면 차가운 색(파랑), 높으면 따뜻한 색(빨강). Hz를 고르면 ‘저음=파랑 → 고음=빨강’으로 보여요.</span></div>
+    <div class="map-row"><b>높이(↕)</b><span>고른 특징이 클수록 점이 위로 올라가요 (기본: 음높이).</span></div>
+    <div class="map-row"><b>춤(진동)</b><span>‘변화(직전 대비 요동)’가 클수록 더 크게 흔들려요 — 리듬이 점의 떨림이 돼요.</span></div>
+    <div class="map-row"><b>빛(밝기)</b><span>‘음량’이 클수록 점이 더 환하게 빛나요.</span></div>
+    <p style="font-size:13px; margin:14px 0 0; padding-top:12px; border-top:1px solid var(--line)"><b>그래서, 이 소리를 어떤 작품으로?</b> “나는 이 소리에서 <b>무엇</b>을 보여주고 싶은가?”를 정하면 매핑이 달라져요. 아빠 코골이라면 — <b>음량 → 크기</b>(하루의 무게), <b>뒤척임/변화 → 춤</b>(고단함의 들썩임), <b>색 → 상황</b>(평일과 주말의 다른 빛). 정답은 없어요. 강조할 것을 고르는 것이 곧 <b>작가의 해석</b>입니다.</p>
+  </div>
 </div>
 
 <script src="js/explain.js"></script>
