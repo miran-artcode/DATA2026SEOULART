@@ -11,9 +11,9 @@
   --line: #262834;
   --text: #eceef4;
   --muted: #9a9eb0;
-  --accent: #7c84ff;          /* 단 하나의 포인트색 — 인디고 */
-  --accent-rgb: 124,132,255;
-  --accent2: #9aa2ff;
+  --accent: #6b78c6;          /* 단 하나의 포인트색 — 남색 */
+  --accent-rgb: 107,120,198;
+  --accent2: #8b96d8;
   --danger: #f2667a;
   --radius: 12px;
   --panel-w: 348px;

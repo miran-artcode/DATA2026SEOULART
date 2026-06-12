@@ -7,8 +7,8 @@
   --bg: #0b0c11; --bg2: #07080c;
   --panel: #15161d; --panel2: #1c1e27; --panel3: #262936;
   --line: #262834; --text: #eceef4; --muted: #9a9eb0; --muted2: #6b7080;
-  --accent: #7c84ff; --accent-rgb: 124,132,255;     /* 단 하나의 포인트색 — 인디고 */
-  --accent2: #9aa2ff; --good: #4dc78a; --danger: #f2667a; --adv: #b09cff;
+  --accent: #6b78c6; --accent-rgb: 107,120,198;     /* 단 하나의 포인트색 — 남색(어두운 테마: 가독 위해 약간 밝게) */
+  --accent2: #8b96d8; --good: #4dc78a; --danger: #f2667a; --adv: #b09cff;
   --radius: 14px; --maxw: 1180px;
   --header: rgba(13, 14, 19, .8);
   --shadow: 0 1px 2px rgba(0,0,0,.36), 0 8px 24px rgba(0,0,0,.22);
@@ -18,8 +18,8 @@
   --bg: #f7f8fa; --bg2: #eef0f4;
   --panel: #ffffff; --panel2: #f3f4f8; --panel3: #e9ebf1;
   --line: #e6e8ee; --text: #181b24; --muted: #5f6577; --muted2: #8a8fa0;
-  --accent: #5b62e0; --accent-rgb: 91,98,224;
-  --accent2: #6e75e6; --good: #2fa874; --danger: #e0596c; --adv: #8b7bf0;
+  --accent: #2c3a72; --accent-rgb: 44,58,114;       /* 밝은 테마 — 진한 남색 */
+  --accent2: #3b4a86; --good: #2fa874; --danger: #e0596c; --adv: #6f63c4;
   --header: rgba(255, 255, 255, .82);
   --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 22px rgba(16,24,40,.07);
 }
