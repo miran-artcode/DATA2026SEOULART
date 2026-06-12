@@ -12,13 +12,13 @@
 
   const NAV = [
     { label: '만들기', drop: [
-      { href: 'studio-color.html', t: '색 군집 스튜디오', s: '명화를 대표색 점으로 (5.10.5)' },
-      { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '우리 데이터가 춤추는 점 (5.10.4)' },
-      { href: 'studio-sound.html', t: '소리를 데이터로', s: '녹음·소리에서 특징 추출 (2단계)' },
-      { href: 'studio-life.html', t: '내 삶을 데이터로', s: '사진·챗봇 대화 → 데이터 (3단계)' },
-      { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: '사진 속 사물을 AI로 → 점·데이터' },
-      { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터 → 작품 (4단계)' },
-      { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 차트 + 재창조' }
+      { href: 'studio-color.html', t: '색 군집 스튜디오', s: '명화를 대표색 점으로 · 1단계 기초' },
+      { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '데이터를 춤추는 점으로 · 1단계 기초' },
+      { href: 'studio-sound.html', t: '소리를 데이터로', s: '녹음·소리에서 특징 추출 · 2단계' },
+      { href: 'studio-life.html', t: '내 삶을 데이터로', s: '사진·대화를 데이터로 · 3단계' },
+      { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터로 사회적 발언 · 4단계' },
+      { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: '사진 속 사물을 AI로 · AI 렌즈' },
+      { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구' }
     ] },
     { label: '배우기', drop: [
       { href: 'learn.html', t: '알고리즘 배움터', s: '쉬운→깊은 설명' },
@@ -181,6 +181,16 @@
   function escapeHTML(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
   UI.escapeHTML = escapeHTML;
 
+  // 사이트 공통 푸터(저작권) — 모든 페이지 맨 아래
+  UI.mountFooter = function () {
+    if (document.getElementById('site-footer')) return;
+    const f = document.createElement('footer');
+    f.id = 'site-footer';
+    f.style.cssText = 'text-align:center; color:var(--muted2); font-size:12px; padding:24px 18px 30px; border-top:1px solid var(--line); margin-top:28px;';
+    f.innerHTML = '© 2026 <b style="color:var(--muted)">MIRAN HWANG</b> · <a href="mailto:MIRAN726@GMAIL.COM" style="color:var(--muted)">MIRAN726@GMAIL.COM</a> · 데이터 미디어아트 스튜디오 · 교육용';
+    document.body.appendChild(f);
+  };
+
   global.UI = UI;
-  document.addEventListener('DOMContentLoaded', () => UI.mountHeader());
+  document.addEventListener('DOMContentLoaded', () => { UI.mountHeader(); UI.mountFooter(); });
 })(window);

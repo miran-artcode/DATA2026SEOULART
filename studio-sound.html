@@ -19,7 +19,7 @@
   <div class="page-head">
     <span class="eyebrow">소리를 데이터로 · 학습 2단계</span>
     <h1>소리를 데이터로</h1>
-    <p>소리는 <b>시간에 따른 진폭의 변화</b> — 곧 숫자의 흐름이에요. 녹음/파일에서 <b>음량·저음·중음·고음</b>을 뽑아 시계열 데이터로, 그리고 ‘춤추는 점’ 작품으로. <span class="with-info">데이터에 정서가 들어오는 단계 <span class="info-ic" data-info="sound-data">ⓘ</span></span></p>
+    <p>소리는 <b>시간에 따른 진폭의 변화</b> — 곧 숫자의 흐름이에요. 녹음/파일에서 <b>음량·저음·중음·고음·날카로움·변화·음높이(Hz)</b> 등 여러 특징을 뽑아 시계열 데이터로, 그리고 ‘춤추는 점’ 작품으로. <b>‘아빠 코골이’ 샘플</b>은 한 달 30밤을 <b>상황(평일·야근·월급날·주말)별 이야기</b>로 들려줘요. <span class="with-info">데이터에 정서가 들어오는 단계 <span class="info-ic" data-info="sound-data">ⓘ</span></span></p>
   </div>
   <div id="idea"></div>
 
@@ -34,7 +34,7 @@
         <span id="rec-status" class="muted" style="font-size:12px"></span>
       </div>
       <p class="muted" style="font-size:11.5px;margin-top:8px">
-        형식: 마이크 실시간 또는 오디오 파일(wav·mp3·m4a·webm). 길이: <b>5~20초 권장</b>(짧게!). 약 0.15초마다 특징을 추출해요.<br>
+        형식: 마이크 실시간 또는 오디오 파일(wav·mp3·m4a·webm). 길이: <b>짧은 녹음 ~ 긴 파일(1시간도 OK)</b> — 길면 빠르게 압축해 추출해요. 약 0.15초마다 특징 추출.<br>
         ⚠ <b>음성 원본은 저장하지 않고</b> 특징값(숫자)만 사용합니다(아빠 잠꼬대·가장 즐거운 순간 소리도 안전하게).</p>
     </div>
 
@@ -51,12 +51,10 @@
     <h3>2 · 추출 미리보기 (시계열)</h3>
     <canvas id="wave" width="900" height="200"></canvas>
     <div class="legend">
-      <span><i style="background:#e8ecf6"></i>음량</span>
-      <span><i style="background:#ff5a5f"></i>저음</span>
-      <span><i style="background:#ffb454"></i>중음</span>
-      <span><i style="background:#4ec3ff"></i>고음</span>
+      <span id="wave-legend" style="display:contents"></span>
       <span class="muted" id="frame-info"></span>
     </div>
+    <p class="muted" style="font-size:11.5px;margin-top:6px">추출 특징: <b>음량·저음·중음·고음</b>(세기·음색) + <b>날카로움</b>(스펙트럼 무게중심) + <b>변화</b>(직전 대비 요동) + <b>음높이(Hz)</b>(가장 강한 주파수). 각 선은 자기 최댓값 기준으로 그려요 — 무엇을 점의 어디에 매핑할지는 다음 스튜디오에서 골라요.</p>
     <p id="sample-story" class="callout info" style="margin-top:12px; display:none"></p>
     <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
       <button id="btn-csv" class="btn" disabled>⬇ CSV 내보내기</button>

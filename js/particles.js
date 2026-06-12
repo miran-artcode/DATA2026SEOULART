@@ -15,11 +15,23 @@
 
   const TAU = Math.PI * 2;
 
+  // 점 색의 색상(hue) 0~360 (무채색은 -1) — '색 기반 방향' 힘에 사용
+  function hueOf(r, g, b) {
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    if (d < 16) return -1;
+    let h;
+    if (mx === r) h = ((g - b) / d) % 6;
+    else if (mx === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    return (h * 60 + 360) % 360;
+  }
+
   function System(analysis, rect, opts) {
     this.a = analysis;
     this.n = analysis.count;
     this.opts = opts || {};
-    this.angle = 0;                  // 3D 회전 각
+    this.angle = 0;                  // 3D Y축 회전 각
+    this.angleX = 0;                 // 3D X축 회전 각
     this.K = analysis.K;
     this.visible = new Array(this.K).fill(true);
 
@@ -35,6 +47,10 @@
     this.br = analysis.br;
     this.ed = analysis.ed;                 // 점별 윤곽(에지) 세기 0~1 (있으면)
     this.lens = this.opts.lens || 'none';  // 구조 렌즈: none / edge / composition
+
+    // 점별 색상(hue) 미리 계산 — '색 기반 방향(색 나침반)' 힘에 사용
+    this.hue = new Float32Array(n);
+    for (let i = 0; i < n; i++) this.hue[i] = hueOf(analysis.or[i], analysis.og[i], analysis.ob[i]);
 
     // 점 색(문자열) 미리 계산: 대표색 / 원본색
     this.colStr = new Array(n);
@@ -124,20 +140,42 @@
     const volSize = (micOn && mic.target === 'size') ? vol : 0;
     const freqOn = micOn && mic.freqOn;
 
-    if (this.angle !== undefined) this.angle += m.rotateSpeed;
+    // 3D 자동 회전: 축 설정(y / x / xy)에 따라 각을 증가
+    const rs = m.rotateSpeed || 0, axis = m.rotAxis || 'y';
+    if (axis === 'x') this.angleX += rs;
+    else if (axis === 'xy') { this.angle += rs; this.angleX += rs * 0.6; }
+    else this.angle += rs;
 
     const free = !!m.free, wander = m.wander || 0;
+    const pull = (m.pull != null ? m.pull : 0.004), swirl = (m.swirl || 0) * 0.012;
+    // 전역 '장(場)' 힘: 중력(아래+)·좌우 흐름·값 기반 방향·색 기반 방향(색 나침반)
+    const grav = m.gravity || 0, flow = m.flow || 0;
+    const valF = m.valForce || 0, valField = m.valField || 'bright', valDir = m.valDir || 'ud';
+    const colF = m.colorForce || 0, hasField = grav || flow || valF || colF;
     for (let i = 0; i < n; i++) {
       let ax, ay;
       if (free) {
-        // 자유(마구잡이): 원본 위치로 복귀하지 않고 떠돈다.
-        // 화면 밖으로 흩어지지 않도록 중심으로 아주 약한 인력만 둔다.
-        ax = (cx - this.px[i]) * 0.004 + (Math.random() - 0.5) * wander;
-        ay = (cy - this.py[i]) * 0.004 + (Math.random() - 0.5) * wander;
+        // 자유(마구잡이): 원본 위치로 복귀하지 않고 떠돈다. 학생이 떠돎·소용돌이·중심인력을 직접 조절.
+        const dx = this.px[i] - cx, dy = this.py[i] - cy;
+        ax = -dx * pull + (Math.random() - 0.5) * wander - dy * swirl;   // 중심 인력 + 떠돎 + 소용돌이(접선)
+        ay = -dy * pull + (Math.random() - 0.5) * wander + dx * swirl;
       } else {
         // 원위치 유지: 원본 그림의 점 위치로 돌아가며 그림을 유지한다.
         ax = (this.hx[i] - this.px[i]) * ret;
         ay = (this.hy[i] - this.py[i]) * ret;
+      }
+
+      // 전역 장 힘: 중력 · 좌우 흐름 · 값 기반 방향 · 색 기반 방향
+      if (hasField) {
+        if (grav) ay += grav;
+        if (flow) ax += flow;
+        if (valF) {
+          const vv = ((valField === 'edge' && this.ed) ? this.ed[i] : this.br[i]) - 0.5;
+          if (valDir === 'lr') ax += vv * valF * 2.4;                 // 값 클수록 오른쪽
+          else if (valDir === 'out') { const dx = this.px[i] - cx, dy = this.py[i] - cy, d = Math.sqrt(dx * dx + dy * dy) + 0.001; ax += dx / d * vv * valF * 2.4; ay += dy / d * vv * valF * 2.4; }
+          else ay -= vv * valF * 2.4;                                 // 기본: 값 클수록 위로
+        }
+        if (colF) { const hu = this.hue[i]; if (hu >= 0) { const hr = hu * Math.PI / 180; ax += Math.cos(hr) * colF; ay += Math.sin(hr) * colF; } }
       }
 
       // 기본 진동 + 마이크 볼륨 진동
@@ -223,7 +261,8 @@
     const is3D = view.mode === '3d';
     const focal = 900, depth = view.depth;
     const cx = this.rect.x + this.rect.w / 2, cy = this.rect.y + this.rect.h / 2;
-    const ca = Math.cos(this.angle), sa = Math.sin(this.angle);
+    const cay = Math.cos(this.angle), say = Math.sin(this.angle);          // Y축
+    const cax = Math.cos(this.angleX || 0), sax = Math.sin(this.angleX || 0); // X축
     const edgeLens = this.lens === 'edge' && this.ed;   // 에지 렌즈: 윤곽이 강한 점만 또렷하게
 
     let lastStyle = null;
@@ -233,14 +272,13 @@
 
       let sx = this.px[i], sy = this.py[i], size = this.ds[i];
       if (is3D) {
-        // 밝기 → 깊이(z). Y축 회전 후 원근 투영 → "데이터가 3D 조각이 되다"
-        const x = this.px[i] - cx, y = this.py[i] - cy;
-        const z = (this.br[i] - 0.5) * depth;
-        const xr = x * ca + z * sa;
-        const zr = -x * sa + z * ca;
-        const scale = focal / (focal + zr);
-        sx = cx + xr * scale;
-        sy = cy + y * scale;
+        // 밝기 → 깊이(z). Y축·X축 회전 후 원근 투영 → "데이터가 3D 조각이 되다"
+        const x0 = this.px[i] - cx, y0 = this.py[i] - cy, z0 = (this.br[i] - 0.5) * depth;
+        const x1 = x0 * cay + z0 * say, z1 = -x0 * say + z0 * cay;   // Y축 회전
+        const y2 = y0 * cax - z1 * sax, z2 = y0 * sax + z1 * cax;     // X축 회전
+        const scale = focal / (focal + z2);
+        sx = cx + x1 * scale;
+        sy = cy + y2 * scale;
         size = this.ds[i] * scale;
       }
       if (edgeLens) {

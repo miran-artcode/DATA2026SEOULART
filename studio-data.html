@@ -33,7 +33,7 @@
 
 <div class="wrap" style="max-width:1280px">
   <div class="page-head">
-    <span class="eyebrow">데이터 점 스튜디오 · 5.10.4</span>
+    <span class="eyebrow">데이터 점 스튜디오 · 1단계 기초</span>
     <h1>데이터가 춤추는 점</h1>
     <p>우리 데이터(여러 열)를 점의 <b>크기·속도·방향·밀도·투명도·형태·색</b>으로 번역해 움직이는 작품으로. <b>어떤 열을 어떻게</b> 매핑할지 직접 설계하세요 — 매핑은 ‘효과’가 아니라 <b>해석</b>이에요.</p>
   </div>
@@ -110,7 +110,21 @@
           <label class="field">기본 속도 <output id="o-speed">1</output></label><input id="r-speed" type="range" min="0" max="3" step="0.1" value="1">
           <label class="field">진동 <output id="o-vib">1</output></label><input id="r-vib" type="range" min="0" max="4" step="0.1" value="1">
           <label class="field">잔상(트레일) <output id="o-trail">200</output></label><input id="r-trail" type="range" min="20" max="255" step="5" value="200">
-          <p class="muted" style="font-size:11.5px;margin-top:8px">속도·방향은 ‘변화량(데이터가 얼마나 변했나)’으로 움직여요 — 데이터의 특성이 곧 움직임이 됩니다.</p>
+          <label class="field">배치(어디에) <span class="info-ic" data-info="data-layout">ⓘ</span></label>
+          <select id="sel-layout">
+            <option value="timeline">시간축 (가로 흐름)</option>
+            <option value="radial">원형 (시계 배열)</option>
+            <option value="grid">격자</option>
+            <option value="flowField">값 산포 (가로=순서·세로=크기값)</option>
+          </select>
+          <label class="field">움직임 방식 (어떻게) <span class="info-ic" data-info="data-motion">ⓘ</span></label>
+          <select id="sel-motionstyle">
+            <option value="vibrate">제자리 진동 (기본)</option>
+            <option value="orbit">궤도 (제자리 주위 회전)</option>
+            <option value="wave">파동 (시간 따라 출렁)</option>
+            <option value="burst">분출 (방향대로 흐름)</option>
+          </select>
+          <p class="muted" style="font-size:11.5px;margin-top:8px">속도·방향은 ‘변화량(데이터가 얼마나 변했나)’으로 움직여요. <b>배치</b>=점이 어디에 살지, <b>움직임 방식</b>=어떤 식으로 움직일지 — 데이터의 특성이 곧 움직임이 됩니다.</p>
         </div>
       </details>
 

@@ -185,8 +185,11 @@
   }
   function loadArtDemo(name) {
     if (!window.ImageAnalysis) return;
-    srcCanvas = ImageAnalysis.generateDemo(name, 640, 480); detections = []; render(); summarize();
-    setStatus('명화 데모 — ‘AI로 사물 감지’를 누르면, AI가 명화를 얼마나 못 보는지 확인할 수 있어요(온라인 필요).');
+    setStatus('명화 불러오는 중…');
+    ImageAnalysis.loadPainting(name, (cv, title, isFallback) => {
+      srcCanvas = cv; detections = []; render(); summarize();
+      setStatus('‘' + (title || '명화') + '’' + (isFallback ? ' (오프라인 대체)' : '') + ' — ‘AI로 사물 감지’를 누르면, AI가 ‘사진으로 배운 눈’으로 명화를 얼마나 못 보는지 확인할 수 있어요.');
+    });
   }
   function loadStreetDemo() {
     const { cv, baked } = drawStreet(720, 480);

@@ -110,7 +110,8 @@
     const space = opts.space === 'lab' ? 'lab' : 'rgb';
     const sampling = opts.sampling || 'uniform';
     const N = Math.max(100, Math.min(opts.N || 4000, 30000));
-    const maxDim = opts.maxDim || 320;
+    // K가 매우 크면 더 많은 픽셀이 필요(색 수 확보) — 입력 K에 맞춰 분석 해상도를 키운다.
+    const maxDim = opts.maxDim || (reqK > 6000 ? 600 : reqK > 1500 ? 460 : 320);
     const seed = opts.seed != null ? opts.seed : 12345;
     const rng = KMeans.makeRNG(seed);
 
@@ -129,17 +130,21 @@
       bright[i] = L;
     }
 
-    // (2) K-means 입력: 픽셀을 골고루 표본추출(최대 6000개)해서 학습
-    const sampleStep = Math.max(1, Math.floor(total / 6000));
+    // (2) K-means 입력: 픽셀을 골고루 표본추출해서 학습.
+    //   K가 크면 군집당 표본이 부족하지 않도록 표본 수를 K에 맞춰 늘린다(성능 위해 상한).
+    const sampleTarget = Math.max(6000, Math.min(reqK * 6, 60000));
+    const sampleStep = Math.max(1, Math.floor(total / sampleTarget));
     const data = [];
     for (let i = 0; i < total; i += sampleStep) {
       data.push(toSpace(px[i * 4], px[i * 4 + 1], px[i * 4 + 2], space));
     }
-    // 실제 K: 입력값을 (표본 색 수, 성능 상한 1024)로 제한.
-    //   → "백만"을 입력해도 이미지의 색/성능이 한계이므로 그만큼만 쓴다(정직한 근사).
-    const PERF_CAP = 512;   // 성능 상한(반응성 유지). 그 이상은 자동 조정.
+    // 실제 K: 입력값을 (표본 색 수, 성능 상한)로 제한.
+    //   → 수만 개까지 입력할 수 있지만, 이미지의 실제 색 수와 k-means 비용(K에 비례)이 한계라
+    //      그 한도 안에서만 쓴다(정직한 근사). 큰 K일수록 반복 횟수를 줄여 멈춤을 막는다.
+    const PERF_CAP = 50000;
     const K = Math.max(1, Math.min(reqK, data.length, PERF_CAP));
-    const km = KMeans.cluster(data, K, { seed, maxIter: 24 });
+    const maxIter = K <= 64 ? 24 : K <= 256 ? 14 : K <= 1024 ? 10 : K <= 4096 ? 6 : K <= 12000 ? 4 : 2;
+    const km = KMeans.cluster(data, K, { seed, maxIter });
 
     // 군집 중심을 RGB 팔레트로 환산 + 비율(%) 계산
     // (LAB 중심은 직접 역변환 대신, 그 군집에 속한 원본 RGB들의 평균색을 쓴다.)
@@ -292,5 +297,40 @@
     return cv;
   }
 
-  global.ImageAnalysis = { analyze, generateDemo, rgb2lab, luminance };
+  /* ------------------------------------------------------------------ */
+  /* 실제 명화(퍼블릭 도메인 · 위키미디어 공용) — 공교육용. 오프라인이면 절차적 데모로 대체. */
+  /* ------------------------------------------------------------------ */
+  const UP = 'https://upload.wikimedia.org/wikipedia/commons/thumb/';
+  const PAINTINGS = {
+    starrynight: { title: '고흐 · 별이 빛나는 밤 (1889)', demo: 'starrynight', url: UP + 'e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/960px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg' },
+    seurat: { title: '쇠라 · 그랑드자트섬의 일요일 오후 (1884)', demo: 'seurat', url: UP + '7/7d/A_Sunday_on_La_Grande_Jatte%2C_Georges_Seurat%2C_1884.jpg/960px-A_Sunday_on_La_Grande_Jatte%2C_Georges_Seurat%2C_1884.jpg' },
+    monet: { title: '모네 · 인상, 해돋이 (1872)', demo: 'monet', url: UP + '5/54/Claude_Monet%2C_Impression%2C_soleil_levant.jpg/960px-Claude_Monet%2C_Impression%2C_soleil_levant.jpg' },
+    hokusai: { title: '호쿠사이 · 가나가와 해변의 높은 파도 (1831)', demo: 'hokusai', url: UP + 'a/a5/Tsunami_by_hokusai_19th_century.jpg/960px-Tsunami_by_hokusai_19th_century.jpg' },
+    mondrian: { title: '몬드리안 · 빨강·파랑·노랑의 구성 (1930)', demo: 'mondrian', url: UP + 'a/a4/Piet_Mondriaan%2C_1930_-_Mondrian_Composition_II_in_Red%2C_Blue%2C_and_Yellow.jpg/960px-Piet_Mondriaan%2C_1930_-_Mondrian_Composition_II_in_Red%2C_Blue%2C_and_Yellow.jpg' },
+    kandinsky: { title: '칸딘스키 · 구성 7 (1913)', demo: 'kandinsky', url: UP + 'b/b4/Vassily_Kandinsky%2C_1913_-_Composition_7.jpg/960px-Vassily_Kandinsky%2C_1913_-_Composition_7.jpg' },
+    monalisa: { title: '다 빈치 · 모나리자 (1503)', demo: 'monet', url: UP + 'e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/960px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg' },
+    pearl: { title: '베르메르 · 진주 귀고리를 한 소녀 (1665)', demo: 'monet', url: UP + '0/0f/1665_Girl_with_a_Pearl_Earring.jpg/960px-1665_Girl_with_a_Pearl_Earring.jpg' },
+    klimt: { title: '클림트 · 키스 (1908)', demo: 'kandinsky', url: UP + '8/84/Gustav_Klimt_046.jpg/960px-Gustav_Klimt_046.jpg' },
+    scream: { title: '뭉크 · 절규 (1893)', demo: 'starrynight', url: UP + 'c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg/960px-Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg' }
+  };
+  // 명화 1점을 실제 이미지로 불러온다. onReady(canvas, title). 실패(오프라인/차단/타이팅)면
+  // 같은 사조의 절차적 데모로 부드럽게 대체해 수업이 멈추지 않게 한다.
+  function loadPainting(name, onReady, onFail) {
+    const p = PAINTINGS[name];
+    const fallback = (title) => { onReady(generateDemo((p && p.demo) || name || 'mondrian', 640, 480), title || (p && p.title) || '', true); onFail && onFail(); };
+    if (!p) { fallback(); return; }
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    let done = false; const to = setTimeout(() => { if (!done) { done = true; fallback(p.title); } }, 9000);
+    img.onload = () => {
+      if (done) return; done = true; clearTimeout(to);
+      const cv = document.createElement('canvas'); cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+      const ctx = cv.getContext('2d', { willReadFrequently: true }); ctx.drawImage(img, 0, 0);
+      try { ctx.getImageData(0, 0, 1, 1); } catch (e) { fallback(p.title); return; }  // CORS 타이팅 시 대체
+      onReady(cv, p.title, false);
+    };
+    img.onerror = () => { if (done) return; done = true; clearTimeout(to); fallback(p.title); };
+    img.src = p.url;
+  }
+
+  global.ImageAnalysis = { analyze, generateDemo, rgb2lab, luminance, PAINTINGS, loadPainting };
 })(window);

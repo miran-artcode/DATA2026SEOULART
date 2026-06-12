@@ -1,5 +1,5 @@
 /*
- * studio-data.js — 「데이터가 춤추는 점」 (5.10.4) · 다중 열 CSV + 매핑 설계
+ * studio-data.js — 「데이터가 춤추는 점」 · 다중 열 CSV + 매핑 설계
  * -----------------------------------------------------------------------------
  * 데이터의 '어떤 열'을 점의 '어떤 특성'(크기·속도·방향·밀도·투명도·형태·색)으로
  * 매핑할지 학생이 직접 설계한다. 색은 색상환(color picker)에서 고르고, 범주(라벨)별로
@@ -28,7 +28,7 @@
       gradLow: '#2e86de', gradHigh: '#ff5a5f', solid: '#ffb454',
       catColors: {}, catShapes: {}
     },
-    baseSpeed: 1, vib: 1, trail: 200
+    baseSpeed: 1, vib: 1, trail: 200, layout: 'timeline', motionStyle: 'vibrate'
   };
   let ruleA = null, ruleB = null, abFlag = false, P = null, p5i = null;
 
@@ -148,16 +148,32 @@
   }
 
   /* ----------------------------- 입자 생성 ----------------------------- */
+  // 배치(레이아웃): 점이 '어디에서' 살지 — 시간축/원형/격자/값 산포
+  function homeOf(i, n, W, H, marg, sizeNorm) {
+    const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.42;
+    if (state.layout === 'radial') {
+      const a = (i / Math.max(1, n)) * Math.PI * 2 - Math.PI / 2, rr = R * (0.45 + sizeNorm * 0.5);
+      return { hx: cx + Math.cos(a) * rr, hy: cy + Math.sin(a) * rr, band: 14 + sizeNorm * 30 };
+    }
+    if (state.layout === 'grid') {
+      const cols = Math.ceil(Math.sqrt(n)), rowsN = Math.ceil(n / cols), gx = i % cols, gy = (i / cols) | 0;
+      return { hx: marg + (cols === 1 ? 0.5 : gx / (cols - 1)) * (W - marg * 2), hy: marg + (rowsN === 1 ? 0.5 : gy / (rowsN - 1)) * (H - marg * 2), band: 12 + sizeNorm * 24 };
+    }
+    if (state.layout === 'flowField') {
+      return { hx: marg + (n === 1 ? 0.5 : i / (n - 1)) * (W - marg * 2), hy: H - marg - sizeNorm * (H - marg * 2), band: 14 + sizeNorm * 24 };
+    }
+    return { hx: marg + (n === 1 ? 0.5 : i / (n - 1)) * (W - marg * 2), hy: H / 2, band: 30 + sizeNorm * 90 }; // timeline
+  }
   function build() {
     if (!p5i || !state.dataset) return;
     const W = p5i.width, H = p5i.height, n = state.dataset.n, marg = 50, arr = [];
     for (let i = 0; i < n; i++) {
-      const hx = marg + (n === 1 ? 0.5 : i / (n - 1)) * (W - marg * 2);
+      const sizeNorm = state.mapping.size ? norm(state.mapping.size, i) : 0.5;
       const dv = state.mapping.density ? norm(state.mapping.density, i) : 0.5;
       const count = state.mapping.density ? Math.round(5 + dv * 45) : 16;
-      const band = 30 + (state.mapping.size ? norm(state.mapping.size, i) : 0.5) * 90;
+      const hm = homeOf(i, n, W, H, marg, sizeNorm);
       for (let k = 0; k < count; k++) {
-        arr.push({ ri: i, hx: hx + (Math.random() - 0.5) * 16, hy: H / 2 + (Math.random() - 0.5) * band, px: hx, py: H / 2, vx: 0, vy: 0 });
+        arr.push({ ri: i, hx: hm.hx + (Math.random() - 0.5) * 16, hy: hm.hy + (Math.random() - 0.5) * hm.band, px: hm.hx, py: hm.hy, vx: 0, vy: 0, ph: Math.random() * 6.28 });
       }
     }
     P = arr;
@@ -186,13 +202,36 @@
     ctx.fill();
   }
 
+  /* ----------------------------- 다른 스튜디오에서 온 데이터 ----------------------------- */
+  // 소리·사진·객체감지 스튜디오에서 보낸 데이터를 (있으면) 우선 로드한다.
+  // p5 setup 타이밍과 무관하게 결정적으로 동작하도록 setup 안에서 '먼저' 호출한다.
+  function loadIncoming() {
+    let inc; try { inc = localStorage.getItem('dn_data_incoming'); } catch (e) { return false; }
+    if (!inc) return false;
+    let d; try { d = JSON.parse(inc); } catch (e) { try { localStorage.removeItem('dn_data_incoming'); } catch (_) {} return false; }
+    try { localStorage.removeItem('dn_data_incoming'); } catch (e) {}
+    const ds = parseData(d.csv); if (!ds || !ds.n) return false;
+    const ta = $('#ta-data'); if (ta) ta.value = d.csv;
+    const nm = $('#in-dataname'); if (nm) nm.value = d.name || '가져온 데이터';
+    const it = $('#in-intent'); if (it && d.intent) it.value = d.intent;
+    const ro = $('#rec-omit'); if (ro && d.omit) ro.value = d.omit;
+    const ss = $('#sel-sample'); if (ss) ss.value = '';           // 샘플 드롭다운이 오해를 주지 않게
+    applyDataset(ds, d.name || '가져온 데이터');
+    const di = $('#data-issue'); if (di) di.textContent = d.issue || '🔗 다른 스튜디오에서 온 데이터예요 — 어떤 열을 점의 무엇으로 바꿀지 설계해 보세요.';
+    if (window.UI) UI.toast('다른 스튜디오에서 온 데이터를 불러왔어요.');
+    return true;
+  }
+
   /* ----------------------------- p5 스케치 ----------------------------- */
   const sketch = p => {
     p.setup = () => {
       const st = $('#dstage'); const c = p.createCanvas(st.clientWidth, st.clientHeight); c.parent(st); p.pixelDensity(1);
-      applyDataset(parseData(SAMPLES.climate.csv), SAMPLES.climate.name);
-      $('#in-dataname').value = state.dataName; $('#ta-data').value = SAMPLES.climate.csv;
-      const di = $('#data-issue'); if (di) di.textContent = SAMPLES.climate.issue;
+      // 보낸 데이터가 있으면 그것을, 없으면 기본 샘플(기후위기)을 로드
+      if (!loadIncoming()) {
+        applyDataset(parseData(SAMPLES.climate.csv), SAMPLES.climate.name);
+        $('#in-dataname').value = state.dataName; $('#ta-data').value = SAMPLES.climate.csv;
+        const di = $('#data-issue'); if (di) di.textContent = SAMPLES.climate.issue;
+      }
     };
     p.windowResized = () => { const st = $('#dstage'); p.resizeCanvas(st.clientWidth, st.clientHeight); build(); };
     p.draw = () => {
@@ -201,14 +240,32 @@
       ctx.fillRect(0, 0, p.width, p.height);
       if (!P || !state.dataset) return;
       const m = state.mapping, mAct = p.mouseX > 0 && p.mouseY > 0 && p.mouseX < p.width && p.mouseY < p.height;
+      const style = state.motionStyle, t = p.frameCount * 0.05;
       for (const o of P) {
         const i = o.ri;
         const sv = m.size ? norm(m.size, i) : 0.5;
         const dv = m.speed ? Math.abs(delta(m.speed, i)) : 0.25;
         const speed = state.baseSpeed * (0.35 + dv * 1.4);
-        let ax = (o.hx - o.px) * 0.06, ay = (o.hy - o.py) * 0.03;
-        if (m.direction) ay += -Math.sign(delta(m.direction, i)) * speed * 0.55;
-        ax += (Math.random() - 0.5) * state.vib * speed; ay += (Math.random() - 0.5) * state.vib * speed;
+        const dir = m.direction ? -Math.sign(delta(m.direction, i)) : 0;
+        // 움직임 방식: 어떤 ‘식’으로 움직일지
+        let ax, ay;
+        if (style === 'orbit') {                         // home 주위를 도는 궤도
+          ax = (o.hx - o.px) * 0.06; ay = (o.hy - o.py) * 0.06;
+          const dx = o.px - o.hx, dy = o.py - o.hy;
+          ax += -dy * 0.05 * (0.5 + speed); ay += dx * 0.05 * (0.5 + speed);
+          ax += (Math.random() - 0.5) * state.vib * speed * 0.5; ay += (Math.random() - 0.5) * state.vib * speed * 0.5;
+        } else if (style === 'wave') {                   // 시간에 따라 출렁이는 파동
+          ax = (o.hx - o.px) * 0.06; ay = (o.hy - o.py) * 0.05;
+          ay += Math.sin(t + o.ph + i * 0.25) * speed * 1.3;
+          ax += (Math.random() - 0.5) * state.vib * speed * 0.4;
+        } else if (style === 'burst') {                  // 방향대로 분출(약한 복귀)
+          ax = (o.hx - o.px) * 0.02; ay = (o.hy - o.py) * 0.02;
+          ay += dir * speed * 0.9; ax += (Math.random() - 0.5) * state.vib * speed; ay += (Math.random() - 0.5) * state.vib * speed;
+        } else {                                         // vibrate(기본): 제자리 진동 + 방향 드리프트
+          ax = (o.hx - o.px) * 0.06; ay = (o.hy - o.py) * 0.03;
+          ay += dir * speed * 0.55;
+          ax += (Math.random() - 0.5) * state.vib * speed; ay += (Math.random() - 0.5) * state.vib * speed;
+        }
         if (mAct) { const dx = o.px - p.mouseX, dy = o.py - p.mouseY, d2 = dx * dx + dy * dy; if (d2 < 9000) { const d = Math.sqrt(d2) + .1, f = (1 - d / 95) * 4; ax += dx / d * f; ay += dy / d * f; } }
         o.vx = (o.vx + ax) * 0.9; o.vy = (o.vy + ay) * 0.9; o.px += o.vx; o.py += o.vy;
         const r = 1.5 + sv * 7 * (m.size ? 1 : 0.45);
@@ -221,9 +278,9 @@
   };
 
   /* ----------------------------- 규칙 A/B ----------------------------- */
-  function snapRule() { return JSON.parse(JSON.stringify({ mapping: state.mapping, baseSpeed: state.baseSpeed, vib: state.vib, trail: state.trail })); }
-  function applyRule(r) { if (!r) return; state.mapping = JSON.parse(JSON.stringify(r.mapping)); state.baseSpeed = r.baseSpeed; state.vib = r.vib; state.trail = r.trail; syncMotion(); populateFieldSelects(); renderColorUI(); build(); }
-  function syncMotion() { $('#r-speed').value = state.baseSpeed; $('#o-speed').textContent = state.baseSpeed; $('#r-vib').value = state.vib; $('#o-vib').textContent = state.vib; $('#r-trail').value = state.trail; $('#o-trail').textContent = state.trail; }
+  function snapRule() { return JSON.parse(JSON.stringify({ mapping: state.mapping, baseSpeed: state.baseSpeed, vib: state.vib, trail: state.trail, layout: state.layout, motionStyle: state.motionStyle })); }
+  function applyRule(r) { if (!r) return; state.mapping = JSON.parse(JSON.stringify(r.mapping)); state.baseSpeed = r.baseSpeed; state.vib = r.vib; state.trail = r.trail; state.layout = r.layout || 'timeline'; state.motionStyle = r.motionStyle || 'vibrate'; syncMotion(); populateFieldSelects(); renderColorUI(); build(); }
+  function syncMotion() { $('#r-speed').value = state.baseSpeed; $('#o-speed').textContent = state.baseSpeed; $('#r-vib').value = state.vib; $('#o-vib').textContent = state.vib; $('#r-trail').value = state.trail; $('#o-trail').textContent = state.trail; const sl = $('#sel-layout'); if (sl) sl.value = state.layout; const sm = $('#sel-motionstyle'); if (sm) sm.value = state.motionStyle; }
   const MLBL = { size: '크기', speed: '속도', direction: '방향', density: '밀도', alpha: '투명도', shape: '형태' };
   function describeRule(r) {
     const m = r.mapping, parts = [];
@@ -267,7 +324,7 @@
   }
   function settings() {
     const v = id => { const el = $('#' + id); return el ? el.value.trim() : ''; };
-    return { mapping: state.mapping, baseSpeed: state.baseSpeed, vib: state.vib, trail: state.trail,
+    return { mapping: state.mapping, baseSpeed: state.baseSpeed, vib: state.vib, trail: state.trail, layout: state.layout, motionStyle: state.motionStyle,
       dataName: $('#in-dataname').value || state.dataName,
       record: { sense: v('rec-sense'), count: v('rec-count'), omit: v('rec-omit'), scale: v('rec-scale'), miss: v('rec-miss') },
       fields: state.dataset ? state.dataset.fields : [], rows: state.dataset ? state.dataset.rows : [] };
@@ -339,6 +396,8 @@
     $('#map-solid').addEventListener('input', e => state.mapping.solid = e.target.value);
 
     rng('r-speed', 'o-speed', 'baseSpeed'); rng('r-vib', 'o-vib', 'vib'); rng('r-trail', 'o-trail', 'trail');
+    $('#sel-layout').addEventListener('change', e => { state.layout = e.target.value; build(); });
+    $('#sel-motionstyle').addEventListener('change', e => { state.motionStyle = e.target.value; });
 
     $('#btn-ruleA').addEventListener('click', () => { ruleA = snapRule(); renderAB(); UI.toast('규칙 A 저장됨 — 매핑을 바꿔 규칙 B도 저장해 비교하세요.'); });
     $('#btn-ruleB').addEventListener('click', () => { ruleB = snapRule(); renderAB(); UI.toast('규칙 B 저장됨 — ‘A/B 전환’으로 비교하세요.'); });
@@ -348,20 +407,6 @@
     $('#btn-img').addEventListener('click', saveImage);
     $('#btn-note').addEventListener('click', saveNote);
     $('#btn-exhibit').addEventListener('click', exhibit);
-
-    // 소리·사진·챗봇·프로젝트 스튜디오에서 보낸 데이터 받기
-    try {
-      const inc = localStorage.getItem('dn_data_incoming');
-      if (inc) {
-        const d = JSON.parse(inc); localStorage.removeItem('dn_data_incoming');
-        setTimeout(() => {
-          $('#ta-data').value = d.csv; $('#in-dataname').value = d.name || '가져온 데이터';
-          if (d.intent) $('#in-intent').value = d.intent;
-          applyDataset(parseData(d.csv), d.name || '가져온 데이터');
-          const di = $('#data-issue'); if (di) di.textContent = d.issue || '🔗 다른 스튜디오에서 온 데이터';
-          UI.toast('데이터를 불러왔어요.');
-        }, 400);
-      }
-    } catch (e) {}
+    // (보낸 데이터 수신은 p5 setup의 loadIncoming()에서 결정적으로 처리)
   });
 })();

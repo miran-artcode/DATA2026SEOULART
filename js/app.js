@@ -18,7 +18,11 @@
     size: 3, colorMode: 'cluster', mosaicCell: 0, lens: 'none',
     // 움직임
     mode: 'points', motionMode: 'hold', returnForce: 0.08, vibration: 0, trail: 255, additive: false,
-    rotateSpeed: 0.004, depth: 220, palChart: 'donut',
+    rotateSpeed: 0.004, depth: 220, rotAxis: 'y', palChart: 'donut',
+    // 자유 이동 세부(떠돎·소용돌이·중심 인력)
+    freeWander: 1.2, freeSwirl: 0, freePull: 0.004,
+    // 장(場) 힘: 중력·좌우 흐름·값 기반 방향·색 기반 방향
+    gravity: 0, flow: 0, valForce: 0, valField: 'bright', valDir: 'ud', colorForce: 0,
     // 인터랙션(마우스)
     mouseMode: 'repel', mouseRadius: 130, mouseStrength: 1, clickExplode: true,
     // 인터랙션(마이크)
@@ -32,7 +36,7 @@
   let system = null;         // 입자 시스템
   let p5i = null;            // p5 인스턴스
   let recorder = null, recChunks = [], recording = false;
-  let dragging = false, dragX = 0, lastAngle = 0;
+  let dragging = false, dragX = 0, dragY = 0, lastAngle = 0, lastAngleX = 0;
 
   /* ----------------------------- 작은 도우미 ----------------------------- */
   function toast(msg, ms) {
@@ -73,8 +77,14 @@
     img.src = url;
   }
   function loadDemo(name) {
-    sourceCanvas = ImageAnalysis.generateDemo(name, 640, 480);
-    showThumb(); runAnalysis();
+    setBusy(true);
+    // 실제 명화(퍼블릭 도메인)를 불러오고, 오프라인/차단 시 절차적 데모로 대체.
+    ImageAnalysis.loadPainting(name, (cv, title, isFallback) => {
+      sourceCanvas = cv;
+      if (title) { state.meta.title = title; const t = $('#in-title'); if (t && !t.value) t.value = title; }
+      showThumb(); runAnalysis();
+      if (isFallback) toast('오프라인이라 ‘' + (title || name) + '’을 절차적 데모로 대체했어요.');
+    });
   }
   function showThumb() {
     const c = $('#thumb');
@@ -89,6 +99,7 @@
   function runAnalysis() {
     if (!sourceCanvas) return;
     setBusy(true);
+    if (state.K > 3000) toast('K=' + fmt(state.K) + ' — 매우 큰 값이라 분석에 시간이 걸릴 수 있어요…', 4000);
     // UI가 먼저 갱신되도록 한 박자 뒤에 무거운 작업 실행
     setTimeout(() => {
       try {
@@ -153,38 +164,83 @@
     drawPalChart(state.palChart);
   }
 
-  // 팔레트를 다양한 차트로: 도넛 / 막대 (점 수가 많으면 상위 N + ‘기타’로 묶음)
+  // RGB → HSL (색상환·거품 차트에서 색을 각도/높이로 배치하는 데 사용)
+  function rgb2hsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b); let h, s, l = (mx + mn) / 2;
+    if (mx === mn) { h = s = 0; } else {
+      const d = mx - mn; s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+      h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h /= 6;
+    }
+    return [h * 360, s, l];
+  }
+
+  // 팔레트를 여러 차트로 표현 — 같은 데이터도 다른 ‘틀’로 보면 다르게 읽혀요.
+  //   도넛 / 가로막대 / 세로막대 / 트리맵(면적) / 색상환(색상·밝기) / 거품(채도·밝기) / 히트맵
   function drawPalChart(type) {
     const cv = $('#pal-canvas'); if (!cv || !analysis) return;
     if (type === 'heatmap') { if (window.Charts && sourceCanvas) { const st = Charts.computeStats(sourceCanvas); Charts.heatmap(cv, st.samples); } return; }
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = cv.clientWidth || cv.parentElement.clientWidth || 280;
-    const pal = analysis.palette, MAX = 24;
+    const pal = analysis.palette;
+    const scatter = (type === 'wheel' || type === 'bubble');
+    const MAX = scatter ? 120 : 24;
     let items = pal;
     if (pal.length > MAX) {
       items = pal.slice(0, MAX);
-      let ratio = 0; for (let i = MAX; i < pal.length; i++) ratio += pal[i].ratio;
-      items = items.concat([{ r: 120, g: 124, b: 140, ratio: ratio, rest: pal.length - MAX }]);
+      if (!scatter) {
+        let ratio = 0; for (let i = MAX; i < pal.length; i++) ratio += pal[i].ratio;
+        items = items.concat([{ r: 120, g: 124, b: 140, ratio: ratio, rest: pal.length - MAX }]);
+      }
     }
     const h = type === 'hbars' ? (12 + items.length * 15) : Math.round(w * 0.62);
     cv.width = w * dpr; cv.height = h * dpr; cv.style.height = h + 'px';
     const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+    const css = p => 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
+    ctx.font = '10px sans-serif';
 
     if (type === 'hbars') {
       const pad = 6, rowH = (h - pad * 2) / items.length;
       const max = Math.max.apply(null, items.map(p => p.ratio).concat(0.001));
       items.forEach((p, i) => {
         const bw = (p.ratio / max) * (w - 64), y = pad + i * rowH;
-        ctx.fillStyle = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
-        ctx.fillRect(58, y + 1, Math.max(2, bw), rowH - 2);
-        ctx.fillStyle = '#9aa3bd'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+        ctx.fillStyle = css(p); ctx.fillRect(58, y + 1, Math.max(2, bw), rowH - 2);
+        ctx.fillStyle = '#9aa3bd'; ctx.textAlign = 'right';
         ctx.fillText(Math.round(p.ratio * 100) + '%', 52, y + rowH / 2 + 3);
       });
-    } else { // donut
+    } else if (type === 'bars') {                       // 세로막대 (비율 높은 순)
+      const pad = 14, n = items.length, bw = (w - pad * 2) / n;
+      const max = Math.max.apply(null, items.map(p => p.ratio).concat(0.001));
+      items.forEach((p, i) => {
+        const bh = (p.ratio / max) * (h - pad * 2), x = pad + i * bw;
+        ctx.fillStyle = css(p); ctx.fillRect(x + bw * 0.12, h - pad - bh, bw * 0.76, bh);
+      });
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.beginPath(); ctx.moveTo(pad, h - pad); ctx.lineTo(w - pad, h - pad); ctx.stroke();
+    } else if (type === 'treemap') {                    // 트리맵 (면적 = 비율)
+      treemap(ctx, items, 4, 4, w - 8, h - 8, css);
+    } else if (type === 'wheel') {                      // 색상환 (각도=색상, 반지름=밝기, 점=비율)
+      const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.46;
+      ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+      const maxR = Math.max.apply(null, items.map(p => p.ratio).concat(0.001));
+      items.forEach(p => {
+        const [hue, , l] = rgb2hsl(p.r, p.g, p.b), a = (hue - 90) * Math.PI / 180, rr = (0.15 + l * 0.8) * R;
+        const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr, sz = 2 + Math.sqrt(p.ratio / maxR) * 16;
+        ctx.fillStyle = css(p); ctx.beginPath(); ctx.arc(x, y, sz, 0, Math.PI * 2); ctx.fill();
+      });
+      ctx.fillStyle = '#7f879c'; ctx.textAlign = 'center'; ctx.fillText('각도=색상 · 중심에서 멀수록 밝음', cx, h - 4);
+    } else if (type === 'bubble') {                     // 거품 (가로=색상, 세로=채도, 크기=비율)
+      const pad = 16, maxR = Math.max.apply(null, items.map(p => p.ratio).concat(0.001));
+      items.forEach(p => {
+        const [hue, s] = rgb2hsl(p.r, p.g, p.b);
+        const x = pad + (hue / 360) * (w - pad * 2), y = h - pad - s * (h - pad * 2), sz = 2 + Math.sqrt(p.ratio / maxR) * 18;
+        ctx.fillStyle = css(p); ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.arc(x, y, sz, 0, Math.PI * 2); ctx.fill();
+      });
+      ctx.globalAlpha = 1; ctx.fillStyle = '#7f879c'; ctx.textAlign = 'center'; ctx.fillText('가로=색상 · 세로=선명함(채도) · 크기=비율', w / 2, h - 4);
+    } else {                                            // 도넛
       const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.42, r = R * 0.55; let a0 = -Math.PI / 2;
       items.forEach(p => {
         const a1 = a0 + p.ratio * Math.PI * 2;
-        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.fillStyle = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.fillStyle = css(p);
         ctx.arc(cx, cy, R, a0, a1); ctx.closePath(); ctx.fill(); a0 = a1;
       });
       ctx.globalCompositeOperation = 'destination-out';
@@ -193,6 +249,28 @@
       ctx.fillStyle = '#cdd3e6'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('상위 ' + Math.round((pal[0] ? pal[0].ratio : 0) * 100) + '%', cx, cy + 4);
     }
+  }
+  // 트리맵: 비율 큰 순으로 가로/세로를 번갈아 잘라 채운다(슬라이스-앤-다이스).
+  function treemap(ctx, items, x, y, w, h, css) {
+    const list = items.slice().sort((a, b) => b.ratio - a.ratio);
+    let total = list.reduce((s, p) => s + p.ratio, 0) || 1;
+    function layout(arr, x, y, w, h, sum) {
+      if (!arr.length) return;
+      if (arr.length === 1) { paint(arr[0], x, y, w, h); return; }
+      const horiz = w >= h; let acc = 0, i = 0;
+      // 절반 비중을 첫 그룹에 담아 균형 분할
+      const half = sum / 2; const g1 = [];
+      while (i < arr.length - 1 && acc + arr[i].ratio <= half) { acc += arr[i].ratio; g1.push(arr[i]); i++; }
+      if (!g1.length) { acc = arr[0].ratio; g1.push(arr[0]); i = 1; }
+      const g2 = arr.slice(i), s1 = acc, s2 = sum - acc, f = s1 / sum;
+      if (horiz) { layout(g1, x, y, w * f, h, s1); layout(g2, x + w * f, y, w * (1 - f), h, s2); }
+      else { layout(g1, x, y, w, h * f, s1); layout(g2, x, y + h * f, w, h * (1 - f), s2); }
+    }
+    function paint(p, x, y, w, h) {
+      ctx.fillStyle = css(p); ctx.fillRect(x + 1, y + 1, Math.max(0, w - 2), Math.max(0, h - 2));
+      if (w > 30 && h > 16) { const [, , l] = rgb2hsl(p.r, p.g, p.b); ctx.fillStyle = l > 0.55 ? '#1a1d27' : '#e7ebf5'; ctx.textAlign = 'left'; ctx.fillText(Math.round(p.ratio * 100) + '%', x + 4, y + 13); }
+    }
+    layout(list, x, y, w, h, total);
   }
 
   /* ----------------------------- p5 스케치 ----------------------------- */
@@ -208,6 +286,7 @@
       const holder = $('#canvas-holder');
       p.resizeCanvas(holder.clientWidth, holder.clientHeight);
       if (system) system.remap(imageRect(), false);
+      if (analysis) drawPalChart(state.palChart);   // 패널 폭 변화 시 차트 비율 유지(찌그러짐 방지)
     };
     p.draw = () => {
       const ctx = p.drawingContext;
@@ -227,9 +306,10 @@
       const mic = AudioInput.getValues();
       if (AudioInput.enabled) updateMeter(mic);
 
-      // 3D 모드에서 드래그로 회전
+      // 3D 모드에서 드래그로 회전 (좌우=Y축, 상하=X축)
       if (dragging && state.mode === '3d') {
         system.angle = lastAngle + (p.mouseX - dragX) * 0.01;
+        system.angleX = lastAngleX + (p.mouseY - dragY) * 0.01;
       }
 
       system.update(buildEnv(p, mic));
@@ -242,7 +322,7 @@
     };
     p.mousePressed = () => {
       if (p.mouseX < 0 || p.mouseY < 0 || p.mouseX > p.width || p.mouseY > p.height) return;
-      if (state.mode === '3d') { dragging = true; dragX = p.mouseX; lastAngle = system ? system.angle : 0; }
+      if (state.mode === '3d') { dragging = true; dragX = p.mouseX; dragY = p.mouseY; lastAngle = system ? system.angle : 0; lastAngleX = system ? (system.angleX || 0) : 0; }
       if (state.clickExplode && system) system.explode(p.mouseX, p.mouseY, state.mouseStrength * 7, state.mouseRadius * 2.2);
     };
     p.mouseReleased = () => { dragging = false; };
@@ -253,8 +333,9 @@
     return {
       motion: {
         returnForce: state.returnForce, damping: 0.86, vibration: state.vibration,
-        rotateSpeed: state.mode === '3d' && !dragging ? state.rotateSpeed : 0,
-        free: state.motionMode === 'free', wander: 1.2 + state.vibration
+        rotateSpeed: state.mode === '3d' && !dragging ? state.rotateSpeed : 0, rotAxis: state.rotAxis,
+        free: state.motionMode === 'free', wander: state.freeWander, swirl: state.freeSwirl, pull: state.freePull,
+        gravity: state.gravity, flow: state.flow, valForce: state.valForce, valField: state.valField, valDir: state.valDir, colorForce: state.colorForce
       },
       mouse: {
         x: p.mouseX, y: p.mouseY,
@@ -426,6 +507,16 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     setVal('#sel-lens', state.lens);
     setVal('#sel-mode', state.mode);
     setVal('#sel-motion', state.motionMode);
+    $('#row-free').style.display = state.motionMode === 'free' ? '' : 'none';
+    setVal('#rng-wander', state.freeWander); setOut('#out-wander', state.freeWander);
+    setVal('#rng-swirl', state.freeSwirl); setOut('#out-swirl', state.freeSwirl);
+    setVal('#rng-pull', state.freePull); setOut('#out-pull', state.freePull);
+    setVal('#rng-gravity', state.gravity); setOut('#out-gravity', state.gravity);
+    setVal('#rng-flow', state.flow); setOut('#out-flow', state.flow);
+    setVal('#rng-valforce', state.valForce); setOut('#out-valforce', state.valForce);
+    setVal('#sel-valfield', state.valField); setVal('#sel-valdir', state.valDir);
+    setVal('#rng-colorforce', state.colorForce); setOut('#out-colorforce', state.colorForce);
+    setVal('#sel-rotaxis', state.rotAxis);
     setVal('#rng-return', state.returnForce); setOut('#out-return', state.returnForce);
     setVal('#rng-vibration', state.vibration); setOut('#out-vibration', state.vibration);
     setVal('#rng-trail', state.trail); setOut('#out-trail', state.trail);
@@ -486,6 +577,8 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     bindKmeansModal();
     // 표현 렌즈(에지·구도) 설명 모달
     bindLensModal();
+    // 각 옵션 ⓘ 설명 모달
+    bindOptInfo();
     $('#sel-space').addEventListener('change', e => { state.space = e.target.value; runAnalysis(); });
     $('#sel-sampling').addEventListener('change', e => { state.sampling = e.target.value; runAnalysis(); });
     onRange('#rng-n', '#out-n', v => { state.N = v | 0; }, true, fmt);
@@ -499,11 +592,21 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
 
     // 움직임(실시간 반영)
     $('#sel-mode').addEventListener('change', e => { state.mode = e.target.value; $('#row-3d').style.display = state.mode === '3d' ? '' : 'none'; });
-    $('#sel-motion').addEventListener('change', e => state.motionMode = e.target.value);
+    $('#sel-motion').addEventListener('change', e => { state.motionMode = e.target.value; $('#row-free').style.display = state.motionMode === 'free' ? '' : 'none'; });
+    onRange('#rng-wander', '#out-wander', v => state.freeWander = v);
+    onRange('#rng-swirl', '#out-swirl', v => state.freeSwirl = v);
+    onRange('#rng-pull', '#out-pull', v => state.freePull = v);
+    onRange('#rng-gravity', '#out-gravity', v => state.gravity = v);
+    onRange('#rng-flow', '#out-flow', v => state.flow = v);
+    onRange('#rng-valforce', '#out-valforce', v => state.valForce = v);
+    $('#sel-valfield').addEventListener('change', e => state.valField = e.target.value);
+    $('#sel-valdir').addEventListener('change', e => state.valDir = e.target.value);
+    onRange('#rng-colorforce', '#out-colorforce', v => state.colorForce = v);
     onRange('#rng-return', '#out-return', v => state.returnForce = v);
     onRange('#rng-vibration', '#out-vibration', v => state.vibration = v);
     onRange('#rng-trail', '#out-trail', v => state.trail = v | 0);
     $('#chk-additive').addEventListener('change', e => state.additive = e.target.checked);
+    $('#sel-rotaxis').addEventListener('change', e => state.rotAxis = e.target.value);
     onRange('#rng-rotate', '#out-rotate', v => state.rotateSpeed = v);
     onRange('#rng-depth', '#out-depth', v => state.depth = v | 0);
 
@@ -592,6 +695,36 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     }));
   }
 
+  // 각 옵션 ⓘ 설명(샘플링·색공간 등) — 한 개의 공용 모달로
+  const OPTHELP = {
+    space: ['색공간 (RGB / LAB)', 'K-means가 색의 ‘거리’를 재는 좌표계예요. <b>RGB</b>는 화면 신호 그대로(빨강·초록·파랑). <b>LAB</b>는 사람 눈의 지각에 가까워(밝기 L + 색축 a·b) 비슷해 보이는 색을 더 자연스럽게 묶어요. 같은 K라도 군집 결과가 달라지니 둘을 비교해 보세요.'],
+    sampling: ['샘플링 (점을 어디서 뽑을까)', '그림의 모든 픽셀 대신 N개를 ‘골라’ 점으로 만들어요. <b>무작위</b>=고르게, <b>밝은영역</b>=밝은 곳에 점이 더, <b>어두운영역</b>=그림자에 더, <b>윤곽(에지)</b>=경계선에 더 모여요. 어디를 강조하느냐가 곧 해석이에요.'],
+    N: ['N (점 개수 · 해상도)', '점이 많을수록 원본에 가깝게 촘촘하고(무겁고), 적을수록 또렷한 점이 듬성듬성해 추상적이에요. ‘메시지에 맞는 해상도’를 고르는 게 표현 전략이에요.'],
+    size: ['점 크기', '점 하나의 지름. 작으면 섬세·정밀, 크면 대담·거칠어요. N(개수)과 함께 그림의 ‘질감’을 만들어요.'],
+    colormode: ['색 모드', '<b>대표색</b>=K-means가 요약한 군집색(분위기), <b>원본색</b>=각 점의 실제 픽셀색(사진처럼 풍부), <b>명암</b>=밝기만 남긴 흑백. 같은 점이라도 색의 ‘번역 방식’이 달라요.'],
+    mode: ['표현 모드', '<b>점</b>=점묘, <b>점+선</b>=제자리에서 벗어난 만큼 선으로 이어 ‘변위·흐름’을 보여줌, <b>3D 조각</b>=밝기를 깊이(z)로 세워 회전하는 입체로.'],
+    motion: ['움직임 기준 (원위치 / 자유)', '<b>원위치 유지</b>=원본 그림 위치로 돌아가 그림을 지켜요. <b>자유 이동</b>=원위치를 잊고 떠돌아요 — 아래 떠돎·소용돌이·중심 인력으로 그 ‘자유의 결’을 직접 디자인할 수 있어요.'],
+    gravity: ['중력 · 좌우 흐름', '점 전체에 거는 <b>일정한 힘</b>이에요. <b>중력</b>은 아래(+)/위(−)로 끌고, <b>좌우 흐름</b>은 왼쪽(−)/오른쪽(+)으로 흘려요. 자유 이동과 합치면 ‘바람에 날리는’ 느낌.'],
+    valforce: ['값 기반 방향', '각 점의 <b>값</b>(밝기 또는 윤곽 세기)에 따라 가는 방향이 달라져요 — 예: <b>밝을수록 위로</b>, 어두울수록 아래로. 방향은 상하/좌우/중심밖에서 골라요. ‘데이터 값이 높을수록 어디로’를 직접 설계.'],
+    colorforce: ['색 기반 방향 (색 나침반)', '각 점이 <b>자기 색(색상)</b>이 가리키는 방향으로 가요 — 빨강은 오른쪽, 청록은 왼쪽처럼 색상환의 각도를 방향으로. 같은 색끼리 모이고 갈라지며 ‘색의 자기장’이 생겨요.'],
+    return: ['복귀력(집중)', '점이 원래 자리(원본 그림 위치)로 돌아가려는 힘. 크면 그림을 단단히 유지, 작으면 쉽게 흩어져 떠돌아요. ‘질서 ↔ 해체’의 다이얼이에요.'],
+    vibration: ['진동', '매 순간 점이 무작위로 떨리는 세기. 0이면 고요, 크면 들썩여 ‘살아있는’ 느낌. 마이크 소리와 합쳐 더 강해질 수 있어요.'],
+    trail: ['잔상(트레일)', '한 프레임에 배경을 얼마나 지울지. 255=완전히 지워 또렷, 낮을수록 지난 위치의 자취(궤적)가 남아 ‘흐름·움직임’이 보여요.'],
+    additive: ['발광(빛 번짐)', '겹친 점의 색을 더해(가산 혼합) 밝아지게 — 성운·네온처럼 빛나는 느낌. 어두운 배경에서 강렬해요.'],
+    palchart: ['팔레트 차트', '같은 비율 데이터도 ‘틀’을 바꾸면 다르게 읽혀요 — 도넛·막대(비율), 트리맵(면적=비율), 색상환(각도=색상·중심에서 멀수록 밝음), 거품(가로=색상·세로=채도·크기=비율), 히트맵(색상×밝기 분포).']
+  };
+  function bindOptInfo() {
+    const modal = $('#modal-opt'); if (!modal) return;
+    const close = () => modal.classList.remove('show');
+    const cb = $('#opt-close'); if (cb) cb.addEventListener('click', close);
+    modal.addEventListener('click', e => { if (e.target.id === 'modal-opt') close(); });
+    document.querySelectorAll('.opt-info').forEach(b => b.addEventListener('click', () => {
+      const e = OPTHELP[b.dataset.opt]; if (!e) return;
+      $('#opt-title').textContent = e[0]; $('#opt-body').innerHTML = e[1];
+      modal.classList.add('show');
+    }));
+  }
+
   // 표현 렌즈 설명 모달(에지·구도) 열고 닫기
   function bindLensModal() {
     const btn = $('#btn-lens'), modal = $('#modal-lens');
@@ -617,6 +750,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
         const holder = $('#canvas-holder');
         p5i.resizeCanvas(holder.clientWidth, holder.clientHeight);
         if (system) system.remap(imageRect(), false);
+        if (analysis) drawPalChart(state.palChart);   // 차트 폭 갱신(찌그러짐 방지)
       });
     };
     const start = () => { drag = true; document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; };
