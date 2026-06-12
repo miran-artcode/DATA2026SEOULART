@@ -150,19 +150,22 @@
       box.appendChild(seg);
     });
     if (pal.length > MAXSEG) {
-      let ratio = 0; for (let i = MAXSEG; i < pal.length; i++) ratio += pal[i].ratio;
+      const rest = pal.slice(MAXSEG);
+      let ratio = 0; rest.forEach(p => ratio += p.ratio);
+      const ac = avgColor(rest);     // 회색 고정 대신 나머지 색들의 평균색으로
       const seg = document.createElement('div');
-      seg.className = 'pseg'; seg.style.background = '#565b6e';
+      seg.className = 'pseg'; seg.style.background = 'rgb(' + ac.r + ',' + ac.g + ',' + ac.b + ')';
       seg.style.flexGrow = Math.max(ratio, 0.0008);
-      seg.title = '기타 ' + fmt(pal.length - MAXSEG) + '색 (' + Math.round(ratio * 100) + '%)';
+      seg.title = '기타 ' + fmt(rest.length) + '색의 평균 (' + Math.round(ratio * 100) + '%)';
       box.appendChild(seg);
     }
     const adjusted = analysis.requestedK > analysis.K;
     const note = adjusted
       ? '입력 K=' + fmt(analysis.requestedK) + ' → 실제 K=' + fmt(analysis.K) + ' (이미지 색 수·성능 한계로 자동 조정)'
       : 'K=' + fmt(analysis.K);
-    $('#palette-meta').textContent = note + ' · ' + (state.space === 'lab' ? 'LAB' : 'RGB') + ' · 비율 높은 순';
-    const kn = $('#k-note'); if (kn) kn.textContent = adjusted ? '※ ' + note : '';
+    const manyNote = analysis.K > 60 ? ' · 상위 색만 표시(나머지는 평균색 ‘기타’로 묶음)' : '';
+    $('#palette-meta').textContent = note + ' · ' + (state.space === 'lab' ? 'LAB' : 'RGB') + ' · 비율 높은 순' + manyNote;
+    const kn = $('#k-note'); if (kn) kn.textContent = adjusted ? '※ ' + note : (analysis.K > 120 ? '※ K가 매우 커요 — 비슷한 색이 잘게 쪼개져 ‘기타(평균색)’ 비중이 커질 수 있어요. 보통 8~32에서 색 구조가 가장 또렷해요.' : '');
     drawPalChart(state.palChart);
   }
 
@@ -177,6 +180,13 @@
     return [h * 360, s, l];
   }
 
+  // 여러 색의 비율 가중 평균색(차트에서 ‘기타(나머지)’ 묶음을 대표할 색). 고정 회색 대신 실제 평균으로.
+  function avgColor(list) {
+    let r = 0, g = 0, b = 0, s = 0;
+    list.forEach(p => { const w = p.ratio || 0; r += p.r * w; g += p.g * w; b += p.b * w; s += w; });
+    s = s || 1; return { r: Math.round(r / s), g: Math.round(g / s), b: Math.round(b / s) };
+  }
+
   // 팔레트를 여러 차트로 표현 — 같은 데이터도 다른 ‘틀’로 보면 다르게 읽혀요.
   //   도넛 / 가로막대 / 세로막대 / 트리맵(면적) / 색상환(색상·밝기) / 거품(채도·밝기) / 히트맵
   function drawPalChart(type) {
@@ -186,13 +196,16 @@
     const w = cv.clientWidth || cv.parentElement.clientWidth || 280;
     const pal = analysis.palette;
     const scatter = (type === 'wheel' || type === 'bubble');
-    const MAX = scatter ? 120 : 24;
+    // K가 클 때 ‘기타 회색 덩어리’가 커 보이는 문제 완화 — 차트별로 실제 색을 넉넉히 보여준다.
+    const MAX = scatter ? 120 : (type === 'treemap' ? 160 : (type === 'donut' ? 28 : 40));
     let items = pal;
     if (pal.length > MAX) {
       items = pal.slice(0, MAX);
       if (!scatter) {
-        let ratio = 0; for (let i = MAX; i < pal.length; i++) ratio += pal[i].ratio;
-        items = items.concat([{ r: 120, g: 124, b: 140, ratio: ratio, rest: pal.length - MAX }]);
+        const rest = pal.slice(MAX);
+        let ratio = 0; for (let i = 0; i < rest.length; i++) ratio += rest[i].ratio;
+        const ac = avgColor(rest);   // 고정 회색이 아니라 나머지 색들의 ‘평균색’
+        items = items.concat([{ r: ac.r, g: ac.g, b: ac.b, ratio: ratio, rest: rest.length }]);
       }
     }
     const h = type === 'hbars' ? (12 + items.length * 15) : Math.round(w * 0.62);
