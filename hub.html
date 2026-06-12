@@ -6,39 +6,36 @@
 <title>학생 허브 · 데이터의 눈</title>
 <link rel="stylesheet" href="css/site.css" />
 <style>
-  /* 만들기 — 4단계 심화 여정 (디자인 섹션) */
-  .journey { margin: 20px 0 8px; }
-  .jhead h2 { margin: 0 0 4px; }
-  .jhead .sub { margin: 0 0 13px; color: var(--muted); font-size: 13.5px; }
-  .jhead .sub b { color: var(--text); }
-  .jarc { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; flex-wrap: wrap; }
-  .jarc .l { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); font-weight: 700; white-space: nowrap; }
-  .jarc .l i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-  .jarc .bar { flex: 1 1 26px; height: 3px; min-width: 14px; border-radius: 3px; opacity: .6;
-    background: linear-gradient(90deg, var(--accent2), var(--good), var(--accent), var(--danger)); }
-  .jsteps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: js; }
-  @media (min-width: 920px) { .jsteps { grid-template-columns: repeat(4, 1fr); gap: 12px; } }
-  .jstep { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-  .jcard { position: relative; display: block; background: var(--panel); border: 1px solid var(--line);
-    border-radius: var(--radius); padding: 16px 15px 14px; text-decoration: none; color: inherit;
-    overflow: hidden; transition: transform .15s, border-color .15s, box-shadow .15s; height: 100%; }
-  .jcard::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--c); }
-  .jcard:hover { transform: translateY(-3px); border-color: var(--c); box-shadow: 0 14px 30px rgba(0,0,0,.35); }
-  .jtop { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
-  .jnum { flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--c); color: #0a0c12;
-    font-weight: 800; font-size: 18px; display: grid; place-items: center; box-shadow: 0 6px 16px rgba(0,0,0,.35); }
-  .jstage { font-size: 11.5px; font-weight: 800; color: var(--c); letter-spacing: .02em; line-height: 1.25; }
-  .jstage small { display: block; color: var(--muted); font-weight: 600; font-size: 10.5px; letter-spacing: 0; }
-  .jcard h3 { margin: 0 0 3px; font-size: 16px; }
-  .jtag { margin: 0 0 9px; font-size: 12px; color: var(--c); font-weight: 700; }
-  .jflow { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-bottom: 9px; }
-  .jflow span { font-size: 10.5px; background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; color: var(--muted); }
-  .jflow b { color: var(--c); font-size: 11px; }
-  .jdesc { margin: 0 0 9px; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
-  .jcta { font-size: 11.5px; color: var(--c); font-weight: 800; }
-  .jalt { display: flex; gap: 6px; flex-wrap: wrap; }
-  .jalt a { font-size: 11.5px; color: var(--muted); text-decoration: none; border: 1px dashed var(--line); border-radius: 999px; padding: 3px 10px; transition: .15s; }
-  .jalt a:hover { color: var(--c); border-color: var(--c); }
+  /* 히어로 */
+  .hero-cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .sec-head { margin: 36px 0 14px; }
+  .sec-head h2 { margin: 0 0 4px; font-size: 19px; letter-spacing: -.2px; }
+  .sec-head p { margin: 0; color: var(--muted); font-size: 13.5px; }
+  .sec-head p b { color: var(--text); }
+
+  /* 만들기 — 4단계 학습 경로(시작 → 순서가 드러나게) */
+  .path { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+  @media (min-width: 940px) { .path { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
+  .pstep { position: relative; min-width: 0; }
+  @media (min-width: 940px) { .pstep:not(:last-child)::after { content: "→"; position: absolute; right: -12px; top: 34px; transform: translate(50%,-50%); color: var(--muted2); font-weight: 800; font-size: 15px; } }
+  .pcard { position: relative; display: flex; flex-direction: column; gap: 9px; height: 100%;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px;
+    box-shadow: var(--shadow); text-decoration: none; color: inherit; transition: transform .15s, border-color .15s; }
+  .pcard:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .ptop { display: flex; align-items: center; gap: 11px; }
+  .pnum { flex: none; width: 34px; height: 34px; border-radius: 10px; background: rgba(var(--accent-rgb),.14);
+    color: var(--accent); font-weight: 800; font-size: 16px; display: grid; place-items: center; }
+  .pstage { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--muted2); }
+  .pcard h3 { margin: 2px 0 0; font-size: 16px; }
+  .pflow { display: flex; gap: 5px; flex-wrap: wrap; }
+  .pflow span { font-size: 10.5px; background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; color: var(--muted); }
+  .pdesc { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+  .pcta { margin-top: auto; font-size: 12px; color: var(--accent); font-weight: 700; }
+  .start-badge { position: absolute; top: -10px; left: 16px; background: var(--accent); color: #fff;
+    font-size: 10px; font-weight: 800; letter-spacing: .04em; padding: 3px 10px; border-radius: 999px; }
+  .palt { margin-top: 9px; }
+  .palt a { font-size: 11.5px; color: var(--muted); text-decoration: none; border: 1px dashed var(--line); border-radius: 999px; padding: 3px 10px; transition: .15s; }
+  .palt a:hover { color: var(--accent); border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -46,78 +43,65 @@
 
 <div class="wrap">
   <div class="page-head">
-    <span class="eyebrow">학생 허브</span>
-    <h1>무엇을 해볼까요?</h1>
-    <p>만들기 · 배우기 · 나누기 — 어디서든 <b>ⓘ 설명</b>과 <b>💡 아이디어</b>를 누르면 도움말이 떠요.</p>
+    <span class="eyebrow">데이터의 눈 · 학생 허브</span>
+    <h1>그림·소리·삶·사회를 데이터로,<br>그리고 ‘움직이는 점 작품’으로</h1>
+    <p>같은 흐름 — <b>대상을 데이터로 분석 → 내가 매핑을 설계 → 인터랙티브 미디어아트</b> — 을 4단계로 점점 깊이 익혀요. 처음이라면 1단계부터 순서대로.</p>
+    <div class="hero-cta">
+      <a class="btn primary" href="studio-color.html">여기서 시작 — 1단계 색 군집 →</a>
+      <a class="btn" href="start.html">🧭 처음이세요? 5분 안내</a>
+    </div>
   </div>
-  <a href="start.html" style="display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit; background:linear-gradient(135deg, rgba(110,120,255,.16), rgba(80,200,200,.10)); border:1px solid var(--line); border-radius:14px; padding:14px 18px; margin-bottom:14px">
-    <span style="font-size:24px">🧭</span>
-    <span><b style="font-size:15px">처음이세요? — 5분 사용 안내</b><br><span class="muted" style="font-size:12.5px">수학·코딩 몰라도 괜찮아요. 빠른 시작 · 낱말 사전 · 막힐 때 도움말</span></span>
-    <span style="margin-left:auto; color:var(--accent,#6e78ff); font-weight:800">시작 →</span>
-  </a>
   <div id="idea"></div>
 
-  <section class="journey">
-    <div class="jhead">
-      <h2>🎨 만들기 — 4단계 심화 여정</h2>
-      <p class="sub">같은 흐름 <b>대상 → 데이터로 분석 → 인터랙션 미디어아트 창작</b>을 반복하며 점점 깊어져요. 그림에서 출발해 소리·내 삶·사회로 넓혀 갑니다.</p>
-      <div class="jarc" aria-hidden="true">
-        <span class="l"><i style="background:var(--accent2)"></i>직관적 출발</span>
-        <span class="bar"></span>
-        <span class="l"><i style="background:var(--good)"></i>정서를 담다</span>
-        <span class="bar"></span>
-        <span class="l"><i style="background:var(--accent)"></i>내 삶의 의미</span>
-        <span class="bar"></span>
-        <span class="l"><i style="background:var(--danger)"></i>사회적 발언</span>
-      </div>
-    </div>
-    <ol class="jsteps">
-      <li class="jstep" style="--c:var(--accent2)">
-        <a class="jcard" href="studio-color.html">
-          <div class="jtop"><span class="jnum">1</span><span class="jstage">1단계<small>기초 · 출발점</small></span></div>
-          <h3>🖼 그림을 데이터로</h3>
-          <p class="jtag">직관적 출발점</p>
-          <div class="jflow"><span>명화·그림</span><b>→</b><span>색 군집 분석</span><b>→</b><span>점·인터랙션</span></div>
-          <p class="jdesc">K-means로 그림을 대표색 점으로 치환하고 마우스·소리로 ‘연주’. <b>그림→분석→창작</b>의 흐름을 처음 몸에 익혀요.</p>
-          <span class="jcta">색 군집 스튜디오 시작 →</span>
-        </a>
-        <div class="jalt"><a href="studio-data.html">＋ 데이터 점 스튜디오</a></div>
-      </li>
-      <li class="jstep" style="--c:var(--good)">
-        <a class="jcard" href="studio-sound.html">
-          <div class="jtop"><span class="jnum">2</span><span class="jstage">2단계<small>정서가 담긴 데이터</small></span></div>
-          <h3>🎤 소리를 데이터로</h3>
-          <p class="jtag">데이터에 정서를 담다</p>
-          <div class="jflow"><span>소리·녹음</span><b>→</b><span>음량·리듬·음색</span><b>→</b><span>춤추는 점</span></div>
-          <p class="jdesc">‘아빠의 잠소리’ 한 달을 상황별 이야기로 — 숫자 뒤의 <b>피로·곁에 있다는 감각</b>을 점의 움직임으로. 그림 밖 다양한 데이터로 확장.</p>
-          <span class="jcta">소리 스튜디오 →</span>
-        </a>
-      </li>
-      <li class="jstep" style="--c:var(--accent)">
-        <a class="jcard" href="studio-life.html">
-          <div class="jtop"><span class="jnum">3</span><span class="jstage">3단계<small>의미·당위성</small></span></div>
-          <h3>🧑 내 삶을 데이터로</h3>
-          <p class="jtag">무엇을 데이터로 삼을까</p>
-          <div class="jflow"><span>내 삶의 순간</span><b>→</b><span>사진·대화 분석</span><b>→</b><span>나의 미디어아트</span></div>
-          <p class="jdesc">‘무엇을 셀지’를 내가 정하는 단계. 사진의 밝기·생생함·북적임을 측정해 <b>당위성 있는 ‘나’의 예술</b>로.</p>
-          <span class="jcta">내 삶 스튜디오 →</span>
-        </a>
-      </li>
-      <li class="jstep" style="--c:var(--danger)">
-        <a class="jcard" href="project.html">
-          <div class="jtop"><span class="jnum">4</span><span class="jstage">4단계<small>사회적 발언</small></span></div>
-          <h3>📣 사회문제 프로젝트</h3>
-          <p class="jtag">공공데이터로 발언하다</p>
-          <div class="jflow"><span>공공데이터</span><b>→</b><span>정제·CSV</span><b>→</b><span>사회적 미디어아트</span></div>
-          <p class="jdesc">기후·불평등·동물권… 관련 데이터를 찾아 정제해 <b>CSV</b>로 만들고, 그것을 작품으로. <b>미술이 사회적 발언</b>이 됩니다.</p>
-          <span class="jcta">사회문제 프로젝트 →</span>
-        </a>
-      </li>
-    </ol>
-  </section>
+  <div class="sec-head">
+    <h2>만들기 — 4단계 학습 경로</h2>
+    <p>왼쪽에서 오른쪽으로 <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회), <b>나의 주체성이 깊어져요</b>(교사 데이터→내 삶→내가 정한 사회문제).</p>
+  </div>
+  <ol class="path">
+    <li class="pstep">
+      <span class="start-badge">여기서 시작</span>
+      <a class="pcard" href="studio-color.html">
+        <div class="ptop"><span class="pnum">1</span><span class="pstage">1단계 · 출발점</span></div>
+        <h3>🖼 그림을 데이터로</h3>
+        <div class="pflow"><span>명화·그림</span><span>색 군집 분석</span><span>점·인터랙션</span></div>
+        <p class="pdesc">K-means로 그림을 대표색 점으로 치환하고 마우스·소리로 ‘연주’. <b>그림→분석→창작</b>의 흐름을 처음 익혀요.</p>
+        <span class="pcta">색 군집 스튜디오 시작 →</span>
+      </a>
+      <div class="palt"><a href="studio-data.html">＋ 데이터 점 스튜디오</a></div>
+    </li>
+    <li class="pstep">
+      <a class="pcard" href="studio-sound.html">
+        <div class="ptop"><span class="pnum">2</span><span class="pstage">2단계 · 정서</span></div>
+        <h3>🎤 소리를 데이터로</h3>
+        <div class="pflow"><span>소리·녹음</span><span>음량·리듬·음색</span><span>춤추는 점</span></div>
+        <p class="pdesc">‘아빠의 한 달 코골이’를 상황별 이야기로 — 숫자 뒤의 <b>피로·곁에 있다는 감각</b>을 점의 움직임으로.</p>
+        <span class="pcta">소리 스튜디오 →</span>
+      </a>
+    </li>
+    <li class="pstep">
+      <a class="pcard" href="studio-life.html">
+        <div class="ptop"><span class="pnum">3</span><span class="pstage">3단계 · 의미</span></div>
+        <h3>🧑 내 삶을 데이터로</h3>
+        <div class="pflow"><span>내 삶의 순간</span><span>사진·대화 분석</span><span>나의 미디어아트</span></div>
+        <p class="pdesc">‘무엇을 셀지’를 내가 정하는 단계. 사진의 밝기·생생함·북적임을 측정해 <b>‘나’의 예술</b>로.</p>
+        <span class="pcta">내 삶 스튜디오 →</span>
+      </a>
+    </li>
+    <li class="pstep">
+      <a class="pcard" href="project.html">
+        <div class="ptop"><span class="pnum">4</span><span class="pstage">4단계 · 발언</span></div>
+        <h3>📣 사회문제 프로젝트</h3>
+        <div class="pflow"><span>공공데이터</span><span>정제·CSV</span><span>사회적 미디어아트</span></div>
+        <p class="pdesc">기후·불평등·동물권… 데이터를 찾아 정제해 <b>CSV</b>로 만들고 작품으로. <b>미술이 사회적 발언</b>이 됩니다.</p>
+        <span class="pcta">사회문제 프로젝트 →</span>
+      </a>
+    </li>
+  </ol>
 
-  <h2 style="margin:22px 0 4px">🔬 분석 · 렌즈 · 비평 (도구)</h2>
-  <p class="muted" style="margin:0 0 10px">만든 작품을 깊이 들여다보고, 다른 ‘분석의 눈’으로 다시 보고, 비판적으로 읽는 도구들이에요.</p>
+  <div class="sec-head">
+    <h2>분석 · 렌즈 · 비평 — 도구</h2>
+    <p>만든 작품을 깊이 들여다보고, 다른 ‘분석의 눈’으로 다시 보고, 비판적으로 읽는 도구들이에요.</p>
+  </div>
   <div class="grid c3">
     <a class="card hover" href="lab.html">
       <span class="badge">분석 도구</span>
@@ -136,7 +120,7 @@
     </a>
   </div>
 
-  <h2 style="margin:26px 0 10px">📚 배우기 · 🤝 나누기</h2>
+  <div class="sec-head"><h2>배우기 · 나누기</h2></div>
   <div class="grid c3">
     <a class="card hover" href="learn.html"><h3>알고리즘 배움터</h3><p class="muted">K-means·히스토그램·노탄·에지·중앙값분할·모자이크·구도. 쉬운→깊은 설명.</p></a>
     <a class="card hover" href="gallery.html"><h3>전시 갤러리</h3><p class="muted">친구들 작품을 감상하고 구조화된 피드백을 남겨요.</p></a>
