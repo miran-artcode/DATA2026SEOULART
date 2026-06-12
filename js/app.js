@@ -8,14 +8,16 @@
   'use strict';
 
   const $ = (s) => document.querySelector(s);
-  const BG = [12, 14, 22]; // 캔버스 배경(갤러리 느낌의 짙은 색)
+  // 캔버스 배경 팔레트(작품의 '공기'). 발광 효과는 어두운 배경에서 가장 강렬해요.
+  const BGS = { night: [12, 14, 22], black: [0, 0, 0], ink: [18, 10, 26], slate: [22, 26, 34], paper: [244, 240, 230], white: [248, 249, 252] };
+  let BG = BGS.night;
 
   /* ----------------------------- 상태(조작 설정) ----------------------------- */
   const state = {
     // 분석
     K: 8, space: 'rgb', sampling: 'uniform', N: 4000, seed: 12345,
     // 점
-    size: 3, colorMode: 'cluster', mosaicCell: 0, lens: 'none',
+    size: 3, colorMode: 'cluster', mosaicCell: 0, lens: 'none', pointShape: 'circle', pointAlpha: 1, bg: 'night',
     // 움직임
     mode: 'points', motionMode: 'hold', returnForce: 0.08, vibration: 0, trail: 255, additive: false,
     rotateSpeed: 0.004, depth: 220, rotAxis: 'y', palChart: 'donut',
@@ -317,7 +319,9 @@
         mode: state.mode,
         lines: state.mode === 'lines',
         additive: state.additive,
-        depth: state.depth
+        depth: state.depth,
+        shape: state.pointShape,
+        pointAlpha: state.pointAlpha
       });
     };
     p.mousePressed = () => {
@@ -350,7 +354,8 @@
   }
 
   function drawHint(p, ctx) {
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    const lum = BG[0] * 0.299 + BG[1] * 0.587 + BG[2] * 0.114;
+    ctx.fillStyle = lum > 140 ? 'rgba(20,22,30,0.6)' : 'rgba(255,255,255,0.5)';
     ctx.textAlign = 'center';
     ctx.font = '16px sans-serif';
     ctx.fillText('이미지를 업로드하거나 데모를 선택하세요.', p.width / 2, p.height / 2);
@@ -452,6 +457,8 @@
     const modeName = { points: '점', lines: '점+선', '3d': '3D 조각' }[state.mode];
     const lensName = { none: '없음', edge: '에지(윤곽)', composition: '구도(삼분할·무게중심)' }[state.lens] || '없음';
     const colorModeName = { cluster: '대표색', original: '원본색', mono: '명암(흑백)' }[state.colorMode] || state.colorMode;
+    const shapeName = { circle: '원', square: '사각', triangle: '삼각', diamond: '마름모', cross: '십자', star: '별' }[state.pointShape] || state.pointShape;
+    const bgName = { night: '갤러리 남색', black: '순흑', ink: '잉크 보라', slate: '슬레이트', paper: '따뜻한 종이', white: '전시 흰색' }[state.bg] || state.bg;
 
     const md = `# 분석 리포트 & 인터랙션 설계서
 ## 「그림이 분해되어 다시 연주되다」
@@ -471,8 +478,8 @@ ${rows}
 
 ### B) 인터랙션 설계서
 - 관람 경험 목표(한 문장): ${m.intent || '(미기재)'}
-- 점 개수 N(최종): **${fmt(state.N)}** · 점 크기 ${state.size} · 색 모드 ${colorModeName} · 표현 렌즈 ${lensName}${state.mosaicCell ? ' · 모자이크 격자 ' + state.mosaicCell : ''}
-- 표현 모드: ${modeName} · 복귀력 ${state.returnForce} · 진동 ${state.vibration} · 잔상 ${state.trail} · 발광 ${state.additive ? 'ON' : 'OFF'}
+- 점 개수 N(최종): **${fmt(state.N)}** · 점 크기 ${state.size} · 점 모양 ${shapeName} · 불투명도 ${state.pointAlpha} · 색 모드 ${colorModeName} · 표현 렌즈 ${lensName}${state.mosaicCell ? ' · 모자이크 격자 ' + state.mosaicCell : ''}
+- 표현 모드: ${modeName} · 배경 ${bgName} · 복귀력 ${state.returnForce} · 진동 ${state.vibration} · 잔상 ${state.trail} · 발광 ${state.additive ? 'ON' : 'OFF'}
 - 입력 → 출력 규칙
   1. **마우스**(반경 ${state.mouseRadius}, 세기 ${state.mouseStrength}) → ${mouseName}${state.clickExplode ? ' · 클릭 시 폭발' : ''}
   2. **마이크 볼륨** → ${targetName}${state.freqOn ? ' · 주파수(저/중/고음) → 밝기별 색 군집 반응' : ''}
@@ -503,6 +510,9 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     setVal('#rng-n', state.N); setOut('#out-n', fmt(state.N));
     setVal('#rng-size', state.size); setOut('#out-size', state.size);
     setVal('#sel-colormode', state.colorMode);
+    setVal('#sel-shape', state.pointShape);
+    setVal('#rng-alpha', state.pointAlpha); setOut('#out-alpha', state.pointAlpha);
+    setVal('#sel-bg', state.bg); BG = BGS[state.bg] || BGS.night;
     setVal('#rng-mcell', state.mosaicCell); setOut('#out-mcell', state.mosaicCell);
     setVal('#sel-lens', state.lens);
     setVal('#sel-mode', state.mode);
@@ -587,6 +597,9 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     // 점(재분석 없이 시스템만 갱신)
     onRange('#rng-size', '#out-size', v => { state.size = v; if (system) system.opts.baseSize = v; });
     $('#sel-colormode').addEventListener('change', e => { state.colorMode = e.target.value; if (system) system.setColorMode(state.colorMode); });
+    $('#sel-shape').addEventListener('change', e => state.pointShape = e.target.value);
+    onRange('#rng-alpha', '#out-alpha', v => state.pointAlpha = v);
+    $('#sel-bg').addEventListener('change', e => { state.bg = e.target.value; BG = BGS[state.bg] || BGS.night; });
     onRange('#rng-mcell', '#out-mcell', v => { state.mosaicCell = v | 0; if (system) { system.opts.mosaicCell = state.mosaicCell; system.remap(imageRect(), true); } });
     $('#sel-lens').addEventListener('change', e => { state.lens = e.target.value; if (system) system.setLens(state.lens); });
 
@@ -702,6 +715,9 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     N: ['N (점 개수 · 해상도)', '점이 많을수록 원본에 가깝게 촘촘하고(무겁고), 적을수록 또렷한 점이 듬성듬성해 추상적이에요. ‘메시지에 맞는 해상도’를 고르는 게 표현 전략이에요.'],
     size: ['점 크기', '점 하나의 지름. 작으면 섬세·정밀, 크면 대담·거칠어요. N(개수)과 함께 그림의 ‘질감’을 만들어요.'],
     colormode: ['색 모드', '<b>대표색</b>=K-means가 요약한 군집색(분위기), <b>원본색</b>=각 점의 실제 픽셀색(사진처럼 풍부), <b>명암</b>=밝기만 남긴 흑백. 같은 점이라도 색의 ‘번역 방식’이 달라요.'],
+    shape: ['점 모양', '점 하나하나의 형태예요 — <b>원</b>(부드러움)·<b>사각</b>(픽셀·모자이크)·<b>삼각</b>·<b>마름모</b>·<b>십자</b>(반짝임·별빛)·<b>별</b>. 같은 그림도 점의 모양만 바꾸면 질감과 분위기가 확 달라져요. 작은 점은 모양이 잘 안 보이니 ‘점 크기’를 키워 비교해 보세요.'],
+    alpha: ['점 불투명도', '점이 얼마나 비치는지(0.1=거의 투명 ~ 1=꽉 참). 낮추면 점이 겹칠 때 <b>물감이 번지듯 농담(濃淡)</b>이 생겨 부드럽고 깊어져요. <b>발광</b> 효과·많은 N과 함께 쓰면 안개·수채 느낌.'],
+    bg: ['배경', '작품이 놓이는 ‘공기’예요. <b>갤러리 남색·순흑·잉크 보라·슬레이트</b>(어두움)에서는 <b>발광</b>이 가장 강렬하게 빛나고, <b>따뜻한 종이·전시 흰색</b>(밝음)에서는 드로잉·전시 도록 같은 느낌이 나요. 배경에 따라 같은 색도 다르게 읽혀요.'],
     mode: ['표현 모드', '<b>점</b>=점묘, <b>점+선</b>=제자리에서 벗어난 만큼 선으로 이어 ‘변위·흐름’을 보여줌, <b>3D 조각</b>=밝기를 깊이(z)로 세워 회전하는 입체로.'],
     motion: ['움직임 기준 (원위치 / 자유)', '<b>원위치 유지</b>=원본 그림 위치로 돌아가 그림을 지켜요. <b>자유 이동</b>=원위치를 잊고 떠돌아요 — 아래 떠돎·소용돌이·중심 인력으로 그 ‘자유의 결’을 직접 디자인할 수 있어요.'],
     gravity: ['중력 · 좌우 흐름', '점 전체에 거는 <b>일정한 힘</b>이에요. <b>중력</b>은 아래(+)/위(−)로 끌고, <b>좌우 흐름</b>은 왼쪽(−)/오른쪽(+)으로 흘려요. 자유 이동과 합치면 ‘바람에 날리는’ 느낌.'],

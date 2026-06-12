@@ -143,6 +143,23 @@
             <label>점 크기 <output id="out-size">3</output> <button class="mini opt-info" data-opt="size" title="설명 보기">ⓘ</button></label>
             <input id="rng-size" type="range" min="0.5" max="12" step="0.5" value="3" />
           </div>
+          <div class="row two">
+            <div>
+              <label>점 모양 <button class="mini opt-info" data-opt="shape" title="설명 보기">ⓘ</button></label>
+              <select id="sel-shape" title="점 하나의 형태 — 원/사각/삼각/마름모/십자(별빛)/별. 크게 키워 비교해 보세요.">
+                <option value="circle">● 원</option>
+                <option value="square">■ 사각</option>
+                <option value="triangle">▲ 삼각</option>
+                <option value="diamond">◆ 마름모</option>
+                <option value="cross">✚ 십자</option>
+                <option value="star">★ 별</option>
+              </select>
+            </div>
+            <div>
+              <label>점 불투명도 <output id="out-alpha">1</output> <button class="mini opt-info" data-opt="alpha" title="설명 보기">ⓘ</button></label>
+              <input id="rng-alpha" type="range" min="0.1" max="1" step="0.05" value="1" />
+            </div>
+          </div>
           <div class="row">
             <label>색 모드 <button class="mini opt-info" data-opt="colormode" title="설명 보기">ⓘ</button></label>
             <select id="sel-colormode">
@@ -245,6 +262,18 @@
             <input id="rng-trail" type="range" min="10" max="255" step="5" value="255" />
           </div>
           <label class="chk"><input id="chk-additive" type="checkbox" /> 발광(빛 번짐) 효과 <button class="mini opt-info" data-opt="additive" title="설명 보기">ⓘ</button></label>
+          <div class="row">
+            <label>배경 <button class="mini opt-info" data-opt="bg" title="설명 보기">ⓘ</button></label>
+            <select id="sel-bg" title="작품이 놓이는 '공기' — 어두운 배경일수록 발광이 강렬, 밝은 배경은 드로잉·전시 느낌.">
+              <option value="night">갤러리 남색(기본)</option>
+              <option value="black">순흑</option>
+              <option value="ink">잉크 보라</option>
+              <option value="slate">슬레이트 회청</option>
+              <option value="paper">따뜻한 종이</option>
+              <option value="white">전시 흰색</option>
+            </select>
+          </div>
+          <p class="hint">배경은 작품의 ‘공기’예요 — <b>발광</b> 효과는 어두운 배경(남색·순흑)에서 가장 강렬하고, <b>종이·흰색</b>은 밝은 전시·드로잉 느낌이에요.</p>
           <div id="row-3d" class="threeD" style="display:none">
             <div class="row">
               <label>3D 회전축</label>

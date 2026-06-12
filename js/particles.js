@@ -264,6 +264,9 @@
     const cay = Math.cos(this.angle), say = Math.sin(this.angle);          // Y축
     const cax = Math.cos(this.angleX || 0), sax = Math.sin(this.angleX || 0); // X축
     const edgeLens = this.lens === 'edge' && this.ed;   // 에지 렌즈: 윤곽이 강한 점만 또렷하게
+    const shape = view.shape || 'circle';
+    const baseAlpha = view.pointAlpha != null ? view.pointAlpha : 1;   // 점 불투명도(겹침 농담)
+    ctx.globalAlpha = baseAlpha;
 
     let lastStyle = null;
     for (let k = 0; k < n; k++) {
@@ -285,19 +288,18 @@
         // 윤곽 세기에 따라 크기·투명도를 조절 → 평평한 면은 사라지고 '선묘'만 남음
         const e = this.ed[i];
         size *= 0.3 + e * 1.7;
-        ctx.globalAlpha = 0.08 + e * 0.92;
+        ctx.globalAlpha = baseAlpha * (0.08 + e * 0.92);
       }
       if (size < 0.4) continue;
 
       const style = this.colStr[i];
       if (style !== lastStyle) { ctx.fillStyle = style; lastStyle = style; }
 
-      if (size <= 1.6) {
-        ctx.fillRect(sx - size, sy - size, size * 2, size * 2); // 작은 점은 사각형(빠름)
+      if (shape === 'circle') {
+        if (size <= 1.6) ctx.fillRect(sx - size, sy - size, size * 2, size * 2); // 작은 점은 사각형(빠름)
+        else { ctx.beginPath(); ctx.arc(sx, sy, size, 0, TAU); ctx.fill(); }
       } else {
-        ctx.beginPath();
-        ctx.arc(sx, sy, size, 0, TAU);
-        ctx.fill();
+        drawShape(ctx, shape, sx, sy, size);
       }
     }
     ctx.globalCompositeOperation = 'source-over';
@@ -327,6 +329,30 @@
     ctx.moveTo(cx, cy - 20); ctx.lineTo(cx, cy + 20);
     ctx.stroke();
     ctx.restore();
+  }
+
+  // 점 하나를 고른 모양으로 그린다(원이 기본). 작은 원은 호출 측에서 빠른 경로 사용.
+  function drawShape(ctx, shape, x, y, s) {
+    if (shape === 'square') { ctx.fillRect(x - s, y - s, s * 2, s * 2); return; }
+    if (shape === 'triangle') {
+      ctx.beginPath(); ctx.moveTo(x, y - s * 1.2); ctx.lineTo(x + s * 1.05, y + s * 0.85); ctx.lineTo(x - s * 1.05, y + s * 0.85); ctx.closePath(); ctx.fill(); return;
+    }
+    if (shape === 'diamond') {
+      ctx.beginPath(); ctx.moveTo(x, y - s * 1.25); ctx.lineTo(x + s * 1.1, y); ctx.lineTo(x, y + s * 1.25); ctx.lineTo(x - s * 1.1, y); ctx.closePath(); ctx.fill(); return;
+    }
+    if (shape === 'cross') {
+      const t = s * 0.4; ctx.fillRect(x - t, y - s, t * 2, s * 2); ctx.fillRect(x - s, y - t, s * 2, t * 2); return;
+    }
+    if (shape === 'star') {
+      const spikes = 5, outer = s * 1.25, inner = s * 0.52; let rot = -Math.PI / 2;
+      ctx.beginPath(); ctx.moveTo(x + Math.cos(rot) * outer, y + Math.sin(rot) * outer);
+      for (let q = 0; q < spikes; q++) {
+        rot += Math.PI / spikes; ctx.lineTo(x + Math.cos(rot) * inner, y + Math.sin(rot) * inner);
+        rot += Math.PI / spikes; ctx.lineTo(x + Math.cos(rot) * outer, y + Math.sin(rot) * outer);
+      }
+      ctx.closePath(); ctx.fill(); return;
+    }
+    ctx.beginPath(); ctx.arc(x, y, s, 0, TAU); ctx.fill();   // circle
   }
 
   function create(analysis, rect, opts) { return new System(analysis, rect, opts); }
