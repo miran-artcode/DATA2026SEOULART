@@ -17,26 +17,44 @@
   </div>
   <div id="idea"></div>
 
-  <h2 style="margin:22px 0 10px">색·형태를 읽는 알고리즘</h2>
-  <div class="grid c2" id="algo-cards"></div>
-
-  <h2 style="margin:26px 0 10px">데이터를 점으로 — 매핑 개념</h2>
-  <div class="grid c2" id="map-cards"></div>
-
-  <h2 style="margin:26px 0 10px">미술사 다리 · 윤리</h2>
-  <div class="grid c2">
-    <div class="card">
-      <h3>미술사 속의 ‘색 군집화’</h3>
-      <ul style="line-height:1.85; font-size:13.7px">
-        <li><b>쇠라의 점묘(Pointillism)</b> — 손으로 한 색의 분해·재조합. 멀리서 섞이는 ‘광학 혼합’.</li>
-        <li><b>로스코의 색면</b> — 거대한 색 덩어리로 감정을 전하는 ‘대표색’의 미학.</li>
-        <li><b>옵아트 · 모자이크</b> — 격자·반복·착시로 보는 공간 추상화.</li>
-        <li><b>제너러티브 아트(케이시 리스 등)</b> — 규칙(알고리즘)이 곧 작품이 되는 계보.</li>
-      </ul>
-      <p class="muted" style="font-size:12.5px">→ 내 작업이 이 계보 어디에 서는지 한 문장으로 적어 보세요.</p>
+  <div class="dn-tabwrap">
+    <div class="dn-tabs" role="tablist" aria-label="배움터 갈래">
+      <button class="dn-tab active" data-tab="algo">🎨 색·형태 알고리즘 <span class="cnt">7</span></button>
+      <button class="dn-tab" data-tab="map">📍 데이터 매핑 <span class="cnt">7</span></button>
+      <button class="dn-tab" data-tab="bridge">🏛 미술사 · 윤리</button>
     </div>
-    <div class="card" id="ethics-card"></div>
+
+    <!-- 갈래 1 · 색·형태 알고리즘 -->
+    <div class="dn-tabpanel" data-tabpanel="algo">
+      <p class="muted" style="font-size:13px; margin:0 0 6px">한 그림을 색·명암·형태로 읽는 도구들. <b>핵심</b> 넷을 먼저 익히고 <b>심화</b> 셋으로 넓혀요.</p>
+      <div id="algo-cards"></div>
+    </div>
+
+    <!-- 갈래 2 · 데이터 매핑 -->
+    <div class="dn-tabpanel" data-tabpanel="map" hidden>
+      <p class="muted" style="font-size:13px; margin:0 0 6px">숫자를 점의 <b>크기·속도·방향·색</b>으로 바꾸는 매핑의 기본기 — 데이터 시각화·생성미술의 토대예요.</p>
+      <div id="map-cards"></div>
+    </div>
+
+    <!-- 갈래 3 · 미술사 · 윤리 -->
+    <div class="dn-tabpanel" data-tabpanel="bridge" hidden>
+      <p class="muted" style="font-size:13px; margin:0 0 14px">알고리즘적 사고가 미술사 어디에 닿는지, 그리고 AI를 쓸 때 무엇을 책임져야 하는지.</p>
+      <div class="grid c2">
+        <div class="card">
+          <h3>미술사 속의 ‘색 군집화’</h3>
+          <ul style="line-height:1.85; font-size:13.7px">
+            <li><b>쇠라의 점묘(Pointillism)</b> — 손으로 한 색의 분해·재조합. 멀리서 섞이는 ‘광학 혼합’.</li>
+            <li><b>로스코의 색면</b> — 거대한 색 덩어리로 감정을 전하는 ‘대표색’의 미학.</li>
+            <li><b>옵아트 · 모자이크</b> — 격자·반복·착시로 보는 공간 추상화.</li>
+            <li><b>제너러티브 아트(케이시 리스 등)</b> — 규칙(알고리즘)이 곧 작품이 되는 계보.</li>
+          </ul>
+          <p class="muted" style="font-size:12.5px">→ 내 작업이 이 계보 어디에 서는지 한 문장으로 적어 보세요.</p>
+        </div>
+        <div class="card" id="ethics-card"></div>
+      </div>
+    </div>
   </div>
+
   <p class="footer-note">AI가 하는 일(군집·생성·추천)과 일반 프로그래밍(편집·코딩)을 구분해 말할 수 있나요?</p>
 </div>
 
@@ -59,10 +77,22 @@
       ${ideas ? `<details><summary style="cursor:pointer;color:var(--good);font-size:13px;font-weight:700">🟢 아이디어</summary><ul class="lvl-b" style="padding-left:18px">${ideas}</ul></details>` : ''}
     </div>`;
   }
-  document.getElementById('algo-cards').innerHTML =
-    ['kmeans', 'histogram', 'notan', 'edge', 'mediancut', 'mosaic', 'composition'].map(card).join('');
-  document.getElementById('map-cards').innerHTML =
-    ['map-size', 'map-speed', 'map-direction', 'map-density', 'map-alpha', 'map-shape', 'data-clean'].map(card).join('');
+  // 한 갈래 안을 의미 있는 하위그룹으로 — 평면 나열 대신 핵심→심화 위계
+  function fillGroups(id, groups) {
+    document.getElementById(id).innerHTML = groups.map(g => {
+      const cards = g.keys.filter(k => EXPLAIN[k]).map(card).join('');
+      if (!cards) return '';
+      return `<div class="dn-subhead">${g.label} <span class="cnt-mini">${g.keys.length}</span></div><div class="grid c2">${cards}</div>`;
+    }).join('');
+  }
+  fillGroups('algo-cards', [
+    { label: '핵심 — 먼저 익히기', keys: ['kmeans', 'histogram', 'notan', 'edge'] },
+    { label: '심화 — 넓혀 가기', keys: ['mediancut', 'mosaic', 'composition'] }
+  ]);
+  fillGroups('map-cards', [
+    { label: '시각 매핑 — 값을 점의 속성으로', keys: ['map-size', 'map-speed', 'map-direction', 'map-density', 'map-alpha', 'map-shape'] },
+    { label: '데이터 다루기 — 점으로 옮기기 전에', keys: ['data-clean'] }
+  ]);
   document.getElementById('ethics-card').innerHTML = card('ethics-ai').replace('<div class="card">', '').replace(/<\/div>$/, '');
   UI.mountIdeaBar('idea', 'learn');
 </script>
