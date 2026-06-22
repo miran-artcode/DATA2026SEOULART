@@ -125,10 +125,9 @@
   function updatePointInfo() {
     const el = $('#point-info');
     if (!el || !system || !analysis) return;
-    const bumped = analysis.count > state.N + 1;   // K가 N보다 커서 점이 자동으로 늘어난 경우
     el.innerHTML = '현재 점 <b>' + fmt(analysis.count) + '개</b> · 색 <b>' + fmt(analysis.K) + '종(K)</b>'
-      + (bumped ? ' — <b>K가 N보다 커서 점이 K에 맞춰 자동으로 늘었어요.</b>' : '')
-      + '<br>점 개수는 <b>N</b>, 색 종류는 <b>K</b>가 정해요. <b>N(점 개수)을 K보다 작게</b> 두면 K가 점 개수를 직접 정합니다(K↑ → 점↑). 점이 작아 보이면 <b>점 크기</b>를 키워 보세요.';
+      + ' — <b>K를 바꾸면 점 개수도 K에 맞춰 바뀌어요</b>(K = 점 개수).<br>'
+      + '점을 더 촘촘/듬성하게는 아래 <b>N(점 개수)</b>으로 따로 조절하고, 점이 작으면 <b>점 크기</b>를 키워 보세요.';
   }
 
   // 팔레트(대표색 + 비율) 표시 — 너비를 비율대로(비례 띠), 클릭하면 군집 켜기/끄기
@@ -606,6 +605,10 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
       state.K = v; setOut('#out-k', fmt(v));
       if (rngK) rngK.value = Math.min(v, +rngK.max);
       if (numK && document.activeElement !== numK) numK.value = v;
+      // K를 점 개수에 연결 — 대표색 K개를 다 보여주도록 점도 K에 맞춰요(직관: "K = 점 개수").
+      // 슬라이더 범위(300~20000) 안에서 N을 K로 맞추고, 더 큰 K는 분석이 그대로 점을 확보해요.
+      const np = Math.max(300, Math.min(v, 20000));
+      state.N = np; setVal('#rng-n', np); setOut('#out-n', fmt(np));
       if (reanalyze) runAnalysis();
     };
     if (rngK) { rngK.addEventListener('input', () => setK(+rngK.value, false)); rngK.addEventListener('change', () => setK(+rngK.value, true)); }
