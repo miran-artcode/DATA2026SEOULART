@@ -18,7 +18,7 @@
     background: radial-gradient(140% 100% at 50% 0%, #2b2a27 0%, #0d0c0b 72%); cursor: grab; user-select: none; touch-action: none; }
   .scene.grab { cursor: grabbing; }
   .world { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-style: preserve-3d;
-    transform: rotateX(var(--rx, -3deg)) rotateY(var(--ry, 0deg)); transition: transform .14s ease-out; }
+    transform: rotateX(var(--rx, -3deg)) rotateY(var(--ry, 0deg)) scale(var(--zoom, 1)); transition: transform .18s ease-out; }
   .plane { position: absolute; left: 50%; top: 50%; transform-style: preserve-3d; }
   .wall { display: flex; align-items: center; justify-content: center; align-content: center; gap: 44px; flex-wrap: wrap; padding: 42px 46px;
     background: linear-gradient(180deg, #3b3a44 0%, #322f39 52%, #2a2832 100%); box-shadow: inset 0 0 170px rgba(0,0,0,.5); }
@@ -45,6 +45,23 @@
   .art .plate { position: relative; z-index: 1; margin: 13px auto 0; max-width: 200px; text-align: center; background: #f4efe3; color: #2a2114;
     border: 1px solid #cbbf9f; border-radius: 2px; padding: 6px 8px; font-size: 11px; line-height: 1.4; box-shadow: 0 6px 14px rgba(0,0,0,.4); }
   .art .plate b { display: block; font-size: 12px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .art .plate .cap { display: block; margin-top: 4px; padding-top: 4px; border-top: 1px solid #d8cda7; color: #564a33; font-weight: 400; font-size: 10.5px; line-height: 1.34; max-height: 4em; overflow: hidden; white-space: normal; }
+  .art.focus { transform: translateY(-12px) scale(1.14); z-index: 4; }
+  .art.focus .frame { box-shadow: 0 28px 56px rgba(0,0,0,.72), 0 0 0 1px #000, 0 0 44px 8px rgba(255,238,190,.55); }
+  .art.dim { opacity: .42; filter: saturate(.7); }
+  .art .frame video { display: block; width: 100%; aspect-ratio: 4/3; object-fit: cover; background: #000; }
+
+  /* ---- 도슨트 패널 ---- */
+  .docent { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; padding: 16px 20px 18px; color: #eef1fb;
+    background: linear-gradient(0deg, rgba(8,9,13,.94), rgba(8,9,13,.66) 72%, transparent); transform: translateY(101%); transition: transform .32s ease; }
+  .docent.on { transform: none; }
+  .docent h4 { margin: 0; font-size: 17px; }
+  .docent h4 .by { color: var(--muted); font-size: 12.5px; font-weight: 500; }
+  .docent p { margin: 7px 0 0; font-size: 13.5px; line-height: 1.62; max-height: 7em; overflow: auto; }
+  .docent .dctrl { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; margin-top: 11px; }
+  .docent .dctrl button { background: rgba(255,255,255,.1); border: 1px solid var(--line); color: #fff; border-radius: 8px; padding: 6px 11px; cursor: pointer; font-size: 13px; }
+  .docent .dctrl button:hover { border-color: var(--accent); }
+  .docent .prog { color: var(--muted); font-size: 12px; margin-left: auto; }
 
   .room-label { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); z-index: 6; color: #e9ecf6;
     background: rgba(10,11,16,.62); border: 1px solid var(--line); border-radius: 999px; padding: 7px 18px; font-weight: 800; font-size: 14px; pointer-events: none; backdrop-filter: blur(5px); }
@@ -96,7 +113,10 @@
   <div id="stage-wrap">
     <div class="gctl">
       <div class="rtabs" id="rtabs"></div>
-      <button id="btn-view" class="btn sm">▦ 평면 보기</button>
+      <div style="display:flex; gap:8px">
+        <button id="btn-docent" class="btn sm accent2">🎧 도슨트 모드</button>
+        <button id="btn-view" class="btn sm">▦ 평면 보기</button>
+      </div>
     </div>
 
     <div class="scene" id="scene">
@@ -111,10 +131,13 @@
       <div class="room-label" style="top:auto; bottom:11px; left:50%; font-size:12px; font-weight:600" id="empty-room"></div>
       <div class="navb">
         <button id="nav-left" title="왼쪽 보기">‹</button>
-        <button id="nav-reset" title="정면">⟳</button>
+        <button id="nav-reset" title="정면·기본 배율">⟳</button>
         <button id="nav-right" title="오른쪽 보기">›</button>
+        <button id="zoom-out" title="축소">−</button>
+        <button id="zoom-in" title="확대">＋</button>
       </div>
-      <div class="scene-hint">드래그로 둘러보기 · 작품 클릭 = 감상·피드백</div>
+      <div class="docent" id="docent"></div>
+      <div class="scene-hint">드래그 둘러보기 · 휠 확대/축소 · 작품 클릭=감상 · 🎧 도슨트</div>
     </div>
 
     <div class="gal hide" id="gal"></div>
@@ -134,7 +157,9 @@
   const KIND = { color: '색 군집', data: '데이터 점', sound: '소리', life: '내 삶', object: '객체 감지', project: '사회문제', lab: '분석' };
   const esc = s => UI.escapeHTML(s == null ? '' : s);
   const fmt = n => (typeof n === 'number' ? n.toLocaleString('ko-KR') : (n == null ? '' : n));
-  let ALL = [], curTheme = null, rx = -3, ry = 0;
+  const $ = id => document.getElementById(id);
+  let ALL = [], curTheme = null, rx = -3, ry = 0, zoom = 1;
+  let roomArts = [], docent = false, dIdx = 0, dTimer = null, speakOn = true;
 
   /* ----------------------------- 데이터 로드 ----------------------------- */
   async function load() {
@@ -161,37 +186,51 @@
   }
 
   /* ----------------------------- 3D 전시실 구성 ----------------------------- */
+  function mediaHTML(w) {
+    if (w.video) return `<video src="${w.video}" loop muted autoplay playsinline preload="metadata"></video>`;
+    return w.thumb ? `<img src="${w.thumb}" alt="${esc(w.title || '')}">` : `<canvas width="200" height="150"></canvas>`;
+  }
   function artHTML(w) {
+    const full = (w.intent || w.evidence || '').trim();
+    const cap = full ? esc(full.slice(0, 92)) + (full.length > 92 ? '…' : '') : '';
     return `<div class="art" data-id="${w.id}" title="${esc(w.title || '무제')}">
-      <div class="frame">${w.thumb ? `<img src="${w.thumb}" alt="${esc(w.title || '')}">` : `<canvas width="200" height="150"></canvas>`}</div>
-      <div class="plate"><b>${esc(w.title || '무제')}</b>${esc(w.by || '익명')}</div>
+      <div class="frame">${mediaHTML(w)}</div>
+      <div class="plate"><b>${esc(w.title || '무제')}</b>${esc(w.by || '익명')} · ${esc(KIND[w.kind] || '')}${cap ? `<span class="cap">${cap}</span>` : ''}</div>
     </div>`;
   }
   function renderRoom(theme) {
+    if (docent) stopDocent();
     const works = ALL.filter(w => (w.kind || 'etc') === theme);
     const back = [], left = [], right = [];
     works.forEach((w, i) => { const m = i % 4; if (m === 0 || m === 2) back.push(w); else if (m === 1) left.push(w); else right.push(w); });
-    document.getElementById('wall-back').innerHTML = back.map(artHTML).join('');
-    document.getElementById('wall-left').innerHTML = left.map(artHTML).join('');
-    document.getElementById('wall-right').innerHTML = right.map(artHTML).join('');
-    document.getElementById('room-label').textContent = '🏛 ' + (KIND[theme] || theme) + ' 전시실 · ' + works.length + '점';
-    document.getElementById('empty-room').textContent = works.length ? '' : '이 전시실엔 아직 작품이 없어요';
+    $('wall-back').innerHTML = back.map(artHTML).join('');
+    $('wall-left').innerHTML = left.map(artHTML).join('');
+    $('wall-right').innerHTML = right.map(artHTML).join('');
+    $('room-label').textContent = '🏛 ' + (KIND[theme] || theme) + ' 전시실 · ' + works.length + '점';
+    $('empty-room').textContent = works.length ? '' : '이 전시실엔 아직 작품이 없어요';
     document.querySelectorAll('.rtab').forEach(b => b.classList.toggle('on', b.dataset.theme === theme));
-    document.querySelectorAll('#scene .art').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); open(el.dataset.id); }));
+    roomArts = [];
+    ['back', 'left', 'right'].forEach(wall => $('wall-' + wall).querySelectorAll('.art').forEach(el => {
+      el.addEventListener('click', e => { e.stopPropagation(); open(el.dataset.id); });
+      roomArts.push({ w: works.find(x => x.id === el.dataset.id), el, wall });
+    }));
   }
 
   /* ----------------------------- 둘러보기(드래그/버튼) ----------------------------- */
   const scene = document.getElementById('scene'), world = document.getElementById('world');
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
-  function applyView() { world.style.setProperty('--ry', ry.toFixed(1) + 'deg'); world.style.setProperty('--rx', rx.toFixed(1) + 'deg'); }
+  function applyView() { world.style.setProperty('--ry', ry.toFixed(1) + 'deg'); world.style.setProperty('--rx', rx.toFixed(1) + 'deg'); world.style.setProperty('--zoom', zoom.toFixed(3)); }
   let drag = false, px = 0, py = 0, bry = 0, brx = 0;
   scene.addEventListener('pointerdown', e => { drag = true; px = e.clientX; py = e.clientY; bry = ry; brx = rx; scene.classList.add('grab'); scene.setPointerCapture && scene.setPointerCapture(e.pointerId); });
   scene.addEventListener('pointermove', e => { if (!drag) return; ry = clamp(bry + (e.clientX - px) * 0.18, -58, 58); rx = clamp(brx - (e.clientY - py) * 0.11, -20, 14); applyView(); });
   const endDrag = () => { drag = false; scene.classList.remove('grab'); };
   scene.addEventListener('pointerup', endDrag); scene.addEventListener('pointercancel', endDrag); scene.addEventListener('pointerleave', endDrag);
-  document.getElementById('nav-left').addEventListener('click', () => { ry = clamp(ry + 22, -58, 58); applyView(); });
-  document.getElementById('nav-right').addEventListener('click', () => { ry = clamp(ry - 22, -58, 58); applyView(); });
-  document.getElementById('nav-reset').addEventListener('click', () => { ry = 0; rx = -3; applyView(); });
+  $('nav-left').addEventListener('click', () => { ry = clamp(ry + 22, -58, 58); applyView(); });
+  $('nav-right').addEventListener('click', () => { ry = clamp(ry - 22, -58, 58); applyView(); });
+  $('nav-reset').addEventListener('click', () => { ry = 0; rx = -3; zoom = 1; applyView(); });
+  $('zoom-in').addEventListener('click', () => { zoom = clamp(zoom + 0.2, 0.6, 2.6); applyView(); });
+  $('zoom-out').addEventListener('click', () => { zoom = clamp(zoom - 0.2, 0.6, 2.6); applyView(); });
+  scene.addEventListener('wheel', e => { e.preventDefault(); zoom = clamp(zoom - e.deltaY * 0.0012, 0.6, 2.6); applyView(); }, { passive: false });
 
   /* ----------------------------- 평면 보기(대체) ----------------------------- */
   function renderFlat() {
@@ -208,6 +247,49 @@
     flat.classList.toggle('hide', !toFlat); sc.classList.toggle('hide', toFlat); tabs.classList.toggle('hide', toFlat);
     document.getElementById('btn-view').textContent = toFlat ? '🏛 3D 전시실' : '▦ 평면 보기';
   });
+
+  /* ----------------------------- 🎧 도슨트 모드(자동 해설 순회) ----------------------------- */
+  function speak(text) { if (!speakOn || !window.speechSynthesis) return; try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ko-KR'; u.rate = 1.02; speechSynthesis.speak(u); } catch (e) {} }
+  function docentText(w) {
+    const s = w.settings || {}, p = [];
+    p.push(`${w.by || '익명'} 작가의 작품, ${w.title || '무제'} 입니다.`);
+    if (w.intent) p.push(`작가의 의도는, ${w.intent}.`);
+    if (w.evidence) p.push(`그 근거로, ${w.evidence}.`);
+    if (w.kind === 'color' && s.K != null) p.push(`대표색 ${s.K}개로 분석해 점 ${fmt(s.N) || ''}개로 다시 그렸습니다.`);
+    if (w.kind === 'data' && s.dataName) p.push(`${s.dataName} 데이터를 점의 움직임으로 옮겼습니다.`);
+    return p.join(' ');
+  }
+  function startDocent() {
+    if (!roomArts.length) { UI.toast('이 전시실엔 작품이 없어요.'); return; }
+    docent = true; dIdx = 0; $('btn-docent').textContent = '⏹ 도슨트 끝'; $('docent').classList.add('on'); docentStep();
+  }
+  function stopDocent() {
+    docent = false; clearTimeout(dTimer); dTimer = null; if (window.speechSynthesis) speechSynthesis.cancel();
+    $('btn-docent').textContent = '🎧 도슨트 모드'; $('docent').classList.remove('on');
+    roomArts.forEach(a => a.el.classList.remove('focus', 'dim'));
+  }
+  function docentStep() {
+    clearTimeout(dTimer); if (!docent || !roomArts.length) return;
+    dIdx = (dIdx % roomArts.length + roomArts.length) % roomArts.length;
+    const a = roomArts[dIdx], w = a.w;
+    roomArts.forEach(x => { x.el.classList.toggle('focus', x === a); x.el.classList.toggle('dim', x !== a); });
+    ry = a.wall === 'left' ? 42 : a.wall === 'right' ? -42 : 0; rx = -2; zoom = 1.3; applyView();
+    const narr = docentText(w);
+    $('docent').innerHTML = `<h4>🎧 ${esc(w.title || '무제')} <span class="by">· ${esc(w.by || '익명')} · ${esc(KIND[w.kind] || '')}</span></h4>
+      <p>${esc(narr)}</p>
+      <div class="dctrl"><button id="d-prev">‹ 이전</button><button id="d-pause">⏸ 멈춤</button><button id="d-next">다음 ›</button>
+        <button id="d-open">작품 자세히 보기</button><button id="d-mute">${speakOn ? '🔊 해설 끄기' : '🔈 해설 켜기'}</button>
+        <button id="d-exit">✕ 종료</button><span class="prog">${dIdx + 1} / ${roomArts.length}</span></div>`;
+    $('d-prev').onclick = () => { dIdx--; docentStep(); };
+    $('d-next').onclick = () => { dIdx++; docentStep(); };
+    $('d-open').onclick = () => open(w.id);
+    $('d-exit').onclick = stopDocent;
+    $('d-mute').onclick = () => { speakOn = !speakOn; if (!speakOn && window.speechSynthesis) speechSynthesis.cancel(); else speak(narr); $('d-mute').textContent = speakOn ? '🔊 해설 끄기' : '🔈 해설 켜기'; };
+    $('d-pause').onclick = () => { if (dTimer) { clearTimeout(dTimer); dTimer = null; $('d-pause').textContent = '▶ 계속'; if (window.speechSynthesis) speechSynthesis.cancel(); } else { $('d-pause').textContent = '⏸ 멈춤'; dTimer = setTimeout(() => { dIdx++; docentStep(); }, 6500); } };
+    speak(narr);
+    dTimer = setTimeout(() => { if (docent) { dIdx++; docentStep(); } }, 9000);
+  }
+  $('btn-docent').addEventListener('click', () => { docent ? stopDocent() : startDocent(); });
 
   /* ----------------------------- 세부 내용 · 데이터 보고서 ----------------------------- */
   function rrow(label, val) { return (val || val === 0) ? `<div class="rrow"><span>${esc(label)}</span><b>${esc(val)}</b></div>` : ''; }
@@ -262,7 +344,7 @@
       </div></div>`).join('') : '<p class="muted">아직 피드백이 없어요. 첫 피드백을 남겨 보세요.</p>';
     const sel = (name) => `<select id="fb-${name}"><option value="3">잘됨 ★★★</option><option value="2" selected>보통 ★★</option><option value="1">아쉬움 ★</option></select>`;
     const body = `
-      <canvas id="gal-live" style="width:100%;aspect-ratio:4/3;background:#07080d;border-radius:10px;border:1px solid var(--line);display:block"></canvas>
+      ${w.video ? `<video src="${w.video}" controls loop autoplay playsinline style="width:100%;aspect-ratio:4/3;border-radius:10px;border:1px solid var(--line);background:#000;display:block"></video>` : `<canvas id="gal-live" style="width:100%;aspect-ratio:4/3;background:#07080d;border-radius:10px;border:1px solid var(--line);display:block"></canvas>`}
       <p style="margin:8px 0"><a href="work.html?id=${id}">🔍 단독 페이지·비평(펠드먼 4단계) →</a></p>
       <p style="margin:12px 0 4px"><b>의도</b> · ${esc(w.intent || '(없음)')}</p>
       ${w.evidence ? `<p style="margin:4px 0"><b>근거</b> · ${esc(w.evidence)}</p>` : ''}
