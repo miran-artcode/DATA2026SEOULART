@@ -116,6 +116,20 @@
   .vcount { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); color: var(--muted); font-size: 12.5px; background: rgba(10,11,16,.6); padding: 4px 12px; border-radius: 999px; }
   @media (max-width: 820px) { .viewer { flex-direction: column; } .vinfo { width: auto; max-width: none; max-height: 46%; border-right: 0; border-bottom: 1px solid var(--line); } .vstage-media canvas, .vstage-media video { max-height: 44vh; } }
 
+  /* 뷰어 도구: 작품 줌·전체화면·설명 접기 */
+  .vinfo { transition: width .25s ease, padding .25s ease; }
+  .viewer.info-collapsed .vinfo { width: 0; padding: 0; border-right: 0; overflow: hidden; }
+  .vtoggle { position: absolute; left: 380px; top: 50%; transform: translate(-50%, -50%); z-index: 7; width: 26px; height: 56px; border-radius: 8px; background: rgba(22,24,32,.92); border: 1px solid var(--line); color: #fff; cursor: pointer; font-size: 13px; transition: left .25s ease; }
+  .vtoggle:hover { border-color: var(--accent); }
+  .viewer.info-collapsed .vtoggle { left: 0; transform: translate(0, -50%); border-radius: 0 8px 8px 0; }
+  .vstage { overflow: hidden; }
+  .vstage-media { transition: transform .1s ease-out; will-change: transform; }
+  .vtools { position: absolute; left: 16px; bottom: 16px; z-index: 6; display: flex; gap: 6px; align-items: center; background: rgba(10,11,16,.6); border-radius: 12px; padding: 4px 8px; }
+  .vtools .navlbl { color: var(--muted); font-size: 11px; margin-right: 2px; }
+  .vtools button { min-width: 32px; height: 30px; padding: 0 9px; border-radius: 8px; background: rgba(30,33,44,.92); border: 1px solid var(--line); color: #fff; cursor: pointer; font-size: 12.5px; font-weight: 700; }
+  .vtools button:hover { border-color: var(--accent); }
+  @media (max-width: 820px) { .vtoggle { left: 50%; top: 6px; transform: translate(-50%,0); width: 60px; height: 24px; } .viewer.info-collapsed .vinfo { width: auto; max-height: 0; padding: 0; border: 0; } }
+
   .hide { display: none !important; }
 </style>
 </head>
@@ -133,7 +147,8 @@
   <div id="stage-wrap">
     <div class="gctl">
       <div class="rtabs" id="rtabs"></div>
-      <div style="display:flex; gap:8px">
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button id="btn-ambient" class="btn sm">🎵 배경음</button>
         <button id="btn-docent" class="btn sm accent2">🎧 도슨트 모드</button>
         <button id="btn-view" class="btn sm">▦ 평면 보기</button>
       </div>
@@ -170,11 +185,19 @@
 
 <div id="viewer" class="viewer hide">
   <aside class="vinfo"></aside>
+  <button class="vtoggle" title="설명 접기/펴기">◀</button>
   <div class="vstage">
     <button class="vnav vprev" title="이전 작품 (←)">‹</button>
     <div class="vstage-media"></div>
     <button class="vnav vnext" title="다음 작품 (→)">›</button>
     <div class="vcount"></div>
+    <div class="vtools">
+      <span class="navlbl">작품 확대</span>
+      <button id="mz-out" title="작품 축소">－</button>
+      <button id="mz-reset" title="원본 크기로">1:1</button>
+      <button id="mz-in" title="작품 확대">＋</button>
+      <button id="v-full" title="전체화면">⛶</button>
+    </div>
   </div>
   <button class="vclose" title="닫기 (Esc)">✕</button>
 </div>
@@ -367,7 +390,9 @@
   }
 
   /* ----------------------------- 전체화면 작품 뷰어 (왼쪽 설명 + 작품 재생) ----------------------------- */
-  let vWorks = [], vIdx = 0, vPlayer = null;
+  let vWorks = [], vIdx = 0, vPlayer = null, mz = 1;
+  function resetMediaZoom() { mz = 1; const m = $('viewer').querySelector('.vstage-media'); if (m) { m.style.transformOrigin = '50% 50%'; m.style.transform = 'scale(1)'; } }
+  function toggleFull() { const el = $('viewer'), d = document; if (!d.fullscreenElement && !d.webkitFullscreenElement) (el.requestFullscreen || el.webkitRequestFullscreen || function () {}).call(el); else (d.exitFullscreen || d.webkitExitFullscreen || function () {}).call(d); }
   function closeViewer() {
     if (vPlayer) { try { vPlayer.stop(); } catch (e) {} vPlayer = null; }
     const v = $('viewer'); v.classList.add('hide'); v.querySelector('.vstage-media').innerHTML = '';
@@ -386,6 +411,7 @@
     const v = $('viewer'), stage = v.querySelector('.vstage-media');
     if (w.video) stage.innerHTML = `<video src="${w.video}" controls autoplay loop playsinline></video>`;
     else { stage.innerHTML = '<canvas id="viewer-canvas"></canvas>'; if (window.Player) vPlayer = Player.mount($('viewer-canvas'), w, { interactive: true }); }
+    resetMediaZoom();
     const fbs = await Store.listFeedback(w.id), u = Auth.current();
     v.querySelector('.vinfo').innerHTML = leftHTML(w, fbs);
     v.querySelector('.vcount').textContent = (vIdx + 1) + ' / ' + vWorks.length;
@@ -434,7 +460,44 @@
       else if (e.key === 'ArrowRight' && vWorks.length) { vIdx = (vIdx + 1) % vWorks.length; showViewer(); }
       else if (e.key === 'ArrowLeft' && vWorks.length) { vIdx = (vIdx - 1 + vWorks.length) % vWorks.length; showViewer(); }
     });
+    const sm = v.querySelector('.vstage-media');
+    sm.addEventListener('wheel', e => { e.preventDefault(); const r = sm.getBoundingClientRect(); sm.style.transformOrigin = ((e.clientX - r.left) / r.width * 100) + '% ' + ((e.clientY - r.top) / r.height * 100) + '%'; mz = clamp(mz - e.deltaY * 0.0016, 1, 5); sm.style.transform = 'scale(' + mz + ')'; }, { passive: false });
+    $('mz-in').addEventListener('click', () => { sm.style.transformOrigin = '50% 50%'; mz = clamp(mz + 0.3, 1, 5); sm.style.transform = 'scale(' + mz + ')'; });
+    $('mz-out').addEventListener('click', () => { mz = clamp(mz - 0.3, 1, 5); sm.style.transform = 'scale(' + mz + ')'; });
+    $('mz-reset').addEventListener('click', resetMediaZoom);
+    $('v-full').addEventListener('click', toggleFull);
+    v.querySelector('.vtoggle').addEventListener('click', () => { const c = v.classList.toggle('info-collapsed'); v.querySelector('.vtoggle').textContent = c ? '▶' : '◀'; });
   })();
+
+  /* ----------------------------- 🎵 배경음 (절차적 앰비언트) ----------------------------- */
+  let actx = null, ambGain = null, ambNodes = [], ambOn = false;
+  function ambientStart() {
+    if (ambOn) return true;
+    try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { UI.toast('이 브라우저는 배경음을 지원하지 않아요.'); return false; }
+    if (actx.state === 'suspended') actx.resume();
+    ambGain = actx.createGain(); ambGain.gain.value = 0; ambGain.connect(actx.destination);
+    const chord = [174.61, 220.00, 261.63, 329.63];   // 부드러운 패드 화음
+    ambNodes = chord.map((f, i) => {
+      const o = actx.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      const g = actx.createGain(); g.gain.value = 0.2;
+      const lfo = actx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.05 + 0.02 * i;
+      const lg = actx.createGain(); lg.gain.value = 0.12; lfo.connect(lg); lg.connect(g.gain);
+      o.connect(g); g.connect(ambGain); o.start(); lfo.start();
+      return { o, lfo };
+    });
+    ambGain.gain.linearRampToValueAtTime(0.05, actx.currentTime + 2.5);   // 아주 잔잔하게
+    ambOn = true; return true;
+  }
+  function ambientStop() {
+    if (!ambOn) return; ambOn = false;
+    try { ambGain.gain.linearRampToValueAtTime(0, actx.currentTime + 1.2); } catch (e) {}
+    const nodes = ambNodes; ambNodes = [];
+    setTimeout(() => nodes.forEach(n => { try { n.o.stop(); n.lfo.stop(); } catch (e) {} }), 1400);
+  }
+  $('btn-ambient').addEventListener('click', () => {
+    if (ambOn) { ambientStop(); $('btn-ambient').textContent = '🎵 배경음'; }
+    else if (ambientStart()) $('btn-ambient').textContent = '🔇 배경음 끄기';
+  });
 
   /* ----------------------------- 시작 ----------------------------- */
   applyView();
