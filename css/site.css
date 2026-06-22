@@ -241,3 +241,76 @@ table.data tr:hover td { background: var(--panel2); }
 .ft-nav a:hover { color: #fff; border-color: rgba(47,107,224,.5); text-decoration: none; }
 .ft-credit { margin: 0; color: #7E89A8; font-size: 12px; }
 .ft-credit b { color: #cdd6ea; }
+
+/* =============================================================================
+   구조화 컴포넌트 층 (dn-) — '나열식' 탈피용 재사용 부품
+   위계(featured) · 묶음(cluster) · 여정(spine) · 서랍(list) · 인용(quote) · 레일(rail) · 다음(next)
+   어떤 페이지든 같은 문법으로 구조화하도록 공용화. (페이지 로컬 .spine 등과 충돌 없게 dn- 네임스페이스)
+   ============================================================================= */
+
+/* 주력 카드(featured) — 한 묶음의 '주연' 하나를 크게 */
+.dn-feature { display: grid; gap: 18px; background: linear-gradient(135deg, rgba(var(--accent-rgb),.10), var(--panel) 62%);
+  border: 1px solid var(--accent-card-line); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+@media (min-width: 780px) { .dn-feature { grid-template-columns: 1.35fr .95fr; align-items: center; } }
+.dn-feature .badge-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.dn-feature h2 { font-size: clamp(21px,3vw,29px); margin: 0 0 8px; letter-spacing: -.4px; }
+.dn-feature p { color: var(--muted); font-size: 14.5px; line-height: 1.7; margin: 0 0 16px; }
+.dn-feature-cta { display: flex; gap: 10px; flex-wrap: wrap; }
+.dn-feature-vis { aspect-ratio: 4/3; border-radius: 14px; border: 1px solid var(--line); position: relative; overflow: hidden;
+  background: radial-gradient(circle at 32% 30%, rgba(var(--accent-rgb),.30), transparent 58%), linear-gradient(160deg, var(--data-2), var(--data-4)); }
+.dn-feature-vis small { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: #e8eefc; background: rgba(0,0,0,.32); padding: 3px 9px; border-radius: 7px; }
+.dn-progress { display: inline-flex; gap: 5px; align-items: center; font-size: 12px; color: var(--muted); }
+.dn-progress i { width: 22px; height: 6px; border-radius: 3px; background: var(--line); display: inline-block; }
+.dn-progress i.on { background: var(--accent); }
+
+/* 묶음(cluster) — 키커+제목+리드로 섹션에 '정체성'을 부여(제목만 있는 구분선 탈피) */
+.dn-cluster { margin-top: 34px; }
+.dn-cluster-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+.dn-cluster-head h3 { font-size: 19px; margin: 4px 0 2px; letter-spacing: -.2px; }
+.dn-cluster-head p { margin: 0; color: var(--muted); font-size: 13px; max-width: 580px; }
+.dn-cluster-head .more { font-size: 12.5px; color: var(--accent); font-weight: 700; white-space: nowrap; }
+
+/* 여정 스파인(spine) — 단계 흐름, 현재 단계 강조 */
+.dn-spine { display: grid; gap: 12px; }
+@media (min-width: 820px) { .dn-spine { grid-template-columns: repeat(4,1fr); } }
+.dn-node { position: relative; display: block; border: 1px solid var(--line); border-radius: 16px; padding: 16px; background: var(--panel);
+  box-shadow: var(--shadow); text-decoration: none; color: inherit; transition: transform .15s, border-color .15s; }
+.dn-node:hover { border-color: var(--accent); transform: translateY(-2px); text-decoration: none; }
+.dn-node.now { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb),.12), var(--shadow); }
+.dn-node .n { width: 30px; height: 30px; border-radius: 9px; background: var(--panel2); color: var(--muted2); font-weight: 800; display: grid; place-items: center; font-size: 14px; }
+.dn-node.now .n { background: var(--accent); color: #fff; }
+.dn-node h4 { margin: 10px 0 3px; font-size: 15px; }
+.dn-node p { margin: 0; font-size: 12px; color: var(--muted); }
+.dn-node .tag { position: absolute; top: -9px; right: 12px; font-size: 10px; font-weight: 800; background: var(--accent); color: #fff; padding: 2px 8px; border-radius: 999px; }
+
+/* 서랍 리스트(list) — 보조 항목을 조용히 묶기(동급 나열 대신 한 줄 행) */
+.dn-list { display: grid; gap: 10px; }
+.dn-row { display: flex; align-items: center; gap: 13px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 13px 16px; text-decoration: none; color: inherit; transition: transform .15s, border-color .15s; }
+.dn-row:hover { border-color: var(--accent); transform: translateX(2px); text-decoration: none; }
+.dn-row .ic { width: 40px; height: 40px; border-radius: 11px; background: var(--panel2); display: grid; place-items: center; font-size: 20px; flex: none; }
+.dn-row .num { width: 26px; height: 26px; border-radius: 8px; background: rgba(var(--accent-rgb),.14); color: var(--accent); font-weight: 800; font-size: 13px; display: grid; place-items: center; flex: none; }
+.dn-row .tx { min-width: 0; }
+.dn-row .tx b { font-size: 14.5px; display: block; }
+.dn-row .tx span { font-size: 12px; color: var(--muted); }
+.dn-row .arr { margin-left: auto; color: var(--muted2); font-weight: 800; }
+
+/* 철학 인용 밴드(quote) — 밀도에 리듬을(항상 다크) */
+.dn-quote { text-align: center; margin: 34px 0; padding: 40px 24px; border-radius: 22px; position: relative; overflow: hidden; background: var(--footer); }
+.dn-quote::before { content: ""; position: absolute; left: 18%; top: -50%; width: 64%; height: 150%; background: radial-gradient(closest-side, rgba(47,107,224,.26), transparent 70%); pointer-events: none; }
+.dn-quote blockquote { position: relative; margin: 0 auto; max-width: 640px; color: #eaf0fb; font-size: clamp(18px,2.6vw,25px); font-weight: 700; line-height: 1.5; letter-spacing: -.3px; }
+.dn-quote blockquote b { color: #93A4E8; }
+.dn-quote cite { position: relative; display: block; margin-top: 14px; color: #9fb0d0; font-size: 12.5px; font-style: normal; letter-spacing: .04em; }
+
+/* 가로 레일(rail) — 동급 다수 항목은 가로 스크롤로(평면 그리드 탈피) */
+.dn-rail { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
+.dn-rail > * { flex: 0 0 auto; scroll-snap-align: start; }
+.dn-thumb { width: 200px; text-decoration: none; color: inherit; display: block; }
+.dn-thumb .ph { width: 100%; aspect-ratio: 4/3; border-radius: 12px; border: 1px solid var(--line); object-fit: cover; display: block; background: linear-gradient(135deg, var(--data-2), var(--data-4)); }
+.dn-thumb b { font-size: 13px; display: block; margin-top: 7px; }
+.dn-thumb span { font-size: 11.5px; color: var(--muted); }
+
+/* 다음으로(next) — 페이지 끝에서 여정을 잇기 */
+.dn-next { margin-top: 34px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px dashed var(--accent); border-radius: 16px; padding: 16px 20px; }
+.dn-next .t { font-size: 14px; }
+.dn-next .t b { color: var(--text); }
