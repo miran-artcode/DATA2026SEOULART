@@ -15,32 +15,36 @@
   /* ---- 3D 전시실 ---- */
   .scene { position: relative; height: 74vh; min-height: 460px; perspective: 1350px; perspective-origin: 50% 42%;
     overflow: hidden; border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
-    background: radial-gradient(130% 100% at 50% 8%, #20222e 0%, #0a0b10 72%); cursor: grab; user-select: none; touch-action: none; }
+    background: radial-gradient(140% 100% at 50% 0%, #2b2a27 0%, #0d0c0b 72%); cursor: grab; user-select: none; touch-action: none; }
   .scene.grab { cursor: grabbing; }
   .world { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-style: preserve-3d;
     transform: rotateX(var(--rx, -3deg)) rotateY(var(--ry, 0deg)); transition: transform .14s ease-out; }
   .plane { position: absolute; left: 50%; top: 50%; transform-style: preserve-3d; }
-  .wall { display: flex; align-items: center; justify-content: center; align-content: center; gap: 38px; flex-wrap: wrap; padding: 34px;
-    background: linear-gradient(180deg, #262834 0%, #1a1c25 70%, #141620 100%); box-shadow: inset 0 0 140px rgba(0,0,0,.55); }
-  .wall::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 16px; background: linear-gradient(180deg, rgba(255,255,255,.10), transparent); }
+  .wall { display: flex; align-items: center; justify-content: center; align-content: center; gap: 44px; flex-wrap: wrap; padding: 42px 46px;
+    background: linear-gradient(180deg, #3b3a44 0%, #322f39 52%, #2a2832 100%); box-shadow: inset 0 0 170px rgba(0,0,0,.5); }
+  .wall::before { content: ""; position: absolute; left: 0; right: 0; top: 72px; height: 3px; background: rgba(255,255,255,.07); box-shadow: 0 1px 0 rgba(0,0,0,.3); }      /* 픽처 레일 */
+  .wall::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 56px; background: linear-gradient(180deg, transparent, rgba(0,0,0,.42)); border-top: 1px solid rgba(255,255,255,.05); } /* 걸레받이 */
   .wall.back  { width: 1500px; height: 620px; margin: -310px 0 0 -750px; transform: translateZ(-575px); }
   .wall.left  { width: 1150px; height: 620px; margin: -310px 0 0 -575px; transform: translateX(-750px) rotateY(90deg); }
   .wall.right { width: 1150px; height: 620px; margin: -310px 0 0 -575px; transform: translateX(750px) rotateY(-90deg); }
   .floor { width: 1500px; height: 1150px; margin: -575px 0 0 -750px; transform: translateY(310px) rotateX(90deg);
-    background: repeating-linear-gradient(90deg, #15161d, #15161d 78px, #11121a 78px, #11121a 80px), linear-gradient(180deg, #181922, #0c0d12); box-shadow: inset 0 0 220px rgba(0,0,0,.75); }
+    background: repeating-linear-gradient(90deg, #2d2620 0%, #2d2620 94px, #261f18 94px, #261f18 98px), linear-gradient(180deg, #2b251d, #14110d); box-shadow: inset 0 0 240px rgba(0,0,0,.8); }
   .ceil { width: 1500px; height: 1150px; margin: -575px 0 0 -750px; transform: translateY(-310px) rotateX(-90deg); background: #0c0d12; }
   .ceil i { position: absolute; left: 18%; right: 18%; top: 46%; height: 8px; border-radius: 8px; background: #fdf3d6; box-shadow: 0 0 60px 18px rgba(253,243,214,.5); }
 
   /* ---- 작품(액자) ---- */
-  .art { width: 200px; cursor: pointer; transition: transform .13s; }
+  .art { position: relative; width: 204px; cursor: pointer; transition: transform .13s; }
   .art:hover { transform: translateY(-7px) scale(1.035); }
-  .art .frame { position: relative; background: #0b0c11; border: 8px solid #2c2e3a; border-radius: 3px;
-    box-shadow: 0 16px 34px rgba(0,0,0,.6), 0 0 0 1px #000, inset 0 0 0 2px #3a3d4d; overflow: hidden; }
-  .art .frame::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.14), transparent 42%); pointer-events: none; }
+  .art::before { content: ""; position: absolute; left: 50%; top: -52px; width: 150%; height: 92px; transform: translateX(-50%);
+    background: radial-gradient(55% 82% at 50% 0%, rgba(255,246,220,.30), transparent 72%); pointer-events: none; z-index: 0; }   /* 스포트라이트 */
+  .art .frame { position: relative; z-index: 1; background: #efe9dc; padding: 12px; border: 11px solid; border-radius: 2px;
+    border-image: linear-gradient(135deg, #8a7340 0%, #5a4a29 45%, #322817 100%) 1;
+    box-shadow: 0 22px 42px rgba(0,0,0,.6), 0 0 0 1px #000, inset 0 0 9px rgba(0,0,0,.22); }
+  .art .frame::after { content: ""; position: absolute; inset: 12px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.28); pointer-events: none; } /* 매트 안쪽 음영 */
   .art .frame img, .art .frame canvas { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #07080d; }
-  .art .plate { margin: 10px auto 0; max-width: 190px; text-align: center; background: linear-gradient(180deg, #d8c9a0, #c3b387); color: #241d10;
-    border-radius: 3px; padding: 5px 7px; font-size: 11px; line-height: 1.35; box-shadow: 0 5px 12px rgba(0,0,0,.45); }
-  .art .plate b { display: block; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .art .plate { position: relative; z-index: 1; margin: 13px auto 0; max-width: 200px; text-align: center; background: #f4efe3; color: #2a2114;
+    border: 1px solid #cbbf9f; border-radius: 2px; padding: 6px 8px; font-size: 11px; line-height: 1.4; box-shadow: 0 6px 14px rgba(0,0,0,.4); }
+  .art .plate b { display: block; font-size: 12px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .room-label { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); z-index: 6; color: #e9ecf6;
     background: rgba(10,11,16,.62); border: 1px solid var(--line); border-radius: 999px; padding: 7px 18px; font-weight: 800; font-size: 14px; pointer-events: none; backdrop-filter: blur(5px); }
@@ -57,6 +61,24 @@
   .gal .item .meta { padding: 10px 12px; }
   .gal .item .meta h4 { margin: 0 0 2px; font-size: 14px; }
   .gal .item .meta p { margin: 0; color: var(--muted); font-size: 12px; }
+
+  /* ---- 작품 세부·데이터 보고서(모달) ---- */
+  .report { margin: 6px 0 2px; }
+  .placard { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; background: #f4efe3; color: #2a2114; border: 1px solid #cbbf9f; border-radius: 6px; padding: 11px 14px; }
+  .placard b { font-size: 15px; }
+  .placard .muted { color: #6b5d44 !important; font-size: 12px; }
+  .rsrc { display: flex; align-items: center; gap: 11px; margin: 11px 0; }
+  .rsrc img { width: 104px; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
+  .rsrc span { font-size: 12.5px; color: var(--muted); }
+  .rgrid, .rmeta, .rrecord { display: grid; gap: 5px; margin: 11px 0; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; }
+  .rrow { display: flex; gap: 8px; font-size: 13px; align-items: baseline; }
+  .rrow > span { color: var(--muted); min-width: 104px; flex: 0 0 auto; }
+  .rrow > b { color: var(--text); font-weight: 600; }
+  .rtitle { font-weight: 800; font-size: 13.5px; margin: 12px 0 4px; }
+  .rtable { overflow: auto; max-height: 250px; border: 1px solid var(--line); border-radius: 10px; }
+  .rtable table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  .rtable th, .rtable td { border: 1px solid var(--line); padding: 5px 9px; text-align: left; white-space: nowrap; }
+  .rtable th { background: var(--panel2); position: sticky; top: 0; font-weight: 700; }
   .hide { display: none !important; }
 </style>
 </head>
@@ -111,6 +133,7 @@
 <script>
   const KIND = { color: '색 군집', data: '데이터 점', sound: '소리', life: '내 삶', object: '객체 감지', project: '사회문제', lab: '분석' };
   const esc = s => UI.escapeHTML(s == null ? '' : s);
+  const fmt = n => (typeof n === 'number' ? n.toLocaleString('ko-KR') : (n == null ? '' : n));
   let ALL = [], curTheme = null, rx = -3, ry = 0;
 
   /* ----------------------------- 데이터 로드 ----------------------------- */
@@ -186,6 +209,48 @@
     document.getElementById('btn-view').textContent = toFlat ? '🏛 3D 전시실' : '▦ 평면 보기';
   });
 
+  /* ----------------------------- 세부 내용 · 데이터 보고서 ----------------------------- */
+  function rrow(label, val) { return (val || val === 0) ? `<div class="rrow"><span>${esc(label)}</span><b>${esc(val)}</b></div>` : ''; }
+  function reportHTML(w) {
+    const s = w.settings || {}, m = w.meta || {};
+    let h = '<div class="report">';
+    h += `<div class="placard"><div><b>${esc(w.title || '무제')}</b><br><span class="muted">${esc(w.by || '익명')}${w.klass ? ' · ' + esc(w.klass) : ''} · ${esc(KIND[w.kind] || w.kind || '')}</span></div>`
+       + (w.createdAt ? `<span class="muted" style="white-space:nowrap">${new Date(w.createdAt).toLocaleDateString('ko-KR')}</span>` : '') + '</div>';
+    if (w.kind === 'color') {
+      if (w.srcImg) h += `<div class="rsrc"><img src="${w.srcImg}" alt="원본"><span><b>원본</b> → 데이터(점)로 재창조한 작품</span></div>`;
+      h += '<div class="rtitle">🔬 분석 · 설정 보고서</div><div class="rgrid">';
+      h += rrow('K (대표색)', s.K != null ? fmt(s.K) + '색' : '') + rrow('점 개수 N', s.N != null ? fmt(s.N) : '')
+         + rrow('색공간', ({ rgb: 'RGB', lab: 'LAB' })[s.space] || s.space)
+         + rrow('샘플링', ({ uniform: '무작위', bright: '밝은영역', dark: '어두운영역', edge: '윤곽' })[s.sampling] || s.sampling)
+         + rrow('색 모드', ({ cluster: '대표색', original: '원본색', mono: '명암' })[s.colorMode] || s.colorMode)
+         + rrow('표현 모드', ({ points: '점', lines: '점+선', '3d': '3D 조각' })[s.mode] || s.mode);
+      h += '</div>';
+      if (m.artist || m.source || m.student) {
+        h += '<div class="rtitle">🏷 작품 정보</div><div class="rmeta">' + rrow('작가', m.artist) + rrow('출처·라이선스', m.source) + rrow('제작자', m.student) + '</div>';
+      }
+    } else if (w.kind === 'data') {
+      const rec = s.record || {};
+      if (rec.sense || rec.count || rec.omit || rec.scale || rec.miss) {
+        h += '<div class="rtitle">📝 데이터 선택 기록 (작가노트)</div><div class="rrecord">'
+           + rrow('① 감각 먼저', rec.sense) + rrow('② 무엇을 셌나', rec.count) + rrow('③ 무엇을 뺐나', rec.omit) + rrow('④ 왜 이 척도·매핑', rec.scale) + rrow('⑤ 놓친 진실', rec.miss) + '</div>';
+      }
+      const mp = s.mapping || {};
+      h += '<div class="rtitle">🎛 매핑 · 움직임 보고서</div><div class="rgrid">'
+         + rrow('데이터 주제', s.dataName) + rrow('크기 ←', mp.size) + rrow('속도 ←', mp.speed) + rrow('방향 ←', mp.direction) + rrow('밀도 ←', mp.density)
+         + rrow('색 방식', ({ gradient: '그라데이션', category: '범주별', solid: '단색' })[mp.colorMode] || mp.colorMode)
+         + rrow('배치', ({ timeline: '시간축', radial: '원형', grid: '격자', flowField: '값 산포' })[s.layout] || s.layout)
+         + rrow('움직임', ({ vibrate: '제자리 진동', orbit: '궤도', wave: '파동', burst: '분출' })[s.motionStyle] || s.motionStyle) + '</div>';
+      if (s.fields && s.fields.length && s.rows && s.rows.length) {
+        const cols = s.fields.map(f => f.name);
+        h += `<div class="rtitle">📊 데이터 보고서 · ${fmt(s.rows.length)}행 × ${cols.length}열</div>`
+           + `<div class="rtable"><table><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>`
+           + s.rows.slice(0, 14).map(r => `<tr>${cols.map(c => `<td>${esc(r[c])}</td>`).join('')}</tr>`).join('') + '</tbody></table></div>';
+        if (s.rows.length > 14) h += `<p class="muted" style="font-size:11px; margin:4px 0 0">… 외 ${fmt(s.rows.length - 14)}행</p>`;
+      }
+    }
+    return h + '</div>';
+  }
+
   /* ----------------------------- 작품 감상·피드백 모달 ----------------------------- */
   async function open(id) {
     const w = await Store.getWork(id);
@@ -201,7 +266,7 @@
       <p style="margin:8px 0"><a href="work.html?id=${id}">🔍 단독 페이지·비평(펠드먼 4단계) →</a></p>
       <p style="margin:12px 0 4px"><b>의도</b> · ${esc(w.intent || '(없음)')}</p>
       ${w.evidence ? `<p style="margin:4px 0"><b>근거</b> · ${esc(w.evidence)}</p>` : ''}
-      ${w.dataName ? `<p class="muted" style="font-size:12px">데이터: ${esc(w.dataName)}</p>` : ''}
+      ${reportHTML(w)}
       <hr class="sep"><h3 style="font-size:15px">또래 피드백</h3>${fbList}
       <hr class="sep"><h3 style="font-size:15px">피드백 남기기</h3>
       <div class="grid c4">
