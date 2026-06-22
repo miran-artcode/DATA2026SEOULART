@@ -67,8 +67,9 @@
     background: rgba(10,11,16,.62); border: 1px solid var(--line); border-radius: 999px; padding: 7px 18px; font-weight: 800; font-size: 14px; pointer-events: none; backdrop-filter: blur(5px); }
   .scene-hint { position: absolute; right: 12px; bottom: 11px; z-index: 6; color: var(--muted); font-size: 11.5px;
     background: rgba(10,11,16,.55); border-radius: 8px; padding: 4px 10px; pointer-events: none; }
-  .navb { position: absolute; left: 12px; bottom: 11px; z-index: 6; display: flex; gap: 6px; }
-  .navb button { width: 36px; height: 36px; border-radius: 10px; background: rgba(20,22,30,.85); border: 1px solid var(--line); color: var(--text); cursor: pointer; font-size: 15px; }
+  .navb { position: absolute; left: 12px; bottom: 11px; z-index: 6; display: flex; gap: 6px; align-items: center; background: rgba(10,11,16,.5); border-radius: 12px; padding: 4px 8px; }
+  .navb .navlbl { color: var(--muted); font-size: 11px; margin: 0 1px 0 3px; }
+  .navb button { min-width: 34px; height: 32px; padding: 0 9px; border-radius: 9px; background: rgba(30,33,44,.92); border: 1px solid var(--line); color: var(--text); cursor: pointer; font-size: 13px; font-weight: 700; }
   .navb button:hover { border-color: var(--accent); }
 
   /* ---- 평면(그리드) 대체 ---- */
@@ -96,6 +97,25 @@
   .rtable table { border-collapse: collapse; width: 100%; font-size: 12px; }
   .rtable th, .rtable td { border: 1px solid var(--line); padding: 5px 9px; text-align: left; white-space: nowrap; }
   .rtable th { background: var(--panel2); position: sticky; top: 0; font-weight: 700; }
+
+  /* ---- 전체화면 작품 뷰어 ---- */
+  .viewer { position: fixed; inset: 0; z-index: 200; display: flex; background: rgba(6,7,11,.97); }
+  .vinfo { width: 380px; max-width: 40%; flex: 0 0 auto; background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 26px 24px; }
+  .vinfo h2 { letter-spacing: -.3px; }
+  .vstage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; padding: 30px;
+    background: radial-gradient(circle at 50% 38%, #17181f 0%, #060709 78%); }
+  .vstage-media { max-width: 100%; max-height: 100%; display: flex; align-items: center; justify-content: center; }
+  .vstage-media canvas { height: 80vh; max-height: 84vh; max-width: 94%; aspect-ratio: 4 / 3; border-radius: 12px; box-shadow: 0 36px 92px rgba(0,0,0,.66); background: #07080d; }
+  .vstage-media video { max-width: 100%; max-height: 84vh; border-radius: 12px; box-shadow: 0 36px 92px rgba(0,0,0,.66); background: #000; }
+  @media (max-width: 820px) { .vstage-media canvas { height: 44vh; } }
+  .vclose { position: absolute; top: 16px; right: 18px; z-index: 6; width: 44px; height: 44px; border-radius: 50%; background: rgba(22,24,32,.9); border: 1px solid var(--line); color: #fff; font-size: 18px; cursor: pointer; }
+  .vclose:hover { border-color: var(--accent); }
+  .vnav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 66px; border-radius: 12px; background: rgba(22,24,32,.72); border: 1px solid var(--line); color: #fff; font-size: 26px; cursor: pointer; z-index: 5; }
+  .vnav:hover { border-color: var(--accent); }
+  .vprev { left: 16px; } .vnext { right: 16px; }
+  .vcount { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); color: var(--muted); font-size: 12.5px; background: rgba(10,11,16,.6); padding: 4px 12px; border-radius: 999px; }
+  @media (max-width: 820px) { .viewer { flex-direction: column; } .vinfo { width: auto; max-width: none; max-height: 46%; border-right: 0; border-bottom: 1px solid var(--line); } .vstage-media canvas, .vstage-media video { max-height: 44vh; } }
+
   .hide { display: none !important; }
 </style>
 </head>
@@ -130,10 +150,12 @@
       </div>
       <div class="room-label" style="top:auto; bottom:11px; left:50%; font-size:12px; font-weight:600" id="empty-room"></div>
       <div class="navb">
-        <button id="nav-left" title="왼쪽 보기">‹</button>
-        <button id="nav-reset" title="정면·기본 배율">⟳</button>
-        <button id="nav-right" title="오른쪽 보기">›</button>
-        <button id="zoom-out" title="축소">−</button>
+        <span class="navlbl">둘러보기</span>
+        <button id="nav-left" title="왼쪽 보기">◀</button>
+        <button id="nav-reset" title="정면·기본 배율로">정면</button>
+        <button id="nav-right" title="오른쪽 보기">▶</button>
+        <span class="navlbl">배율</span>
+        <button id="zoom-out" title="축소">－</button>
         <button id="zoom-in" title="확대">＋</button>
       </div>
       <div class="docent" id="docent"></div>
@@ -144,6 +166,17 @@
   </div>
 
   <p class="footer-note">피드백은 받은 사람이 2차 개선에 쓰는 선물이에요 · 존중하며 남겨 주세요</p>
+</div>
+
+<div id="viewer" class="viewer hide">
+  <aside class="vinfo"></aside>
+  <div class="vstage">
+    <button class="vnav vprev" title="이전 작품 (←)">‹</button>
+    <div class="vstage-media"></div>
+    <button class="vnav vnext" title="다음 작품 (→)">›</button>
+    <div class="vcount"></div>
+  </div>
+  <button class="vclose" title="닫기 (Esc)">✕</button>
 </div>
 
 <script src="js/explain.js"></script>
@@ -207,11 +240,11 @@
     $('wall-left').innerHTML = left.map(artHTML).join('');
     $('wall-right').innerHTML = right.map(artHTML).join('');
     $('room-label').textContent = '🏛 ' + (KIND[theme] || theme) + ' 전시실 · ' + works.length + '점';
-    $('empty-room').textContent = works.length ? '' : '이 전시실엔 아직 작품이 없어요';
+    const er = $('empty-room'); er.textContent = works.length ? '' : '이 전시실엔 아직 작품이 없어요'; er.style.display = works.length ? 'none' : '';
     document.querySelectorAll('.rtab').forEach(b => b.classList.toggle('on', b.dataset.theme === theme));
     roomArts = [];
     ['back', 'left', 'right'].forEach(wall => $('wall-' + wall).querySelectorAll('.art').forEach(el => {
-      el.addEventListener('click', e => { e.stopPropagation(); open(el.dataset.id); });
+      el.addEventListener('click', e => { e.stopPropagation(); openViewer(el.dataset.id); });
       roomArts.push({ w: works.find(x => x.id === el.dataset.id), el, wall });
     }));
   }
@@ -239,7 +272,7 @@
         ${w.thumb ? `<img src="${w.thumb}" alt="">` : `<canvas></canvas>`}
         <div class="meta"><h4>${esc(w.title || '무제')}</h4><p>${esc(w.by || '익명')} · ${esc(KIND[w.kind] || w.kind || '')}</p></div>
       </div>`).join('');
-    document.querySelectorAll('#gal .item').forEach(el => el.addEventListener('click', () => open(el.dataset.id)));
+    document.querySelectorAll('#gal .item').forEach(el => el.addEventListener('click', () => openViewer(el.dataset.id)));
   }
   document.getElementById('btn-view').addEventListener('click', () => {
     const flat = document.getElementById('gal'), sc = document.getElementById('scene'), tabs = document.getElementById('rtabs');
@@ -282,7 +315,7 @@
         <button id="d-exit">✕ 종료</button><span class="prog">${dIdx + 1} / ${roomArts.length}</span></div>`;
     $('d-prev').onclick = () => { dIdx--; docentStep(); };
     $('d-next').onclick = () => { dIdx++; docentStep(); };
-    $('d-open').onclick = () => open(w.id);
+    $('d-open').onclick = () => openViewer(w.id);
     $('d-exit').onclick = stopDocent;
     $('d-mute').onclick = () => { speakOn = !speakOn; if (!speakOn && window.speechSynthesis) speechSynthesis.cancel(); else speak(narr); $('d-mute').textContent = speakOn ? '🔊 해설 끄기' : '🔈 해설 켜기'; };
     $('d-pause').onclick = () => { if (dTimer) { clearTimeout(dTimer); dTimer = null; $('d-pause').textContent = '▶ 계속'; if (window.speechSynthesis) speechSynthesis.cancel(); } else { $('d-pause').textContent = '⏸ 멈춤'; dTimer = setTimeout(() => { dIdx++; docentStep(); }, 6500); } };
@@ -293,10 +326,10 @@
 
   /* ----------------------------- 세부 내용 · 데이터 보고서 ----------------------------- */
   function rrow(label, val) { return (val || val === 0) ? `<div class="rrow"><span>${esc(label)}</span><b>${esc(val)}</b></div>` : ''; }
-  function reportHTML(w) {
+  function reportHTML(w, skipPlacard) {
     const s = w.settings || {}, m = w.meta || {};
     let h = '<div class="report">';
-    h += `<div class="placard"><div><b>${esc(w.title || '무제')}</b><br><span class="muted">${esc(w.by || '익명')}${w.klass ? ' · ' + esc(w.klass) : ''} · ${esc(KIND[w.kind] || w.kind || '')}</span></div>`
+    if (!skipPlacard) h += `<div class="placard"><div><b>${esc(w.title || '무제')}</b><br><span class="muted">${esc(w.by || '익명')}${w.klass ? ' · ' + esc(w.klass) : ''} · ${esc(KIND[w.kind] || w.kind || '')}</span></div>`
        + (w.createdAt ? `<span class="muted" style="white-space:nowrap">${new Date(w.createdAt).toLocaleDateString('ko-KR')}</span>` : '') + '</div>';
     if (w.kind === 'color') {
       if (w.srcImg) h += `<div class="rsrc"><img src="${w.srcImg}" alt="원본"><span><b>원본</b> → 데이터(점)로 재창조한 작품</span></div>`;
@@ -333,44 +366,75 @@
     return h + '</div>';
   }
 
-  /* ----------------------------- 작품 감상·피드백 모달 ----------------------------- */
-  async function open(id) {
-    const w = await Store.getWork(id);
-    if (!w) return;
-    const fbs = await Store.listFeedback(id);
-    const u = Auth.current();
+  /* ----------------------------- 전체화면 작품 뷰어 (왼쪽 설명 + 작품 재생) ----------------------------- */
+  let vWorks = [], vIdx = 0, vPlayer = null;
+  function closeViewer() {
+    if (vPlayer) { try { vPlayer.stop(); } catch (e) {} vPlayer = null; }
+    const v = $('viewer'); v.classList.add('hide'); v.querySelector('.vstage-media').innerHTML = '';
+    document.body.style.overflow = '';
+  }
+  function openViewer(id) {
+    vWorks = (roomArts.length ? roomArts.map(a => a.w) : ALL).filter(Boolean);
+    vIdx = Math.max(0, vWorks.findIndex(w => w && w.id === id));
+    $('viewer').classList.remove('hide'); document.body.style.overflow = 'hidden';
+    showViewer();
+  }
+  async function showViewer() {
+    const base = vWorks[vIdx]; if (!base) return;
+    const w = (await Store.getWork(base.id)) || base;
+    if (vPlayer) { try { vPlayer.stop(); } catch (e) {} vPlayer = null; }
+    const v = $('viewer'), stage = v.querySelector('.vstage-media');
+    if (w.video) stage.innerHTML = `<video src="${w.video}" controls autoplay loop playsinline></video>`;
+    else { stage.innerHTML = '<canvas id="viewer-canvas"></canvas>'; if (window.Player) vPlayer = Player.mount($('viewer-canvas'), w, { interactive: true }); }
+    const fbs = await Store.listFeedback(w.id), u = Auth.current();
+    v.querySelector('.vinfo').innerHTML = leftHTML(w, fbs);
+    v.querySelector('.vcount').textContent = (vIdx + 1) + ' / ' + vWorks.length;
+    bindFeedback(w.id, u);
+  }
+  function leftHTML(w, fbs) {
     const fbList = fbs.length ? fbs.map(f => `<div class="lvl" style="margin:8px 0"><div class="lvl-b">
         <b>${esc(f.by || '익명')}</b> · 의도 ${'★'.repeat(f.intent || 0)} 근거 ${'★'.repeat(f.evidence || 0)} 인터랙션 ${'★'.repeat(f.interaction || 0)} 윤리 ${'★'.repeat(f.ethics || 0)}<br>${esc(f.comment || '')}
       </div></div>`).join('') : '<p class="muted">아직 피드백이 없어요. 첫 피드백을 남겨 보세요.</p>';
-    const sel = (name) => `<select id="fb-${name}"><option value="3">잘됨 ★★★</option><option value="2" selected>보통 ★★</option><option value="1">아쉬움 ★</option></select>`;
-    const body = `
-      ${w.video ? `<video src="${w.video}" controls loop autoplay playsinline style="width:100%;aspect-ratio:4/3;border-radius:10px;border:1px solid var(--line);background:#000;display:block"></video>` : `<canvas id="gal-live" style="width:100%;aspect-ratio:4/3;background:#07080d;border-radius:10px;border:1px solid var(--line);display:block"></canvas>`}
-      <p style="margin:8px 0"><a href="work.html?id=${id}">🔍 단독 페이지·비평(펠드먼 4단계) →</a></p>
-      <p style="margin:12px 0 4px"><b>의도</b> · ${esc(w.intent || '(없음)')}</p>
+    const sel = n => `<select id="fb-${n}"><option value="3">잘됨 ★★★</option><option value="2" selected>보통 ★★</option><option value="1">아쉬움 ★</option></select>`;
+    return `<h2 style="margin:0 0 2px; font-size:21px">${esc(w.title || '무제')}</h2>
+      <p class="muted" style="margin:0 0 14px">${esc(w.by || '익명')}${w.klass ? ' · ' + esc(w.klass) : ''} · ${esc(KIND[w.kind] || w.kind || '')}</p>
+      <p style="margin:0 0 4px"><b>의도</b> · ${esc(w.intent || '(없음)')}</p>
       ${w.evidence ? `<p style="margin:4px 0"><b>근거</b> · ${esc(w.evidence)}</p>` : ''}
-      ${reportHTML(w)}
+      ${reportHTML(w, true)}
+      <p style="margin:10px 0"><a href="work.html?id=${w.id}">🔍 단독 페이지·비평(펠드먼 4단계) →</a></p>
       <hr class="sep"><h3 style="font-size:15px">또래 피드백</h3>${fbList}
       <hr class="sep"><h3 style="font-size:15px">피드백 남기기</h3>
-      <div class="grid c4">
+      <div class="grid c2">
         <div><label class="field">의도 전달</label>${sel('intent')}</div>
         <div><label class="field">근거</label>${sel('evidence')}</div>
         <div><label class="field">인터랙션</label>${sel('interaction')}</div>
         <div><label class="field">윤리</label>${sel('ethics')}</div>
       </div>
-      <label class="field">한마디(무엇이 의미를 전했나/방해했나, 근거와 함께)</label>
+      <label class="field">한마디(무엇이 의미를 전했나/방해했나)</label>
       <textarea id="fb-comment" rows="2" placeholder="존중하며, 구체적인 근거로"></textarea>
-      <button class="btn primary" id="fb-submit" style="margin-top:10px">피드백 등록</button>`;
-    UI.modal(esc(w.title || '작품') + ` <span class="badge">${esc(KIND[w.kind] || '')}</span>`, body, esc(w.by || ''));
-    if (window.Player) { if (window._gP) window._gP.stop(); const gc = document.getElementById('gal-live'); if (gc) window._gP = Player.mount(gc, w, { interactive: true }); const cl = document.querySelector('#ui-modal .modal-close'); if (cl) cl.addEventListener('click', () => window._gP && window._gP.stop()); }
-    document.getElementById('fb-submit').addEventListener('click', async () => {
-      if (!u) { UI.toast('피드백하려면 로그인하세요.'); return; }
-      await Store.addFeedback({ workId: id, by: u.display, userId: u.userId,
-        intent: +document.getElementById('fb-intent').value, evidence: +document.getElementById('fb-evidence').value,
-        interaction: +document.getElementById('fb-interaction').value, ethics: +document.getElementById('fb-ethics').value,
-        comment: document.getElementById('fb-comment').value });
-      UI.toast('피드백을 등록했습니다.'); open(id);
-    });
+      <button class="btn primary wide" id="fb-submit" style="margin-top:10px">피드백 등록</button>`;
   }
+  function bindFeedback(id, u) {
+    const b = $('fb-submit'); if (!b) return;
+    b.onclick = async () => {
+      if (!u) { UI.toast('피드백하려면 로그인하세요.'); return; }
+      const val = n => { const el = $('fb-' + n); return el ? +el.value : 0; };
+      await Store.addFeedback({ workId: id, by: u.display, userId: u.userId, intent: val('intent'), evidence: val('evidence'), interaction: val('interaction'), ethics: val('ethics'), comment: ($('fb-comment') || {}).value || '' });
+      UI.toast('피드백을 등록했습니다.'); showViewer();
+    };
+  }
+  (function bindViewer() {
+    const v = $('viewer');
+    v.querySelector('.vclose').addEventListener('click', closeViewer);
+    v.querySelector('.vprev').addEventListener('click', () => { if (vWorks.length) { vIdx = (vIdx - 1 + vWorks.length) % vWorks.length; showViewer(); } });
+    v.querySelector('.vnext').addEventListener('click', () => { if (vWorks.length) { vIdx = (vIdx + 1) % vWorks.length; showViewer(); } });
+    document.addEventListener('keydown', e => {
+      if (v.classList.contains('hide')) return;
+      if (e.key === 'Escape') closeViewer();
+      else if (e.key === 'ArrowRight' && vWorks.length) { vIdx = (vIdx + 1) % vWorks.length; showViewer(); }
+      else if (e.key === 'ArrowLeft' && vWorks.length) { vIdx = (vIdx - 1 + vWorks.length) % vWorks.length; showViewer(); }
+    });
+  })();
 
   /* ----------------------------- 시작 ----------------------------- */
   applyView();
