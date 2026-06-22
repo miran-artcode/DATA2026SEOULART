@@ -12,7 +12,7 @@
   function toast(msg) {
     let t = document.getElementById('glue-toast');
     if (!t) { t = document.createElement('div'); t.id = 'glue-toast';
-      t.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#11151f;border:1px solid #ffb454;color:#e8ecf6;padding:11px 18px;border-radius:11px;font-size:13px;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.5);transition:.2s;opacity:0';
+      t.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#11151f;border:1px solid #2F6BE0;color:#E7ECF7;padding:11px 18px;border-radius:11px;font-size:13px;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.5);transition:.2s;opacity:0';
       document.body.appendChild(t); }
     t.textContent = msg; t.style.opacity = '1';
     clearTimeout(toast._t); toast._t = setTimeout(() => t.style.opacity = '0', 2400);
@@ -49,16 +49,7 @@
     bCoach.addEventListener('click', coach);
     bExhibit.addEventListener('click', exhibitForm);
 
-    const bTheme = mk('🌗', '밝은/어두운 테마');
-    bar.appendChild(bTheme);
-    const setIcon = () => { bTheme.textContent = document.documentElement.getAttribute('data-theme') === 'light' ? '🌙' : '🌞'; };
-    setIcon();
-    bTheme.addEventListener('click', () => {
-      const light = document.documentElement.getAttribute('data-theme') === 'light';
-      if (light) { document.documentElement.removeAttribute('data-theme'); try { localStorage.setItem('dn_theme', 'dark'); } catch (e) {} }
-      else { document.documentElement.setAttribute('data-theme', 'light'); try { localStorage.setItem('dn_theme', 'light'); } catch (e) {} }
-      setIcon();
-    });
+    /* 작업실(색 스튜디오)은 항상 다크 — 테마 토글 제거(HANDOFF 컨셉 분리) */
   }
 
   async function coach() {

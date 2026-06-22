@@ -28,7 +28,7 @@
     mapping: {
       size: null, speed: null, direction: null, density: null, alpha: null, shape: null,
       colorMode: 'gradient', colorField: null,
-      gradLow: '#2e86de', gradHigh: '#ff5a5f', solid: '#ffb454',
+      gradLow: '#182F49', gradHigh: '#E6F5A6', solid: '#6E84B8',
       catColors: {}, catShapes: {}
     },
     baseSpeed: 1, vib: 1, trail: 200, layout: 'timeline', motionStyle: 'vibrate',
@@ -100,7 +100,7 @@
     m.colorField = m.colorMode === 'category' ? cats[0] : (nums[0] || null);
     m.catColors = {}; m.catShapes = {}; assignCatColors();
   }
-  const PAL = ['#ff5a5f', '#ffb454', '#51d88a', '#4ec3ff', '#c08bff', '#f6e58d', '#ff8e53', '#2e86de', '#e056fd', '#00b3a4'];
+  const PAL = ['#182F49', '#3A4F7A', '#6E84B8', '#8FC0B5', '#E6F5A6', '#93A4E8', '#2FB6A8', '#CFE0D6', '#0E0A2E', '#5B4BD6'];
   function assignCatColors() {
     if (state.mapping.colorMode !== 'category' || !state.mapping.colorField || !state.dataset) return;
     fieldCats(state.mapping.colorField).forEach((c, i) => { if (!state.mapping.catColors[c]) state.mapping.catColors[c] = PAL[i % PAL.length]; });

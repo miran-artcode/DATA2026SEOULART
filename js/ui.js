@@ -8,7 +8,7 @@
   'use strict';
 
   // 저장된 테마를 가능한 한 일찍 적용(깜빡임 최소화)
-  try { if (localStorage.getItem('dn_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) {}
+  /* 테마는 페이지별로 <html data-theme>로 고정(HANDOFF: 한 화면=한 컨셉). 전역 토글 없음. */
 
   const NAV = [
     { label: '사용 안내', href: 'start.html' },
@@ -58,7 +58,6 @@
       <header class="site-header">
         <a class="site-brand" href="hub.html"><span class="logo">◎</span> 데이터의 눈</a>
         <nav class="site-nav">${navHTML}</nav>
-        <button class="btn sm ghost" id="theme-toggle" title="밝은/어두운 테마" style="margin-right:4px">🌗</button>
         <div class="site-user" id="site-user"></div>
       </header>`;
 
@@ -72,8 +71,6 @@
     });
     document.addEventListener('click', () => document.querySelectorAll('.navdrop').forEach(o => o.classList.remove('open')));
 
-    const tt = document.getElementById('theme-toggle');
-    if (tt) { updateThemeIcon(tt); tt.addEventListener('click', UI.toggleTheme); }
     UI.renderUser();
   };
 
@@ -183,12 +180,16 @@
   UI.escapeHTML = escapeHTML;
 
   // 사이트 공통 푸터(저작권) — 모든 페이지 맨 아래
+  // 사이트 공통 풋터 — HANDOFF 다크 크레딧(모든 페이지 동일, 항상 다크 #0A0E26).
   UI.mountFooter = function () {
     if (document.getElementById('site-footer')) return;
     const f = document.createElement('footer');
     f.id = 'site-footer';
-    f.style.cssText = 'text-align:center; color:var(--muted2); font-size:12px; padding:24px 18px 30px; border-top:1px solid var(--line); margin-top:28px;';
-    f.innerHTML = '© 2026 <b style="color:var(--muted)">MIRAN HWANG</b> · <a href="mailto:MIRAN726@GMAIL.COM" style="color:var(--muted)">MIRAN726@GMAIL.COM</a> · 데이터 미디어아트 스튜디오 · 교육용';
+    f.innerHTML = '<div class="ft-inner">'
+      + '<a class="ft-brand" href="hub.html"><span class="ft-logo">◎</span> 데이터의 눈</a>'
+      + '<nav class="ft-nav"><a href="hub.html">HUB</a><a href="lab.html">ANALYSIS</a><a href="studio-color.html">STUDIO</a><a href="gallery.html">GALLERY</a></nav>'
+      + '<p class="ft-credit">© 2025 <b>Miran Hwang</b> · Seoul Arts High School · Art Teacher</p>'
+      + '</div>';
     document.body.appendChild(f);
   };
 

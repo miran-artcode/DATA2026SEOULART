@@ -37,7 +37,7 @@
     const ftype = n => { const f = fields.find(x => x.name === n); return f ? f.type : 'num'; };
     const norm = (n, i) => { const c = st[n]; if (!c || c.cats) return 0; const v = +rows[i][n]; return isNaN(v) ? 0 : Math.max(0, Math.min(1, (v - c.min) / c.range)); };
     const delta = (n, i) => i <= 0 ? 0 : norm(n, i) - norm(n, i - 1);
-    const catColor = (i) => { if (m.colorMode === 'solid') return m.solid || '#ffb454'; if (m.colorMode === 'category') return (m.catColors || {})[String(rows[i][m.colorField])] || '#888'; return lerp(m.gradLow || '#2e86de', m.gradHigh || '#ff5a5f', m.colorField ? norm(m.colorField, i) : 0.5); };
+    const catColor = (i) => { if (m.colorMode === 'solid') return m.solid || '#6E84B8'; if (m.colorMode === 'category') return (m.catColors || {})[String(rows[i][m.colorField])] || '#8794b0'; return lerp(m.gradLow || '#182F49', m.gradHigh || '#E6F5A6', m.colorField ? norm(m.colorField, i) : 0.5); };
     const catShape = (i) => { const f = m.shape; if (!f) return 'circle'; if (ftype(f) === 'cat') return (m.catShapes || {})[String(rows[i][f])] || 'circle'; const v = norm(f, i); return v < 0.34 ? 'tri' : v < 0.67 ? 'circle' : 'sq'; };
     // per-row 미리계산
     const R = rows.map((_, i) => ({
@@ -92,7 +92,7 @@
     ctx.stroke();
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     [[x1, y1], [x2, y1], [x1, y2], [x2, y2]].forEach(p => { ctx.beginPath(); ctx.arc(p[0], p[1], 3, 0, 6.283); ctx.fill(); });
-    ctx.strokeStyle = '#ff7a45'; ctx.fillStyle = 'rgba(255,122,69,0.18)'; ctx.lineWidth = 2;
+    ctx.strokeStyle = '#2FB6A8'; ctx.fillStyle = 'rgba(47,182,168,0.18)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(cx, cy, 12, 0, 6.283); ctx.fill(); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(cx - 18, cy); ctx.lineTo(cx + 18, cy); ctx.moveTo(cx, cy - 18); ctx.lineTo(cx, cy + 18); ctx.stroke();
     ctx.restore();

@@ -167,7 +167,7 @@
       o.beginPath(); o.moveTo(0, h * k / 3); o.lineTo(w, h * k / 3); o.stroke();
     });
     o.beginPath(); o.arc(cxN * w, cyN * h, 7, 0, Math.PI * 2);
-    o.fillStyle = 'rgba(255,180,84,.95)'; o.fill(); o.strokeStyle = '#000'; o.stroke();
+    o.fillStyle = 'rgba(47,182,168,.95)'; o.fill(); o.strokeStyle = '#000'; o.stroke();
     return {
       centroid: { x: +cxN.toFixed(2), y: +cyN.toFixed(2) },
       balanceLR: +(leftL / (leftL + rightL)).toFixed(2),

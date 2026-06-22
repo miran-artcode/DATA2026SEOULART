@@ -1,21 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&display=swap');
 /* =============================================================================
-   그림이 분해되어 다시 연주되다 — 스타일
-   갤러리 느낌의 어두운 테마. 작품(캔버스)이 주인공이 되도록 차분하게.
+   그림이 분해되어 다시 연주되다 — 스타일 (HANDOFF 다크 · 작업실은 항상 다크)
    ============================================================================= */
 :root {
-  /* site.css와 통일 — 중성 차콜 + 포인트색 하나(인디고). 표면 위계: 배경 < 패널 < 중첩. */
-  --bg: #0b0c11;
-  --bg2: #07080c;
-  --panel: #15161d;
-  --panel2: #1c1e27;
-  --line: #262834;
-  --text: #eceef4;
-  --muted: #9a9eb0;
-  --accent: #6b78c6;          /* 단 하나의 포인트색 — 남색 */
-  --accent-rgb: 107,120,198;
-  --accent2: #8b96d8;
+  --bg: #070810;
+  --bg2: #0c0f1e;
+  --panel: #13151d;
+  --panel2: #181b27;
+  --line: #232734;
+  --text: #E7ECF7;
+  --muted: #9fb0d0;
+  --accent: #2F6BE0;          /* 1차 블루 */
+  --accent-rgb: 47,107,224;
+  --accent2: #93A4E8;
+  --teal: #2FB6A8;
+  --primary: #2F6BE0; --primary-fg: #ffffff;
   --danger: #f2667a;
-  --radius: 12px;
+  --radius: 16px;
   --panel-w: 348px;
 }
 
@@ -156,7 +157,7 @@ input[type="range"]::-moz-range-thumb {
 .grp { font-size: 12px; color: var(--accent2); font-weight: 700; margin: 16px 0 6px; }
 
 .hint { font-size: 11.5px; color: var(--muted); line-height: 1.55; margin: 8px 0 0; }
-.hint.warn { color: #ffcf8f; background: rgba(255, 180, 84, .08); border: 1px solid rgba(255, 180, 84, .25);
+.hint.warn { color: #9fdcd4; background: rgba(47, 182, 168, .10); border: 1px solid rgba(47, 182, 168, .30);
   padding: 9px 11px; border-radius: 9px; }
 
 /* 원본 썸네일 */
@@ -270,10 +271,4 @@ input[type="range"]::-moz-range-thumb {
 .km-level .km-ol li, .km-level .km-ul li { margin: 5px 0; }
 .km-level code { background: var(--panel2); padding: 1px 6px; border-radius: 5px; }
 
-/* ☀ 밝은 테마 — 패널/배경을 밝게(작품 캔버스는 앱이 어둡게 칠해 '액자' 느낌 유지) */
-:root[data-theme="light"] {
-  --bg: #eef1f8; --bg2: #e6e9f2; --panel: #ffffff; --panel2: #f1f3f9;
-  --line: #d8deec; --text: #1b2233; --muted: #5b6580;
-}
-:root[data-theme="light"] .topbar { background: var(--panel); }
-:root[data-theme="light"] #pal-canvas { background: #0c0e16; }
+/* 작업실은 항상 다크(라이트 오버라이드 제거 — HANDOFF 컨셉 분리) */

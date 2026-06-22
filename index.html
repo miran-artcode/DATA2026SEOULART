@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,9 +7,12 @@
 <meta name="description" content="분석에서 창작까지 — 데이터로 그림을 읽고, 인터랙티브 미디어아트로 재창조하는 수업 사이트." />
 <link rel="stylesheet" href="css/site.css" />
 <style>
-  .hero { text-align: center; margin: 30px 0 0; }
-  .hero h1 { font-size: clamp(24px, 4.6vw, 38px); line-height: 1.22; margin: 10px 0 14px; letter-spacing: -.4px; }
-  .hero h1 .accent { color: var(--accent); }
+  .hero { text-align: center; margin: 34px 0 0; }
+  .typo-hero { font-family: 'Orbitron', 'Pretendard', system-ui, sans-serif; font-weight: 800; font-size: clamp(40px, 10vw, 96px); line-height: .96; letter-spacing: -.01em; margin: 16px 0 14px; }
+  .typo-hero .fill { color: var(--text); }
+  .typo-hero .stroke { color: transparent; -webkit-text-stroke: 2px var(--accent); }
+  .hero .ko { color: var(--text); font-weight: 700; font-size: clamp(17px, 3.4vw, 24px); margin: 0 0 10px; letter-spacing: -.3px; }
+  .hero .ko .accent { color: var(--accent); }
   .hero .lead { color: var(--muted); font-size: 15px; max-width: 600px; margin: 0 auto; line-height: 1.7; }
   .hero .lead b { color: var(--text); font-weight: 600; }
   /* 슬림 여정 — 한 줄, 단일 강조색(인디고)으로 조용하게 */
@@ -35,8 +38,9 @@
 
 <div class="wrap narrow">
   <div class="hero">
-    <span class="eyebrow">서울미술고등학교 · AI 융합 미술수업</span>
-    <h1>데이터의 눈으로 그림을 읽고,<br><span class="accent">의미를 담아</span> 다시 그리다</h1>
+    <span class="eyebrow">DATA × ART · 서울미술고등학교 AI 융합 미술수업</span>
+    <h1 class="typo-hero"><span class="fill">READ ART</span><br><span class="stroke">WITH DATA</span></h1>
+    <p class="ko">데이터의 눈으로 그림을 읽고, <span class="accent">의미를 담아</span> 다시 그리다</p>
     <p class="lead">그림·소리·내 삶·사회를 <b>데이터로 분석</b>하고, 나의 <b>의도</b>로 <b>인터랙티브 미디어아트</b>로 재창조해요. 알고리즘은 도구일 뿐, <b>무엇을 셀지·무엇을 강조할지</b>가 곧 작가의 선택입니다.</p>
     <div class="arc" aria-label="4단계 여정: 그림 → 소리 → 내 삶 → 사회">
       <span class="s"><i>1</i>그림</span><span class="a">→</span>

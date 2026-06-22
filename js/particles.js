@@ -371,7 +371,7 @@
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     [[x1, y1], [x2, y1], [x1, y2], [x2, y2]].forEach(p => { ctx.beginPath(); ctx.arc(p[0], p[1], 3, 0, TAU); ctx.fill(); });
     // 시선 무게중심(주황 ◎ + 십자선): 삼분할 교차점에 가까울수록 '안정된 구도'
-    ctx.strokeStyle = '#ff7a45'; ctx.fillStyle = 'rgba(255,122,69,0.18)'; ctx.lineWidth = 2;
+    ctx.strokeStyle = '#2FB6A8'; ctx.fillStyle = 'rgba(47,182,168,0.18)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(cx, cy, 13, 0, TAU); ctx.fill(); ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(cx - 20, cy); ctx.lineTo(cx + 20, cy);
