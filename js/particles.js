@@ -32,6 +32,7 @@
     this.opts = opts || {};
     this.angle = 0;                  // 3D Y축 회전 각
     this.angleX = 0;                 // 3D X축 회전 각
+    this.angleW = 0;                 // 4D(초입체) 회전 각
     this.K = analysis.K;
     this.visible = new Array(this.K).fill(true);
 
@@ -56,6 +57,9 @@
     this.colStr = new Array(n);
     this.setColorMode(this.opts.colorMode || 'cluster');
 
+    // 3D 깊이(z)로 쓸 점별 값 미리 계산
+    this.setDepthField(this.opts.depthField || 'bright');
+
     // 렌더 순서: 군집별로 묶으면 fillStyle 변경이 줄어 빨라진다.
     this.order = Array.from({ length: n }, (_, i) => i)
       .sort((i, j) => this.cluster[i] - this.cluster[j]);
@@ -74,6 +78,26 @@
       this.colStr[i] = 'rgb(' + r + ',' + g + ',' + b + ')';
     }
     this.colorMode = mode;
+  };
+
+  // 3D 깊이(z축)로 세울 '점별 값'(0~1) 계산 — 무엇을 입체로 세울지 선택.
+  //   bright(밝기) / sat(채도) / hue(색상) / edge(윤곽) / cluster(군집 순서)
+  System.prototype.setDepthField = function (field) {
+    const a = this.a, n = this.n;
+    if (!this.zval || this.zval.length !== n) this.zval = new Float32Array(n);
+    const z = this.zval;
+    for (let i = 0; i < n; i++) {
+      let v;
+      if (field === 'edge') v = this.ed ? this.ed[i] : this.br[i];
+      else if (field === 'hue') v = (this.hue[i] >= 0 ? this.hue[i] / 360 : 0.5);
+      else if (field === 'cluster') v = this.K > 1 ? this.cluster[i] / (this.K - 1) : 0.5;
+      else if (field === 'sat') {
+        const r = a.or[i], g = a.og[i], b = a.ob[i], mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+        v = mx ? (mx - mn) / mx : 0;                 // 채도(0~1)
+      } else v = this.br[i];                          // bright(기본)
+      z[i] = v < 0 ? 0 : v > 1 ? 1 : v;
+    }
+    this.depthField = field || 'bright';
   };
 
   System.prototype.setVisibility = function (clusterIndex, on) {
@@ -145,6 +169,7 @@
     if (axis === 'x') this.angleX += rs;
     else if (axis === 'xy') { this.angle += rs; this.angleX += rs * 0.6; }
     else this.angle += rs;
+    if (m.dim4) this.angleW += 0.006 + rs * 0.4;   // 4D(초입체) 모핑 — 4D 켜면 늘 천천히 회전
 
     const free = !!m.free, wander = m.wander || 0;
     const pull = (m.pull != null ? m.pull : 0.004), swirl = (m.swirl || 0) * 0.012;
@@ -259,10 +284,12 @@
     }
 
     const is3D = view.mode === '3d';
-    const focal = 900, depth = view.depth;
+    const depth = view.depth, focal = view.focal || 900, solid = view.solid || 'relief', dim4 = !!view.dim4;
     const cx = this.rect.x + this.rect.w / 2, cy = this.rect.y + this.rect.h / 2;
     const cay = Math.cos(this.angle), say = Math.sin(this.angle);          // Y축
     const cax = Math.cos(this.angleX || 0), sax = Math.sin(this.angleX || 0); // X축
+    const aw = this.angleW || 0, caw = Math.cos(aw), saw = Math.sin(aw), caw2 = Math.cos(aw * 0.8), saw2 = Math.sin(aw * 0.8); // 4D
+    const A = this.a, rw = this.rect.w, rh = this.rect.h, R3 = Math.min(rw, rh) * 0.42, zv = this.zval || this.br;
     const edgeLens = this.lens === 'edge' && this.ed;   // 에지 렌즈: 윤곽이 강한 점만 또렷하게
     const shape = view.shape || 'circle';
     const baseAlpha = view.pointAlpha != null ? view.pointAlpha : 1;   // 점 불투명도(겹침 농담)
@@ -275,14 +302,36 @@
 
       let sx = this.px[i], sy = this.py[i], size = this.ds[i];
       if (is3D) {
-        // 밝기 → 깊이(z). Y축·X축 회전 후 원근 투영 → "데이터가 3D 조각이 되다"
-        const x0 = this.px[i] - cx, y0 = this.py[i] - cy, z0 = (this.br[i] - 0.5) * depth;
-        const x1 = x0 * cay + z0 * say, z1 = -x0 * say + z0 * cay;   // Y축 회전
-        const y2 = y0 * cax - z1 * sax, z2 = y0 * sax + z1 * cax;     // X축 회전
+        // 깊이 기준값(zv)으로 입체를 세우고, 형태(평면·구·원기둥·나선)로 배치 → 회전·원근 투영.
+        const zf = zv[i] - 0.5;                                    // -0.5~0.5
+        const ox = this.px[i] - this.hx[i], oy = this.py[i] - this.hy[i]; // 2D 모션(마우스·자유) 오프셋
+        const u = A.nx[i], v = A.ny[i];
+        let X, Y, Z;
+        if (solid === 'sphere') {                 // 구 — 이미지를 공에 감싸 ‘원형 보존’
+          const lon = u * TAU, lat = (v - 0.5) * Math.PI, r = R3 + zf * depth * 0.5, cl = Math.cos(lat);
+          X = r * cl * Math.cos(lon); Y = r * Math.sin(lat); Z = r * cl * Math.sin(lon);
+        } else if (solid === 'cylinder') {        // 원기둥 — 가로를 둥글게 말기
+          const ang = u * TAU, r = R3 * 0.78 + zf * depth * 0.5;
+          X = r * Math.cos(ang); Y = (v - 0.5) * rh; Z = r * Math.sin(ang);
+        } else if (solid === 'helix') {           // 나선 — 빙글 감겨 올라가는 띠
+          const ang = u * TAU * 2.5, r = R3 * 0.7 + zf * depth * 0.4;
+          X = r * Math.cos(ang); Y = (u - 0.5) * rh * 1.05 + (v - 0.5) * 22; Z = r * Math.sin(ang);
+        } else {                                  // relief(기본) — 평면 부조(밝기/특징으로 돌출)
+          X = (u - 0.5) * rw; Y = (v - 0.5) * rh; Z = zf * depth;
+        }
+        X += ox; Y += oy;
+        if (dim4) {                               // 4D(초입체): W축 추가 → 4D 회전 → 4D→3D 투영(모핑)
+          let W = zf * depth + (this.hue[i] >= 0 ? (this.hue[i] / 360 - 0.5) : 0) * depth * 0.5;
+          const X4 = X * caw - W * saw; W = X * saw + W * caw;       // XW 회전
+          const Z4 = Z * caw2 - W * saw2; W = Z * saw2 + W * caw2;   // ZW 회전
+          const s4 = (depth + R3) / (depth + R3 + W + depth * 0.5);  // W 원근
+          X = X4 * s4; Z = Z4 * s4; Y *= s4;
+        }
+        const x1 = X * cay + Z * say, z1 = -X * say + Z * cay;       // Y축 회전
+        const y2 = Y * cax - z1 * sax, z2 = Y * sax + z1 * cax;       // X축 회전
         const scale = focal / (focal + z2);
-        sx = cx + x1 * scale;
-        sy = cy + y2 * scale;
-        size = this.ds[i] * scale;
+        if (scale <= 0.05) continue;                                 // 카메라 뒤 점 제외
+        sx = cx + x1 * scale; sy = cy + y2 * scale; size = this.ds[i] * scale;
       }
       if (edgeLens) {
         // 윤곽 세기에 따라 크기·투명도를 조절 → 평평한 면은 사라지고 '선묘'만 남음

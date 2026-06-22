@@ -276,6 +276,27 @@
           </div>
           <p class="hint">배경은 작품의 ‘공기’예요 — <b>발광</b> 효과는 어두운 배경(남색·순흑)에서 가장 강렬하고, <b>종이·흰색</b>은 밝은 전시·드로잉 느낌이에요.</p>
           <div id="row-3d" class="threeD" style="display:none">
+            <div class="row two">
+              <div>
+                <label>입체 형태 <button class="mini opt-info" data-opt="solid" title="설명 보기">ⓘ</button></label>
+                <select id="sel-solid" title="점을 어떤 3D 면에 배치할지 — 평면/구/원기둥/나선.">
+                  <option value="relief">평면 부조(돌출)</option>
+                  <option value="sphere">구(공에 감싸기)</option>
+                  <option value="cylinder">원기둥(가로 말기)</option>
+                  <option value="helix">나선(빙글 띠)</option>
+                </select>
+              </div>
+              <div>
+                <label>깊이 기준 <button class="mini opt-info" data-opt="depthfield" title="설명 보기">ⓘ</button></label>
+                <select id="sel-depthfield" title="무엇을 입체로 세울지 — 밝기/채도/색상/윤곽/군집.">
+                  <option value="bright">밝기</option>
+                  <option value="sat">채도(선명함)</option>
+                  <option value="hue">색상</option>
+                  <option value="edge">윤곽(에지)</option>
+                  <option value="cluster">군집(대표색 순)</option>
+                </select>
+              </div>
+            </div>
             <div class="row">
               <label>3D 회전축</label>
               <select id="sel-rotaxis" title="자동 회전이 어느 축을 도는지 — 좌우(Y)·상하(X)·대각(둘 다).">
@@ -284,15 +305,22 @@
                 <option value="xy">대각(둘 다)</option>
               </select>
             </div>
-            <div class="row">
-              <label>3D 회전 속도 <output id="out-rotate">0.004</output></label>
-              <input id="rng-rotate" type="range" min="0" max="0.03" step="0.001" value="0.004" />
+            <div class="row two">
+              <div>
+                <label>회전 속도 <output id="out-rotate">0.004</output></label>
+                <input id="rng-rotate" type="range" min="0" max="0.03" step="0.001" value="0.004" />
+              </div>
+              <div>
+                <label>원근 <output id="out-focal">900</output> <button class="mini opt-info" data-opt="focal" title="설명 보기">ⓘ</button></label>
+                <input id="rng-focal" type="range" min="300" max="2000" step="50" value="900" />
+              </div>
             </div>
             <div class="row">
-              <label>3D 깊이(밝기→입체) <output id="out-depth">220</output></label>
+              <label>깊이(돌출 세기) <output id="out-depth">220</output></label>
               <input id="rng-depth" type="range" min="0" max="500" step="10" value="220" />
             </div>
-            <p class="hint">3D 모드에서는 캔버스를 <b>드래그</b>해 직접 돌릴 수 있어요 — 좌우 드래그=Y축, 상하 드래그=X축.</p>
+            <label class="chk"><input id="chk-4d" type="checkbox" /> 4D(초입체) 모핑 <button class="mini opt-info" data-opt="dim4" title="설명 보기">ⓘ</button></label>
+            <p class="hint">3D는 캔버스를 <b>드래그</b>해 돌려요(좌우=Y축·상하=X축). <b>구·원기둥·나선</b>으로 ‘원형 보존’, <b>4D</b>로 스스로 변형하는 조각을 — 무엇을 깊이로 세울지는 ‘깊이 기준’에서 골라요.</p>
           </div>
         </div>
       </details>

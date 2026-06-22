@@ -21,6 +21,8 @@
     // 움직임
     mode: 'points', motionMode: 'hold', returnForce: 0.08, vibration: 0, trail: 255, additive: false,
     rotateSpeed: 0.004, depth: 220, rotAxis: 'y', palChart: 'rose',
+    // 3D 세부: 깊이 기준(z) · 입체 형태 · 원근 · 4D
+    depthField: 'bright', solidShape: 'relief', focal: 900, dim4: false,
     // 자유 이동 세부(떠돎·소용돌이·중심 인력)
     freeWander: 1.2, freeSwirl: 0, freePull: 0.004,
     // 장(場) 힘: 중력·좌우 흐름·값 기반 방향·색 기반 방향
@@ -119,7 +121,7 @@
 
   function rebuildSystem() {
     if (!analysis) return;
-    system = Particles.create(analysis, imageRect(), { colorMode: state.colorMode, baseSize: state.size, mosaicCell: state.mosaicCell, lens: state.lens });
+    system = Particles.create(analysis, imageRect(), { colorMode: state.colorMode, baseSize: state.size, mosaicCell: state.mosaicCell, lens: state.lens, depthField: state.depthField });
     updatePointInfo();
   }
   function updatePointInfo() {
@@ -353,7 +355,8 @@
         additive: state.additive,
         depth: state.depth,
         shape: state.pointShape,
-        pointAlpha: state.pointAlpha
+        pointAlpha: state.pointAlpha,
+        solid: state.solidShape, focal: state.focal, dim4: state.dim4
       });
     };
     p.mousePressed = () => {
@@ -370,6 +373,7 @@
       motion: {
         returnForce: state.returnForce, damping: 0.86, vibration: state.vibration,
         rotateSpeed: state.mode === '3d' && !dragging ? state.rotateSpeed : 0, rotAxis: state.rotAxis,
+        dim4: state.mode === '3d' && state.dim4,
         free: state.motionMode === 'free', wander: state.freeWander, swirl: state.freeSwirl, pull: state.freePull,
         gravity: state.gravity, flow: state.flow, valForce: state.valForce, valField: state.valField, valDir: state.valDir, colorForce: state.colorForce
       },
@@ -565,6 +569,8 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     setChk('#chk-additive', state.additive);
     setVal('#rng-rotate', state.rotateSpeed); setOut('#out-rotate', state.rotateSpeed);
     setVal('#rng-depth', state.depth); setOut('#out-depth', state.depth);
+    setVal('#sel-depthfield', state.depthField); setVal('#sel-solid', state.solidShape);
+    setVal('#rng-focal', state.focal); setOut('#out-focal', state.focal); setChk('#chk-4d', state.dim4);
     setVal('#sel-mouse', state.mouseMode);
     setVal('#rng-mradius', state.mouseRadius); setOut('#out-mradius', state.mouseRadius);
     setVal('#rng-mstrength', state.mouseStrength); setOut('#out-mstrength', state.mouseStrength);
@@ -658,6 +664,10 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     $('#sel-rotaxis').addEventListener('change', e => state.rotAxis = e.target.value);
     onRange('#rng-rotate', '#out-rotate', v => state.rotateSpeed = v);
     onRange('#rng-depth', '#out-depth', v => state.depth = v | 0);
+    $('#sel-depthfield').addEventListener('change', e => { state.depthField = e.target.value; if (system) system.setDepthField(state.depthField); });
+    $('#sel-solid').addEventListener('change', e => state.solidShape = e.target.value);
+    onRange('#rng-focal', '#out-focal', v => state.focal = v | 0);
+    $('#chk-4d').addEventListener('change', e => state.dim4 = e.target.checked);
 
     // 인터랙션(마우스)
     $('#sel-mouse').addEventListener('change', e => state.mouseMode = e.target.value);
@@ -763,6 +773,10 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     vibration: ['진동', '매 순간 점이 무작위로 떨리는 세기. 0이면 고요, 크면 들썩여 ‘살아있는’ 느낌. 마이크 소리와 합쳐 더 강해질 수 있어요.'],
     trail: ['잔상(트레일)', '한 프레임에 배경을 얼마나 지울지. 255=완전히 지워 또렷, 낮을수록 지난 위치의 자취(궤적)가 남아 ‘흐름·움직임’이 보여요.'],
     additive: ['발광(빛 번짐)', '겹친 점의 색을 더해(가산 혼합) 밝아지게 — 성운·네온처럼 빛나는 느낌. 어두운 배경에서 강렬해요.'],
+    depthfield: ['3D 깊이 기준 (무엇을 세울까)', '입체로 ‘튀어나오게’ 할 기준이에요 — <b>밝기</b>(밝을수록 돌출)·<b>채도</b>(선명할수록)·<b>색상</b>·<b>윤곽(에지)</b>·<b>군집(대표색 순)</b>. 같은 그림도 무엇을 깊이로 쓰느냐에 따라 전혀 다른 조각이 됩니다.'],
+    solid: ['입체 형태 (어디를 원형으로)', '점들을 어떤 3D 면에 배치할지 — <b>평면 부조</b>(이미지 그대로 돌출)·<b>구</b>(공에 감싸 ‘원형 보존’)·<b>원기둥</b>(가로를 둥글게 말기)·<b>나선</b>(빙글 감겨 올라가는 띠). 캔버스를 드래그해 돌려 보세요.'],
+    focal: ['원근(깊이감)', '카메라와의 거리예요. <b>작을수록 원근이 강해</b>(가까운 점이 과장돼 커짐) 입체감이 극적이고, 클수록 평평하고 차분해요.'],
+    dim4: ['4D (초입체 모핑)', '3D에 ‘네 번째 축(W)’을 더해 회전·투영하면, 안과 밖이 뒤집히듯 형태가 <b>스스로 변형(모핑)</b>해요. 4차원을 3차원 그림자로 보는 셈 — 데이터가 ‘살아 변형하는 조각’이 됩니다.'],
     palchart: ['팔레트 차트', '같은 비율 데이터도 ‘틀’을 바꾸면 다르게 읽혀요 — <b>방사형 막대</b>(각 색이 막대, <b>길이=비율</b>, 색상 순으로 둘러 배열), 도넛·막대(비율), 트리맵(면적=비율), 색상환(각도=색상·중심에서 멀수록 밝음), 거품(가로=색상·세로=채도·크기=비율), 히트맵(색상×밝기 분포). 위의 ‘비율 띠’는 너비가 곧 비율이에요.']
   };
   function bindOptInfo() {
