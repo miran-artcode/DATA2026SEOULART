@@ -89,6 +89,24 @@ a:hover { text-decoration: underline; }
 .site-user .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px var(--good); }
 .site-user .dot.off { background: var(--muted2); box-shadow: none; }
 
+/* 모바일 햄버거 — 좁은 화면에서 알약 내비가 넘치지 않게 패널로 접기 */
+.nav-burger { display: none; }
+@media (max-width: 820px) {
+  .nav-burger { display: grid; place-items: center; width: 38px; height: 38px; flex: none;
+    border-radius: 11px; background: var(--panel2); border: 1px solid var(--line); color: var(--text); font-size: 17px; cursor: pointer; }
+  .site-brand { margin-right: auto; }
+  .site-nav {
+    position: absolute; top: calc(100% + 8px); left: 0; right: 0; flex: none;
+    flex-direction: column; align-items: stretch; gap: 2px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+    box-shadow: 0 22px 44px -24px rgba(6,8,26,.6); padding: 8px; display: none;
+  }
+  .site-header.nav-open .site-nav { display: flex; }
+  .site-nav a, .navdrop > button { width: 100%; text-align: left; padding: 11px 12px; }
+  .navdrop { position: static; }
+  .navdrop-menu { position: static; box-shadow: none; border: 0; background: var(--panel2); margin: 2px 0 2px 12px; min-width: 0; }
+}
+
 /* ----------------------------- 레이아웃 컨테이너 ----------------------------- */
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 30px 20px 76px; }
 .wrap.narrow { max-width: 860px; }

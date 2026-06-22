@@ -57,6 +57,7 @@
     host.outerHTML = `
       <header class="site-header">
         <a class="site-brand" href="hub.html"><span class="logo">◎</span> 데이터의 눈</a>
+        <button class="nav-burger" id="nav-burger" aria-label="메뉴" aria-expanded="false">☰</button>
         <nav class="site-nav">${navHTML}</nav>
         <div class="site-user" id="site-user"></div>
       </header>`;
@@ -69,7 +70,23 @@
         dd.classList.toggle('open');
       });
     });
-    document.addEventListener('click', () => document.querySelectorAll('.navdrop').forEach(o => o.classList.remove('open')));
+    // 모바일 햄버거 토글
+    const burger = document.getElementById('nav-burger');
+    if (burger) burger.addEventListener('click', e => {
+      e.stopPropagation();
+      const hdr = burger.closest('.site-header');
+      const open = hdr.classList.toggle('nav-open');
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    // 헤더 밖 클릭 시 드롭다운·모바일 패널 닫기(패널 안 클릭은 유지)
+    document.addEventListener('click', e => {
+      if (e.target.closest('.navdrop')) return;
+      document.querySelectorAll('.navdrop').forEach(o => o.classList.remove('open'));
+      if (!e.target.closest('.site-header')) {
+        const hdr = document.querySelector('.site-header');
+        if (hdr) { hdr.classList.remove('nav-open'); const b = hdr.querySelector('.nav-burger'); if (b) b.setAttribute('aria-expanded', 'false'); }
+      }
+    });
 
     UI.renderUser();
   };
