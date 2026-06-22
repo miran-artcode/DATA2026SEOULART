@@ -268,6 +268,25 @@
     } catch (e) { /* 용어 툴팁은 보조 기능 — 실패해도 페이지는 그대로 동작 */ }
   };
 
+  /* ----------------------------- 탭(dn-tabwrap) 자동 연결 ----------------------------- */
+  // .dn-tabwrap 안의 .dn-tab(버튼, data-tab) ↔ .dn-tabpanel(data-tabpanel)을 묶는다.
+  // 전환 시 resize 이벤트를 쏘아, 숨겨졌던 패널의 캔버스(차트 등)가 올바른 크기로 다시 그려지게 한다.
+  UI.initTabs = function (root) {
+    (root || document).querySelectorAll('.dn-tabwrap').forEach(wrap => {
+      const tabs = Array.from(wrap.querySelectorAll('.dn-tab'));
+      const panels = Array.from(wrap.querySelectorAll('.dn-tabpanel'));
+      if (!tabs.length) return;
+      function activate(key) {
+        tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === key));
+        panels.forEach(p => { p.hidden = (p.dataset.tabpanel !== key); });
+        try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+      }
+      tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
+      const init = tabs.find(t => t.classList.contains('active')) || tabs[0];
+      activate(init.dataset.tab);
+    });
+  };
+
   global.UI = UI;
-  document.addEventListener('DOMContentLoaded', () => { UI.mountHeader(); UI.mountFooter(); UI.glossify(); });
+  document.addEventListener('DOMContentLoaded', () => { UI.mountHeader(); UI.mountFooter(); UI.glossify(); UI.initTabs(); });
 })(window);

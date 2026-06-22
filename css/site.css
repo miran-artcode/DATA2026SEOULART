@@ -332,3 +332,16 @@ table.data tr:hover td { background: var(--panel2); }
   background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px dashed var(--accent); border-radius: 16px; padding: 16px 20px; }
 .dn-next .t { font-size: 14px; }
 .dn-next .t b { color: var(--text); }
+
+/* 탭(tabs) — '한 화면에 전부 펼침'을 '한 번에 한 묶음'으로 (UI.initTabs 가 자동 연결) */
+.dn-tabwrap { margin-top: 22px; }
+.dn-tabs { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px; margin-bottom: 16px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+@media (min-width: 720px) { .dn-tabs { position: sticky; top: 78px; z-index: 20; } }
+.dn-tab { font: inherit; font-size: 13.5px; font-weight: 700; color: var(--muted); background: transparent; border: 0; cursor: pointer;
+  padding: 9px 15px; border-radius: 10px; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; transition: .15s; }
+.dn-tab:hover { color: var(--text); background: var(--panel2); }
+.dn-tab.active { color: #fff; background: var(--accent); }
+.dn-tab .cnt { font-size: 11px; font-weight: 800; border-radius: 999px; padding: 0 6px; background: rgba(255,255,255,.20); }
+.dn-tab:not(.active) .cnt { background: var(--panel3); color: var(--muted2); }
+.dn-tabpanel[hidden] { display: none !important; }
