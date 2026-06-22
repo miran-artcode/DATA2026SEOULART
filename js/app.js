@@ -136,13 +136,13 @@
   function renderPalette() {
     const box = $('#palette'); box.className = 'palette prop'; box.innerHTML = '';
     const pal = analysis.palette;
-    const MAXSEG = 64;                         // 비례 띠는 상위 N개 + ‘기타’로 깔끔하게
+    const MAXSEG = 1024;                       // 비례 띠: 색을 ‘낱개로’ 다 보여줌(큰 K에서 ‘기타 덩어리’가 넓어지던 문제 해결)
     const display = pal.length <= MAXSEG ? pal : pal.slice(0, MAXSEG);
     display.forEach((p, i) => {
       const seg = document.createElement('button');
       seg.className = 'pseg';
       seg.style.background = 'rgb(' + p.r + ',' + p.g + ',' + p.b + ')';
-      seg.style.flexGrow = Math.max(p.ratio, 0.0008);   // ← 비율만큼 너비 차지
+      seg.style.flexGrow = Math.max(p.ratio, 0.0004);   // ← 비율만큼 너비 차지(작은 색은 가는 띠)
       const pct = Math.round(p.ratio * 100);
       seg.title = pct + '% · 클릭: 이 색 군집 켜기/끄기';
       if (p.ratio > 0.06) seg.innerHTML = '<span class="pct">' + pct + '%</span>';
