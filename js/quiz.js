@@ -216,18 +216,21 @@
       : '<tr><td colspan="3" class="muted">아직 출제가 없어요.</td></tr>';
   }
 
-  /* ----------------------------- 탭 ----------------------------- */
-  function switchTab(name) {
-    document.querySelectorAll('[data-qtab]').forEach(b => b.classList.toggle('on', b.dataset.qtab === name));
-    document.querySelectorAll('.qsec').forEach(s => s.classList.toggle('on', s.id === 'qsec-' + name));
-    if (name === 'play') renderPlay(); else if (name === 'rank') renderRank();
-  }
+  /* ----------------------------- 탭 (dn-tabs 사용) ----------------------------- */
+  // 표시 전환은 공용 UI.initTabs가 담당하고, 여기선 탭 클릭만 흉내낸다.
+  function switchTab(name) { const b = document.querySelector('.dn-tab[data-tab="' + name + '"]'); if (b) b.click(); }
 
   /* ----------------------------- 시작 ----------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
     UI.mountIdeaBar('idea', 'gallery');
     renderTags();
-    document.querySelectorAll('[data-qtab]').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.qtab)));
+    // 탭이 바뀌면 해당 패널을 지연 렌더 — 풀기 목록·순위표 새로고침, 출제 차트 다시 그리기
+    document.addEventListener('dn:tab', e => {
+      const k = e.detail && e.detail.key;
+      if (k === 'play') renderPlay();
+      else if (k === 'rank') renderRank();
+      else if (k === 'create' && qAn) drawQuizChart();
+    });
     $('#q-upload').addEventListener('click', () => $('#q-file').click());
     $('#q-file').addEventListener('change', e => { const f = e.target.files[0]; if (!f || !f.type.startsWith('image/')) return; const img = new Image(), url = URL.createObjectURL(f); img.onload = () => { const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext('2d').drawImage(img, 0, 0); URL.revokeObjectURL(url); analyzeImage(c); }; img.src = url; });
     $('#q-demo').addEventListener('change', e => analyzeImage(ImageAnalysis.generateDemo(e.target.value, 640, 480)));

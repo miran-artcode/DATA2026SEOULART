@@ -280,6 +280,8 @@
         tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === key));
         panels.forEach(p => { p.hidden = (p.dataset.tabpanel !== key); });
         try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+        // 탭이 바뀔 때마다 알림 — 숨김 패널의 지연 렌더(목록/순위/차트 등)에 쓰라고.
+        try { wrap.dispatchEvent(new CustomEvent('dn:tab', { detail: { key, wrap }, bubbles: true })); } catch (e) {}
       }
       tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
       const init = tabs.find(t => t.classList.contains('active')) || tabs[0];
