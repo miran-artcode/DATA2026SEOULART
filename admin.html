@@ -19,56 +19,82 @@
 
   <div class="grid c4" id="stats"></div>
 
-  <h2 style="margin:22px 0 10px">학습 현황 (수준별 자동 추정)</h2>
-  <div class="card" style="overflow-x:auto"><table class="data" id="tbl-students"><thead><tr><th>이름</th><th>반</th><th>작품</th><th>전시</th><th>노트</th><th>피드백</th><th>근거기록</th><th>수준</th></tr></thead><tbody></tbody></table></div>
-  <p class="muted" style="font-size:11.5px;margin:6px 0 0">수준은 활동량(작품·전시·노트·피드백·근거 기록)에 따른 <b>자동 추정</b>이며, 성적 평가가 아니라 지도 참고용입니다.</p>
-
-  <div class="card" style="margin-top:16px">
-    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
-      <button id="btn-export" class="btn accent2">⬇ 전체 내보내기(JSON)</button>
-      <button id="btn-import" class="btn">⬆ 학생 JSON 취합(병합)</button>
-      <input id="imp" type="file" accept="application/json,.json" multiple hidden />
-      <input id="q" type="text" placeholder="이름·반·제목 검색" style="width:auto; flex:1; min-width:160px">
-      <select id="f-kind" style="width:auto"><option value="">전체 유형</option><option value="color">색 군집</option><option value="data">데이터 점</option></select>
-    </div>
-    <p class="muted" style="font-size:12px;margin:10px 0 0">취합: 학생이 ‘설정/노트’를 내보낸 JSON을 받아 여기서 병합하면 한 화면에서 학급 전체를 봅니다(실시간 클라우드 미설정 시).</p>
+  <!-- 전역 검색·필터: 아래 활성 표(학생·작품·성찰)에 함께 적용 -->
+  <div class="card" style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+    <span class="muted" style="font-size:12.5px; font-weight:700">🔎 검색·필터</span>
+    <input id="q" type="text" placeholder="이름·반·제목 검색" style="width:auto; flex:1; min-width:180px">
+    <select id="f-kind" style="width:auto"><option value="">전체 유형</option><option value="color">색 군집</option><option value="data">데이터 점</option></select>
+    <span class="muted" style="font-size:11.5px">아래 표 전체에 적용돼요</span>
   </div>
 
-  <div class="card" style="margin-top:16px">
-    <h3 class="with-info">🤖 AI 감상 코치 설정 <span class="info-ic" data-info="ethics-ai">ⓘ</span></h3>
-    <p class="muted" style="font-size:12.5px;margin:0 0 10px">기본은 <b>오프라인 코치</b>(키 불필요)예요. 실제 모델을 켜면 더 풍부한 질문을 받지만,
-      무료 한도(분당 요청 5·입력 10K·출력 4K)를 8명이 나눠 쓰면 한도 초과 시 자동으로 오프라인으로 폴백합니다.</p>
-    <div id="coach-warn"></div>
-    <label class="chk-row"><input type="checkbox" id="c-enabled"> 실제 모델 사용(체크 해제 시 항상 오프라인)</label>
-    <div class="grid c2" style="margin-top:6px">
-      <div>
-        <label class="field">방식</label>
-        <select id="c-mode"><option value="direct">직접 호출(이 브라우저에 키 저장)</option><option value="proxy">프록시 서버(권장·키 숨김)</option></select>
-        <label class="field">모델</label>
-        <select id="c-model"><option value="claude-haiku-4-5-20251001">Haiku 4.5 (가장 빠름·권장)</option><option value="claude-sonnet-4-6">Sonnet 4.6</option><option value="claude-opus-4-8">Opus 4.8</option></select>
+  <div class="dn-tabwrap" style="margin-top:16px">
+    <div class="dn-tabs" role="tablist" aria-label="교사 대시보드">
+      <button class="dn-tab active" data-tab="students">👥 학습 현황</button>
+      <button class="dn-tab" data-tab="works">🎨 작품</button>
+      <button class="dn-tab" data-tab="notes">📝 성찰·메모</button>
+      <button class="dn-tab" data-tab="settings">⚙️ 데이터 · AI 설정</button>
+    </div>
+
+    <!-- 학습 현황 -->
+    <div class="dn-tabpanel" data-tabpanel="students">
+      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-students"><thead><tr><th>이름</th><th>반</th><th>작품</th><th>전시</th><th>노트</th><th>피드백</th><th>근거기록</th><th>수준</th></tr></thead><tbody></tbody></table></div>
+      <p class="muted" style="font-size:11.5px;margin:6px 0 0">수준은 활동량(작품·전시·노트·피드백·근거 기록)에 따른 <b>자동 추정</b>이며, 성적 평가가 아니라 지도 참고용입니다.</p>
+    </div>
+
+    <!-- 작품 -->
+    <div class="dn-tabpanel" data-tabpanel="works" hidden>
+      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-works"><thead><tr><th>제목</th><th>이름</th><th>반</th><th>유형</th><th>전시</th><th>순서</th><th>테마</th><th>의도</th><th>피드백</th><th>시각</th></tr></thead><tbody></tbody></table>
+      <p class="muted" style="font-size:11.5px;margin:6px 0 0">큐레이션: ‘순서’와 ‘테마’를 입력하면 키오스크 전시 순서·묶음에 반영됩니다(자동 저장).</p></div>
+    </div>
+
+    <!-- 성찰·메모 -->
+    <div class="dn-tabpanel" data-tabpanel="notes" hidden>
+      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-notes"><thead><tr><th>이름</th><th>유형</th><th>제목</th><th>내용 요약</th><th>시각</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <!-- 데이터 · AI 설정 -->
+    <div class="dn-tabpanel" data-tabpanel="settings" hidden>
+      <div class="card">
+        <h3>⬇ 학급 데이터 취합</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+          <button id="btn-export" class="btn accent2">⬇ 전체 내보내기(JSON)</button>
+          <button id="btn-import" class="btn">⬆ 학생 JSON 취합(병합)</button>
+          <input id="imp" type="file" accept="application/json,.json" multiple hidden />
+        </div>
+        <p class="muted" style="font-size:12px;margin:10px 0 0">취합: 학생이 ‘설정/노트’를 내보낸 JSON을 받아 여기서 병합하면 한 화면에서 학급 전체를 봅니다(실시간 클라우드 미설정 시).</p>
       </div>
-      <div>
-        <div id="row-key"><label class="field">API 키 (이 기기 브라우저에만 저장 · 저장소엔 안 올라감)</label>
-          <input id="c-key" type="password" placeholder="sk-ant-..." autocomplete="off"></div>
-        <div id="row-endpoint" class="hide"><label class="field">프록시 주소</label>
-          <input id="c-endpoint" type="text" placeholder="https://your-proxy.example.com/coach"></div>
+
+      <div class="card" style="margin-top:16px">
+        <h3 class="with-info">🤖 AI 감상 코치 설정 <span class="info-ic" data-info="ethics-ai">ⓘ</span></h3>
+        <p class="muted" style="font-size:12.5px;margin:0 0 10px">기본은 <b>오프라인 코치</b>(키 불필요)예요. 실제 모델을 켜면 더 풍부한 질문을 받지만,
+          무료 한도(분당 요청 5·입력 10K·출력 4K)를 8명이 나눠 쓰면 한도 초과 시 자동으로 오프라인으로 폴백합니다.</p>
+        <div id="coach-warn"></div>
+        <label class="chk-row"><input type="checkbox" id="c-enabled"> 실제 모델 사용(체크 해제 시 항상 오프라인)</label>
+        <div class="grid c2" style="margin-top:6px">
+          <div>
+            <label class="field">방식</label>
+            <select id="c-mode"><option value="direct">직접 호출(이 브라우저에 키 저장)</option><option value="proxy">프록시 서버(권장·키 숨김)</option></select>
+            <label class="field">모델</label>
+            <select id="c-model"><option value="claude-haiku-4-5-20251001">Haiku 4.5 (가장 빠름·권장)</option><option value="claude-sonnet-4-6">Sonnet 4.6</option><option value="claude-opus-4-8">Opus 4.8</option></select>
+          </div>
+          <div>
+            <div id="row-key"><label class="field">API 키 (이 기기 브라우저에만 저장 · 저장소엔 안 올라감)</label>
+              <input id="c-key" type="password" placeholder="sk-ant-..." autocomplete="off"></div>
+            <div id="row-endpoint" class="hide"><label class="field">프록시 주소</label>
+              <input id="c-endpoint" type="text" placeholder="https://your-proxy.example.com/coach"></div>
+          </div>
+        </div>
+        <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+          <button id="c-save" class="btn primary">설정 저장</button>
+          <button id="c-test" class="btn">연결 테스트</button>
+          <button id="c-clear" class="btn ghost">초기화</button>
+          <span class="muted" id="c-status" style="font-size:12px"></span>
+        </div>
+        <p class="muted" style="font-size:11.5px;margin:10px 0 0">⚠ ‘직접 호출’은 이 브라우저를 여는 사람이 키를 볼 수 있어요(교사 기기에서만 권장). 여러 학생이 쓰면 키 보호·중앙 한도 관리를 위해 <b>프록시</b>가 안전합니다.</p>
       </div>
     </div>
-    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center">
-      <button id="c-save" class="btn primary">설정 저장</button>
-      <button id="c-test" class="btn">연결 테스트</button>
-      <button id="c-clear" class="btn ghost">초기화</button>
-      <span class="muted" id="c-status" style="font-size:12px"></span>
-    </div>
-    <p class="muted" style="font-size:11.5px;margin:10px 0 0">⚠ ‘직접 호출’은 이 브라우저를 여는 사람이 키를 볼 수 있어요(교사 기기에서만 권장). 여러 학생이 쓰면 키 보호·중앙 한도 관리를 위해 <b>프록시</b>가 안전합니다.</p>
   </div>
 
-  <h2 style="margin:22px 0 10px">작품</h2>
-  <div class="card" style="overflow-x:auto"><table class="data" id="tbl-works"><thead><tr><th>제목</th><th>이름</th><th>반</th><th>유형</th><th>전시</th><th>순서</th><th>테마</th><th>의도</th><th>피드백</th><th>시각</th></tr></thead><tbody></tbody></table>
-  <p class="muted" style="font-size:11.5px;margin:6px 0 0">큐레이션: ‘순서’와 ‘테마’를 입력하면 키오스크 전시 순서·묶음에 반영됩니다(자동 저장).</p></div>
-
-  <h2 style="margin:22px 0 10px">성찰·메모</h2>
-  <div class="card" style="overflow-x:auto"><table class="data" id="tbl-notes"><thead><tr><th>이름</th><th>유형</th><th>제목</th><th>내용 요약</th><th>시각</th></tr></thead><tbody></tbody></table></div>
   <p class="footer-note">미성년자 정보 보호 · 표시 이름 정책과 학교 방침을 준수하세요</p>
 </div>
 
