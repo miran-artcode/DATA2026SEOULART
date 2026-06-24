@@ -6,9 +6,18 @@
 <title>사회문제 프로젝트 · 데이터의 눈</title>
 <link rel="stylesheet" href="css/site.css" />
 <style>
-  .step { border-left: 3px solid var(--accent); }
+  .step { border-left: 3px solid var(--accent); scroll-margin-top: 80px; }
   .step .n { display: inline-flex; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; align-items: center; justify-content: center; font-size: 13px; margin-right: 8px; }
   .src-links a { display: inline-block; margin: 3px 8px 3px 0; font-size: 13px; }
+  /* 한 장 흐름 지도 — 5단계 전체를 먼저 보고, 눌러 그 단계로 */
+  .pj-map { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 6px; }
+  .pj-map a { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 98px; text-decoration: none; color: var(--muted);
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 11px; padding: 9px 11px; font-size: 12.5px; font-weight: 600; transition: .14s; }
+  .pj-map a:hover { color: var(--text); border-color: var(--accent); transform: translateY(-1px); }
+  .pj-map a .d { display: inline-grid; place-items: center; width: 21px; height: 21px; flex: none; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 800; font-size: 12px; }
+  .pj-phase { display: flex; align-items: baseline; gap: 8px; margin: 22px 0 12px; font-weight: 800; font-size: 14px; color: var(--text); }
+  .pj-phase small { font-weight: 600; font-size: 12px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -21,7 +30,18 @@
   </div>
   <div id="idea"></div>
 
-  <div class="card step" style="margin-bottom:14px">
+  <!-- 5단계 흐름 지도 -->
+  <nav class="pj-map" aria-label="프로젝트 5단계">
+    <a href="#pstep-1"><span class="d">1</span> 주제</a>
+    <a href="#pstep-2"><span class="d">2</span> 데이터</a>
+    <a href="#pstep-3"><span class="d">3</span> 정제</a>
+    <a href="#pstep-4"><span class="d">4</span> 작품</a>
+    <a href="#pstep-5"><span class="d">5</span> 발언</a>
+  </nav>
+
+  <div class="pj-phase">🔍 준비 <small>— 문제를 정하고 데이터를 갖추기</small></div>
+
+  <div class="card step" id="pstep-1" style="margin-bottom:14px">
     <h3><span class="n">1</span>주제 선정</h3>
     <label class="field">관심 있는 사회 문제</label>
     <select id="pj-topic">
@@ -37,7 +57,7 @@
     <textarea id="pj-why" rows="2" placeholder="예: 우리 동네 미세먼지가 심해 체육을 못 한 날이 많았다"></textarea>
   </div>
 
-  <div class="card step" style="margin-bottom:14px">
+  <div class="card step" id="pstep-2" style="margin-bottom:14px">
     <h3><span class="n">2</span>데이터 찾기 (공공데이터)</h3>
     <p class="muted" style="font-size:12.5px;margin:0 0 6px">공공데이터에서 관련 표를 찾아 CSV로 받아 붙여넣어요. ‘무엇을 셀지’ 고르는 것부터 시작이에요.</p>
     <div class="src-links">
@@ -55,7 +75,7 @@
     </div>
   </div>
 
-  <div class="card step" style="margin-bottom:14px">
+  <div class="card step" id="pstep-3" style="margin-bottom:14px">
     <h3><span class="n">3</span>정제 · 데이터 선택 기록</h3>
     <label class="chk-row"><input type="checkbox" id="pj-c1"> 결측치(빈 값)를 어떻게 처리할지 정했다</label>
     <label class="chk-row"><input type="checkbox" id="pj-c2"> 이상치(튀는 값)·단위를 확인했다</label>
@@ -64,13 +84,15 @@
     <input id="pj-omit" type="text" placeholder="예: 코로나 시기는 예외라 제외, 최근 5년만">
   </div>
 
-  <div class="card step" style="margin-bottom:14px">
+  <div class="pj-phase">🎨 창작 <small>— 데이터를 작품과 사회적 발언으로</small></div>
+
+  <div class="card step" id="pstep-4" style="margin-bottom:14px">
     <h3><span class="n">4</span>작품으로</h3>
     <p class="muted" style="font-size:12.5px;margin:0 0 8px">정제한 데이터를 점 작품으로 — 무엇을 크기·색·움직임으로 강조할지가 곧 메시지예요.</p>
     <button id="pj-send" class="btn accent2">→ 데이터 점 스튜디오로 보내기</button>
   </div>
 
-  <div class="card step">
+  <div class="card step" id="pstep-5">
     <h3><span class="n">5</span>사회적 발언 (작품 주제문)</h3>
     <label class="field">이 문제를 세상에 어떻게 보여줄 것인가? (한두 문장)</label>
     <textarea id="pj-statement" rows="3" placeholder="예: 늘어나는 유기동물 점이 화면 밖으로 쏟아지게 해, 외면하면 더 커진다는 걸 보여주고 싶다"></textarea>
