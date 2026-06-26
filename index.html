@@ -6,38 +6,26 @@
 <title>데이터의 눈으로 그림 읽기 — 분석에서 창작까지</title>
 <meta name="description" content="그림·소리·삶·사회를 데이터로 분석하고, 나의 의도로 인터랙티브 미디어아트로 재창조하는 서울미술고등학교 AI 융합 미술수업 사이트." />
 <link rel="stylesheet" href="css/site.css" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600;1,700&display=swap" />
 <style>
   html { scroll-behavior: smooth; }
   /* 스무스 스크롤 시 고정 헤더에 가리지 않도록 */
   #concept, #start { scroll-margin-top: 86px; }
 
-  /* ── 히어로 : 차분한 갤러리형 ───────────────────────── */
+  /* ── 히어로 : 미니멀·정돈 (흰 배경 · 여백 · 무모션) ──── */
   .lp-hero { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 26px;
-    margin: 18px 0 0; padding: clamp(56px,8vw,116px) clamp(22px,5vw,56px) clamp(50px,7vw,88px);
+    margin: 18px 0 0; padding: clamp(64px,9vw,132px) clamp(24px,5vw,64px) clamp(56px,8vw,104px);
     background:
-      radial-gradient(720px 380px at 18% -10%, rgba(58,79,122,.09), transparent 60%),
-      radial-gradient(640px 380px at 88% -4%, rgba(47,182,168,.07), transparent 62%),
+      radial-gradient(620px 280px at 50% -18%, rgba(58,79,122,.06), transparent 64%),
       linear-gradient(180deg, var(--panel), var(--panel2));
     box-shadow: var(--shadow); }
-  /* 점 군집이 아니라 '부드러운 색의 면' — 분석=색을 차분하게 암시 */
-  .lp-hero::before, .lp-hero::after { content: ""; position: absolute; border-radius: 50%;
-    pointer-events: none; filter: blur(66px); z-index: 0; }
-  .lp-hero::before { width: 320px; height: 320px; left: -72px; top: -84px;
-    background: radial-gradient(circle, rgba(58,79,122,.24), transparent 70%); }
-  .lp-hero::after { width: 280px; height: 280px; right: -62px; bottom: -72px;
-    background: radial-gradient(circle, rgba(47,182,168,.18), transparent 70%); }
-  .hero-veil { position: absolute; inset: 0; pointer-events: none; z-index: 1;
-    background: radial-gradient(640px 360px at 50% 42%, rgba(255,255,255,.60), rgba(255,255,255,0) 72%); }
-  .hero-inner { position: relative; z-index: 2; text-align: center; max-width: 720px; margin: 0 auto; }
+  .hero-inner { position: relative; z-index: 2; text-align: center; max-width: 660px; margin: 0 auto; }
 
-  /* 엘레강트 세리프 디스플레이 (Playfair) — 차갑던 Orbitron 대체 */
-  .typo-hero { font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-weight: 800;
-    font-size: clamp(46px,9vw,94px); line-height: 1.0; letter-spacing: -.015em; margin: 16px 0 20px; color: var(--text); }
-  .typo-hero .grad { font-style: italic; font-weight: 700; color: var(--accent);
-    background: linear-gradient(96deg, var(--accent) 8%, #2FB6A8 96%);
+  /* 깔끔한 산세리프 대문자 — 진한 남색 + 슬레이트 그라데이션 */
+  .typo-hero { font-family: 'Pretendard','Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif;
+    font-weight: 800; font-size: clamp(44px,8.4vw,86px); line-height: 1.06; letter-spacing: -.012em;
+    text-transform: uppercase; margin: 18px 0 22px; color: var(--text); }
+  .typo-hero .grad { color: var(--accent);
+    background: linear-gradient(96deg, var(--accent) 6%, #6E84B8 96%);
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
   .hero-inner .ko { color: var(--text); font-weight: 700; font-size: clamp(17px,3.2vw,23px); margin: 0 0 14px; letter-spacing: -.3px; }
   .hero-inner .ko .accent { color: var(--accent); }
@@ -47,20 +35,11 @@
   .lp-cta .btn { padding: 12px 20px; font-size: 14.5px; }
   .btn.xl { font-size: 15px; font-weight: 700; }
 
-  /* 슬림 4단계 여정 — 한 줄 */
-  .arc { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 28px auto 0; }
-  .arc .s { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text); background: var(--panel);
-    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px 6px 7px; box-shadow: var(--shadow); }
-  .arc .s i { width: 21px; height: 21px; border-radius: 50%; background: rgba(var(--accent-rgb),.16); color: var(--accent);
-    font-weight: 800; font-size: 11px; display: grid; place-items: center; font-style: normal; }
-  .arc .a { color: var(--muted2); font-weight: 700; }
-  @media (max-width: 600px) { .arc .a { display: none; } }
-
   /* 통계 스트립 */
-  .lp-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 28px auto 0; max-width: 760px; }
+  .lp-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 34px auto 0; max-width: 720px; }
   .lp-stats .st { flex: 1 1 150px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
-    padding: 14px; text-align: center; box-shadow: var(--shadow); }
-  .lp-stats .st b { display: block; font-family: 'Playfair Display', Georgia, serif; font-weight: 800; font-size: 26px; color: var(--accent); line-height: 1; }
+    padding: 15px 14px; text-align: center; box-shadow: var(--shadow); }
+  .lp-stats .st b { display: block; font-weight: 800; font-size: 26px; color: var(--accent); line-height: 1; letter-spacing: -.01em; }
   .lp-stats .st span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 7px; letter-spacing: -.2px; }
 
   .scroll-cue { display: block; text-align: center; margin: 32px auto 0; color: var(--muted2); font-size: 22px; animation: bob 1.8s ease-in-out infinite; text-decoration: none; }
@@ -70,7 +49,7 @@
   /* ── 섹션 헤더 ──────────────────────────────────────── */
   .sec { margin-top: clamp(44px,7vw,72px); }
   .sec-head { text-align: center; max-width: 640px; margin: 0 auto 22px; }
-  .sec-head h2 { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: clamp(24px,3.8vw,32px); margin: 8px 0 8px; letter-spacing: -.3px; }
+  .sec-head h2 { font-weight: 800; font-size: clamp(22px,3.6vw,29px); margin: 8px 0 8px; letter-spacing: -.4px; }
   .sec-head p { color: var(--muted); font-size: 14.5px; margin: 0; line-height: 1.7; }
   .sec-head p b { color: var(--text); }
 
@@ -126,14 +105,14 @@
   .masters span b { color: var(--text); font-weight: 600; }
 
   /* ── 인용 ───────────────────────────────────────────── */
-  .epigraph { font-family: 'Playfair Display', Georgia, serif; text-align: center; color: var(--muted); font-size: clamp(18px,2.8vw,23px); font-style: italic;
+  .epigraph { text-align: center; color: var(--muted); font-size: clamp(17px,2.6vw,21px); font-style: italic;
     line-height: 1.6; max-width: 560px; margin: 0 auto; }
   .epigraph b { color: var(--accent); font-style: normal; font-weight: 700; }
 
   /* ── 시작하기(로그인) ───────────────────────────────── */
   .start-wrap { display: grid; gap: 20px; align-items: start; }
   @media (min-width: 820px) { .start-wrap { grid-template-columns: 1fr 1fr; gap: 28px; } }
-  .start-pitch h2 { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: clamp(24px,3.6vw,32px); margin: 0 0 10px; letter-spacing: -.3px; }
+  .start-pitch h2 { font-weight: 800; font-size: clamp(22px,3.4vw,29px); margin: 0 0 10px; letter-spacing: -.4px; }
   .start-pitch p { color: var(--muted); font-size: 14.5px; line-height: 1.72; margin: 0 0 14px; }
   .start-pitch p b { color: var(--text); }
   .can-do { display: flex; flex-wrap: wrap; gap: 7px; margin: 16px 0 0; }
@@ -149,22 +128,15 @@
 
   <!-- ════════ 히어로 ════════ -->
   <section class="lp-hero">
-    <div class="hero-veil" aria-hidden="true"></div>
     <div class="hero-inner">
       <span class="eyebrow">DATA × ART · AI 융합 미술수업</span>
-      <h1 class="typo-hero">Read Art,<br><span class="grad">with Data</span></h1>
+      <h1 class="typo-hero">Read Art<br><span class="grad">with Data</span></h1>
       <p class="ko">데이터의 눈으로 그림을 읽고, <span class="accent">의미를 담아</span> 다시 그리다</p>
       <p class="lead">그림·소리·내 삶·사회를 <b>데이터로 분석</b>하고, 나의 <b>의도</b>로 <b>인터랙티브 미디어아트</b>로 재창조해요. 알고리즘은 도구일 뿐, <b>무엇을 셀지·무엇을 강조할지</b>가 곧 작가의 선택입니다.</p>
       <div class="lp-cta">
         <a class="btn primary xl" href="#start" id="cta-start">무료로 시작하기 →</a>
         <a class="btn" href="hub.html">로그인 없이 둘러보기</a>
         <a class="btn ghost" href="start.html">🧭 처음이세요? 5분 안내</a>
-      </div>
-      <div class="arc" aria-label="4단계 여정: 그림 → 소리 → 내 삶 → 사회">
-        <span class="s"><i>1</i>그림</span><span class="a">→</span>
-        <span class="s"><i>2</i>소리</span><span class="a">→</span>
-        <span class="s"><i>3</i>내 삶</span><span class="a">→</span>
-        <span class="s"><i>4</i>사회</span>
       </div>
       <div class="lp-stats" aria-label="수업 한눈에">
         <div class="st"><b>4</b><span>단계 창작 여정</span></div>
