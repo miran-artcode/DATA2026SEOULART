@@ -5,8 +5,8 @@
    ============================================================================= */
 :root {
   /* HANDOFF 다크(앱 몰입) — 쿨톤. UI 크롬은 무채·블루, 색은 작품/데이터에서만. */
-  --bg: #070810; --bg2: #0c0f1e;
-  --panel: #13151d; --panel2: #181b27; --panel3: #1f2333;
+  --bg: #04050b; --bg2: #080a16;
+  --panel: #0f111a; --panel2: #151823; --panel3: #1c2030;
   --line: #232734; --text: #E7ECF7; --title: #ffffff;
   --muted: #9fb0d0; --muted2: #8794b0; --muted3: #7E89A8;
   --accent: #2F6BE0; --accent-rgb: 47,107,224;        /* 1차 블루 */
@@ -15,7 +15,7 @@
   --accent-card: #16224a; --accent-card-line: #2a3a66;
   --good: #4dc78a; --danger: #f2667a; --adv: #93A4E8;
   --primary: #2F6BE0; --primary-fg: #ffffff; --ink-chip: #2F6BE0;
-  --footer: #0A0E26;
+  --footer: #05060f;
   --nav-bg: rgba(255,255,255,.045); --nav-line: rgba(255,255,255,.09);
   --radius: 20px; --maxw: 1180px;
   --header: rgba(13, 14, 26, .72);
@@ -25,7 +25,7 @@
 }
 /* ☀ 라이트(진입·학습·관리) — 가독성 우선 */
 :root[data-theme="light"] {
-  --bg: #f6fbff; --bg2: #eef4fb;
+  --bg: #fdfdff; --bg2: #f4f4fb;
   --panel: #ffffff; --panel2: #f3f7fc; --panel3: #e9eff6;
   --line: #E4EAF2; --text: #0E1523; --title: #0E1523;
   --muted: #51607A; --muted2: #667080; --muted3: #9AA6B6;
@@ -40,7 +40,9 @@
 }
 :root[data-theme="light"] body {
   background:
-    radial-gradient(1200px 700px at 50% -12%, #e7f0ff 0%, transparent 60%),
+    radial-gradient(720px 520px at 6% -8%, rgba(151,130,232,.22), transparent 58%),
+    radial-gradient(760px 540px at 97% 2%, rgba(238,148,198,.18), transparent 58%),
+    radial-gradient(900px 640px at 72% 96%, rgba(150,182,242,.12), transparent 62%),
     var(--bg);
 }
 :root[data-theme="light"] .btn.ghost { background: transparent; }
@@ -50,7 +52,9 @@ html, body { margin: 0; }
 body {
   font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
   background:
-    radial-gradient(1200px 760px at 50% -8%, #141a36 0%, transparent 58%),
+    radial-gradient(820px 480px at 50% -12%, rgba(64,92,210,.30), transparent 54%),
+    radial-gradient(560px 440px at 86% 8%, rgba(110,74,206,.20), transparent 60%),
+    radial-gradient(640px 480px at 9% 16%, rgba(40,82,192,.16), transparent 60%),
     var(--bg);
   color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; line-height: 1.5;
 }
@@ -249,8 +253,8 @@ table.data tr:hover td { background: var(--panel2); }
 
 /* ----------------------------- 공통 다크 크레딧 풋터(항상 다크) ----------------------------- */
 #site-footer { position: relative; overflow: hidden; margin-top: 44px; padding: 38px 18px 40px; background: var(--footer); border-top: 1px solid rgba(255,255,255,.06); }
-#site-footer::before { content: ""; position: absolute; left: 16%; top: -45%; width: 64%; height: 130%; background: radial-gradient(closest-side, rgba(47,107,224,.22), transparent 70%); pointer-events: none; }
-#site-footer::after { content: ""; position: absolute; right: 6%; bottom: -55%; width: 44%; height: 130%; background: radial-gradient(closest-side, rgba(47,182,168,.16), transparent 70%); pointer-events: none; }
+#site-footer::before { content: ""; position: absolute; left: 14%; top: -50%; width: 60%; height: 140%; background: radial-gradient(closest-side, rgba(72,102,228,.30), transparent 70%); pointer-events: none; }
+#site-footer::after { content: ""; position: absolute; right: 4%; bottom: -60%; width: 46%; height: 140%; background: radial-gradient(closest-side, rgba(120,80,212,.22), transparent 70%); pointer-events: none; }
 .ft-inner { position: relative; max-width: var(--maxw); margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
 .ft-brand { display: inline-flex; align-items: center; gap: 9px; color: #E7ECF7; font-weight: 800; font-size: 15px; text-decoration: none; }
 .ft-brand .ft-logo { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: #2F6BE0; color: #fff; }

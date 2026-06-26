@@ -14,7 +14,10 @@
   /* ── 히어로 : 미니멀·정돈 (흰 배경 · 여백 · 무모션) ──── */
   .lp-hero { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 26px;
     margin: 18px 0 0; padding: clamp(72px,10vw,148px) clamp(24px,5vw,64px);
-    background: linear-gradient(180deg, var(--panel), var(--panel2));
+    background:
+      radial-gradient(620px 400px at 90% 14%, rgba(176,140,232,.22), transparent 60%),
+      radial-gradient(520px 360px at 4% 96%, rgba(238,158,202,.15), transparent 62%),
+      linear-gradient(180deg, var(--panel), var(--panel2));
     box-shadow: var(--shadow); }
   .hero-inner { position: relative; z-index: 2; text-align: center; max-width: 660px; margin: 0 auto; }
 
@@ -22,9 +25,9 @@
   .typo-hero { font-family: 'Pretendard','Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif;
     font-weight: 800; font-size: clamp(44px,8.4vw,86px); line-height: 1.06; letter-spacing: -.012em;
     text-transform: uppercase; margin: 18px 0 22px; color: var(--text); }
-  .typo-hero .grad { color: var(--accent);
-    background: linear-gradient(96deg, var(--accent) 6%, #6E84B8 96%);
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .typo-hero .grad { color: transparent; background: none;
+    -webkit-text-stroke: 1.8px #A28BDC; text-stroke: 1.8px #A28BDC;
+    -webkit-text-fill-color: transparent; }
   .hero-inner .ko { color: var(--text); font-weight: 700; font-size: clamp(17px,3.2vw,23px); margin: 0 0 14px; letter-spacing: -.3px; }
   .hero-inner .ko .accent { color: var(--accent); }
   .hero-inner .lead { color: var(--muted); font-size: 15.5px; max-width: 600px; margin: 0 auto; line-height: 1.8; }
