@@ -4,7 +4,7 @@
  */
 (function (global) {
   'use strict';
-  const KIND = { color: '색 군집', data: '데이터 점', lab: '분석' };
+  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', lab: '분석' };
   const COLORLBL = { value: '값 그라데이션(한↔난색)', warm: '난색', cool: '한색' };
 
   // 매핑 요약(신/구 형식 모두 지원). 신: {size:'열이름',...} / 구: {mSize:true,...}

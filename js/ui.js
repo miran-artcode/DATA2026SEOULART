@@ -19,6 +19,7 @@
       { href: 'studio-life.html', t: '내 삶을 데이터로', s: '사진·대화를 데이터로 · 3단계' },
       { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터로 사회적 발언 · 4단계' },
       { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: '사진 속 사물을 AI로 · AI 렌즈' },
+      { href: 'studio-word.html', t: '낱말 구름 스튜디오', s: '작가의 말 → 굿즈 · 자연어 분석' },
       { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구' }
     ] },
     { label: '배우기', drop: [
