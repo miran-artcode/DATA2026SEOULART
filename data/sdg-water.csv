@@ -1,0 +1,152 @@
+﻿국가,코드,대륙,연도,안전한 식수 보급률
+Gibraltar,GIB,유럽,2024,100
+"Hong Kong SAR, China",HKG,아시아,2024,100
+Hungary,HUN,유럽,2024,100
+Iceland,ISL,유럽,2024,100
+Kuwait,KWT,아시아,2024,100
+Liechtenstein,LIE,유럽,2024,100
+"Macao SAR, China",MAC,아시아,2024,100
+Monaco,MCO,유럽,2024,100
+Netherlands,NLD,유럽,2024,100.0
+New Zealand,NZL,오세아니아,2024,100
+San Marino,SMR,유럽,2024,100.0
+Singapore,SGP,아시아,2024,100
+Denmark,DNK,유럽,2024,99.9
+Germany,DEU,유럽,2024,99.9
+Isle of Man,IMN,유럽,2024,99.9
+Malta,MLT,유럽,2024,99.8
+Sweden,SWE,유럽,2024,99.8
+United Kingdom,GBR,유럽,2024,99.8
+Cyprus,CYP,유럽,2024,99.7
+France,FRA,유럽,2024,99.7
+Luxembourg,LUX,유럽,2024,99.7
+Finland,FIN,유럽,2024,99.6
+Slovak Republic,SVK,유럽,2024,99.6
+Slovenia,SVN,유럽,2024,99.6
+Belgium,BEL,유럽,2024,99.5
+Israel,ISR,아시아,2024,99.5
+Spain,ESP,유럽,2024,99.5
+"Korea, Rep.",KOR,아시아,2024,99.3
+Norway,NOR,유럽,2024,99.1
+Austria,AUT,유럽,2024,98.9
+Bahrain,BHR,아시아,2024,98.9
+Estonia,EST,유럽,2024,98.9
+Puerto Rico (US),PRI,북미,2024,98.9
+Japan,JPN,아시아,2024,98.7
+Virgin Islands (U.S.),VIR,북미,2024,98.7
+United Arab Emirates,ARE,아시아,2024,98.6
+Czechia,CZE,유럽,2024,98.1
+Chile,CHL,남미,2024,97.8
+United States,USA,북미,2024,97.6
+Latvia,LVA,유럽,2024,97.0
+Canada,CAN,북미,2024,96.9
+New Caledonia,NCL,오세아니아,2024,96.9
+Italy,ITA,유럽,2024,96.8
+Greece,GRC,유럽,2024,96.7
+Lithuania,LTU,유럽,2024,96.7
+Switzerland,CHE,유럽,2024,96.7
+St. Martin (French part),MAF,북미,2024,96.6
+Bulgaria,BGR,유럽,2024,96.2
+Ireland,IRL,유럽,2024,96.1
+Qatar,QAT,아시아,2024,95.3
+Portugal,PRT,유럽,2024,95.2
+Turkmenistan,TKM,아시아,2024,94.9
+Malaysia,MYS,아시아,2024,94.7
+"Iran, Islamic Rep.",IRN,아시아,2024,94.4
+Guam,GUM,오세아니아,2024,94.0
+Belarus,BLR,유럽,2024,93.1
+Kazakhstan,KAZ,아시아,2024,91.5
+Oman,OMN,아시아,2024,91.1
+Palau,PLW,오세아니아,2024,90.8
+Andorra,AND,유럽,2024,90.6
+American Samoa,ASM,오세아니아,2024,90.5
+French Polynesia,PYF,오세아니아,2024,90.4
+Grenada,GRD,북미,2017,89.9
+Jordan,JOR,아시아,2024,89.0
+Poland,POL,유럽,2024,88.7
+Brazil,BRA,남미,2024,88.6
+Ukraine,UKR,유럽,2024,87.9
+Croatia,HRV,유럽,2024,87.3
+Bosnia and Herzegovina,BIH,유럽,2024,86.4
+Montenegro,MNE,유럽,2024,85.5
+Romania,ROU,유럽,2024,82.2
+Armenia,ARM,아시아,2024,82.1
+Uzbekistan,UZB,아시아,2024,81.9
+Northern Mariana Islands,MNP,오세아니아,2024,81.5
+North Macedonia,MKD,유럽,2024,80.8
+West Bank and Gaza,PSE,아시아,2024,80.6
+Costa Rica,CRI,북미,2024,80.5
+Morocco,MAR,아프리카,2024,80.0
+"Egypt, Arab Rep.",EGY,아프리카,2024,78.9
+India,IND,아시아,2024,76.4
+Russian Federation,RUS,유럽,2024,76.3
+Moldova,MDA,유럽,2024,75.8
+Serbia,SRB,유럽,2024,75.0
+Colombia,COL,남미,2024,74.3
+Kyrgyz Republic,KGZ,아시아,2024,73.9
+Albania,ALB,유럽,2024,70.8
+Georgia,GEO,아시아,2024,70.5
+Ecuador,ECU,남미,2024,69.9
+Trinidad and Tobago,TTO,북미,2024,69.4
+Algeria,DZA,아프리카,2024,69.0
+South Africa,ZAF,아프리카,2024,68.0
+Guyana,GUY,남미,2024,67.2
+"Korea, Dem. People's Rep.",PRK,아시아,2023,66.6
+Bhutan,BTN,아시아,2024,65.6
+Honduras,HND,북미,2024,65.5
+Tajikistan,TJK,아시아,2024,65.1
+Tunisia,TUN,아프리카,2024,65.0
+Seychelles,SYC,아프리카,2024,64.7
+Paraguay,PRY,남미,2024,64.4
+Botswana,BWA,아프리카,2024,63.3
+Samoa,WSM,오세아니아,2024,62.5
+Iraq,IRQ,아시아,2024,59.8
+Myanmar,MMR,아시아,2024,59.7
+Bangladesh,BGD,아시아,2024,59.1
+Viet Nam,VNM,아시아,2024,58.6
+Azerbaijan,AZE,아시아,2024,57.8
+Suriname,SUR,남미,2024,55.8
+Peru,PER,남미,2024,49.4
+Guatemala,GTM,북미,2024,48.8
+Philippines,PHL,아시아,2024,48.5
+"Gambia, The",GMB,아프리카,2024,48.2
+Lebanon,LBN,아시아,2024,47.7
+Turks and Caicos Islands,TCA,북미,2024,47.0
+Sri Lanka,LKA,아시아,2024,46.9
+"Congo, Rep.",COG,아프리카,2021,45.9
+Dominican Republic,DOM,북미,2024,45.3
+Pakistan,PAK,아시아,2024,45.0
+Mongolia,MNG,아시아,2024,43.4
+Mexico,MEX,북미,2024,43.0
+Ghana,GHA,아프리카,2024,42.9
+Fiji,FJI,오세아니아,2024,42.1
+Eswatini,SWZ,아프리카,2024,38.2
+Sao Tome and Principe,STP,아프리카,2024,36.7
+Cote d'Ivoire,CIV,아프리카,2024,36.4
+Lao PDR,LAO,아시아,2024,35.2
+Lesotho,LSO,아프리카,2024,31.3
+Tanzania,TZA,아프리카,2024,31.3
+Afghanistan,AFG,아시아,2024,30.6
+Indonesia,IDN,아시아,2024,30.5
+Cambodia,KHM,아시아,2024,30.0
+Nigeria,NGA,아프리카,2024,29.9
+Tonga,TON,오세아니아,2024,29.6
+Mozambique,MOZ,아프리카,2024,27.5
+Senegal,SEN,아프리카,2024,27.2
+Zimbabwe,ZWE,아프리카,2024,25.5
+Guinea-Bissau,GNB,아프리카,2024,24.0
+Madagascar,MDG,아프리카,2024,22.1
+Togo,TGO,아프리카,2024,20.5
+Vanuatu,VUT,오세아니아,2024,19.2
+Nauru,NRU,오세아니아,2024,18.7
+Malawi,MWI,아프리카,2024,18.2
+Uganda,UGA,아프리카,2024,18.1
+Benin,BEN,아프리카,2024,17.7
+Nepal,NPL,아시아,2024,16.5
+Kiribati,KIR,오세아니아,2024,15.1
+Ethiopia,ETH,아프리카,2024,13.5
+"Congo, Dem. Rep.",COD,아프리카,2024,11.9
+Sierra Leone,SLE,아프리카,2024,10.9
+Tuvalu,TUV,오세아니아,2024,8.7
+Chad,TCD,아프리카,2024,6.3
+Central African Republic,CAF,아프리카,2024,6.2

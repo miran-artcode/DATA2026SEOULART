@@ -281,7 +281,7 @@
     // 시나리오 picker 채우기
     const sel = $('#soc-scenario');
     let html = '<optgroup label="🌍 세계 데이터 (실제 빅데이터·OWID)">';
-    const order = ['co2', 'gini', 'poverty', 'unemployment', 'life', 'literacy', 'women', 'plastic', 'redlist', 'forest'];
+    const order = ['poverty', 'life', 'literacy', 'women', 'water', 'unemployment', 'gini', 'co2', 'plastic', 'redlist', 'forest'];
     Object.keys(SDG).sort((a, b) => (order.indexOf(a) + 99) - (order.indexOf(b) + 99)).forEach(k => {
       html += '<option value="' + k + '">' + esc(SDG[k].sdg + ' · ' + SDG[k].label) + '</option>';
     });
