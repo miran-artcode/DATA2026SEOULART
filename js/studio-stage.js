@@ -76,6 +76,18 @@
       desc: '사람이 많을수록 점이 <b>빽빽이 차오르고</b>, 프레임을 떠나면 잔상으로 <b>천천히 소멸</b>해요. 도시의 밀집과 고독 — 머물던 자리의 온기가 서서히 식습니다.',
       film: '붐비는 복도·지하철·횡단보도, 그리고 같은 장소가 텅 비는 순간. 사람이 들고 나는 ‘흐름’이 보이는 곳.',
       map: '사람 수 → 밀도(많을수록 점↑) · 긴 잔상으로 떠난 자리가 천천히 사라짐'
+    },
+    together: {
+      name: '혼자, 함께', emoji: '🤝', bg: [8, 10, 20], trail: 0.12, behavior: 'together',
+      desc: '사람이 <b>혼자</b>면 점이 차갑게 식어 가장자리로 밀려나고, <b>여럿</b>이면 따뜻해지며 서로 빛의 <b>실</b>로 이어져요. 연결과 고립을 같은 화면에서.',
+      film: '혼자 앉은 사람과, 모여 이야기하는 무리. 한 사람이 무리에 합류하거나 떠나는 순간이면 변화가 극적이에요.',
+      map: '사람 수 → 온기·연결선 (혼자=차갑게 고립 / 여럿=따뜻하게 빛의 실로 이어짐)'
+    },
+    approach: {
+      name: '다가오는 것', emoji: '🌗', bg: [10, 8, 16], trail: 0.14, behavior: 'approach',
+      desc: '카메라에 <b>가까이</b> 올수록 그 점이 크고 또렷해져 화면을 지배하고, <b>멀수록</b> 작고 흐려져요. 관람자가 다가오는 만큼 작품이 그를 <b>중심으로 재편</b>됩니다.',
+      film: '카메라를 향해 천천히 다가오거나 멀어지는 사람. 가까운 얼굴과 먼 배경이 함께 있는 장면.',
+      map: '박스 크기(거리) → 점 크기·선명도 (가까울수록 크고 또렷, 멀수록 작고 흐림)'
     }
   };
 
@@ -300,6 +312,10 @@
     let bg = sc.bg;
     if (sc.behavior === 'animals' && ents.some(e => e.kind === 'animal')) bg = [10, 22, 12];
     if (sc.behavior === 'weather') { const mh = aggregateMoodHue(ents); if (mh) bg = mh; }
+    if (sc.behavior === 'together') {
+      const pc = ents.filter(e => e.kind !== 'animal' && e.kind !== 'object').length, warm = clamp((pc - 1) / 4, 0, 1);
+      bg = [Math.round(8 + warm * 16), Math.round(10 + warm * 4), Math.round(20 - warm * 10)];   // 여럿일수록 따뜻
+    }
     artCtx.globalCompositeOperation = 'source-over';
     artCtx.fillStyle = `rgba(${bg[0]},${bg[1]},${bg[2]},${sc.trail})`;
     artCtx.fillRect(0, 0, W, H);
@@ -314,6 +330,20 @@
     const anyGlasses = ents.some(e => e.glasses);
     // 동물 연출: 가장 가까운 사람 좌표(맴돌 중심)
     const persons = ents.filter(e => e.kind !== 'animal' && e.kind !== 'object');
+    const maxArea = Math.max(0.0004, ...ents.map(e => (e.w || 0.05) * (e.h || 0.05)));   // '다가오는 것' 정규화용
+    const warmth = clamp((persons.length - 1) / 4, 0, 1);
+    // '혼자, 함께': 사람들 사이를 빛의 실로 연결(여럿일수록 진하게)
+    if (sc.behavior === 'together' && persons.length > 1) {
+      artCtx.globalCompositeOperation = 'lighter'; artCtx.lineWidth = 1.4;
+      for (let a = 0; a < persons.length; a++) for (let b = a + 1; b < persons.length; b++) {
+        const A = persons[a], B = persons[b];
+        const ax = pad + clamp(state.mirror ? 1 - A.cx : A.cx, 0, 1) * IW, ay = pad + clamp(A.cy, 0, 1) * IH;
+        const bx = pad + clamp(state.mirror ? 1 - B.cx : B.cx, 0, 1) * IW, by = pad + clamp(B.cy, 0, 1) * IH;
+        artCtx.strokeStyle = `hsla(42,90%,66%,${(0.05 + warmth * 0.22).toFixed(3)})`;
+        artCtx.beginPath(); artCtx.moveTo(ax, ay); artCtx.lineTo(bx, by); artCtx.stroke();
+      }
+      artCtx.globalCompositeOperation = 'source-over';
+    }
 
     ents.forEach((e, idx) => {
       const prof = KINDS[e.kind] || KINDS.object;
@@ -322,7 +352,7 @@
       let ey = e.cy;
 
       // ── 시나리오 배치/움직임 보정 ──
-      let flowX = 0, flowY = 0, alpha = 0.45 + (e.score || 0.8) * 0.4, rScale = 1;
+      let flowX = 0, flowY = 0, alpha = 0.45 + (e.score || 0.8) * 0.4, rScale = 1, tintHue = null, tintSat = null;
       if (sc.behavior === 'river') {
         // 나이대별 강의 깊이(세로 위치)와 속도
         const lane = { child: 0.18, youth: 0.36, adult: 0.56, elder: 0.78, person: 0.5, animal: 0.66, object: 0.5 }[e.kind];
@@ -342,6 +372,14 @@
         if (anyGlasses) { alpha = e.glasses ? 0.95 : 0.12; rScale = e.glasses ? 1.15 : 0.7; }
       } else if (sc.behavior === 'crowd') {
         rScale = e.kind === 'object' ? 0.6 : 1; // 사람 중심
+      } else if (sc.behavior === 'together') {
+        if (e.kind !== 'animal' && e.kind !== 'object') {
+          if (persons.length <= 1) { tintHue = 212; tintSat = 38; alpha *= 0.72; flowX = (ex < 0.5 ? -1 : 1) * 16; }  // 혼자=차갑게 가장자리로
+          else { tintSat = 92; }                                                                                     // 함께=선명·따뜻
+        }
+      } else if (sc.behavior === 'approach') {
+        const prox = clamp(((e.w || 0.05) * (e.h || 0.05)) / maxArea, 0.12, 1);   // 가까울수록(박스 클수록) 1에 가까움
+        rScale = 0.5 + prox * 2.3; alpha = 0.14 + prox * 0.82;
       }
 
       const cx0 = pad + clamp(ex, 0, 1) * IW, cy0 = pad + clamp(ey, 0, 1) * IH;
@@ -356,6 +394,8 @@
         let y = cy0 + Math.sin(t * prof.speed + a2 * 1.3) * wob + flowY;
         let hue = baseHue, sat = 85, light = 60, r = prof.baseR * sizeScale * rScale * (0.85 + 0.15 * Math.sin(t * 2 + a2));
         if (em) { x += em.dx; y += em.dy; r += em.dR; sat = clamp(sat + em.dSat, 15, 98); light = clamp(light + em.dLight, 28, 88); if (em.blue) hue = 215; if (em.red) hue = 2; if (!em.blue && !em.red) hue = baseHue + (em.dHue || 0) * 0.1; }
+        if (tintHue != null && (!em || (!em.blue && !em.red))) hue = tintHue;          // 혼자=차가운 색
+        if (tintSat != null) sat = clamp(tintSat, 15, 98);
         artCtx.globalCompositeOperation = 'lighter';
         softDot(artCtx, x, y, Math.max(2, r), hue, sat, light, alpha);
       }
@@ -387,6 +427,65 @@
 
   // 라이브 감지는 별도 타이머로(렌더와 분리, 과부하 방지)
   function detectTick() { if (state.live) { detectFrame(); } setTimeout(detectTick, 120); }
+
+  /* ----------------------------- 내보내기: CSV · 데이터 스튜디오 · 녹화 ----------------------------- */
+  const CSV_COLS = ['종류', '나이', '감정', '안경', '중심x', '중심y', '크기', '신뢰도'];
+  function snapshotRows() {
+    return entities.map(e => ({
+      종류: KINDS[e.kind] ? KINDS[e.kind].ko : (e.label || e.kind),
+      나이: (e.age != null ? Math.round(e.age) : ''),
+      감정: (e.emotion ? (EMO_KO[e.emotion] || e.emotion) : ''),
+      안경: (e.kind === 'animal' || e.kind === 'object') ? '' : (e.glasses ? '예' : '아니오'),
+      중심x: Math.round(clamp(state.mirror ? 1 - e.cx : e.cx, 0, 1) * 100),
+      중심y: Math.round(clamp(e.cy, 0, 1) * 100),
+      크기: Math.round((e.w || 0) * (e.h || 0) * 100),
+      신뢰도: Math.round((e.score || 0) * 100)
+    }));
+  }
+  function rowsToCSV(rows) { return CSV_COLS.join(',') + '\n' + rows.map(o => CSV_COLS.map(c => o[c]).join(',')).join('\n'); }
+  function exportCSV() {
+    const rows = snapshotRows(); if (!rows.length) { UI.toast('감지된 대상이 없어요(카메라나 데모를 켜 보세요).'); return; }
+    const blob = new Blob(['﻿' + rowsToCSV(rows)], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'); a.download = 'live_lens_' + Date.now() + '.csv'; a.href = URL.createObjectURL(blob); a.click();
+    setStatus('CSV를 저장했어요 · ' + rows.length + '행.');
+  }
+  function sendToData() {
+    const rows = snapshotRows(); if (!rows.length) { UI.toast('감지된 대상이 없어요(카메라나 데모를 켜 보세요).'); return; }
+    const sc = SCENES[state.scene];
+    const payload = {
+      name: '라이브 렌즈 · ' + sc.name, csv: rowsToCSV(rows),
+      issue: '🪞 라이브 렌즈에서 온 데이터 — 관객을 읽은 ‘' + sc.name + '’. 종류·나이·감정·안경을 점의 무엇으로 바꿀까요?',
+      intent: '', omit: 'AI는 겉모습만 분류 — 사람의 이야기·관계·존엄은 못 봄(나이·감정·안경은 추정값)'
+    };
+    try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
+    UI.toast('데이터 점 스튜디오로 보냈어요!');
+    setTimeout(() => location.href = 'studio-data.html', 500);
+  }
+
+  let recorder = null, recChunks = [], recording = false;
+  function toggleRecord() {
+    const btn = $('#btn-stg-rec');
+    if (!recording) {
+      if (!artCv || !artCv.captureStream) { UI.toast('이 브라우저는 무대 녹화를 지원하지 않아요.'); return; }
+      let mime = 'video/webm';
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) mime = 'video/webm;codecs=vp9';
+      try { recorder = new MediaRecorder(artCv.captureStream(30), { mimeType: mime }); }
+      catch (e) { try { recorder = new MediaRecorder(artCv.captureStream(30)); } catch (e2) { UI.toast('녹화를 시작할 수 없어요.'); return; } }
+      recChunks = [];
+      recorder.ondataavailable = e => { if (e.data && e.data.size) recChunks.push(e.data); };
+      recorder.onstop = () => {
+        const blob = new Blob(recChunks, { type: 'video/webm' });
+        const a = document.createElement('a'); a.download = 'live_lens_' + Date.now() + '.webm'; a.href = URL.createObjectURL(blob); a.click();
+        setStatus('무대 영상을 저장했어요(WebM) — 갤러리·발표에 쓸 수 있어요.');
+      };
+      recorder.start(); recording = true;
+      if (btn) { btn.textContent = '■ 녹화 중지·저장'; btn.classList.add('rec'); }
+      setStatus('● 무대를 녹화 중… 다시 누르면 영상이 저장돼요.');
+    } else {
+      try { recorder && recorder.stop(); } catch (e) {}
+      recording = false; if (btn) { btn.textContent = '● 무대 녹화'; btn.classList.remove('rec'); }
+    }
+  }
 
   /* ----------------------------- 카메라 ----------------------------- */
   async function startCam() {
@@ -491,6 +590,9 @@
     $('#btn-stg-upload').addEventListener('click', () => $('#stg-file').click());
     $('#stg-file').addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
     const fc = $('#stg-face'); if (fc) fc.addEventListener('change', e => toggleFace(e.target.checked));
+    const rb = $('#btn-stg-rec'); if (rb) rb.addEventListener('click', toggleRecord);
+    const cb = $('#btn-stg-csv'); if (cb) cb.addEventListener('click', exportCSV);
+    const sb = $('#btn-stg-send'); if (sb) sb.addEventListener('click', sendToData);
     const pv = $('#stg-preview'); if (pv) pv.addEventListener('change', e => { state.preview = e.target.checked; const w = $('#stg-cam-wrap'); if (w) w.style.display = (state.preview && (state.live || (!state.demo && srcCanvas))) ? 'block' : 'none'; });
 
     detectTick();                 // 라이브 감지 타이머 시작(라이브일 때만 동작)
