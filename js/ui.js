@@ -19,6 +19,7 @@
       { href: 'studio-life.html', t: '내 삶을 데이터로', s: '사진·대화를 데이터로 · 3단계' },
       { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터로 사회적 발언 · 4단계' },
       { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: '사진 속 사물을 AI로 · AI 렌즈' },
+      { href: 'studio-stage.html', t: '라이브 렌즈 · 미디어아트', s: '실시간 카메라로 관객을 읽는 무대 · AI 렌즈' },
       { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구' }
     ] },
     { label: '배우기', drop: [
