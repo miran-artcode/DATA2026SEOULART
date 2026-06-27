@@ -133,20 +133,34 @@
       if (!question) { UI.toast('문제를 입력하세요.'); return; }
     }
     if (!question) question = qGen.question;
-    const cv = $('#q-chart-canvas');
-    const quiz = {
-      userId: u.userId, by: u.display, klass: u.klass, title: $('#q-title').value.trim() || question || '분석 퀴즈',
-      qtype: type, question, options, answer, answers, explanation: $('#q-explain').value.trim(),
-      hint: ($('#q-hint') ? $('#q-hint').value.trim() : ''), story: ($('#q-story') ? $('#q-story').value.trim() : ''),
-      tags: Array.from(qTags), difficulty: $('#q-diff').value,
-      thumb: thumbURL(qSrc), chartImg: cv ? (window.ImgUtil ? ImgUtil.encode(cv, { type: 'image/png', maxDim: 900, budget: 280000 }) : cv.toDataURL('image/png')) : '', chartType: $('#q-chart').value
-    };
-    await Store.saveQuiz(quiz);
-    UI.toast('🎉 퀴즈를 출제했습니다!');
-    qTags.clear(); $('#q-title').value = ''; $('#q-explain').value = '';
-    if ($('#q-hint')) $('#q-hint').value = ''; if ($('#q-story')) $('#q-story').value = '';
-    document.querySelectorAll('.tag-chip.on').forEach(c => c.classList.remove('on'));
-    switchTab('play'); renderPlay();
+    const go = $('#q-submit');
+    if (go && go.disabled) return;                 // 업로드 중 중복 출제 방지
+    const goText = go ? go.textContent : ''; if (go) { go.disabled = true; go.textContent = '출제하는 중…'; }
+    try {
+      const cv = $('#q-chart-canvas');
+      // 업로드한 작품 사진: 가능하면 Storage 에 고화질로 보관(표시는 <img> 라서 CORS 무관). 실패 시 인라인 폴백.
+      const thumb = (window.ImgUtil && ImgUtil.storePhoto)
+        ? await ImgUtil.storePhoto(qSrc, { dir: 'quiz', maxDim: 2560, quality: 0.92, maxBytes: 5 * 1024 * 1024, fallbackMaxDim: 1280, fallbackBudget: 420000 })
+        : thumbURL(qSrc);
+      const chartImg = cv ? (window.ImgUtil ? ImgUtil.encode(cv, { type: 'image/png', maxDim: 900, budget: 280000 }) : cv.toDataURL('image/png')) : '';
+      const quiz = {
+        userId: u.userId, by: u.display, klass: u.klass, title: $('#q-title').value.trim() || question || '분석 퀴즈',
+        qtype: type, question, options, answer, answers, explanation: $('#q-explain').value.trim(),
+        hint: ($('#q-hint') ? $('#q-hint').value.trim() : ''), story: ($('#q-story') ? $('#q-story').value.trim() : ''),
+        tags: Array.from(qTags), difficulty: $('#q-diff').value,
+        thumb, chartImg, chartType: $('#q-chart').value
+      };
+      await Store.saveQuiz(quiz);
+      UI.toast('🎉 퀴즈를 출제했습니다!');
+      qTags.clear(); $('#q-title').value = ''; $('#q-explain').value = '';
+      if ($('#q-hint')) $('#q-hint').value = ''; if ($('#q-story')) $('#q-story').value = '';
+      document.querySelectorAll('.tag-chip.on').forEach(c => c.classList.remove('on'));
+      switchTab('play'); renderPlay();
+    } catch (e) {
+      UI.toast('출제 중 오류가 발생했어요. 다시 시도해 주세요.');
+    } finally {
+      if (go) { go.disabled = false; go.textContent = goText; }
+    }
   }
 
   /* ----------------------------- 풀기 ----------------------------- */

@@ -868,6 +868,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
   }
   window.ColorStudio = {
     canvas: () => p5i && p5i.canvas,
+    sourceCanvasRaw: () => sourceCanvas || null,   // 업로드한 '원본 사진' 캔버스(고화질 보관용)
     hasAnalysis: () => !!analysis,
     context: () => ({ kind: 'color', palette: analysis ? analysis.palette : [], K: state.K, N: state.N,
       space: state.space, rules: describeRules(), intent: (state.meta && state.meta.intent) || '' }),

@@ -98,5 +98,63 @@
     });
   }
 
-  global.ImgUtil = { encode, encodeURL, byteLen };
+  /*
+   * toBlob(src, opts) → Promise<Blob|null>
+   *   고화질 JPEG Blob 을 만든다(바이트 상한 안에서 최대 품질·크기). Storage 업로드용.
+   *   opts.maxDim     긴 변 상한. 기본 2560.
+   *   opts.quality    시작 품질. 기본 0.92.
+   *   opts.maxBytes   Blob 최대 바이트. 기본 5MB.
+   *   opts.minQuality 품질 하한. 기본 0.7. / opts.minDim 크기 하한. 기본 1280.
+   */
+  function toBlob(src, opts) {
+    opts = opts || {};
+    return new Promise((resolve) => {
+      if (!src) { resolve(null); return; }
+      const { w: sw, h: sh } = srcSize(src);
+      if (!sw || !sh) { resolve(null); return; }
+      const startQ = opts.quality != null ? opts.quality : 0.92;
+      const maxBytes = opts.maxBytes || 5 * 1024 * 1024;
+      const minQ = opts.minQuality != null ? opts.minQuality : 0.7;
+      const minDim = opts.minDim || 1280;
+      let guard = 0;
+      const attempt = (dim, q) => {
+        const c = scaledCanvas(src, sw, sh, dim);
+        c.toBlob((b) => {
+          if (!b || guard++ > 40) { resolve(b || null); return; }
+          if (b.size <= maxBytes || (dim <= minDim && q <= minQ)) { resolve(b); return; }
+          if (q > minQ) attempt(dim, Math.max(minQ, +(q - 0.06).toFixed(2)));   // 1) 품질 낮춰 재시도
+          else attempt(Math.max(minDim, Math.round(dim * 0.85)), startQ);       // 2) 크기 줄여 재시도
+        }, 'image/jpeg', q);
+      };
+      attempt(opts.maxDim || 2560, startQ);
+    });
+  }
+
+  const rid = () => (typeof Date !== 'undefined' ? Date.now().toString(36) : 'x') + Math.random().toString(36).slice(2, 8);
+
+  /*
+   * storePhoto(src, opts) → Promise<string>
+   *   사진을 가능하면 클라우드 Storage 에 '고화질 원본'으로 올리고 그 URL 을 돌려준다.
+   *   Storage 가 없거나 실패하면 1MB 문서 한계 안에 들어가는 인라인 dataURL 로 폴백한다.
+   *   opts.dir        Storage 경로 접두(예: 'works'|'quiz'). 기본 'misc'.
+   *   opts.maxDim/quality/maxBytes  → toBlob 에 전달(원본 보관 화질).
+   *   opts.fallbackMaxDim/fallbackBudget → 폴백 인라인 인코딩 한도.
+   */
+  async function storePhoto(src, opts) {
+    opts = opts || {};
+    try {
+      if (global.Store && typeof Store.uploadImage === 'function') {
+        const blob = await toBlob(src, { maxDim: opts.maxDim, quality: opts.quality, maxBytes: opts.maxBytes });
+        if (blob) {
+          const path = 'uploads/' + (opts.dir || 'misc') + '/' + rid() + '.jpg';
+          const url = await Store.uploadImage(blob, path);
+          if (url) return url;   // 업로드 성공 → 짧은 URL 만 문서에 저장
+        }
+      }
+    } catch (e) { /* 아래 인라인 폴백 */ }
+    // 폴백: 문서 용량 한계 안 인라인 dataURL
+    return encode(src, { maxDim: opts.fallbackMaxDim || 1600, budget: opts.fallbackBudget || 560000 });
+  }
+
+  global.ImgUtil = { encode, encodeURL, toBlob, storePhoto, byteLen };
 })(window);

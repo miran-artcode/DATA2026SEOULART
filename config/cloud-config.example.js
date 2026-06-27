@@ -43,7 +43,11 @@
     const fs = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
     const app = appMod.initializeApp(firebaseConfig);
     const db = fs.getFirestore(app);
-    return { fs, db };
+    // Storage(사진 원본 보관)는 선택 기능 — Firebase 콘솔에서 Storage 사용 설정 + storage.rules 게시 필요.
+    let st = null, storage = null;
+    try { st = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js'); storage = st.getStorage(app); }
+    catch (e) { console.warn('[cloud] Storage 미사용 — 사진은 인라인 폴백', e && e.message); }
+    return { fs, db, st, storage };
   })().catch(e => { console.warn('[cloud] 초기화 실패 → 로컬 사용', e); return null; });
 
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -61,6 +65,13 @@
 
   // store.js 와 동일한 비동기 API
   global.DN_CLOUD = {
+    // 사진 원본을 Storage 에 올리고 다운로드 URL 반환(문서엔 URL만 저장 → 1MB 문서 한계 우회).
+    async uploadImage(blob, path) {
+      const r = await ready; if (!r || !r.storage || !r.st) throw new Error('storage-unavailable');
+      const ref = r.st.ref(r.storage, path);
+      await r.st.uploadBytes(ref, blob, { contentType: (blob && blob.type) || 'image/jpeg', cacheControl: 'public,max-age=31536000' });
+      return await r.st.getDownloadURL(ref);
+    },
     async saveWork(w) { w.updatedAt = Date.now(); if (!w.createdAt) w.createdAt = Date.now(); return add('works', w, w.id); },
     async listWorks(f) {
       let list = (await all('works')).sort((a, b) => b.updatedAt - a.updatedAt);

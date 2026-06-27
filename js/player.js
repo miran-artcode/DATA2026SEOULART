@@ -151,12 +151,21 @@
       size();
       if (work.kind === 'data') { st = buildData(work, canvas.width, canvas.height); st && (st.settings_size = 1); loop(); }
       else {
-        const url = (work.settings && work.settings.srcImg) || work.srcImg;
-        if (url) { const img = new Image(); img.onload = () => { if (stopped) return; st = buildColor(work, img, canvas.width, canvas.height); loop(); }; img.onerror = poster; img.src = url; }
-        else poster();
+        // 점 애니메이션은 색을 픽셀로 읽으므로 같은 출처 샘플(srcSample)을 우선 → 교차출처 Storage URL 의 CORS 오염 회피.
+        const url = work.srcSample || (work.settings && work.settings.srcImg) || work.srcImg;
+        if (url) {
+          const img = new Image();
+          if (/^https?:/i.test(url)) img.crossOrigin = 'anonymous';   // Storage URL 로 폴백될 때 CORS 가 허용되면 사용
+          img.onload = () => {
+            if (stopped) return;
+            try { st = buildColor(work, img, canvas.width, canvas.height); loop(); }
+            catch (e) { poster(); }   // 픽셀을 못 읽으면(타이팅 등) 정적 포스터로 대체
+          };
+          img.onerror = poster; img.src = url;
+        } else poster();
       }
     }
-    function poster() { const url = work.thumb || (work.settings && work.settings.srcImg); if (!url) return; const img = new Image(); img.onload = () => { ctx.drawImage(img, 0, 0, canvas.width, canvas.height); }; img.src = url; }
+    function poster() { const url = work.thumb || work.srcSample || (work.settings && work.settings.srcImg); if (!url) return; const img = new Image(); img.onload = () => { ctx.drawImage(img, 0, 0, canvas.width, canvas.height); }; img.src = url; }
     function loop() {
       if (stopped || !st) return;
       const W = canvas.width, H = canvas.height;

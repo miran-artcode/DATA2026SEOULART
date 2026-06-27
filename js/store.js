@@ -74,6 +74,15 @@
 
   const Store = {
     get mode() { return global.DN_CLOUD ? 'cloud' : 'local'; },
+    // 사진 원본 업로드(클라우드 Storage). 성공 시 URL, 실패하면 null → 호출부가 인라인으로 폴백.
+    async uploadImage(blob, path) {
+      const cloud = global.DN_CLOUD;
+      if (cloud && typeof cloud.uploadImage === 'function') {
+        try { return await cloud.uploadImage(blob, path); }
+        catch (e) { console.warn('[store] 사진 업로드 실패 → 인라인 폴백', e && e.message); }
+      }
+      return null;
+    },
     saveWork: (w) => call('saveWork', w),
     listWorks: (f) => call('listWorks', f),
     getWork: (id) => call('getWork', id),
