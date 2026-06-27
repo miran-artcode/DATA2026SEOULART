@@ -13,13 +13,30 @@
   const BGS = { night: [7, 8, 13], black: [0, 0, 0], ink: [18, 10, 26], slate: [22, 26, 34], paper: [244, 240, 230], white: [248, 249, 252] };
   const bgRGB = () => { const c = BGS[state.bg] || BGS.night; return c[0] + ',' + c[1] + ',' + c[2]; };
 
-  // 예시 데이터를 '사회 문제'와 연결 — 의미 있는 시각화로(데이터=사회현상을 드러내는 시각자료).
+  // 예시 데이터 — 뻔하지 않지만 교육적인 캐글 데이터셋(축약 샘플). 각 샘플엔 의미 있는 '추천 매핑'이 함께 적용된다.
+  // 전체 데이터는 캐글에서 받아 'CSV·엑셀 열기'로 올리면 같은 매핑이 더 풍성하게 살아난다.
   const SAMPLES = {
-    climate: { name: '기후위기 · 한반도 평균기온', issue: '🌡 기후위기 — 점이 점점 위로·뜨겁게. 이 변화를 세상에 어떻게 ‘보여줄’까요?', csv: '연도,평균기온\n1980,12.2\n1990,12.6\n2000,13.1\n2010,13.4\n2015,13.6\n2020,13.9\n2023,14.2' },
-    finedust: { name: '대기오염 · 월별 초미세먼지', issue: '😷 대기오염 — 봄철 농도가 치솟는 리듬. 보이지 않는 위협을 점으로.', csv: '월,초미세먼지\n1월,42\n2월,55\n3월,68\n4월,60\n5월,38\n6월,28\n7월,22\n8월,20\n9월,26\n10월,34\n11월,46\n12월,50' },
-    inequality: { name: '소득 불평등 · 분위별 월소득', issue: '⚖ 불평등 — 1분위와 10분위의 간극을 점의 크기·거리로.', csv: '소득분위,월소득\n1분위,90\n2분위,150\n3분위,210\n4분위,270\n5분위,340\n6분위,420\n7분위,520\n8분위,650\n9분위,850\n10분위,1300' },
-    extinction: { name: '지역소멸 · 지역별 인구·청년', issue: '🏚 지역소멸 — 농촌일수록 인구는 줄고 청년은 적게. 사라지는 것을 어떻게 기억할까?', csv: '지역,인구변화율,청년비율\n수도권,5,28\n광역시,-2,22\n중소도시,-8,16\n농촌,-15,9' },
-    animal: { name: '동물권 · 연도별 유기동물', issue: '🐾 동물권 — 늘어나는 유기동물 수. 숫자 뒤의 생명을 점으로.', csv: '연도,유기동물수\n2016,89000\n2017,102000\n2018,121000\n2019,135000\n2020,128000\n2021,118000\n2022,113000' },
+    spotify: { name: '음악 감정 지도(Spotify)', map: { size: '에너지', colorMode: 'gradient', colorField: '긍정도', gradLow: '#2740c8', gradHigh: '#ffd23c', layout: 'flowField', motionStyle: 'wave', vib: 0.8 },
+      issue: '🎵 음악 감정 — 긍정도(valence)와 에너지는 함께 가지 않아요. ‘분노 힙합’은 에너지↑·긍정↓, ‘명상’은 둘 다↓. 감정의 두 축을 색·크기로. (샘플 · 캐글 “Spotify Tracks Dataset”에서 전체 받기)',
+      csv: '곡,장르,긍정도,에너지,템포\n여름 댄스팝,팝,88,90,124\n첫사랑 발라드,발라드,28,32,72\n새벽 로파이,로파이,40,25,80\n질주 EDM,EDM,72,96,128\n비 오는 재즈,재즈,35,38,95\n응원가 록,록,82,88,140\n이별 알앤비,알앤비,22,45,90\n설렘 인디팝,인디,75,60,112\n분노 힙합,힙합,48,85,150\n명상 앰비언트,앰비언트,55,15,60\n축제 라틴,라틴,90,82,98\n우울 포크,포크,25,30,84\n승리 오케스트라,클래식,70,72,110\n몽환 신스웨이브,일렉,52,58,118' },
+    pokemon: { name: '강함의 모양(Pokémon)', map: { size: '총합', colorMode: 'category', colorField: '타입', shape: '전설', layout: 'flowField', motionStyle: 'orbit', vib: 0.6 },
+      issue: '⚡ 강함의 모양 — 타입=색, 총합=크기, 전설=형태. 전설(뮤츠 680)은 정말 압도적일까? 타입별 균형을 점으로. (샘플 · 캐글 “Pokemon with stats”에서 전체 받기)',
+      csv: '이름,타입,총합,HP,공격,방어,스피드,전설\n피카츄,전기,320,35,55,40,90,아니오\n리자몽,불꽃,534,78,84,78,100,아니오\n거북왕,물,530,79,83,100,78,아니오\n이상해꽃,풀,525,80,82,83,80,아니오\n잠만보,노말,540,160,110,65,30,아니오\n갸라도스,물,540,95,125,79,81,아니오\n후딘,에스퍼,500,55,50,45,120,아니오\n괴력몬,격투,505,90,130,80,55,아니오\n팬텀,고스트,500,60,65,60,110,아니오\n망나뇽,드래곤,600,91,134,95,80,아니오\n윈디,불꽃,555,90,110,80,95,아니오\n뮤츠,에스퍼,680,106,110,90,130,예\n뮤,에스퍼,600,100,100,100,100,예\n대코파스,바위,385,40,50,100,30,아니오' },
+    ufo: { name: '목격의 사회학(UFO)', map: { size: '목격건수', shape: '모양', colorMode: 'category', colorField: '모양', layout: 'timeline', motionStyle: 'wave', vib: 0.7 },
+      issue: '👽 목격의 사회학 — 목격은 영화·인터넷과 함께 급증·급감해요. 데이터는 ‘외계인’이 아니라 ‘사회·미디어’를 말해요(미디어 리터러시). 모양=형태, 건수=크기. (샘플 · 캐글 “UFO Sightings(NUFORC)”)',
+      csv: '연도,모양,목격건수,평균지속초\n1985,빛,40,60\n1990,원반,75,120\n1995,삼각,130,90\n2000,원형,210,75\n2005,빛,360,45\n2008,불꽃,520,30\n2010,삼각,640,55\n2012,원반,720,80\n2014,빛,810,40\n2016,원형,690,50\n2018,삼각,540,35\n2020,빛,470,28' },
+    meteorite: { name: '하늘에서 온 것들(운석)', map: { size: '질량g', colorMode: 'category', colorField: '관측', layout: 'flowField', motionStyle: 'burst', vib: 0.5 },
+      issue: '🌑 하늘에서 온 것들 — 질량이 몇 g~수십 톤. 한 줌의 거대 운석이 화면을 지배해요(왜 로그 스케일이 필요할까?). 목격 vs 발견의 관측 편향도. (샘플 · 캐글/NASA “Meteorite Landings”)',
+      csv: '이름,질량g,낙하연도,관측\n호바,60000000,1920,발견\n캄포델시엘로,50000000,1576,발견\n첼랴빈스크,1000000,2013,목격\n알렌데,2000000,1969,목격\n시호테알린,23000,1947,목격\n뮤르치슨,100000,1969,목격\n파크포레스트,18000,2003,목격\n모스,1500,2009,목격\n타길,500,1937,목격\n노보로시스크,12,1974,발견\n엘렌즈버그,30,2010,발견\n작은파편,4,2013,발견' },
+    earthquake: { name: '떨림의 데이터(지진)', map: { size: '사망자', speed: '규모', colorMode: 'gradient', colorField: '깊이km', gradLow: '#ff5a3c', gradHigh: '#2740c8', layout: 'flowField', motionStyle: 'vibrate', vib: 2.2 },
+      issue: '🌋 떨림의 데이터 — 규모가 같거나 낮아도 사망자는 수백~수십만. 칠레 8.8→520명 vs 아이티 7.0→16만(재난 불평등). 규모=떨림, 사망자=크기. (샘플 · 캐글 “Significant Earthquakes 1965-2016”)',
+      csv: '지역,연도,규모,깊이km,사망자\n아이티,2010,7.0,13,160000\n동일본,2011,9.1,29,18500\n쓰촨,2008,7.9,19,87000\n네팔,2015,7.8,8,8900\n칠레,2010,8.8,35,520\n수마트라,2004,9.1,30,227000\n이탈리아,2016,6.2,4,300\n멕시코,2017,7.1,51,370\n튀르키예,2023,7.8,18,50000\n뉴질랜드,2011,6.3,5,185\n모로코,2023,6.8,19,2900\n알래스카,2018,7.1,14,2' },
+    chocolate: { name: '맛을 숫자로(초콜릿)', map: { size: '평점', colorMode: 'category', colorField: '원산지', layout: 'flowField', motionStyle: 'orbit', vib: 0.5 },
+      issue: '🍫 맛을 숫자로 — 코코아%가 높다고 평점이 높진 않아요. 맛은 선형이 아니에요. ‘맛을 숫자로’ 옮길 때 무엇을 잃을까(데이터 휴머니즘)? (샘플 · 캐글 “Chocolate Bar Ratings”)',
+      csv: '원산지,코코아퍼센트,평점,제조국\n베네수엘라,70,3.75,미국\n에콰도르,75,3.5,프랑스\n페루,72,3.25,미국\n마다가스카르,70,3.9,벨기에\n도미니카,68,3.0,미국\n가나,85,2.75,영국\n탄자니아,75,3.6,미국\n볼리비아,70,3.4,스위스\n콜롬비아,73,3.1,미국\n베트남,72,3.5,일본\n브라질,68,2.9,미국\n멕시코,80,3.25,멕시코' },
+    student: { name: '잠과 화면의 줄다리기(학생)', map: { size: 'SNS시간', speed: '스트레스', colorMode: 'gradient', colorField: '수면시간', gradLow: '#ff5a3c', gradHigh: '#2740c8', layout: 'flowField', motionStyle: 'vibrate', vib: 1.6 },
+      issue: '😴 잠과 화면의 줄다리기 — SNS가 늘수록 수면↓·스트레스↑. 내 하루로 직접(데이터 휴머니즘). SNS=크기, 수면=색(빨강=부족), 스트레스=떨림. (샘플 · 캐글 “Student Habits vs Academic Performance”)',
+      csv: '학생,수면시간,공부시간,SNS시간,스트레스,성적\nA,7,3,2,3,82\nB,5,4,5,7,75\nC,8,2,1,2,70\nD,4,5,6,9,68\nE,6,3,4,6,80\nF,7,4,3,4,88\nG,5,2,7,8,60\nH,6,5,2,5,90\nI,4,1,8,9,55\nJ,8,3,2,3,84\nK,5,4,5,7,72\nL,6,2,6,8,64' },
     emotion: { name: '(개인) 우리 반 하루 감정', issue: '🙂 내 삶의 데이터 — 숫자로는 평온해 보여도 사실은? (데이터 휴머니즘)', csv: '시간,감정온도,활동\n9시,3,수업\n10시,4,발표\n11시,3,토론\n12시,2,점심\n13시,2,휴식\n14시,1,체육\n15시,2,실습\n16시,4,정리\n17시,5,하교' }
   };
 
@@ -301,6 +318,24 @@
       '<br><span class="muted" style="font-size:11px">→ 큰 값일수록 크고 뜨겁게, 세로로 벌어지게, 변화는 떨림으로 — 데이터의 문제점을 작품으로 드러냈어요.</span>';
     UI.toast('문제 강조 적용 — ‘' + pr.name + '’의 ' + ({ inequality: '불평등', trend: '추세', outlier: '이상치' }[pr.kind]) + '을 시각화합니다.');
   }
+  // 샘플의 '추천 매핑'을 적용(autoMapping을 덮어써 의미 있는 첫 작품을 보여준다)
+  function applyRecommended(map) {
+    if (!map) return; const m = state.mapping;
+    ['size', 'speed', 'direction', 'density', 'alpha', 'shape'].forEach(k => { if (map[k] !== undefined) m[k] = map[k]; });
+    if (map.colorMode) { m.colorMode = map.colorMode; if (map.colorField) m.colorField = map.colorField; if (m.colorMode === 'category') assignCatColors(); }
+    if (map.gradLow) m.gradLow = map.gradLow; if (map.gradHigh) m.gradHigh = map.gradHigh;
+    if (map.layout) state.layout = map.layout;
+    if (map.motionStyle) state.motionStyle = map.motionStyle;
+    if (map.vib != null) state.vib = map.vib;
+    syncMotion(); populateFieldSelects(); renderColorUI(); build();
+  }
+  function loadSample(key) {
+    const s = SAMPLES[key]; if (!s) return;
+    $('#ta-data').value = s.csv; $('#in-dataname').value = s.name;
+    applyDataset(parseData(s.csv), s.name);
+    if (s.map) applyRecommended(s.map);
+    const di = $('#data-issue'); if (di) di.textContent = s.issue || '';
+  }
   function renderAnalysis() {
     const host = $('#analysis-host'); if (!host || !state.dataset) return;
     const ds = state.dataset, cols = ds.fields.map(f => f.name);
@@ -370,9 +405,8 @@
       const st = $('#dstage'); const c = p.createCanvas(st.clientWidth, st.clientHeight); c.parent(st); p.pixelDensity(1);
       // 보낸 데이터가 있으면 그것을, 없으면 기본 샘플(기후위기)을 로드
       if (!loadIncoming()) {
-        applyDataset(parseData(SAMPLES.climate.csv), SAMPLES.climate.name);
-        $('#in-dataname').value = state.dataName; $('#ta-data').value = SAMPLES.climate.csv;
-        const di = $('#data-issue'); if (di) di.textContent = SAMPLES.climate.issue;
+        const ss = $('#sel-sample'); if (ss) ss.value = 'spotify';
+        loadSample('spotify');
       }
     };
     p.windowResized = () => { const st = $('#dstage'); p.resizeCanvas(st.clientWidth, st.clientHeight); build(); };
@@ -520,7 +554,7 @@
       tip('#sel-sample', '사회문제와 연결된 예시 — 의미 있는 시각화로.');
     })();
 
-    $('#sel-sample').addEventListener('change', e => { const s = SAMPLES[e.target.value]; if (!s) return; $('#ta-data').value = s.csv; $('#in-dataname').value = s.name; applyDataset(parseData(s.csv), s.name); const di = $('#data-issue'); if (di) di.textContent = s.issue || ''; });
+    $('#sel-sample').addEventListener('change', e => loadSample(e.target.value));
     $('#btn-apply-data').addEventListener('click', () => { const ds = parseData($('#ta-data').value); if (!ds) { UI.toast('데이터 형식을 확인하세요.'); return; } applyDataset(ds, $('#in-dataname').value || '내 데이터'); UI.toast('데이터를 적용했습니다.'); });
     $('#btn-upload-csv').addEventListener('click', () => $('#csv').click());
     $('#csv').addEventListener('change', async e => {
