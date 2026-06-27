@@ -111,7 +111,7 @@
     const sampling = opts.sampling || 'uniform';
     const reqN = Math.max(100, Math.min(opts.N || 4000, 50000));   // 사용자가 정한 점 개수(클램프 전 기준)
     // K가 매우 크면 더 많은 픽셀이 필요(색 수 확보) — 입력 K에 맞춰 분석 해상도를 키운다.
-    const maxDim = opts.maxDim || (reqK > 6000 ? 600 : reqK > 1500 ? 460 : 320);
+    const maxDim = opts.maxDim || (reqK > 6000 ? 900 : reqK > 1500 ? 700 : 560);
     const seed = opts.seed != null ? opts.seed : 12345;
     const rng = KMeans.makeRNG(seed);
 
@@ -132,7 +132,7 @@
 
     // (2) K-means 입력: 픽셀을 골고루 표본추출해서 학습.
     //   K가 크면 군집당 표본이 부족하지 않도록 표본 수를 K에 맞춰 늘린다(성능 위해 상한).
-    const sampleTarget = Math.max(6000, Math.min(reqK * 6, 60000));
+    const sampleTarget = Math.max(12000, Math.min(reqK * 8, 80000));
     const sampleStep = Math.max(1, Math.floor(total / sampleTarget));
     const data = [];
     for (let i = 0; i < total; i += sampleStep) {

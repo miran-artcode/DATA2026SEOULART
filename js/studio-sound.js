@@ -8,7 +8,7 @@
 (function () {
   'use strict';
   const $ = s => document.querySelector(s);
-  const FRAME_MS = 150, MAX_MS = 20000;
+  const FRAME_MS = 100, MAX_MS = 20000;
   // 라이브 추출 시계열 열(샘플은 자체 열을 가질 수 있어 toCSV는 실제 키를 사용)
   const LIVE_COLS = ['시간', '음량', '저음', '중음', '고음', '날카로움', '변화', '음높이'];
   // 각 특징의 의미(시각화·설명용)
@@ -62,6 +62,93 @@
     $('#btn-rec').textContent = '🎤 녹음 시작'; $('#btn-rec').classList.remove('rec'); recording = false;
   }
 
+  /* --------- 오프라인 FFT(라딕스-2) — 파일 정밀 분석(재생·압축 없음) --------- */
+  // 디코드된 PCM 전체를 창(window)으로 직접 훑어 스펙트럼을 계산한다.
+  // 기존 '빠른 재생 압축'의 시간 왜곡·디테일 손실을 없애고 주파수 해상도를 4×로 높인다.
+  function fftRadix2(re, im) {
+    const n = re.length;
+    for (let i = 1, j = 0; i < n; i++) {                 // 비트 reversal 재배열
+      let bit = n >> 1;
+      for (; j & bit; bit >>= 1) j ^= bit;
+      j ^= bit;
+      if (i < j) { const tr = re[i]; re[i] = re[j]; re[j] = tr; const ti = im[i]; im[i] = im[j]; im[j] = ti; }
+    }
+    for (let len = 2; len <= n; len <<= 1) {             // 버터플라이
+      const ang = -2 * Math.PI / len, wr = Math.cos(ang), wi = Math.sin(ang), half = len >> 1;
+      for (let i = 0; i < n; i += len) {
+        let cr = 1, ci = 0;
+        for (let k = 0; k < half; k++) {
+          const a = i + k, b = a + half;
+          const tr = cr * re[b] - ci * im[b], ti = cr * im[b] + ci * re[b];
+          re[b] = re[a] - tr; im[b] = im[a] - ti; re[a] += tr; im[a] += ti;
+          const ncr = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = ncr;
+        }
+      }
+    }
+  }
+  // 디코드 버퍼 → 시계열 특징 rows(기존 스키마: 시간·음량·저음·중음·고음·날카로움·변화·음높이)
+  function analyzeBufferOffline(buf) {
+    const sr = buf.sampleRate, L = buf.length, ch = buf.numberOfChannels;
+    const chans = []; for (let c = 0; c < ch; c++) chans.push(buf.getChannelData(c));
+    const sampleAt = ch > 1                              // 모노 다운믹스(메모리 절약: 즉석 평균)
+      ? (idx) => { let s = 0; for (let c = 0; c < ch; c++) s += chans[c][idx]; return s / ch; }
+      : (idx) => chans[0][idx];
+    const WIN = 4096, HALF = WIN >> 1, MAX_FINE = 6000;   // 4096 → 주파수 해상도 sr/4096 ≈ 10.8Hz
+    const hop = Math.max(WIN >> 2, Math.ceil(Math.max(1, L - WIN) / MAX_FINE)); // 75% 중첩, 아주 길면 적응
+    const hann = new Float32Array(WIN);                  // Hann 창(스펙트럼 누설 감소)
+    for (let i = 0; i < WIN; i++) hann[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (WIN - 1));
+    const re = new Float64Array(WIN), im = new Float64Array(WIN);
+    const lo1 = Math.floor(HALF * 0.1), lo2 = Math.floor(HALF * 0.4); // 기존 대역 분할(저 0~10%, 중 10~40%, 고 40~100%)
+    const steps = L >= WIN ? Math.floor((L - WIN) / hop) + 1 : 1;
+    const fine = []; let prevMag = null;
+    for (let o = 0; o < steps; o++) {
+      const start = o * hop;
+      let ss = 0;
+      for (let i = 0; i < WIN; i++) {                    // 시간영역 RMS(원신호) + 창적용 복사
+        const idx = start + i, s = idx < L ? sampleAt(idx) : 0;
+        ss += s * s; re[i] = s * hann[i]; im[i] = 0;
+      }
+      const vol = Math.sqrt(ss / WIN);
+      fftRadix2(re, im);
+      const mag = new Float32Array(HALF);
+      let es = 0, ws = 0, peak = 0, peakV = 0, low = 0, mid = 0, high = 0;
+      for (let i = 0; i < HALF; i++) {
+        const m = Math.sqrt(re[i] * re[i] + im[i] * im[i]);
+        mag[i] = m; es += m; ws += i * m;
+        if (i < lo1) low += m; else if (i < lo2) mid += m; else high += m;
+        if (m > peakV) { peakV = m; peak = i; }
+      }
+      let flux = 0; if (prevMag) { for (let i = 0; i < HALF; i++) { const d = mag[i] - prevMag[i]; if (d > 0) flux += d; } }
+      prevMag = mag;
+      fine.push({
+        vol, low: low / lo1, mid: mid / (lo2 - lo1), high: high / (HALF - lo2),
+        centroid: es ? (ws / es) / HALF : 0, flux,
+        hz: (es > 0 && peakV > es * 0.0008) ? Math.round(peak * sr / WIN) : 0   // 가장 강한 주파수(Hz)
+      });
+    }
+    // 출력 프레임 수: 약 10fps(80~480). 미세프레임이 더 적으면 그대로 사용(짧은 클립).
+    let N = Math.max(80, Math.min(480, Math.round(buf.duration * 10)));
+    if (fine.length <= N) N = fine.length;
+    const agg = [];
+    for (let o = 0; o < N; o++) {                        // 미세 스펙트로그램 → 출력 프레임으로 평균 다운샘플
+      const a = Math.floor(o * fine.length / N), b = Math.max(a + 1, Math.floor((o + 1) * fine.length / N));
+      let vol = 0, low = 0, mid = 0, high = 0, cen = 0, flx = 0, hzAcc = 0, hzW = 0;
+      for (let i = a; i < b; i++) {
+        const f = fine[i]; vol += f.vol; low += f.low; mid += f.mid; high += f.high; cen += f.centroid; flx += f.flux;
+        hzAcc += f.hz * f.vol; hzW += f.vol;             // 음높이는 에너지 가중 평균
+      }
+      const c = b - a;
+      agg.push({ vol: vol / c, low: low / c, mid: mid / c, high: high / c, centroid: cen / c, flux: flx / c, hz: hzW ? Math.round(hzAcc / hzW) : 0 });
+    }
+    // 동적범위를 살린 정규화: 대역(저·중·고)은 음색 균형 위해 공유 최댓값, 음량·변화는 자체 최댓값.
+    let vmax = 1e-9, bmax = 1e-9, fmax = 1e-9;
+    agg.forEach(f => { if (f.vol > vmax) vmax = f.vol; const bm = Math.max(f.low, f.mid, f.high); if (bm > bmax) bmax = bm; if (f.flux > fmax) fmax = f.flux; });
+    return agg.map((f, i) => ({
+      시간: i, 음량: r100(f.vol / vmax), 저음: r100(f.low / bmax), 중음: r100(f.mid / bmax),
+      고음: r100(f.high / bmax), 날카로움: r100(f.centroid), 변화: r100(f.flux / fmax), 음높이: f.hz
+    }));
+  }
+
   /* ----------------------------- 마이크 ----------------------------- */
   async function toggleMic() {
     if (recording) { stopMic(); return; }
@@ -69,7 +156,7 @@
       micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       ac = new (window.AudioContext || window.webkitAudioContext)();
       const src = ac.createMediaStreamSource(micStream);
-      analyser = ac.createAnalyser(); analyser.fftSize = 1024; src.connect(analyser);
+      analyser = ac.createAnalyser(); analyser.fftSize = 2048; src.connect(analyser);
       rows = []; prevSpectrum = null; datasetName = '내 소리(녹음)'; $('#sample-story').style.display = 'none';
       const t0 = Date.now(); recording = true;
       $('#btn-rec').textContent = '■ 녹음 중지'; $('#btn-rec').classList.add('rec');
@@ -86,24 +173,27 @@
   /* ----------------------------- 오디오 파일 ----------------------------- */
   function loadFile(file) {
     if (!file) return;
-    $('#rec-status').textContent = '분석 중…'; $('#sample-story').style.display = 'none';
+    $('#rec-status').textContent = '분석 준비 중…'; $('#sample-story').style.display = 'none';
     const r = new FileReader();
     r.onload = async () => {
+      let actx = null;
       try {
-        ac = new (window.AudioContext || window.webkitAudioContext)();
-        const buf = await ac.decodeAudioData(r.result);
-        analyser = ac.createAnalyser(); analyser.fftSize = 1024;
-        const srcN = ac.createBufferSource(); srcN.buffer = buf;
-        // 긴 파일(예: 1시간)도 받게: 길수록 빠르게 재생해 ~150프레임으로 압축 추출(짧은 건 거의 실시간).
-        const rate = Math.max(1, buf.duration / 22); srcN.playbackRate.value = rate;
-        const g = ac.createGain(); g.gain.value = 0;           // 무음 재생(특징만 추출)
-        srcN.connect(analyser); analyser.connect(g); g.connect(ac.destination);
-        rows = []; prevSpectrum = null; datasetName = (file.name ? file.name.replace(/\.[^.]+$/, '') : '오디오 파일'); srcN.start();
+        actx = new (window.AudioContext || window.webkitAudioContext)();
+        const buf = await actx.decodeAudioData(r.result);
+        try { actx.close(); } catch (e) {}                     // 디코드만 쓰고 닫음(재생하지 않음)
+        rows = []; prevSpectrum = null; datasetIssue = '';
+        datasetName = (file.name ? file.name.replace(/\.[^.]+$/, '') : '오디오 파일');
         const mins = buf.duration >= 60 ? (buf.duration / 60).toFixed(1) + '분' : buf.duration.toFixed(1) + '초';
-        $('#rec-status').textContent = '추출 중… (' + mins + ' 오디오' + (rate > 1.5 ? ' · ' + rate.toFixed(0) + '배속 압축' : '') + ')';
-        timer = setInterval(pushFrame, FRAME_MS);
-        srcN.onended = () => { try { ac.close(); } catch (e) {} finalize('파일 추출 완료 · ' + rows.length + '프레임'); };
-      } catch (e) { $('#rec-status').textContent = '오디오를 읽지 못했어요: ' + e.message; }
+        $('#rec-status').textContent = '정밀 분석 중… (' + mins + ' · 압축 없이 전체 해상도)';
+        await new Promise(res => setTimeout(res, 20));          // 상태가 먼저 그려지도록 한 틱 양보
+        rows = analyzeBufferOffline(buf);                       // 오프라인 FFT — 시간왜곡·압축 없음
+        renderViz();
+        $('#frame-info').textContent = rows.length + ' 프레임 · ' + mins + ' (압축 없는 고해상도 분석)';
+        finalize('파일 분석 완료 · ' + rows.length + '프레임');
+      } catch (e) {
+        try { if (actx) actx.close(); } catch (_) {}
+        $('#rec-status').textContent = '오디오를 읽지 못했어요: ' + (e && e.message ? e.message : e);
+      }
     };
     r.readAsArrayBuffer(file);
   }
