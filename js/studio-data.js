@@ -105,6 +105,25 @@
     if (state.mapping.colorMode !== 'category' || !state.mapping.colorField || !state.dataset) return;
     fieldCats(state.mapping.colorField).forEach((c, i) => { if (!state.mapping.catColors[c]) state.mapping.catColors[c] = PAL[i % PAL.length]; });
   }
+  // 다른 스튜디오에서 온 데이터를 '의미 있는' 매핑으로 자동 반영(현재: 객체 감지 자동기록)
+  function smartMapIncoming() {
+    if (!state.dataset) return null;
+    const names = state.dataset.fields.map(f => f.name), has = n => names.indexOf(n) >= 0, m = state.mapping;
+    if (has('사물') && has('크기') && has('신뢰도')) {        // ← 객체 감지 자동기록 형태
+      m.size = '크기';                                        // 사물이 클수록 큰 점
+      if (has('장면개수')) m.density = '장면개수';             // 한 장면에 많을수록 촘촘히
+      m.alpha = '신뢰도';                                     // 확신=또렷, 흐릿하게 본 건 옅게
+      if (has('중심x')) m.speed = '중심x';
+      if (has('중심y')) m.direction = '중심y';
+      if (has('출처')) m.shape = '출처';
+      m.colorMode = 'category'; m.colorField = '사물';        // 사물 종류별 색
+      m.catColors = {}; m.catShapes = {}; assignCatColors();
+      state.layout = 'timeline';                              // 시간(회차) 순서가 가로축
+      state.motionStyle = 'wave';
+      return '🔎 객체 감지 자동기록을 자동 매핑했어요 — 가로축=시간 순서, 점 크기=사물 크기, 색=사물 종류, 투명도=신뢰도, 밀도=장면 속 개수. 매핑은 자유롭게 바꿀 수 있어요.';
+    }
+    return null;
+  }
 
   /* ----------------------------- 매핑 UI ----------------------------- */
   function fieldOptions(sel, kind, includeNone, selected) {
@@ -221,7 +240,9 @@
     const ro = $('#rec-omit'); if (ro && d.omit) ro.value = d.omit;
     const ss = $('#sel-sample'); if (ss) ss.value = '';           // 샘플 드롭다운이 오해를 주지 않게
     applyDataset(ds, d.name || '가져온 데이터');
-    const di = $('#data-issue'); if (di) di.textContent = d.issue || '🔗 다른 스튜디오에서 온 데이터예요 — 어떤 열을 점의 무엇으로 바꿀지 설계해 보세요.';
+    const smart = smartMapIncoming();
+    if (smart) { syncMotion(); populateFieldSelects(); renderColorUI(); build(); }
+    const di = $('#data-issue'); if (di) di.textContent = d.issue || smart || '🔗 다른 스튜디오에서 온 데이터예요 — 어떤 열을 점의 무엇으로 바꿀지 설계해 보세요.';
     if (window.UI) UI.toast('다른 스튜디오에서 온 데이터를 불러왔어요.');
     return true;
   }
