@@ -51,11 +51,16 @@
 
   /* ===================== 상태 ===================== */
   const BG = { paper: [244, 239, 227], white: [255, 255, 255], cream: [251, 247, 236], ink: [17, 32, 63], black: [10, 10, 12] };
+  // 글꼴(굵기·기울임은 state.weight/state.italic로 따로 조절). 웹폰트는 온라인 시, 아니면 시스템 대체.
   const FONTS = {
-    sans: { weight: 800, family: '"Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif' },
-    serif: { weight: 700, family: 'Georgia,"Nanum Myeongjo","Noto Serif KR","Apple SD Gothic Neo",serif' },
-    round: { weight: 700, family: '"Apple SD Gothic Neo","Pretendard","Noto Sans KR",system-ui,sans-serif' },
-    mono: { weight: 700, family: 'ui-monospace,"D2Coding",Menlo,Consolas,"Noto Sans KR",monospace' }
+    sans: { family: '"Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif' },
+    serif: { family: '"Gowun Batang","Song Myung",Georgia,"Noto Serif KR","Apple SD Gothic Neo",serif' },
+    round: { family: '"Jua","Apple SD Gothic Neo","Pretendard",sans-serif' },
+    dohyeon: { family: '"Do Hyeon","Pretendard","Noto Sans KR",sans-serif' },
+    impact: { family: '"Black Han Sans",Impact,"Pretendard","Noto Sans KR",sans-serif' },
+    pen: { family: '"Nanum Pen Script","Gaegu","Apple SD Gothic Neo",cursive' },
+    hand: { family: '"Gaegu","Nanum Pen Script","Apple SD Gothic Neo",cursive' },
+    mono: { family: 'ui-monospace,"D2Coding",Menlo,Consolas,"Noto Sans KR",monospace' }
   };
   const DEFAULT_PALETTE = [
     { r: 31, g: 59, b: 110, ratio: 0.3 }, { r: 47, g: 122, b: 168, ratio: 0.22 },
@@ -69,7 +74,8 @@
     colors: [],                                       // words 인덱스별 글자색(hex)
     placed: [], layoutW: 1000, layoutH: 1414,         // 배치 결과 + 배치 캔버스 크기
     colorMode: 'rank', mono: '#1f3b6e', bg: 'paper', contrast: true,
-    shape: 'rect', letter: '', maskImg: null, strokes: [], brush: 0.12, ratio: 1.414, pad: 2, rotate: false, font: 'sans',
+    shape: 'rect', letter: '', maskImg: null, strokes: [], brush: 0.12, ratio: 1.414, pad: 2, rotate: false,
+    font: 'sans', weight: 800, italic: false, threeD: false, depth: 12, light: 45,
     scale: 'sqrt', minFont: 16, maxFont: 120, maxWords: 120, minLen: 2,
     particle: true, useStop: true, extraStop: [],
     seed: 12345, product: 'postcard', view: 'cloud', side: 'front',
@@ -395,7 +401,7 @@
   let _tmp = document.createElement('canvas');
   let _tctx = _tmp.getContext('2d', { willReadFrequently: true });
   let _srcCanvas = null;                            // 마지막으로 색을 분석한 그림(명화·업로드) — K 변경 시 재분석
-  function fontStr(size) { const f = FONTS[state.font] || FONTS.sans; return f.weight + ' ' + size + 'px ' + f.family; }
+  function fontStr(size) { const f = (FONTS[state.font] || FONTS.sans).family; return (state.italic ? 'italic ' : '') + state.weight + ' ' + size + 'px ' + f; }
 
   // 한 낱말의 스프라이트(차지하는 격자 셀, 패딩 팽창 포함)
   function spriteCells(text, size, rot, cell, pad) {
@@ -530,11 +536,27 @@
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     for (const p of state.placed) {
       const x = ox + p.cx * sc, y = oy + p.cy * sc, size = p.size * sc;
-      ctx.fillStyle = state.colors[p.idx] || '#333';
-      ctx.font = fontStr(size);
+      const col = state.colors[p.idx] || '#333';
+      if (state.threeD) { paintWordExtruded(ctx, x, y, size, p.text, p.rot, col, sc); continue; }
+      ctx.fillStyle = col; ctx.font = fontStr(size);
       if (p.rot) { ctx.save(); ctx.translate(x, y); ctx.rotate(-Math.PI / 2); ctx.fillText(p.text, 0, 0); ctx.restore(); }
       else ctx.fillText(p.text, x, y);
     }
+  }
+  function shade(hexc, f) { const c = hexToRgb(hexc); return hex(c.r * f, c.g * f, c.b * f); }
+  // 입체(3D): 글자를 어두운 옆면(돌출)부터 본래 색 윗면까지 겹쳐 찍어 두께를 만든다.
+  function paintWordExtruded(ctx, x, y, size, text, rot, col, sc) {
+    const total = Math.max(0, state.depth) * sc;
+    const steps = Math.max(1, Math.min(48, Math.round(total)));
+    const ang = state.light * Math.PI / 180, ux = Math.cos(ang) * total / steps, uy = Math.sin(ang) * total / steps;
+    const side = shade(col, 0.46), side2 = shade(col, 0.66);
+    ctx.save();
+    ctx.translate(x, y);
+    if (rot) ctx.rotate(-Math.PI / 2);
+    ctx.font = fontStr(size);
+    for (let k = steps; k >= 1; k--) { ctx.fillStyle = k > steps * 0.5 ? side : side2; ctx.fillText(text, ux * k, uy * k); }
+    ctx.fillStyle = col; ctx.fillText(text, 0, 0);     // 윗면(앞면)
+    ctx.restore();
   }
 
   // 전체 미리보기 갱신
@@ -696,7 +718,8 @@
       text: state.rawText, words: state.words.slice(0, 60),
       palette: state.palette, K: state.K, paintingTitle: state.paintingTitle, srcImg: state.srcImg,
       colorMode: state.colorMode, mono: state.mono, bg: state.bg, contrast: state.contrast,
-      shape: state.shape, letter: state.letter, strokes: state.strokes, brush: state.brush, ratio: state.ratio, pad: state.pad, rotate: state.rotate, font: state.font,
+      shape: state.shape, letter: state.letter, strokes: state.strokes, brush: state.brush, ratio: state.ratio, pad: state.pad, rotate: state.rotate,
+      font: state.font, weight: state.weight, italic: state.italic, threeD: state.threeD, depth: state.depth, light: state.light,
       scale: state.scale, minFont: state.minFont, maxFont: state.maxFont, maxWords: state.maxWords, minLen: state.minLen,
       seed: state.seed, product: state.product, name: v('in-name'), caption: v('in-caption'),
       title: v('in-title'), intent: v('in-intent'), evidence: v('in-evidence')
@@ -789,6 +812,11 @@
     bindRange('r-pad', 'o-pad', 'pad', layout);
     $('#chk-rotate').addEventListener('change', e => { state.rotate = e.target.checked; layout(); });
     $('#sel-font').addEventListener('change', e => { state.font = e.target.value; layout(); });
+    $('#sel-weight').addEventListener('change', e => { state.weight = +e.target.value; layout(); });
+    $('#chk-italic').addEventListener('change', e => { state.italic = e.target.checked; layout(); });
+    $('#chk-3d').addEventListener('change', e => { state.threeD = e.target.checked; $('#d3-controls').style.display = e.target.checked ? 'block' : 'none'; render(); });
+    bindRange('r-depth', 'o-depth', 'depth', render);
+    $('#sel-light').addEventListener('change', e => { state.light = +e.target.value; render(); });
 
     // 5) 빈도→크기
     $('#sel-scale').addEventListener('change', e => { state.scale = e.target.value; layout(); });

@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>낱말 구름 스튜디오 · 자연어 분석 → 굿즈</title>
 <link rel="stylesheet" href="css/site.css" />
+<!-- 표현력 있는 한글 웹폰트(온라인 시) — 오프라인이면 시스템 글꼴로 자동 대체 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu&family=Nanum+Pen+Script&family=Song+Myung&family=Gowun+Batang:wght@400;700&display=swap" />
 <style>
   .wstudio { display: grid; grid-template-columns: 1fr 360px; gap: 16px; align-items: start; }
   /* 미리보기 무대 */
@@ -206,10 +210,29 @@
           <label class="field">글꼴</label>
           <select id="sel-font">
             <option value="sans">굵은 고딕</option>
-            <option value="serif">명조(세리프)</option>
-            <option value="round">둥근 고딕</option>
+            <option value="serif">명조</option>
+            <option value="round">둥근(Jua)</option>
+            <option value="dohyeon">도현(굵은)</option>
+            <option value="impact">임팩트(검은 고딕)</option>
+            <option value="pen">펜 손글씨</option>
+            <option value="hand">개구 손글씨</option>
             <option value="mono">고정폭</option>
           </select>
+          <div class="half" style="margin-top:8px">
+            <div>
+              <label class="field" style="margin-top:0">글자 굵기</label>
+              <select id="sel-weight">
+                <option value="400">가늘게</option>
+                <option value="600">보통</option>
+                <option value="800" selected>굵게</option>
+                <option value="900">매우 굵게</option>
+              </select>
+            </div>
+            <div>
+              <label class="field" style="margin-top:0">기울임</label>
+              <label class="chk-row" style="margin-top:6px"><input type="checkbox" id="chk-italic"> 이탤릭</label>
+            </div>
+          </div>
         </div>
       </details>
 
@@ -231,6 +254,22 @@
               <label class="field" style="margin-top:0">가장 큰 글자 <output id="o-maxf">120</output></label>
               <input id="r-maxf" type="range" min="60" max="220" step="10" value="120">
             </div>
+          </div>
+          <hr class="sep" style="margin:14px 0 10px">
+          <label class="chk-row"><input type="checkbox" id="chk-3d"> 입체(3D) — 글자에 두께·돌출 <span class="info-ic" data-info="word-3d">ⓘ</span></label>
+          <div id="d3-controls" style="display:none;margin-top:8px">
+            <label class="field" style="margin-top:0">두께(깊이) <output id="o-depth">12</output></label>
+            <input id="r-depth" type="range" min="2" max="30" step="1" value="12">
+            <label class="field">돌출 방향(빛)</label>
+            <select id="sel-light">
+              <option value="45" selected>↘ 오른쪽 아래</option>
+              <option value="90">↓ 아래</option>
+              <option value="135">↙ 왼쪽 아래</option>
+              <option value="315">↗ 오른쪽 위</option>
+              <option value="225">↖ 왼쪽 위</option>
+              <option value="0">→ 오른쪽</option>
+            </select>
+            <p class="muted" style="font-size:11px;margin-top:6px">글자가 종이에서 솟아오른 듯한 입체감 — 엽서·포스터에 또렷하게 찍혀요. 두께가 클수록 인쇄 색이 진해 보일 수 있어요.</p>
           </div>
         </div>
       </details>
