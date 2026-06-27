@@ -459,6 +459,8 @@
 
   /* ----------------------------- 저장/전시 ----------------------------- */
   function thumb() {
+    // 생성된 시각화를 더 선명하게(데이터셋이 큰 문서도 1MB 안에 들어오도록 예산은 보수적으로).
+    if (window.ImgUtil) return ImgUtil.encode(p5i.canvas, { maxDim: 820, budget: 260000, quality: 0.82 });
     const w = 360, h = Math.round(w * p5i.height / p5i.width);
     const c = document.createElement('canvas'); c.width = w; c.height = h;
     c.getContext('2d').drawImage(p5i.canvas, 0, 0, w, h);

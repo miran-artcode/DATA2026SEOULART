@@ -110,7 +110,11 @@
   }
 
   /* ----------------------------- 출제 ----------------------------- */
-  function thumbURL(src, w) { w = w || 220; const ar = src.width / src.height; const c = document.createElement('canvas'); c.width = w; c.height = Math.round(w / ar); c.getContext('2d').drawImage(src, 0, 0, c.width, c.height); return c.toDataURL('image/jpeg', 0.62); }
+  function thumbURL(src, w) {
+    // 업로드한 작품 사진을 또렷하게(용량 예산 안에서). 폴백은 기존 동작.
+    if (window.ImgUtil) return ImgUtil.encode(src, { maxDim: 1280, budget: 420000 });
+    w = w || 220; const ar = src.width / src.height; const c = document.createElement('canvas'); c.width = w; c.height = Math.round(w / ar); c.getContext('2d').drawImage(src, 0, 0, c.width, c.height); return c.toDataURL('image/jpeg', 0.62);
+  }
   async function submitQuiz() {
     const u = Auth.current();
     if (!u) { UI.toast('출제하려면 로그인하세요.'); setTimeout(() => location.href = 'index.html?next=quiz.html', 900); return; }
@@ -135,7 +139,7 @@
       qtype: type, question, options, answer, answers, explanation: $('#q-explain').value.trim(),
       hint: ($('#q-hint') ? $('#q-hint').value.trim() : ''), story: ($('#q-story') ? $('#q-story').value.trim() : ''),
       tags: Array.from(qTags), difficulty: $('#q-diff').value,
-      thumb: thumbURL(qSrc), chartImg: cv ? cv.toDataURL('image/png') : '', chartType: $('#q-chart').value
+      thumb: thumbURL(qSrc), chartImg: cv ? (window.ImgUtil ? ImgUtil.encode(cv, { type: 'image/png', maxDim: 900, budget: 280000 }) : cv.toDataURL('image/png')) : '', chartType: $('#q-chart').value
     };
     await Store.saveQuiz(quiz);
     UI.toast('🎉 퀴즈를 출제했습니다!');

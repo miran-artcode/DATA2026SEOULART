@@ -83,7 +83,11 @@
       if (!intent || !evidence) { toast('의도와 근거를 모두 채워 주세요.'); return; }
       const cv = window.ColorStudio.canvas();
       let thumb = '';
-      if (cv) { const w = 360, h = Math.round(w * cv.height / cv.width); const t = document.createElement('canvas'); t.width = w; t.height = h; t.getContext('2d').drawImage(cv, 0, 0, w, h); thumb = t.toDataURL('image/jpeg', 0.6); }
+      if (cv) {
+        thumb = window.ImgUtil
+          ? ImgUtil.encode(cv, { maxDim: 900, budget: 300000 })
+          : (function () { const w = 360, h = Math.round(w * cv.height / cv.width); const t = document.createElement('canvas'); t.width = w; t.height = h; t.getContext('2d').drawImage(cv, 0, 0, w, h); return t.toDataURL('image/jpeg', 0.6); })();
+      }
       await Store.saveWork({ userId: u.userId, by: u.display, klass: u.klass, kind: 'color', title, intent, evidence,
         settings: window.ColorStudio.settings(), meta, thumb, srcImg: window.ColorStudio.sourceURL(), exhibited: true });
       document.getElementById('glue-modal').style.display = 'none';
