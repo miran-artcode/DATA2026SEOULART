@@ -23,7 +23,7 @@
 
   // 작은 캔버스에서 통계 계산
   function computeStats(src, maxDim) {
-    maxDim = maxDim || 360;
+    maxDim = maxDim || 440;
     const s = Math.min(1, maxDim / Math.max(src.width, src.height));
     const w = Math.max(1, Math.round(src.width * s)), h = Math.max(1, Math.round(src.height * s));
     const c = document.createElement('canvas'); c.width = w; c.height = h;

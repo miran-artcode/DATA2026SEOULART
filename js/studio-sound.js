@@ -93,11 +93,12 @@
     const sampleAt = ch > 1                              // 모노 다운믹스(메모리 절약: 즉석 평균)
       ? (idx) => { let s = 0; for (let c = 0; c < ch; c++) s += chans[c][idx]; return s / ch; }
       : (idx) => chans[0][idx];
-    const WIN = 4096, HALF = WIN >> 1, MAX_FINE = 6000;   // 4096 → 주파수 해상도 sr/4096 ≈ 10.8Hz
+    const WIN = 8192, HALF = WIN >> 1, MAX_FINE = 3500;   // 8192 → 주파수 해상도 sr/8192 ≈ 5.4Hz(음높이·음색 ↑). 상한으로 아주 긴 파일도 ~4초 내.
     const hop = Math.max(WIN >> 2, Math.ceil(Math.max(1, L - WIN) / MAX_FINE)); // 75% 중첩, 아주 길면 적응
     const hann = new Float32Array(WIN);                  // Hann 창(스펙트럼 누설 감소)
     for (let i = 0; i < WIN; i++) hann[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (WIN - 1));
     const re = new Float64Array(WIN), im = new Float64Array(WIN);
+    const magA = new Float32Array(HALF), magB = new Float32Array(HALF);   // 핑퐁 버퍼(프레임마다 새로 할당 안 함 → GC 부담 ↓)
     const lo1 = Math.floor(HALF * 0.1), lo2 = Math.floor(HALF * 0.4); // 기존 대역 분할(저 0~10%, 중 10~40%, 고 40~100%)
     const steps = L >= WIN ? Math.floor((L - WIN) / hop) + 1 : 1;
     const fine = []; let prevMag = null;
@@ -110,7 +111,7 @@
       }
       const vol = Math.sqrt(ss / WIN);
       fftRadix2(re, im);
-      const mag = new Float32Array(HALF);
+      const mag = (o & 1) ? magB : magA;                 // 직전 프레임(prevMag)과 다른 버퍼 → flux 계산 안전
       let es = 0, ws = 0, peak = 0, peakV = 0, low = 0, mid = 0, high = 0;
       for (let i = 0; i < HALF; i++) {
         const m = Math.sqrt(re[i] * re[i] + im[i] * im[i]);
@@ -126,8 +127,8 @@
         hz: (es > 0 && peakV > es * 0.0008) ? Math.round(peak * sr / WIN) : 0   // 가장 강한 주파수(Hz)
       });
     }
-    // 출력 프레임 수: 약 10fps(80~480). 미세프레임이 더 적으면 그대로 사용(짧은 클립).
-    let N = Math.max(80, Math.min(480, Math.round(buf.duration * 10)));
+    // 출력 프레임 수: 약 15fps(120~800). 미세프레임이 더 적으면 그대로 사용(짧은 클립).
+    let N = Math.max(120, Math.min(800, Math.round(buf.duration * 15)));
     if (fine.length <= N) N = fine.length;
     const agg = [];
     for (let o = 0; o < N; o++) {                        // 미세 스펙트로그램 → 출력 프레임으로 평균 다운샘플
