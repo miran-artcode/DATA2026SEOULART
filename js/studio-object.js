@@ -37,6 +37,10 @@
   let model = null;         // cocoSsd 모델(로드되면)
   let busy = false;
   let live = false, liveStream = null, liveVideo = null;   // 실시간 카메라(웹캠/휴대폰)
+  // 자동 기록(로그): 감지 결과를 시간에 따라 표로 누적 → 데이터셋
+  let logging = false, logRows = [], logStartT = 0, logFrame = 0, lastLogAt = 0, logByCam = false, curSource = '예시';
+  const LOG_INTERVAL = 900, LOG_MAX = 6000;
+  const LOGCOLS = ['초', '회차', '사물', '중심x', '중심y', '가로', '세로', '크기', '종횡비', '신뢰도', '장면개수', '출처'];
 
   function setStatus(msg, kind) {
     const el = $('#od-status'); if (!el) return;
@@ -117,11 +121,13 @@
     $('#btn-od-csv').disabled = false; $('#btn-od-send').disabled = false;
   }
 
-  function applyDetections(dets, note) {
+  function applyDetections(dets, note, source) {
     // 화면이 작을 때 너무 많은 박스를 피하려고 신뢰도 0.3 이상만
     detections = (dets || []).filter(d => d.score >= 0.3).sort((a, b) => b.score - a.score).slice(0, 40);
     render(); summarize();
     if (note) setStatus(note);
+    curSource = source || '사진';
+    logSnapshot(curSource, true);   // 자동 기록이 켜져 있으면 한 줄 남김
   }
 
   /* ----------------------------- 데이터 변환 ----------------------------- */
@@ -146,6 +152,70 @@
     UI.toast('데이터 점 스튜디오로 보냈어요!');
     setTimeout(() => location.href = 'studio-data.html', 500);
   }
+
+  /* ----------------------------- 자동 기록(로그) → 데이터 누적 ----------------------------- */
+  // 감지될 때마다(특히 실시간 카메라) 한 줄씩 표로 쌓아 시간에 따른 데이터셋을 자동으로 만든다.
+  function logCSV() { return LOGCOLS.join(',') + '\n' + logRows.map(o => LOGCOLS.map(c => o[c]).join(',')).join('\n'); }
+  function updateLogUI() {
+    const has = logRows.length > 0;
+    const stat = $('#od-log-stat');
+    if (stat) {
+      if (has) {
+        const types = new Set(logRows.map(r => r.사물)).size;
+        const secs = Math.max.apply(null, logRows.map(r => r.초));
+        stat.innerHTML = `📊 <b>${logRows.length.toLocaleString()}행</b> 기록 · ${logFrame}회차 · 사물 ${types}종 · ${secs.toFixed(0)}초` + (logging ? ' · <span class="od-warn">⏺ 기록 중</span>' : ' · ⏸ 멈춤');
+      } else {
+        stat.innerHTML = logging ? '⏺ 기록 중 — 감지되는 사물이 표로 쌓입니다…'
+          : '자동 기록을 켜면 감지 결과(시간·사물·위치·크기·종횡비·신뢰도·장면 개수 등)가 표처럼 계속 쌓여 <b>데이터</b>가 됩니다. 📹 실시간 카메라와 함께 쓰면 자동으로 기록돼요.';
+      }
+    }
+    const set = (id, dis) => { const e = $(id); if (e) e.disabled = dis; };
+    set('#btn-od-log-csv', !has); set('#btn-od-log-send', !has); set('#btn-od-log-clear', !has);
+    const b = $('#btn-od-log'); if (b) { b.textContent = logging ? '■ 자동 기록 중지' : '⏺ 자동 기록'; b.classList.toggle('rec', logging); }
+  }
+  function logSnapshot(source, force) {
+    if (!logging || !srcCanvas || !detections.length) return;
+    const now = (window.performance && performance.now) ? performance.now() : Date.now();
+    if (!force && now - lastLogAt < LOG_INTERVAL) return;   // 카메라 프레임 폭주 방지(약 1초 간격)
+    lastLogAt = now; logFrame++;
+    const W = srcCanvas.width, H = srcCanvas.height, A = W * H, cnt = detections.length, t = (now - logStartT) / 1000;
+    detections.forEach(d => {
+      const [bx, by, bw, bh] = d.bbox;
+      logRows.push({
+        초: +t.toFixed(1), 회차: logFrame, 사물: ko(d.class),
+        중심x: fmt((bx + bw / 2) / W * 100), 중심y: fmt((by + bh / 2) / H * 100),
+        가로: fmt(bw / W * 100), 세로: fmt(bh / H * 100), 크기: fmt(bw * bh / A * 100),
+        종횡비: +(bw / Math.max(1, bh)).toFixed(2), 신뢰도: fmt(d.score * 100),
+        장면개수: cnt, 출처: source || '사진'
+      });
+    });
+    if (logRows.length >= LOG_MAX) { stopLog(); setStatus('자동 기록이 최대치(' + LOG_MAX.toLocaleString() + '행)에 도달해 멈췄어요. 내보내거나 비우고 다시 시작하세요.', 'warn'); }
+    updateLogUI();
+  }
+  function startLog(silent) {
+    if (logging) return;
+    logging = true; lastLogAt = 0;
+    if (!logRows.length) { logStartT = (window.performance && performance.now) ? performance.now() : Date.now(); logFrame = 0; }
+    if (!silent) setStatus('⏺ 자동 기록을 시작했어요 — 감지되는 사물이 데이터로 쌓입니다.');
+    if (detections.length) logSnapshot(live ? '카메라' : curSource, true);   // 이미 떠 있는 화면이면 즉시 한 줄
+    updateLogUI();
+  }
+  function stopLog() { if (!logging) return; logging = false; updateLogUI(); }
+  function toggleLog() { logging ? stopLog() : startLog(); }
+  function exportLogCSV() {
+    if (!logRows.length) return;
+    const blob = new Blob(['﻿' + logCSV()], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'); a.download = 'object_log_' + Date.now() + '.csv'; a.href = URL.createObjectURL(blob); a.click();
+    setStatus('자동 기록 ' + logRows.length.toLocaleString() + '행을 CSV로 저장했어요.');
+  }
+  function sendLogToData() {
+    if (!logRows.length) return;
+    const payload = { name: '사물 감지 자동기록', csv: logCSV(), intent: ($('#od-intent') ? $('#od-intent').value.trim() : ''), omit: ($('#od-omit') ? $('#od-omit').value.trim() : '') };
+    try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(기록이 커요 — CSV로 내보낸 뒤 불러오세요).'); return; }
+    UI.toast('자동 기록 데이터를 데이터 점 스튜디오로 보냈어요!');
+    setTimeout(() => location.href = 'studio-data.html', 500);
+  }
+  function clearLog() { logRows = []; logFrame = 0; logging = false; updateLogUI(); setStatus('자동 기록을 비웠어요.'); }
 
   /* ----------------------------- 모델 로드 + 감지 ----------------------------- */
   function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('load fail')); document.head.appendChild(s); }); }
@@ -172,7 +242,8 @@
       await liveVideo.play();
       live = true;
       const b = $('#btn-od-cam'); if (b) { b.textContent = '■ 카메라 끄기'; b.classList.add('rec'); }
-      setStatus('📹 실시간 감지 중 — 카메라를 사물(사람·컵·휴대폰·의자…)에 향해 보세요. 영상은 저장되지 않아요.');
+      if (!logging) { startLog(true); logByCam = true; }   // 실시간 감지는 자동으로 기록 시작(화면 감지=자동 데이터화)
+      setStatus('📹 실시간 감지 + ⏺ 자동 기록 중 — 카메라를 사물(사람·컵·휴대폰·의자…)에 향해 보세요. 감지 결과가 데이터로 쌓여요(영상은 저장 안 됨).');
       requestAnimationFrame(liveStep);
     } catch (e) {
       live = false;
@@ -187,6 +258,7 @@
     if (liveStream) { liveStream.getTracks().forEach(t => t.stop()); liveStream = null; }
     liveVideo = null;
     const b = $('#btn-od-cam'); if (b) { b.textContent = '📹 실시간 카메라'; b.classList.remove('rec'); }
+    if (logByCam) { stopLog(); logByCam = false; }   // 카메라가 자동 시작한 기록만 멈춤(쌓인 데이터는 유지). 수동 기록은 사진·예시에서 계속됨
   }
   function toggleLive() { if (live) { stopLive(); setStatus('카메라를 껐어요.'); } else startLive(); }
   async function liveStep() {
@@ -202,6 +274,8 @@
         srcCanvas.getContext('2d').drawImage(liveVideo, 0, 0, srcCanvas.width, srcCanvas.height);
         detections = dets.filter(d => d.score >= 0.45).sort((a, b) => b.score - a.score).slice(0, 20);
         render(); summarize();
+        curSource = '카메라';
+        logSnapshot('카메라', false);   // 실시간 프레임을 약 1초 간격으로 자동 기록
       } catch (e) { /* 프레임 단위 오류는 건너뜀 */ }
     }
     if (live) requestAnimationFrame(liveStep);
@@ -213,7 +287,7 @@
     try {
       const m = await ensureModel();
       const dets = await m.detect(srcCanvas, 40);
-      applyDetections(dets, dets.length ? 'AI 감지 완료 · ' + dets.length + '개' : 'AI가 아무것도 찾지 못했어요 — 이게 결과이자 ‘비평거리’예요.');
+      applyDetections(dets, dets.length ? 'AI 감지 완료 · ' + dets.length + '개' : 'AI가 아무것도 찾지 못했어요 — 이게 결과이자 ‘비평거리’예요.', '사진');
     } catch (e) {
       setStatus('AI 모델을 불러오지 못했어요(네트워크 차단/오프라인일 수 있어요). 아래 ‘오프라인 예시’로 객체 감지가 무엇인지 체험해 보세요.', 'warn');
     } finally { busy = false; if (btn) { btn.disabled = false; btn.textContent = '🤖 AI로 사물 감지'; } }
@@ -249,7 +323,7 @@
   function loadStreetDemo() {
     stopLive();
     const { cv, baked } = drawStreet(720, 480);
-    srcCanvas = cv; applyDetections(baked, '오프라인 예시 장면 · baked 감지(네트워크 없이도 작동) — 실제 AI 감지는 사진을 업로드해 보세요.');
+    srcCanvas = cv; applyDetections(baked, '오프라인 예시 장면 · baked 감지(네트워크 없이도 작동) — 실제 AI 감지는 사진을 업로드해 보세요.', '예시');
   }
 
   /* ----------------------------- 춤추는 점(감지 → 미디어아트) ----------------------------- */
@@ -351,6 +425,13 @@
     $('#sel-od-art').addEventListener('change', e => { if (e.target.value) loadArtDemo(e.target.value); });
     $('#btn-od-csv').addEventListener('click', exportCSV);
     $('#btn-od-send').addEventListener('click', sendToData);
+    // 자동 기록(로그)
+    const onClick = (id, fn) => { const e = $(id); if (e) e.addEventListener('click', fn); };
+    onClick('#btn-od-log', toggleLog);
+    onClick('#btn-od-log-csv', exportLogCSV);
+    onClick('#btn-od-log-send', sendLogToData);
+    onClick('#btn-od-log-clear', clearLog);
+    updateLogUI();
     // 드래그&드롭
     const stage = $('#odstage-wrap');
     if (stage) {
@@ -361,5 +442,5 @@
     loadStreetDemo(); // 시작하자마자 살아있는 화면(오프라인 안전)
   });
 
-  window.ObjectStudio = { rows: toRows };   // (외부 연동용 최소 창구)
+  window.ObjectStudio = { rows: toRows, log: () => logRows.slice(), logCSV };   // (외부 연동용 최소 창구)
 })();

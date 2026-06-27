@@ -81,6 +81,18 @@
       <button id="btn-od-send" class="btn accent2" disabled>→ 데이터 점 스튜디오로 보내기</button>
     </div>
     <p class="muted" style="font-size:11.5px;margin-top:8px">보내면 <b>사물·중심x·중심y·크기·신뢰도</b> 열로 데이터 점 스튜디오에서 더 깊이 다룰 수 있어요. 또는 바로 아래에서 ‘춤추는 점’으로 봐요.</p>
+
+    <div style="margin-top:14px; border-top:1px solid var(--line); padding-top:12px">
+      <h4 style="margin:0 0 8px; font-size:14px">⏺ 자동 기록 — 감지 결과를 데이터로 쌓기</h4>
+      <div class="od-tools">
+        <button id="btn-od-log" class="btn accent2">⏺ 자동 기록</button>
+        <button id="btn-od-log-csv" class="btn" disabled>⬇ 기록 CSV</button>
+        <button id="btn-od-log-send" class="btn" disabled>→ 기록을 데이터 점으로</button>
+        <button id="btn-od-log-clear" class="btn ghost" disabled>🗑 기록 비우기</button>
+      </div>
+      <p id="od-log-stat" class="muted" style="font-size:11.5px;margin-top:8px"></p>
+      <p class="muted" style="font-size:11.5px;margin-top:4px">기록 열: <b>초·회차·사물·중심x·중심y·가로·세로·크기·종횡비·신뢰도·장면개수·출처</b> — 시간에 따라 ‘무엇이, 어디서, 얼마나’ 보였는지가 데이터가 돼요.</p>
+    </div>
   </div>
 
   <div class="card" id="od-art-card" style="margin-top:16px">
