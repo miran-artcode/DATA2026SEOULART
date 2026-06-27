@@ -46,6 +46,19 @@
   .pal .sw small { font-size: 8.5px; color: #fff; background: rgba(0,0,0,.32); padding: 0 3px; border-radius: 3px; }
 
   @media (max-width: 920px) { .wstudio { grid-template-columns: 1fr; } }
+
+  /* 모양 틀 — 종류별 그리드 피커 */
+  .shape-groups { display: flex; flex-direction: column; gap: 2px; }
+  .shape-grp h5 { margin: 9px 0 5px; font-size: 11px; color: var(--muted2); font-weight: 700; letter-spacing: .02em; }
+  .shape-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .shape-btn { border: 1px solid var(--line); background: var(--bg2); border-radius: 9px; padding: 4px 1px 3px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 1px; transition: .12s; }
+  .shape-btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .shape-btn.on { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(var(--accent-rgb), .28); }
+  .shape-btn canvas { width: 36px; height: 36px; display: block; border-radius: 5px; }
+  .shape-btn span { font-size: 9px; color: var(--muted); line-height: 1.05; text-align: center; word-break: keep-all; }
+  #draw-pad { width: 100%; max-width: 300px; background: #0c0e16; border: 1px solid var(--line); border-radius: 10px;
+    touch-action: none; cursor: crosshair; display: block; }
 </style>
 </head>
 <body>
@@ -161,16 +174,8 @@
       <details open>
         <summary>4 · 모양 틀 — 낱말을 채울 형태 <span class="info-ic" data-info="word-shape">ⓘ</span></summary>
         <div class="sect">
-          <label class="field">틀 모양</label>
-          <select id="sel-shape">
-            <option value="rect">▭ 꽉 찬 사각(기본)</option>
-            <option value="circle">● 원</option>
-            <option value="heart">♥ 하트</option>
-            <option value="star">★ 별</option>
-            <option value="triangle">▲ 삼각형</option>
-            <option value="letter">🔠 글자/이니셜</option>
-            <option value="upload">🖼 업로드 실루엣</option>
-          </select>
+          <label class="field">틀 모양 — 종류별로 고르거나 직접 그려요</label>
+          <div id="shape-picker" class="shape-groups"></div>
           <div id="letter-row" style="display:none;margin-top:8px">
             <label class="field" style="margin-top:0">틀로 쓸 글자(1~3자) — 작가 이니셜 등</label>
             <input id="in-letter" type="text" maxlength="3" placeholder="예: DH / 호 / P">
@@ -179,6 +184,15 @@
             <button id="btn-upload-mask" class="btn sm">실루엣 이미지 올리기</button>
             <input id="maskfile" type="file" accept="image/*" hidden />
             <p class="muted" style="font-size:11px;margin:6px 0 0">진한 부분(불투명/어두운 영역)을 틀로 인식해요. 단순한 실루엣이 잘 됩니다.</p>
+          </div>
+          <div id="draw-row" style="display:none;margin-top:8px">
+            <p class="muted" style="font-size:11px;margin:0 0 6px">마우스(또는 손가락)로 칠해 틀을 직접 만들어요 — <b>흰 부분</b>에 낱말이 채워져요.</p>
+            <canvas id="draw-pad"></canvas>
+            <div class="row tight" style="margin-top:6px; align-items:center">
+              <button id="btn-draw-undo" class="btn sm">↶ 되돌리기</button>
+              <button id="btn-draw-clear" class="btn sm ghost">지우기</button>
+              <label style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;flex:1;min-width:120px">붓 굵기 <input id="r-brush" type="range" min="0.04" max="0.32" step="0.01" value="0.12" style="flex:1"></label>
+            </div>
           </div>
           <label class="field">틀 비율</label>
           <select id="sel-ratio">
