@@ -868,6 +868,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
   }
   window.ColorStudio = {
     canvas: () => p5i && p5i.canvas,
+    sourceCanvasRaw: () => sourceCanvas || null,   // 업로드한 '원본 사진' 캔버스(고화질 보관용)
     hasAnalysis: () => !!analysis,
     context: () => ({ kind: 'color', palette: analysis ? analysis.palette : [], K: state.K, N: state.N,
       space: state.space, rules: describeRules(), intent: (state.meta && state.meta.intent) || '' }),
@@ -876,6 +877,8 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     // 전시 재생용: 원본 이미지를 작게 dataURL 로 (작품을 다시 점으로 살려내기)
     sourceURL: (maxDim) => {
       if (!sourceCanvas) return '';
+      // 원본 사진을 '문서 용량 한계 안에서' 가능한 한 또렷하게(전시 원본 표시 + 점 재생성에 사용).
+      if (window.ImgUtil) return ImgUtil.encode(sourceCanvas, { maxDim: maxDim || 1600, budget: 560000 });
       maxDim = maxDim || 380;
       const ar = sourceCanvas.width / sourceCanvas.height;
       const w = Math.min(maxDim, sourceCanvas.width), h = Math.round(w / ar);
