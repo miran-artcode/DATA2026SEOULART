@@ -32,9 +32,25 @@
       catColors: {}, catShapes: {}
     },
     baseSpeed: 1, vib: 1, trail: 200, layout: 'timeline', motionStyle: 'vibrate',
-    pointScale: 1, cohesion: 1, bg: 'night'
+    pointScale: 1, cohesion: 1, bg: 'night',
+    // 관람자 인터랙션(런타임) — 데이터→점 ‘매핑’과 별개로, 관람자의 존재가 화면을 흔든다.
+    interact: {
+      lens: false,            // A1 근접 확대(렌즈)
+      mouseForce: 'repel',    // A2/A3/A4: 'none'|'repel'(밀어내기)|'attract'(끌어당기기)|'brush'(붓질)
+      clusterFocus: -1,       // A5 강조할 범주 인덱스(-1=전체)
+      sound: false,           // 마이크 마스터 on/off
+      sVolume: true,          // B6 볼륨=에너지
+      sPeak: true,            // B7 피크(박수)=재배치 트리거
+      sBand: true,            // B8 저음/고음=색 반응
+      sSustain: false,        // B9 소리 지속=점 생성
+      sSilence: false         // B10 침묵=해체
+    }
   };
   let ruleA = null, ruleB = null, abFlag = false, P = null, p5i = null;
+  // 인터랙션용 런타임 상태(저장 대상 아님)
+  let pmx = 0, pmy = 0, mvx = 0, mvy = 0;     // 마우스 속도(붓질용)
+  let spawns = [], spawnAcc = 0;              // B9 소리로 태어나는 입자
+  let silence = 0, prevVol = 0, peakCool = 0; // B10 침묵 · B7 피크 감지
 
   /* ----------------------------- CSV 파싱 ----------------------------- */
   function parseData(text) {
@@ -97,7 +113,8 @@
   function applyDataset(ds, name) {
     if (!ds || !ds.n) { UI.toast('데이터를 읽지 못했어요. 형식을 확인하세요.'); return; }
     state.dataset = ds; if (name != null) state.dataName = name;
-    autoMapping(); populateFieldSelects(); renderFieldChips(); renderColorUI(); build(); renderAnalysis();
+    spawns = []; spawnAcc = 0; silence = 0;   // 데이터가 바뀌면 인터랙션 런타임 초기화(옛 행 참조 방지)
+    autoMapping(); populateFieldSelects(); renderFieldChips(); renderColorUI(); build(); renderAnalysis(); updateClusterHint();
     $('#data-info').textContent = (state.dataName || '데이터') + ' · ' + ds.n + '행 · 열 ' + ds.fields.length + '개';
   }
   function autoMapping() {
@@ -107,6 +124,7 @@
     m.colorMode = cats.length ? 'category' : 'gradient';
     m.colorField = m.colorMode === 'category' ? cats[0] : (nums[0] || null);
     m.catColors = {}; m.catShapes = {}; assignCatColors();
+    state.interact.clusterFocus = -1;   // 데이터가 바뀌면 색 강조 초기화
   }
   const PAL = ['#182F49', '#3A4F7A', '#6E84B8', '#8FC0B5', '#E6F5A6', '#93A4E8', '#2FB6A8', '#CFE0D6', '#0E0A2E', '#5B4BD6'];
   function assignCatColors() {
@@ -212,6 +230,69 @@
     else if (shape === 'diamond') { ctx.moveTo(x, y - r * 1.2); ctx.lineTo(x + r * 1.1, y); ctx.lineTo(x, y + r * 1.2); ctx.lineTo(x - r * 1.1, y); ctx.closePath(); }
     else ctx.arc(x, y, r, 0, 6.283);
     ctx.fill();
+  }
+
+  /* ----------------------------- 관람자 인터랙션 ----------------------------- */
+  // 점 색의 밝기(0~1) — 저음↔어두운 색 / 고음↔밝은 색 반응(B8)에 사용
+  function parseRGB(c) { if (!c) return [136, 136, 136]; if (c[0] === '#') return hexToRgb(c); const mm = c.match(/\d+/g); return mm ? [+mm[0], +mm[1], +mm[2]] : [136, 136, 136]; }
+  function lumNorm(i) { const r = parseRGB(colorAt(i)); return (0.299 * r[0] + 0.587 * r[1] + 0.114 * r[2]) / 255; }
+  // 마이크 값 읽기 + 미터 갱신(소리 반응이 켜져 있을 때만)
+  function readMic() {
+    const z = state.interact;
+    if (!z.sound || !window.AudioInput || !AudioInput.enabled) return null;
+    AudioInput.sensitivity = 1.4;
+    const v = AudioInput.getValues();
+    const mm = $('#data-mic-meter'); if (mm) mm.style.width = Math.round(Math.min(1, v.volume) * 100) + '%';
+    return v;
+  }
+  // B7 피크(박수) → 새 배치로 재구성 + 분출 임펄스
+  function triggerReconfigure() {
+    const order = ['timeline', 'radial', 'grid', 'flowField'];
+    state.layout = order[(order.indexOf(state.layout) + 1) % order.length];
+    const sl = $('#sel-layout'); if (sl) sl.value = state.layout;
+    build();
+    if (P) for (const o of P) { o.vx += (Math.random() - 0.5) * 9; o.vy += (Math.random() - 0.5) * 9; }
+  }
+  // B9 소리 지속 → 데이터 색을 띤 입자가 태어남
+  function emitSpawn() {
+    if (!P || !P.length) return;
+    const o = P[(Math.random() * P.length) | 0];
+    spawns.push({ x: o.hx + (Math.random() - 0.5) * 44, y: o.hy + (Math.random() - 0.5) * 44, vx: (Math.random() - 0.5) * 1.6, vy: (Math.random() - 0.5) * 1.6 - 0.4, life: 1, ri: o.ri, r: 1 + Math.random() * 2.6 });
+  }
+  function renderSpawns(ctx, p) {
+    for (let k = spawns.length - 1; k >= 0; k--) {
+      const s = spawns[k];
+      s.vx *= 0.96; s.vy = s.vy * 0.96 + 0.02; s.x += s.vx; s.y += s.vy; s.life -= 0.006;
+      if (s.life <= 0 || s.y > p.height + 24) { spawns.splice(k, 1); continue; }
+      ctx.globalAlpha = Math.max(0, s.life) * 0.85;
+      ctx.fillStyle = colorAt(s.ri);
+      drawShape(ctx, s.x, s.y, s.r * state.pointScale, 'circle');
+    }
+  }
+  // A5 색(범주) 토글 안내 갱신
+  function updateClusterHint() {
+    const el = $('#cluster-hint'); if (!el) return;
+    const z = state.interact, m = state.mapping;
+    if (z.clusterFocus < 0 || m.colorMode !== 'category' || !m.colorField) { el.textContent = ''; return; }
+    const cats = fieldCats(m.colorField);
+    el.textContent = '강조: ‘' + (cats[z.clusterFocus] || '') + '’ — 나머지 색은 흐려져요 (클릭/숫자키로 전환, 0=전체)';
+  }
+  // 마이크 마스터 토글(음성 원본은 저장하지 않고 실시간 분석값만 사용)
+  async function toggleSound() {
+    const z = state.interact, btn = $('#btn-data-sound');
+    if (!z.sound) {
+      if (!window.AudioInput) { UI.toast('오디오 모듈을 불러오지 못했어요.'); return; }
+      try {
+        await AudioInput.start(); z.sound = true;
+        if (btn) { btn.classList.add('on'); btn.textContent = '🎙 소리 반응 끄기'; }
+        UI.toast('마이크를 켰어요 — 소리로 점을 깨워 보세요. (음성 원본은 저장되지 않아요)');
+      } catch (e) { UI.toast('마이크를 켤 수 없어요: ' + (e && e.message ? e.message : e)); }
+    } else {
+      AudioInput.stop(); z.sound = false; silence = 0; spawns = []; spawnAcc = 0;
+      if (btn) { btn.classList.remove('on'); btn.textContent = '🎙 소리 반응 켜기'; }
+      const mm = $('#data-mic-meter'); if (mm) mm.style.width = '0%';
+      UI.toast('마이크를 껐어요.');
+    }
   }
 
   /* ----------------------------- 데이터 분석 · 매핑 제안 ----------------------------- */
@@ -381,13 +462,38 @@
       ctx.fillStyle = state.trail >= 255 ? 'rgb(' + bg + ')' : 'rgba(' + bg + ',' + (state.trail / 255) + ')';
       ctx.fillRect(0, 0, p.width, p.height);
       if (!P || !state.dataset) return;
-      const m = state.mapping, mAct = p.mouseX > 0 && p.mouseY > 0 && p.mouseX < p.width && p.mouseY < p.height;
-      const style = state.motionStyle, t = p.frameCount * 0.05, coh = state.cohesion;
+      const m = state.mapping, z = state.interact;
+      const mAct = p.mouseX > 0 && p.mouseY > 0 && p.mouseX < p.width && p.mouseY < p.height;
+      mvx = p.mouseX - pmx; mvy = p.mouseY - pmy; pmx = p.mouseX; pmy = p.mouseY;   // 마우스 속도(붓질용)
+      const style = state.motionStyle, t = p.frameCount * 0.05, cx = p.width / 2, cy = p.height / 2;
+
+      // ── 소리 입력 + 시간 의존 반응(B6~B10) ──────────────────
+      const mic = readMic();
+      const volE = (mic && z.sVolume) ? mic.volume : 0;                              // B6 볼륨=에너지
+      if (mic && z.sSilence) silence = Math.max(0, Math.min(1, silence + (mic.volume < 0.06 ? 0.01 : -0.05)));
+      else silence = Math.max(0, silence - 0.05);                                    // B10 침묵 누적
+      if (mic && z.sPeak) {                                                          // B7 피크(박수) 감지
+        if (peakCool > 0) peakCool--;
+        else if (mic.volume - prevVol > 0.22 && mic.volume > 0.4) { triggerReconfigure(); peakCool = 35; }
+        prevVol = mic.volume;
+      } else prevVol = mic ? mic.volume : 0;
+      if (mic && z.sSustain && mic.volume > 0.14) {                                  // B9 소리 지속=생성
+        spawnAcc += mic.volume * 1.6;
+        while (spawnAcc >= 1 && spawns.length < 1400) { spawnAcc -= 1; emitSpawn(); }
+      } else spawnAcc = Math.max(0, spawnAcc - 0.2);
+
+      const coh = state.cohesion * (1 - silence * 0.92);   // 침묵→응집력이 풀려 흩어짐
+      const vib = state.vib + volE * 3.2;                  // 볼륨→진동↑
+      let catFocus = null;                                 // A5 강조 범주
+      if (z.clusterFocus >= 0 && m.colorMode === 'category' && m.colorField) {
+        const cl = fieldCats(m.colorField); if (z.clusterFocus < cl.length) catFocus = cl[z.clusterFocus];
+      }
+
       for (const o of P) {
         const i = o.ri;
         const sv = m.size ? norm(m.size, i) : 0.5;
         const dv = m.speed ? Math.abs(delta(m.speed, i)) : 0.25;
-        const speed = state.baseSpeed * (0.35 + dv * 1.4);
+        const speed = state.baseSpeed * (0.35 + dv * 1.4) * (1 + volE * 1.2);       // 볼륨→속도↑
         const dir = m.direction ? -Math.sign(delta(m.direction, i)) : 0;
         // 움직임 방식: 어떤 ‘식’으로 움직일지
         let ax, ay;
@@ -395,27 +501,68 @@
           ax = (o.hx - o.px) * 0.06 * coh; ay = (o.hy - o.py) * 0.06 * coh;
           const dx = o.px - o.hx, dy = o.py - o.hy;
           ax += -dy * 0.05 * (0.5 + speed); ay += dx * 0.05 * (0.5 + speed);
-          ax += (Math.random() - 0.5) * state.vib * speed * 0.5; ay += (Math.random() - 0.5) * state.vib * speed * 0.5;
+          ax += (Math.random() - 0.5) * vib * speed * 0.5; ay += (Math.random() - 0.5) * vib * speed * 0.5;
         } else if (style === 'wave') {                   // 시간에 따라 출렁이는 파동
           ax = (o.hx - o.px) * 0.06 * coh; ay = (o.hy - o.py) * 0.05 * coh;
           ay += Math.sin(t + o.ph + i * 0.25) * speed * 1.3;
-          ax += (Math.random() - 0.5) * state.vib * speed * 0.4;
+          ax += (Math.random() - 0.5) * vib * speed * 0.4;
         } else if (style === 'burst') {                  // 방향대로 분출(약한 복귀)
           ax = (o.hx - o.px) * 0.02 * coh; ay = (o.hy - o.py) * 0.02 * coh;
-          ay += dir * speed * 0.9; ax += (Math.random() - 0.5) * state.vib * speed; ay += (Math.random() - 0.5) * state.vib * speed;
+          ay += dir * speed * 0.9; ax += (Math.random() - 0.5) * vib * speed; ay += (Math.random() - 0.5) * vib * speed;
         } else {                                         // vibrate(기본): 제자리 진동 + 방향 드리프트
           ax = (o.hx - o.px) * 0.06 * coh; ay = (o.hy - o.py) * 0.03 * coh;
           ay += dir * speed * 0.55;
-          ax += (Math.random() - 0.5) * state.vib * speed; ay += (Math.random() - 0.5) * state.vib * speed;
+          ax += (Math.random() - 0.5) * vib * speed; ay += (Math.random() - 0.5) * vib * speed;
         }
-        if (mAct) { const dx = o.px - p.mouseX, dy = o.py - p.mouseY, d2 = dx * dx + dy * dy; if (d2 < 9000) { const d = Math.sqrt(d2) + .1, f = (1 - d / 95) * 4; ax += dx / d * f; ay += dy / d * f; } }
+
+        // ── 소리 반응(점별) ───────────────
+        if (volE > 0.02) { const dx = o.px - cx, dy = o.py - cy, d = Math.sqrt(dx * dx + dy * dy) + 0.1; ax += dx / d * volE * 1.4; ay += dy / d * volE * 1.4; }     // B6 중심에서 퍼짐
+        if (silence > 0) { const dx = o.px - cx, dy = o.py - cy, d = Math.sqrt(dx * dx + dy * dy) + 0.1; ax += dx / d * silence * 0.6; ay += dy / d * silence * 0.6; } // B10 바깥으로 해체
+        let bandPulse = 0;
+        if (mic && z.sBand) { const lum = lumNorm(i), act = mic.low * (1 - lum) + mic.high * lum; if (act > 0.03) { ax += (Math.random() - 0.5) * act * 10; ay += (Math.random() - 0.5) * act * 10; bandPulse = act; } } // B8
+
+        // ── 마우스 작용(A1~A4) ───────────────
+        const dx = o.px - p.mouseX, dy = o.py - p.mouseY, d2 = dx * dx + dy * dy;
+        let lensBoost = 0;
+        if (mAct) {
+          if (z.lens && d2 < 13000) lensBoost = 1 - Math.sqrt(d2 / 13000);                                                                                 // A1 렌즈
+          if (z.mouseForce === 'repel') { if (d2 < 9000) { const d = Math.sqrt(d2) + 0.1, f = (1 - d / 95) * 4; ax += dx / d * f; ay += dy / d * f; } }     // A2 밀어내기
+          else if (z.mouseForce === 'attract' && p.mouseIsPressed) { const d = Math.sqrt(d2) + 0.1, f = Math.min(3.4, 26000 / (d2 + 600)); ax -= dx / d * f; ay -= dy / d * f; } // A3 끌어당기기
+          else if (z.mouseForce === 'brush' && d2 < 12000) { const f = 1 - Math.sqrt(d2 / 12000); ax += mvx * f * 0.5; ay += mvy * f * 0.5; }               // A4 붓질
+        }
+
         o.vx = (o.vx + ax) * 0.9; o.vy = (o.vy + ay) * 0.9; o.px += o.vx; o.py += o.vy;
-        const r = (1.5 + sv * 7 * (m.size ? 1 : 0.45)) * state.pointScale;
-        ctx.globalAlpha = m.alpha ? (0.18 + norm(m.alpha, i) * 0.82) : 1;
+
+        // ── 크기·투명도·색 ───────────────
+        const r = (1.5 + sv * 7 * (m.size ? 1 : 0.45)) * state.pointScale * (1 + lensBoost * 1.4 + bandPulse);  // A1·B8 펄스
+        let alpha = m.alpha ? (0.18 + norm(m.alpha, i) * 0.82) : 1;
+        if (lensBoost > 0) alpha = Math.min(1, alpha + lensBoost * 0.6);                                         // A1 불투명도↑
+        if (silence > 0) alpha *= (1 - silence * 0.85);                                                          // B10 사라짐
+        if (catFocus !== null && String(state.dataset.rows[i][m.colorField]) !== catFocus) alpha *= 0.08;       // A5 색 토글
+        ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
         ctx.fillStyle = colorAt(i);
         drawShape(ctx, o.px, o.py, r, shapeAt(i));
       }
+      if (spawns.length) renderSpawns(ctx, p);   // B9 태어난 입자
       ctx.globalAlpha = 1;
+    };
+    // A5 색(범주) 토글 — 클릭마다 다음 색만 강조(끌어당기기 모드는 누름 제스처와 겹치므로 제외)
+    p.mouseClicked = () => {
+      if (p.mouseX < 0 || p.mouseY < 0 || p.mouseX > p.width || p.mouseY > p.height) return;
+      if (state.interact.mouseForce === 'attract') return;
+      const m = state.mapping; if (m.colorMode !== 'category' || !m.colorField) return;
+      const k = fieldCats(m.colorField).length; if (!k) return;
+      state.interact.clusterFocus = state.interact.clusterFocus + 1 >= k ? -1 : state.interact.clusterFocus + 1;
+      updateClusterHint();
+    };
+    // A5 숫자키 1~9: 해당 색만 강조 · 0: 전체 (입력칸에 타이핑 중이면 무시)
+    p.keyPressed = () => {
+      const ae = document.activeElement;
+      if (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
+      const m = state.mapping; if (m.colorMode !== 'category' || !m.colorField) return;
+      const cats = fieldCats(m.colorField);
+      if (p.key >= '1' && p.key <= '9') { const idx = +p.key - 1; if (idx < cats.length) { state.interact.clusterFocus = idx; updateClusterHint(); } }
+      else if (p.key === '0') { state.interact.clusterFocus = -1; updateClusterHint(); }
     };
   };
 
@@ -509,6 +656,7 @@
         '올린 데이터를 자동 분석해요 — 열별 분포를 보고 한 번에 매핑하거나 ‘문제 강조’로 문제점을 드러내요.',
         '어떤 열을 점의 어떤 특성(크기·속도·방향·밀도·색·형태)으로 바꿀지 직접 설계해요.',
         '기본 속도·진동·잔상으로 움직임의 결을 정해요.',
+        '관람자가 다가오거나(마우스) 소리를 내면 점이 반응해요 — 인터랙션은 효과가 아니라 ‘관람자의 존재가 데이터를 흔드는’ 해석이에요.',
         '‘객관적 데이터’ 뒤의 내 선택을 적어요 — 무엇을 셌고 무엇을 일부러 뺐는지.',
         '저장·전시 전에 의도 한 문장 + 근거 1개를 채워요(근거가 먼저).',
         '코치에게 질문받고, 이미지·작업노트·전시로 내보내요.'
@@ -554,8 +702,8 @@
       if (prop === 'shape') renderColorUI();
       if (prop === 'density' || prop === 'size') build();
     }));
-    $('#map-colormode').addEventListener('change', e => { state.mapping.colorMode = e.target.value; if (state.dataset) { fieldOptions($('#map-colorfield'), state.mapping.colorMode === 'category' ? 'any' : 'num', false, state.mapping.colorField); state.mapping.colorField = $('#map-colorfield').value || state.mapping.colorField; assignCatColors(); renderColorUI(); } });
-    $('#map-colorfield').addEventListener('change', e => { state.mapping.colorField = e.target.value || null; assignCatColors(); renderColorUI(); });
+    $('#map-colormode').addEventListener('change', e => { state.mapping.colorMode = e.target.value; state.interact.clusterFocus = -1; updateClusterHint(); if (state.dataset) { fieldOptions($('#map-colorfield'), state.mapping.colorMode === 'category' ? 'any' : 'num', false, state.mapping.colorField); state.mapping.colorField = $('#map-colorfield').value || state.mapping.colorField; assignCatColors(); renderColorUI(); } });
+    $('#map-colorfield').addEventListener('change', e => { state.mapping.colorField = e.target.value || null; state.interact.clusterFocus = -1; updateClusterHint(); assignCatColors(); renderColorUI(); });
     $('#map-gradlow').addEventListener('input', e => state.mapping.gradLow = e.target.value);
     $('#map-gradhigh').addEventListener('input', e => state.mapping.gradHigh = e.target.value);
     $('#map-solid').addEventListener('input', e => state.mapping.solid = e.target.value);
@@ -565,6 +713,17 @@
     $('#sel-layout').addEventListener('change', e => { state.layout = e.target.value; build(); });
     $('#sel-motionstyle').addEventListener('change', e => { state.motionStyle = e.target.value; });
     $('#sel-data-bg').addEventListener('change', e => { state.bg = e.target.value; });
+
+    // 관람자 인터랙션 — 마우스·소리
+    const ck = (id, fn) => { const el = $('#' + id); if (el) el.addEventListener('change', e => fn(e.target.checked)); };
+    ck('ck-lens', v => state.interact.lens = v);
+    ck('ck-svol', v => state.interact.sVolume = v);
+    ck('ck-speak', v => state.interact.sPeak = v);
+    ck('ck-sband', v => state.interact.sBand = v);
+    ck('ck-ssustain', v => { state.interact.sSustain = v; if (!v) { spawns = []; spawnAcc = 0; } });
+    ck('ck-ssilence', v => { state.interact.sSilence = v; if (!v) silence = 0; });
+    const smf = $('#sel-mouseforce'); if (smf) smf.addEventListener('change', e => { state.interact.mouseForce = e.target.value; });
+    const bds = $('#btn-data-sound'); if (bds) bds.addEventListener('click', toggleSound);
 
     $('#btn-ruleA').addEventListener('click', () => { ruleA = snapRule(); renderAB(); UI.toast('규칙 A 저장됨 — 매핑을 바꿔 규칙 B도 저장해 비교하세요.'); });
     $('#btn-ruleB').addEventListener('click', () => { ruleB = snapRule(); renderAB(); UI.toast('규칙 B 저장됨 — ‘A/B 전환’으로 비교하세요.'); });

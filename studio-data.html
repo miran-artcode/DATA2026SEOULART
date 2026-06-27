@@ -51,6 +51,12 @@
   .asug { display: flex; flex-wrap: wrap; gap: 5px; }
   .btn.xs { font-size: 11px; padding: 4px 9px; border-radius: 8px; }
   .cchip { display: inline-block; font-size: 10.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 7px; margin: 2px 2px 0 0; }
+  /* 관람자 인터랙션 */
+  .ck { display: flex; align-items: center; gap: 8px; font-size: 12px; margin: 6px 0; cursor: pointer; }
+  .ck input { width: 15px; height: 15px; flex: 0 0 auto; }
+  .micbar { height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 2px 0 10px; }
+  .micbar i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width .08s linear; }
+  .btn.on { background: var(--accent2); color: #0b0e17; border-color: var(--accent2); }
 </style>
 </head>
 <body>
@@ -173,6 +179,36 @@
       </details>
 
       <details open>
+        <summary>★ 관람자 인터랙션 — 마우스·소리 <span class="info-ic" data-info="data-interact">ⓘ</span></summary>
+        <div class="sect">
+          <p class="muted" style="font-size:12px;margin:0 0 8px">관람자가 <b>다가오고·누르고·소리를 내면</b> 점이 반응해요. 인터랙션은 ‘효과’가 아니라 <b>관람자의 존재가 데이터를 흔드는 해석</b>이에요.</p>
+
+          <label class="field" style="margin-top:2px">🖱 마우스</label>
+          <label class="ck"><input type="checkbox" id="ck-lens"> 근접 확대(렌즈) — 다가가면 그 점이 커지고 또렷해져요</label>
+          <div class="map-row" style="margin-top:6px"><span>작용 ←</span>
+            <select id="sel-mouseforce">
+              <option value="none">없음</option>
+              <option value="repel" selected>밀어내기(반발) — 커서 주변이 밀려나요</option>
+              <option value="attract">끌어당기기(자기장) — 누르면 모여들어요</option>
+              <option value="brush">붓질(흐름) — 움직인 길을 따라 흘러요</option>
+            </select>
+          </div>
+          <p class="muted" id="cluster-hint" style="font-size:11px;margin:7px 0 0;min-height:14px;color:var(--accent2)"></p>
+          <p class="muted" style="font-size:11px;margin:3px 0 0">색(범주) 토글 — 범주별 색일 때 <b>캔버스 클릭</b> 또는 <b>숫자키 1~9</b>로 한 색만 강조(0=전체).</p>
+
+          <hr class="sep" style="margin:12px 0">
+          <label class="field">🎙 소리(마이크) — 음성 원본은 저장되지 않고 실시간 분석값(음량·대역)만 써요</label>
+          <button id="btn-data-sound" class="btn sm wide" style="margin-bottom:6px">🎙 소리 반응 켜기</button>
+          <div class="micbar"><i id="data-mic-meter"></i></div>
+          <label class="ck"><input type="checkbox" id="ck-svol" checked> 볼륨 = 에너지 — 클수록 퍼지고·진동·빨라져요</label>
+          <label class="ck"><input type="checkbox" id="ck-speak" checked> 박수·피크 = 트리거 — 큰 소리에 새 배치로 재구성</label>
+          <label class="ck"><input type="checkbox" id="ck-sband" checked> 저음 ↔ 어두운 색 · 고음 ↔ 밝은 색 반응</label>
+          <label class="ck"><input type="checkbox" id="ck-ssustain"> 소리 지속 = 점이 점점 생겨나 화면이 채워져요</label>
+          <label class="ck"><input type="checkbox" id="ck-ssilence"> 침묵 = 천천히 흩어져 사라져요(해체)</label>
+        </div>
+      </details>
+
+      <details open>
         <summary>4 · 데이터 선택 기록 (제작 문서) <span class="info-ic" data-info="data-humanism">ⓘ</span></summary>
         <div class="sect">
           <p class="muted" style="font-size:12px;margin:0 0 8px">‘객관적 데이터’ 뒤의 <b>나의 선택</b>을 적어요. 무엇을 세고 무엇을 뺐는지가 곧 창작이에요(프롬프트=작가노트처럼).</p>
@@ -229,6 +265,7 @@
 <script src="js/coach.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/imgutil.js"></script>
+<script src="js/audio.js"></script>
 <script src="js/studio-data.js"></script>
 </body>
 </html>
