@@ -47,11 +47,19 @@
       return makeDataset([{ name: '값', type: 'num' }], vals.map(v => ({ '값': v })));
     }
     const delim = lines[0].indexOf(',') >= 0 ? ',' : /\t/.test(lines[0]) ? '\t' : /\s{2,}/.test(lines[0]) ? /\s+/ : ',';
-    const cells = lines.map(l => (typeof delim === 'string' ? l.split(delim) : l.split(delim)).map(c => c.trim()));
+    const cells = lines.map(l => l.split(delim).map(c => c.trim()));
+    return cellsToDataset(cells);
+  }
+  // 2차원 셀 배열(CSV·엑셀 공용) → dataset. 머리글 자동 인식 + 빈/중복 머리글 보정.
+  function cellsToDataset(cells) {
+    cells = (cells || []).map(r => (r || []).map(c => (c == null ? '' : String(c)).trim())).filter(r => r.some(c => c !== ''));
+    if (!cells.length) return null;
     const firstNonNum = cells[0].some(c => c !== '' && isNaN(Number(c)));
     let header, body;
-    if (firstNonNum && cells.length > 1) { header = cells[0]; body = cells.slice(1); }
+    if (firstNonNum && cells.length > 1) { header = cells[0].slice(); body = cells.slice(1); }
     else { header = cells[0].map((_, i) => '열' + (i + 1)); body = cells; }
+    const seen = {};
+    header = header.map((h, i) => { let n = h || ('열' + (i + 1)); while (seen[n]) n = n + '·' + (i + 1); seen[n] = 1; return n; });
     const cols = header.length;
     const rows = body.filter(r => r.some(c => c !== '')).map(r => { const o = {}; for (let c = 0; c < cols; c++) o[header[c]] = r[c] != null ? r[c] : ''; return o; });
     const fields = header.map(name => {
@@ -89,7 +97,7 @@
   function applyDataset(ds, name) {
     if (!ds || !ds.n) { UI.toast('데이터를 읽지 못했어요. 형식을 확인하세요.'); return; }
     state.dataset = ds; if (name != null) state.dataName = name;
-    autoMapping(); populateFieldSelects(); renderFieldChips(); renderColorUI(); build();
+    autoMapping(); populateFieldSelects(); renderFieldChips(); renderColorUI(); build(); renderAnalysis();
     $('#data-info').textContent = (state.dataName || '데이터') + ' · ' + ds.n + '행 · 열 ' + ds.fields.length + '개';
   }
   function autoMapping() {
@@ -204,6 +212,136 @@
     else if (shape === 'diamond') { ctx.moveTo(x, y - r * 1.2); ctx.lineTo(x + r * 1.1, y); ctx.lineTo(x, y + r * 1.2); ctx.lineTo(x - r * 1.1, y); ctx.closePath(); }
     else ctx.arc(x, y, r, 0, 6.283);
     ctx.fill();
+  }
+
+  /* ----------------------------- 데이터 분석 · 매핑 제안 ----------------------------- */
+  const fmtNum = v => (v == null || isNaN(v)) ? '–' : (Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : (Math.round(v * 100) / 100));
+  function seriesOf(name) { return state.dataset.rows.map(r => r[name]); }
+  function numStats(name) {
+    const vals = seriesOf(name).filter(v => v != null && !isNaN(v)).map(Number);
+    const n = vals.length; if (!n) return null;
+    const mean = vals.reduce((a, b) => a + b, 0) / n;
+    const sorted = vals.slice().sort((a, b) => a - b);
+    const median = n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+    const min = sorted[0], max = sorted[n - 1];
+    const std = Math.sqrt(vals.reduce((a, b) => a + (b - mean) * (b - mean), 0) / n);
+    const first = vals[0], last = vals[n - 1], slope = n > 1 ? last - first : 0;
+    const maxZ = std > 0 ? Math.max.apply(null, vals.map(v => Math.abs((v - mean) / std))) : 0;
+    const cv = mean !== 0 ? std / Math.abs(mean) : 0;
+    const ratio = median > 0 ? max / median : (min !== 0 ? Math.abs(max / min) : 0);
+    return { n, mean, median, min, max, std, first, last, slope, maxZ, cv, ratio, vals, missing: state.dataset.rows.length - n };
+  }
+  function catStatsOf(name) {
+    const counts = {}, order = [];
+    seriesOf(name).forEach(v => { const s = String(v == null ? '' : v); if (s === '') return; if (counts[s] == null) { counts[s] = 0; order.push(s); } counts[s]++; });
+    const total = order.reduce((a, c) => a + counts[c], 0);
+    const top = order.slice().sort((a, b) => counts[b] - counts[a]);
+    return { counts, cats: order, total, top, dominantShare: total ? counts[top[0]] / total : 0 };
+  }
+  // 불평등 신호는 '음수가 없고 평균>0'일 때만(평균이 0 근처면 변동계수가 왜곡되므로 추세로 판단)
+  const ineqOK = s => s.min >= 0 && s.mean > 0;
+  function numRead(s) {
+    const p = [];
+    if (s.n > 2 && Math.abs(s.slope) > s.std * 0.6) p.push(s.slope > 0 ? '값이 갈수록 커져요(상승)' : '값이 갈수록 작아져요(하락)');
+    if (ineqOK(s) && s.cv > 0.6) p.push('편차가 매우 커요 — 쏠림·불평등');
+    else if (s.cv < 0.15) p.push('대체로 고른 편');
+    if (s.maxZ > 2.2) p.push('평균에서 크게 벗어난 값(이상치)');
+    return p.length ? p.join(' · ') : '완만한 분포';
+  }
+  function detectProblem() {
+    let best = null;
+    numFields().forEach(f => {
+      const s = numStats(f.name); if (!s) return;
+      const ineq = ineqOK(s) ? Math.min(1, s.cv) : 0;
+      const out = Math.min(1, Math.max(0, (s.maxZ - 2) / 2));
+      const trend = s.std > 0 ? Math.min(1, Math.abs(s.slope) / (s.std * 3)) : 0;
+      const score = Math.max(ineq, out, trend);
+      const kind = (ineq >= out && ineq >= trend) ? 'inequality' : (trend >= out ? 'trend' : 'outlier');
+      if (!best || score > best.score) best = { name: f.name, score, kind, s };
+    });
+    return best;
+  }
+  function diagText(pr) {
+    const s = pr.s, nm = pr.name;
+    if (pr.kind === 'inequality') return '‘' + nm + '’의 최댓값 ' + fmtNum(s.max) + '이(가) 중앙값 ' + fmtNum(s.median) + '의 약 ' + (s.ratio).toFixed(1) + '배 — 쏠림·불평등이 큽니다.';
+    if (pr.kind === 'trend') return '‘' + nm + '’이(가) ' + (s.slope > 0 ? '꾸준히 상승' : '꾸준히 하락') + '(' + fmtNum(s.first) + '→' + fmtNum(s.last) + ') — 흐름이 만든 변화예요.';
+    return '‘' + nm + '’에 평균에서 크게 벗어난 값(이상치)이 있어요 — 그 점이 곧 메시지일 수 있어요.';
+  }
+  function spark(vals) {
+    const w = 132, h = 26, n = vals.length; if (n < 2) return '';
+    const mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals), rg = (mx - mn) || 1;
+    const pts = vals.map((v, i) => (i / (n - 1) * w).toFixed(1) + ',' + (h - 2 - ((v - mn) / rg) * (h - 4)).toFixed(1)).join(' ');
+    return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none"><polyline points="' + pts + '" fill="none" stroke="var(--accent2)" stroke-width="1.5"/></svg>';
+  }
+  function datasetToCSV(ds) {
+    const cols = ds.fields.map(f => f.name);
+    return cols.join(',') + '\n' + ds.rows.map(r => cols.map(c => (r[c] == null ? '' : r[c])).join(',')).join('\n');
+  }
+  // 제안 적용: 한 열을 점의 한 특성으로(바로 작품에 반영)
+  function applyMap(prop, field, mode) {
+    if (prop === 'color') {
+      state.mapping.colorMode = mode; state.mapping.colorField = field;
+      if (mode === 'category') assignCatColors();
+      const cm = $('#map-colormode'); if (cm) cm.value = mode;
+    } else { state.mapping[prop] = field; }
+    populateFieldSelects(); renderColorUI(); build();
+    UI.toast('적용: ‘' + field + '’ → ' + ({ size: '크기', speed: '속도', color: '색', shape: '형태' }[prop] || prop));
+  }
+  // 문제 강조: 가장 강한 ‘문제 신호’ 열을 크기·색·배치·움직임으로 한 번에 드러낸다.
+  function applyProblemPreset() {
+    const pr = detectProblem();
+    if (!pr) { UI.toast('수치 열이 없어 문제 강조를 못 해요.'); return; }
+    const m = state.mapping;
+    m.size = pr.name; m.speed = pr.name; m.direction = pr.kind === 'trend' ? pr.name : null;
+    m.colorMode = 'gradient'; m.colorField = pr.name; m.gradLow = '#2740c8'; m.gradHigh = '#ff5a3c';
+    state.layout = 'flowField'; state.motionStyle = 'vibrate'; state.vib = 1.8; state.cohesion = 0.9; state.baseSpeed = 1.2;
+    syncMotion(); populateFieldSelects(); renderColorUI(); build();
+    const diag = $('#analysis-diag');
+    if (diag) diag.innerHTML = '<b>⚠ 문제 신호</b> · ' + esc(diagText(pr)) +
+      '<br><span class="muted" style="font-size:11px">→ 큰 값일수록 크고 뜨겁게, 세로로 벌어지게, 변화는 떨림으로 — 데이터의 문제점을 작품으로 드러냈어요.</span>';
+    UI.toast('문제 강조 적용 — ‘' + pr.name + '’의 ' + ({ inequality: '불평등', trend: '추세', outlier: '이상치' }[pr.kind]) + '을 시각화합니다.');
+  }
+  function renderAnalysis() {
+    const host = $('#analysis-host'); if (!host || !state.dataset) return;
+    const ds = state.dataset, cols = ds.fields.map(f => f.name);
+    let html = '<div class="dprev"><table><thead><tr>' + cols.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr></thead><tbody>';
+    ds.rows.slice(0, 5).forEach(r => { html += '<tr>' + cols.map(c => '<td>' + esc(r[c] == null ? '' : r[c]) + '</td>').join('') + '</tr>'; });
+    html += '</tbody></table></div><p class="muted" style="font-size:11px;margin:4px 0 8px">총 ' + ds.n + '행 · 열 ' + ds.fields.length + '개 (앞 5행)</p>';
+    html += '<div id="analysis-diag" class="adiag"></div>';
+    html += '<button id="btn-problem" class="btn wide accent2" style="margin:2px 0 12px">⚠ 문제 강조 — 데이터의 문제점을 작품으로</button>';
+    ds.fields.forEach(f => {
+      if (f.type === 'num') {
+        const s = numStats(f.name); if (!s) return;
+        let sig = '';
+        if (ineqOK(s) && s.cv > 0.6) sig = '<span class="psig ineq">불평등</span>';
+        else if (s.maxZ > 2.2) sig = '<span class="psig out">이상치</span>';
+        else if (s.n > 2 && Math.abs(s.slope) > s.std * 0.8) sig = '<span class="psig tr">' + (s.slope > 0 ? '상승' : '하락') + '</span>';
+        html += '<div class="acard"><div class="ahead"><b>' + esc(f.name) + '</b><span class="tnum">수치</span>' + sig + '</div>'
+          + '<div class="aspark">' + spark(s.vals) + '</div>'
+          + '<div class="astat">최소 ' + fmtNum(s.min) + ' · 평균 ' + fmtNum(s.mean) + ' · 최대 ' + fmtNum(s.max) + (s.missing ? ' · 빈칸 ' + s.missing : '') + '</div>'
+          + '<div class="aread">' + esc(numRead(s)) + '</div>'
+          + '<div class="asug"><button class="btn xs" data-sug="size" data-f="' + esc(f.name) + '">📏 크기</button>'
+          + '<button class="btn xs" data-sug="color" data-f="' + esc(f.name) + '">🎨 색</button>'
+          + '<button class="btn xs" data-sug="speed" data-f="' + esc(f.name) + '">⚡ 속도</button></div></div>';
+      } else {
+        const s = catStatsOf(f.name);
+        const chips = s.top.slice(0, 6).map(c => '<span class="cchip">' + esc(c) + '·' + s.counts[c] + '</span>').join('');
+        html += '<div class="acard"><div class="ahead"><b>' + esc(f.name) + '</b><span class="tcat">범주</span></div>'
+          + '<div class="astat">' + s.cats.length + '종 · ' + chips + '</div>'
+          + '<div class="asug"><button class="btn xs" data-sug="catcolor" data-f="' + esc(f.name) + '">🎨 범주색</button>'
+          + '<button class="btn xs" data-sug="shape" data-f="' + esc(f.name) + '">▲ 형태</button></div></div>';
+      }
+    });
+    host.innerHTML = html;
+    host.querySelectorAll('[data-sug]').forEach(btn => btn.addEventListener('click', () => {
+      const f = btn.dataset.f, k = btn.dataset.sug;
+      if (k === 'size') applyMap('size', f);
+      else if (k === 'speed') applyMap('speed', f);
+      else if (k === 'color') applyMap('color', f, 'gradient');
+      else if (k === 'catcolor') applyMap('color', f, 'category');
+      else if (k === 'shape') applyMap('shape', f);
+    }));
+    const bp = $('#btn-problem'); if (bp) bp.addEventListener('click', applyProblemPreset);
   }
 
   /* ----------------------------- 다른 스튜디오에서 온 데이터 ----------------------------- */
@@ -365,7 +503,8 @@
     // 요소별 안내(마우스 오버) — 학생이 무엇을 할지/왜 흥미로운지
     (function () {
       const tips = [
-        '먼저 데이터를 골라요 — 사회문제 샘플 또는 직접 입력/CSV. 작성 양식도 받을 수 있어요.',
+        '먼저 데이터를 골라요 — 사회문제 샘플 또는 직접 입력/CSV·엑셀. 작성 양식도 받을 수 있어요.',
+        '올린 데이터를 자동 분석해요 — 열별 분포를 보고 한 번에 매핑하거나 ‘문제 강조’로 문제점을 드러내요.',
         '어떤 열을 점의 어떤 특성(크기·속도·방향·밀도·색·형태)으로 바꿀지 직접 설계해요.',
         '기본 속도·진동·잔상으로 움직임의 결을 정해요.',
         '‘객관적 데이터’ 뒤의 내 선택을 적어요 — 무엇을 셌고 무엇을 일부러 뺐는지.',
@@ -384,7 +523,27 @@
     $('#sel-sample').addEventListener('change', e => { const s = SAMPLES[e.target.value]; if (!s) return; $('#ta-data').value = s.csv; $('#in-dataname').value = s.name; applyDataset(parseData(s.csv), s.name); const di = $('#data-issue'); if (di) di.textContent = s.issue || ''; });
     $('#btn-apply-data').addEventListener('click', () => { const ds = parseData($('#ta-data').value); if (!ds) { UI.toast('데이터 형식을 확인하세요.'); return; } applyDataset(ds, $('#in-dataname').value || '내 데이터'); UI.toast('데이터를 적용했습니다.'); });
     $('#btn-upload-csv').addEventListener('click', () => $('#csv').click());
-    $('#csv').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#ta-data').value = r.result; if (!$('#in-dataname').value) $('#in-dataname').value = f.name.replace(/\.[^.]+$/, ''); applyDataset(parseData(r.result), $('#in-dataname').value); }; r.readAsText(f); });
+    $('#csv').addEventListener('change', async e => {
+      const f = e.target.files[0]; if (!f) return;
+      const base = f.name.replace(/\.[^.]+$/, '');
+      if (/\.xlsx$/i.test(f.name) || (f.type && /sheet|excel/i.test(f.type))) {
+        try {
+          if (typeof XlsxReader === 'undefined') { UI.toast('엑셀 리더를 불러오지 못했어요. CSV로 올려 주세요.'); e.target.value = ''; return; }
+          const { grid } = await XlsxReader.read(await f.arrayBuffer());
+          const ds = cellsToDataset(grid);
+          if (!ds || !ds.n) { UI.toast('엑셀에서 표를 읽지 못했어요(첫 시트에 표가 있나요?).'); e.target.value = ''; return; }
+          $('#in-dataname').value = base;
+          $('#ta-data').value = datasetToCSV(ds);
+          applyDataset(ds, $('#in-dataname').value);
+          UI.toast('엑셀을 분석했어요 · ' + ds.n + '행 · 열 ' + ds.fields.length + '개');
+        } catch (err) { UI.toast('엑셀 읽기 실패: ' + (err && err.message ? err.message : err)); }
+      } else {
+        const r = new FileReader();
+        r.onload = () => { $('#ta-data').value = r.result; $('#in-dataname').value = base; applyDataset(parseData(r.result), $('#in-dataname').value); };
+        r.readAsText(f);
+      }
+      e.target.value = '';
+    });
     $('#btn-template').addEventListener('click', downloadTemplate);
 
     // 매핑 선택
