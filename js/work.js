@@ -83,9 +83,12 @@
         <h3>🧭 작가의 과정·성찰 <span class="muted" style="font-size:12px">— 학습 과정도 작품의 일부예요</span></h3>
         ${notes.map(noteHTML).join('')}
       </div>` : '';
+    const liveMedia = work.video
+      ? `<video id="live-video" src="${work.video}" controls autoplay loop muted playsinline${work.thumb ? ` poster="${work.thumb}"` : ''} style="width:100%;aspect-ratio:4/3;object-fit:contain;background:#000;border-radius:12px;border:1px solid var(--line);display:block"></video>`
+      : `<canvas id="live-canvas" style="width:100%;aspect-ratio:4/3;background:#07080d;border-radius:12px;border:1px solid var(--line);display:block"></canvas>`;
     $('#work-root').innerHTML = `
       <div class="card">
-        <canvas id="live-canvas" style="width:100%;aspect-ratio:4/3;background:#07080d;border-radius:12px;border:1px solid var(--line);display:block"></canvas>
+        ${liveMedia}
         <p class="muted" style="font-size:11px;margin:6px 0 0">▶ 살아 움직이는 재생 · 마우스를 올려 반응을 느껴 보세요</p>
         <h1 style="margin:14px 0 4px;font-size:24px">${esc(work.title || '제목 없음')}</h1>
         <p class="muted" style="margin:0">${esc(work.by || '익명')} · <span class="badge">${KIND[work.kind] || work.kind}</span></p>
@@ -134,8 +137,8 @@
         </details>
         <button id="c-submit" class="btn primary" style="margin-top:12px">비평 등록</button>
       </div>`;
-    const lc = document.getElementById('live-canvas');
-    if (lc && window.Player) { if (window._wPlayer) window._wPlayer.stop(); window._wPlayer = Player.mount(lc, work, { interactive: true }); }
+    if (work.video) { const lv = document.getElementById('live-video'); if (lv) { lv.muted = true; const pp = lv.play(); if (pp && pp.catch) pp.catch(() => {}); } }
+    else { const lc = document.getElementById('live-canvas'); if (lc && window.Player) { if (window._wPlayer) window._wPlayer.stop(); window._wPlayer = Player.mount(lc, work, { interactive: true }); } }
     $('#c-submit').addEventListener('click', submit);
   }
 

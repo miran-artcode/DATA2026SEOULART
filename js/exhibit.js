@@ -41,9 +41,12 @@
     const notes = w.userId ? (await Store.listNotes(w.userId)) : [];
     const procCount = notes.filter(n => n.line || n.aiHelp || n.myDecision || (n.memos && Object.keys(n.memos).length)).length;
     const st = story(w);
+    const artMedia = w.video
+      ? `<video id="kiosk-video" src="${w.video}" autoplay loop muted playsinline${w.thumb ? ` poster="${w.thumb}"` : ''} style="width:92%;height:86%;object-fit:contain;border-radius:12px;background:#000"></video>`
+      : `<canvas id="kiosk-canvas" style="width:92%;height:86%;border-radius:12px"></canvas>`;
     $('#kroot').innerHTML = `
       <div class="stage">
-        <div class="art"><canvas id="kiosk-canvas" style="width:92%;height:86%;border-radius:12px"></canvas></div>
+        <div class="art">${artMedia}</div>
         <div class="info">
           <div class="eyebrow2">데이터의 눈 · 학생 전시</div>
           <h1>${esc(w.title || '제목 없음')}</h1>
@@ -60,7 +63,8 @@
         </div>
       </div>`;
     if (window.QR) QR.draw($('#qr'), workURL(w.id), { size: 150, margin: 2 });
-    const kc = $('#kiosk-canvas'); if (kc && window.Player) liveCtl = Player.mount(kc, w, { interactive: false });
+    if (w.video) { const kv = $('#kiosk-video'); if (kv) { kv.muted = true; const pp = kv.play(); if (pp && pp.catch) pp.catch(() => {}); } }
+    else { const kc = $('#kiosk-canvas'); if (kc && window.Player) liveCtl = Player.mount(kc, w, { interactive: false }); }
     $('#k-counter').textContent = (idx + 1) + ' / ' + works.length;
     restartProgress();
   }
