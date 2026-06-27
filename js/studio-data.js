@@ -122,6 +122,18 @@
       state.motionStyle = 'wave';
       return '🔎 객체 감지 자동기록을 자동 매핑했어요 — 가로축=시간 순서, 점 크기=사물 크기, 색=사물 종류, 투명도=신뢰도, 밀도=장면 속 개수. 매핑은 자유롭게 바꿀 수 있어요.';
     }
+    if (has('밝기') && has('움직임')) {                       // ← 실시간 관찰 기록 형태
+      m.size = has('소리') ? '소리' : '밝기';                  // 소리(또는 밝기)가 클수록 큰 점
+      m.speed = '움직임';                                     // 움직임이 많을수록 빠르게
+      m.alpha = '채도';                                       // 색이 풍부할수록 또렷
+      if (has('사물수')) m.density = '사물수';
+      if (has('높은소리')) m.direction = '높은소리';
+      m.shape = null;
+      m.colorMode = 'gradient'; m.colorField = '밝기'; m.gradLow = '#0E0A2E'; m.gradHigh = '#E6F5A6';  // 어두움→밝음
+      m.catColors = {}; m.catShapes = {};
+      state.layout = 'timeline'; state.motionStyle = 'wave';
+      return '🔎 실시간 관찰 기록을 자동 매핑했어요 — 가로축=시간, 점 크기=소리/밝기, 색=밝기(어두움→밝음), 속도=움직임, 투명도=채도. 매핑은 자유롭게 바꿀 수 있어요.';
+    }
     return null;
   }
 
