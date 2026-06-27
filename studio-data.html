@@ -75,14 +75,24 @@
         <div class="sect">
           <label class="field">샘플 데이터</label>
           <select id="sel-sample">
-            <option value="spotify">🎵 음악 감정 지도 (Spotify)</option>
-            <option value="pokemon">⚡ 강함의 모양 (Pokémon)</option>
-            <option value="ufo">👽 목격의 사회학 (UFO)</option>
-            <option value="meteorite">🌑 하늘에서 온 것들 (운석)</option>
-            <option value="earthquake">🌋 떨림의 데이터 (지진)</option>
-            <option value="chocolate">🍫 맛을 숫자로 (초콜릿)</option>
-            <option value="student">😴 잠과 화면의 줄다리기 (학생)</option>
-            <option value="emotion">🙂 (개인) 우리 반 감정</option>
+            <optgroup label="🎨 문화·감각">
+              <option value="spotify">🎵 음악 감정 지도 (Spotify)</option>
+              <option value="chocolate">🍫 맛을 숫자로 (초콜릿)</option>
+            </optgroup>
+            <optgroup label="🌍 지구·우주">
+              <option value="earthquake">🌋 떨림의 데이터 (지진·USGS)</option>
+              <option value="meteorite">🌑 하늘에서 온 것들 (운석·NASA)</option>
+            </optgroup>
+            <optgroup label="🧑‍🤝‍🧑 사회·미디어">
+              <option value="ufo">👽 목격의 사회학 (UFO·NUFORC)</option>
+            </optgroup>
+            <optgroup label="🎮 탐구·놀이">
+              <option value="pokemon">⚡ 강함의 모양 (Pokémon)</option>
+            </optgroup>
+            <optgroup label="🙂 나의 데이터 (휴머니즘)">
+              <option value="student">😴 잠과 화면의 줄다리기 (학생)</option>
+              <option value="emotion">🙂 우리 반 하루 감정</option>
+            </optgroup>
           </select>
           <label class="field" style="margin-top:10px">직접 입력 / 붙여넣기 (CSV·숫자) <span class="info-ic" data-info="data-clean">ⓘ</span></label>
           <textarea id="ta-data" rows="4" placeholder="첫 줄에 열 이름(머리글)도 가능:&#10;시간,감정온도,활동&#10;9시,3,수업&#10;10시,4,발표"></textarea>

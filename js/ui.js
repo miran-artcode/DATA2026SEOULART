@@ -18,6 +18,7 @@
       { href: 'studio-sound.html', t: '소리를 데이터로', s: '녹음·소리에서 특징 추출 · 2단계' },
       { href: 'studio-life.html', t: '내 삶을 데이터로', s: '사진·대화를 데이터로 · 3단계' },
       { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터로 사회적 발언 · 4단계' },
+      { href: 'society.html', t: '사회 분석 · 비평 렌즈', s: '관점·관계·맥락으로 〈우리 동네〉를 · SDG' },
       { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: '사진 속 사물을 AI로 · AI 렌즈' },
       { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구' }
     ] },

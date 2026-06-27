@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>사회 분석 · 비평 렌즈 · 데이터의 눈</title>
+<link rel="stylesheet" href="css/site.css" />
+<style>
+  .soc-top { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin: 0 0 14px; }
+  .soc-top select { max-width: 320px; }
+  /* STEP 흐름 */
+  .soc-steps { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+  .soc-steps .s { flex: 1; min-width: 120px; display: flex; align-items: center; gap: 8px; background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .soc-steps .s b { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; }
+  .soc-steps .s.active { color: var(--text); border-color: var(--accent); }
+  .soc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  @media (max-width: 760px) { .soc-grid { grid-template-columns: 1fr; } }
+  .card h3 { margin: 0 0 10px; font-size: 15px; }
+  .card h3 small { font-weight: 500; font-size: 12px; color: var(--muted); margin-left: 6px; }
+  /* 관계망 */
+  .net-legend { display: flex; gap: 14px; justify-content: center; font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  .net-legend i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+  /* 한눈에 통계 */
+  #soc-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+  #soc-stats .st { flex: 1; min-width: 70px; text-align: center; background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 6px; }
+  #soc-stats .st b { display: block; font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1; }
+  #soc-stats .st span { display: block; font-size: 11px; color: var(--muted); margin-top: 6px; }
+  /* 막대 행(관점·렌즈) */
+  .bar-row { display: flex; align-items: center; gap: 9px; font-size: 12.5px; margin: 7px 0; }
+  .bar-row .bl { flex: 0 0 96px; color: var(--text); display: flex; align-items: center; gap: 6px; }
+  .bar-row .bl i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .bar-row .bt { flex: 1; height: 9px; background: var(--panel3); border-radius: 6px; overflow: hidden; }
+  .bar-row .bf { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
+  .bar-row .bv { flex: 0 0 42px; text-align: right; font-weight: 700; color: var(--muted); }
+  /* 쟁점 */
+  .issue { margin: 10px 0; }
+  .issue .ih { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 4px; }
+  .issue .ibar { position: relative; height: 22px; background: var(--panel3); border-radius: 7px; overflow: hidden; }
+  .issue .ifill { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, var(--accent), #6E84B8); }
+  .issue .ipct { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 11.5px; font-weight: 700; color: var(--text); }
+  /* 태그 */
+  .tag { font-size: 10.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; }
+  .tag.on { background: #2fa874; color: #fff; }
+  .tag.off { background: var(--panel3); color: var(--muted); }
+  .tag.mid { background: #E6F5A6; color: #1b1f2c; }
+  /* 따라해보기 슬라이더 */
+  .soc-sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
+  @media (max-width: 560px) { .soc-sliders { grid-template-columns: 1fr; } }
+  #soc-adopt-status { font-size: 12.5px; color: var(--text); margin: 8px 0; }
+  table.data { width: 100%; }
+</style>
+</head>
+<body>
+<div id="app-header"></div>
+
+<div class="wrap narrow" style="max-width:960px">
+  <div class="page-head">
+    <span class="eyebrow" id="soc-sdg">SDG 11 · 지속가능한 도시</span>
+    <h1 id="soc-title">사회 분석 · 〈우리 동네〉</h1>
+    <p id="soc-tag">관점·관계·맥락 — 우리가 사는 세계를 데이터로 비평합니다.</p>
+  </div>
+
+  <div class="soc-top">
+    <select id="soc-scenario" title="SDG 주제별 사회 분석 시나리오">
+      <optgroup label="공동체·도시">
+        <option value="village">🏙 우리 동네 (SDG 11)</option>
+      </optgroup>
+      <optgroup label="환경·기후">
+        <option value="climate">🌍 우리 학교의 탄소 (SDG 13)</option>
+        <option value="consumption">♻ 잔반과 패스트패션 (SDG 12)</option>
+      </optgroup>
+      <optgroup label="평등·권리">
+        <option value="inequality">⚖ 용돈과 기회 (SDG 10)</option>
+        <option value="gender">⚧ 교실 속 역할 (SDG 5)</option>
+      </optgroup>
+      <optgroup label="디지털·시민">
+        <option value="digital">📱 스마트폰과 우리 (SDG 16)</option>
+      </optgroup>
+    </select>
+    <button class="btn primary" data-send>이 데이터로 다시 그리기 →</button>
+  </div>
+
+  <div class="soc-steps">
+    <div class="s active"><b>1</b> 따라해보기 — 데이터 읽기</div>
+    <div class="s"><b>2</b> 내 작품 만들기</div>
+    <div class="s"><b>★</b> 전시에 출품</div>
+  </div>
+
+  <div class="soc-grid">
+    <div class="card">
+      <h3>관계망 <small>주체들의 공감·대립</small></h3>
+      <div id="soc-network"></div>
+    </div>
+    <div class="card">
+      <h3>한눈에</h3>
+      <div id="soc-stats"></div>
+      <h3 style="margin-top:16px">관점 분포 <small>비중순</small></h3>
+      <div id="soc-persp"></div>
+    </div>
+  </div>
+
+  <div class="soc-grid" style="margin-top:14px">
+    <div class="card">
+      <h3>7가지 비평 렌즈 <small>같은 이슈도 렌즈마다 다르게</small></h3>
+      <div id="soc-lenses"></div>
+    </div>
+    <div class="card">
+      <h3>쟁점별 입장 <small>찬성 비율</small></h3>
+      <div id="soc-issues"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px; border-left:3px solid var(--accent)">
+    <h3>STEP 1 · 따라해보기 <small>선생님과 함께 데이터 읽기</small></h3>
+    <div class="soc-sliders">
+      <div>
+        <label class="field">임계값 · 채택 기준 <output id="soc-thr-o">50</output></label>
+        <input id="soc-thr" type="range" min="0" max="100" step="5" value="50">
+      </div>
+      <div>
+        <label class="field">신뢰도 필터 <output id="soc-conf-o">60</output></label>
+        <input id="soc-conf" type="range" min="50" max="90" step="5" value="60">
+      </div>
+    </div>
+    <p id="soc-adopt-status" class="muted"></p>
+    <div id="soc-adopt-table"></div>
+  </div>
+
+  <div class="card" style="margin-top:14px; border-left:3px solid var(--good)">
+    <h3>STEP 2 · 다음 단계 <small>이 데이터를 재료로, 나만의 미디어아트를</small></h3>
+    <p class="muted" style="font-size:12.5px;margin:0 0 10px">무엇을 강조할지는 작가인 당신의 선택입니다. 분석 결과(7렌즈·쟁점·관점)가 점 작품의 재료가 돼요 — <b>색=분류 · 크기=값</b>으로 매핑해 보세요.</p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap">
+      <button class="btn primary" data-send>작업실로 (데이터 점 스튜디오) →</button>
+      <button id="soc-download" class="btn sm">분석 데이터 CSV 받기</button>
+    </div>
+  </div>
+
+  <p class="footer-note">관점·관계·맥락으로 사회를 읽고 — 미술로 다시 말하기. 표본·출처의 한계를 작품 설명에 밝히세요.</p>
+</div>
+
+<script src="js/explain.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/auth.js"></script>
+<script src="config/cloud-config.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/society.js"></script>
+</body>
+</html>
