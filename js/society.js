@@ -197,6 +197,15 @@
     box.querySelectorAll('[data-lens]').forEach(r => r.addEventListener('input', e => { s.lenses[e.target.dataset.lens] = +e.target.value; e.target.previousElementSibling.textContent = (+e.target.value).toFixed(2); renderLenses(); renderAdopt(); }));
     box.querySelectorAll('[data-issue-val]').forEach(r => r.addEventListener('input', e => { s.issues[+e.target.dataset.issueVal][1] = +e.target.value; e.target.nextElementSibling.textContent = e.target.value + '%'; renderIssues(); }));
     box.querySelectorAll('[data-issue-name]').forEach(r => r.addEventListener('input', e => { s.issues[+e.target.dataset.issueName][0] = e.target.value; renderIssues(); }));
+    // 관계(엣지) 편집
+    const ee = $('#edit-edges');
+    if (ee) {
+      ee.innerHTML = s.ties.length ? s.ties.map((t, i) => '<span class="eedge"><span class="tag ' + (t[2] === '공감' ? 'on' : 'mid') + '">' + t[2] + '</span> ' + esc(t[0]) + ' — ' + esc(t[1]) + ' <button class="ex" data-del="' + i + '" title="삭제">✕</button></span>').join('') : '<span class="muted" style="font-size:11px">연결이 없어요. 아래에서 추가하세요.</span>';
+      const opts = s.subjects.map(x => '<option>' + esc(x) + '</option>').join('');
+      $('#edit-addedge').innerHTML = '<select id="ae-a">' + opts + '</select><select id="ae-t"><option>공감</option><option>대립</option></select><select id="ae-b">' + opts + '</select><button id="ae-add" class="btn sm">연결 추가</button>';
+      ee.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => delEdge(+b.dataset.del)));
+      const aa = $('#ae-add'); if (aa) aa.addEventListener('click', addEdge);
+    }
   }
   function applySubjects() {
     const s = L(), list = $('#soc-subjects').value.split(',').map(x => x.trim()).filter(Boolean).slice(0, 9);
@@ -229,6 +238,39 @@
     setTimeout(() => location.href = 'studio-data.html', 600);
   }
 
+  /* ============ 관계(엣지) 편집 ============ */
+  function delEdge(i) { const s = L(); s.ties.splice(i, 1); buildNetPos(); netHi = null; drawNetwork(); renderStats(); renderEdit(); }
+  function addEdge() {
+    const s = L(), a = $('#ae-a').value, b = $('#ae-b').value, t = $('#ae-t').value;
+    if (!a || !b || a === b) { UI.toast('서로 다른 두 주체를 고르세요.'); return; }
+    if (s.ties.some(e => (e[0] === a && e[1] === b) || (e[0] === b && e[1] === a))) { UI.toast('이미 연결돼 있어요.'); return; }
+    s.ties.push([a, b, t, 0.5]); drawNetwork(); renderStats(); renderEdit();
+  }
+
+  /* ============ 내 분석 저장/불러오기(계정) ============ */
+  function scenarioState() { const s = L(); return { subjects: s.subjects, ties: s.ties, perspectives: s.perspectives, lenses: s.lenses, issues: s.issues, title: s.title, sdg: s.sdg, tag: s.tag }; }
+  function applyState(st) { const c = LOCAL.custom; ['subjects', 'ties', 'perspectives', 'lenses', 'issues', 'title', 'sdg', 'tag'].forEach(k => { if (st[k]) c[k] = st[k]; }); }
+  function curUser() { return (window.Auth && Auth.current) ? Auth.current() : null; }
+  function setSaveInfo() { const u = curUser(), el = $('#soc-save-info'); if (el) el.textContent = u ? ('로그인: ' + (u.display || u.userId) + ' — 계정에 보관돼요') : '비로그인 — 이 기기에만 저장(로그인하면 계정에)'; }
+  async function saveAnalysis() {
+    const st = scenarioState();
+    try { localStorage.setItem('dn_society_save', JSON.stringify(st)); } catch (e) {}
+    const u = curUser();
+    if (u && window.Store) {
+      try { await Store.saveNote({ userId: u.userId, by: u.display || u.userId, kind: 'society', title: '사회분석 · ' + st.title, intent: st.tag, settings: st }); UI.toast('계정에 저장했어요(작업노트에서 확인).'); }
+      catch (e) { UI.toast('계정 저장 실패 — 이 기기에만 저장됨.'); }
+    } else UI.toast('이 기기에 저장했어요. (로그인하면 계정에 보관됩니다)');
+    setSaveInfo();
+  }
+  async function loadAnalysis() {
+    let st = null; const u = curUser();
+    if (u && window.Store) { try { const notes = await Store.listNotes(u.userId); const n = (notes || []).find(x => x.kind === 'society'); if (n) st = n.settings; } catch (e) {} }
+    if (!st) { try { st = JSON.parse(localStorage.getItem('dn_society_save') || 'null'); } catch (e) {} }
+    if (!st) { UI.toast('저장된 분석이 없어요. 먼저 저장해 보세요.'); return; }
+    applyState(st); current = 'custom'; type = 'local'; $('#soc-scenario').value = 'custom'; renderLocal();
+    UI.toast('저장된 분석을 불러왔어요.');
+  }
+
   /* ============ 전환·초기화 ============ */
   function selectScenario(val) {
     if (SDG && SDG[val]) { type = 'sdg'; current = val; renderSDG(val); }
@@ -239,7 +281,7 @@
     // 시나리오 picker 채우기
     const sel = $('#soc-scenario');
     let html = '<optgroup label="🌍 세계 데이터 (실제 빅데이터·OWID)">';
-    const order = ['co2', 'inequality_gini', 'gini', 'poverty', 'unemployment', 'life', 'literacy', 'women'];
+    const order = ['co2', 'gini', 'poverty', 'unemployment', 'life', 'literacy', 'women', 'plastic', 'redlist', 'forest'];
     Object.keys(SDG).sort((a, b) => (order.indexOf(a) + 99) - (order.indexOf(b) + 99)).forEach(k => {
       html += '<option value="' + k + '">' + esc(SDG[k].sdg + ' · ' + SDG[k].label) + '</option>';
     });
@@ -253,8 +295,13 @@
     $('#soc-thr').addEventListener('input', renderAdopt);
     $('#sdg-thr').addEventListener('input', () => renderThr(current));
     const ap = $('#soc-apply-subjects'); if (ap) ap.addEventListener('click', applySubjects);
+    const sv = $('#soc-save'); if (sv) sv.addEventListener('click', saveAnalysis);
+    const ld = $('#soc-load'); if (ld) ld.addEventListener('click', loadAnalysis);
     document.querySelectorAll('[data-send]').forEach(b => b.addEventListener('click', handoff));
-    // 시작: 첫 SDG(co2)
+    // 저장된 내 분석을 custom에 복원(있으면)
+    try { const st = JSON.parse(localStorage.getItem('dn_society_save') || 'null'); if (st) applyState(st); } catch (e) {}
+    setSaveInfo();
+    // 시작: 첫 SDG
     const first = Object.keys(SDG)[0] || 'village';
     sel.value = first; selectScenario(first);
   });

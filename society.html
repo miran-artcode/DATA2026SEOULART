@@ -49,6 +49,9 @@
   .eissue input[type=text] { flex: 1; }
   .eissue output { flex: 0 0 42px; text-align: right; font-size: 12px; color: var(--muted); }
   #sdg-source a.dl, #soc-step2 a.dl { color: var(--accent2); text-decoration: underline; font-weight: 600; }
+  .eedge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 6px 2px 8px; margin: 3px 4px 0 0; }
+  .eedge .ex { border: 0; background: none; color: var(--danger); cursor: pointer; font-size: 13px; padding: 0 2px; line-height: 1; }
+  #edit-addedge select { flex: 1; min-width: 80px; }
 </style>
 </head>
 <body>
@@ -141,6 +144,18 @@
       <div id="edit-lenses"></div>
       <label class="field" style="margin-top:10px">쟁점별 찬성 비율</label>
       <div id="edit-issues"></div>
+      <label class="field" style="margin-top:10px">관계(엣지) — 누가 누구와 공감/대립</label>
+      <div id="edit-edges"></div>
+      <div id="edit-addedge" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>💾 내 분석 보관 <small>로그인하면 계정에 저장돼요</small></h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button id="soc-save" class="btn sm primary">💾 내 분석 저장</button>
+        <button id="soc-load" class="btn sm">📂 내 분석 불러오기</button>
+        <span id="soc-save-info" class="muted" style="font-size:11.5px"></span>
+      </div>
     </div>
   </div>
 
