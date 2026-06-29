@@ -60,7 +60,7 @@
 
   /* ── 4단계 학습 경로 ─────────────────────────────────── */
   .path { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
-  @media (min-width: 940px) { .path { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
+  @media (min-width: 940px) { .path { grid-template-columns: repeat(5, 1fr); gap: 11px; } }
   .pstep { position: relative; min-width: 0; }
   @media (min-width: 940px) { .pstep:not(:last-child)::after { content: "→"; position: absolute; right: -12px; top: 36px;
     transform: translate(50%,-50%); color: var(--muted2); font-weight: 800; font-size: 15px; } }
@@ -173,8 +173,8 @@
   <section class="sec">
     <div class="sec-head">
       <span class="eyebrow">Journey</span>
-      <h2>4단계 창작 여정</h2>
-      <p>왼쪽에서 오른쪽으로 <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회), <b>나의 주체성이 깊어져요</b>. 처음이라면 1단계부터.</p>
+      <h2>5단계 창작 여정</h2>
+      <p>왼쪽에서 오른쪽으로 <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회→세계), <b>나의 주체성이 깊어져요</b>. 처음이라면 1단계부터.</p>
     </div>
     <ol class="path">
       <li class="pstep">
@@ -212,6 +212,15 @@
           <div class="pflow"><span>공공데이터</span><span>정제·CSV</span><span>사회적 미디어아트</span></div>
           <p class="pdesc">기후·불평등·동물권… 데이터를 찾아 정제해 <b>CSV</b>로 만들고 작품으로. <b>미술이 사회적 발언</b>이 됩니다.</p>
           <span class="pcta">사회문제 프로젝트 →</span>
+        </a>
+      </li>
+      <li class="pstep">
+        <a class="pcard" href="society.html">
+          <div class="ptop"><span class="pnum">5</span><span class="pstage">5단계 · 세계·비평</span></div>
+          <h3>🌍 사회를 데이터로</h3>
+          <div class="pflow"><span>실제 SDG 빅데이터</span><span>7비평 렌즈·관계망</span><span>세계를 작품으로</span></div>
+          <p class="pdesc">기후·불평등·물… <b>실제 세계 데이터</b>를 추세·격차·기준선으로 읽고 <b>비평 렌즈</b>로 해석해 작품으로. ‘우리 동네’는 직접 분석·저장.</p>
+          <span class="pcta">사회 분석 · 비평 렌즈 →</span>
         </a>
       </li>
     </ol>

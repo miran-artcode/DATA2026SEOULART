@@ -210,7 +210,7 @@
 <script src="js/ui.js"></script>
 <script src="js/player.js"></script>
 <script>
-  const KIND = { color: '색 군집', data: '데이터 점', sound: '소리', life: '내 삶', object: '객체 감지', project: '사회문제', lab: '분석' };
+  const KIND = { color: '색 군집', data: '데이터 점', sound: '소리', life: '내 삶', object: '객체 감지', project: '사회문제', society: '사회 분석', lab: '분석' };
   const esc = s => UI.escapeHTML(s == null ? '' : s);
   const fmt = n => (typeof n === 'number' ? n.toLocaleString('ko-KR') : (n == null ? '' : n));
   const $ = id => document.getElementById(id);
@@ -410,6 +410,7 @@
     if (vPlayer) { try { vPlayer.stop(); } catch (e) {} vPlayer = null; }
     const v = $('viewer'), stage = v.querySelector('.vstage-media');
     if (w.video) stage.innerHTML = `<video src="${w.video}" controls autoplay loop playsinline></video>`;
+    else if (w.kind === 'society') stage.innerHTML = w.thumb ? `<img src="${w.thumb}" alt="${esc(w.title || '')}" style="max-width:100%;max-height:100%;object-fit:contain">` : '<p class="muted">미리보기 없음</p>';
     else { stage.innerHTML = '<canvas id="viewer-canvas"></canvas>'; if (window.Player) vPlayer = Player.mount($('viewer-canvas'), w, { interactive: true }); }
     resetMediaZoom();
     const fbs = await Store.listFeedback(w.id), u = Auth.current();

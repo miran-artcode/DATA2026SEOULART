@@ -160,9 +160,16 @@
   </div>
 
   <div class="card" style="margin-top:14px; border-left:3px solid var(--good)" id="soc-step2">
-    <h3>STEP 2 · 다음 단계 <small>이 데이터를 재료로, 나만의 미디어아트를</small></h3>
+    <h3>STEP 2 · 다음 단계 <small>작품으로 만들고, 전시하고, 이미지로</small></h3>
     <p class="muted" style="font-size:12.5px;margin:0 0 10px">무엇을 강조할지는 작가인 당신의 선택입니다. 분석 데이터가 점 작품의 재료가 돼요 — <b>색=분류/대륙 · 크기=값</b>으로 매핑해 보세요.</p>
-    <button class="btn primary" data-send>작업실로 (데이터 점 스튜디오) →</button>
+    <label class="field">전시 의도(한 문장) — 이 분석으로 무엇을 말하려나요?</label>
+    <input id="soc-intent" type="text" placeholder="예: 같은 지구인데 식수 격차가 이렇게 크다는 걸 점의 크기로 보여주고 싶다">
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+      <button class="btn primary" data-send>작업실로 (점 작품) →</button>
+      <button id="soc-exhibit" class="btn accent2">🎨 갤러리에 전시</button>
+      <button id="soc-image" class="btn sm">🖼 작품 이미지 저장</button>
+    </div>
+    <p class="muted" style="font-size:11px;margin-top:8px">⚠ 전시는 로그인 필요 · 표본·출처의 한계를 의도에 함께 밝혀 주세요.</p>
   </div>
 
   <p class="footer-note">관점·관계·맥락으로 사회를 읽고 — 미술로 다시 말하기. 표본·출처의 한계를 작품 설명에 밝히세요. (세계 데이터: Our World in Data)</p>

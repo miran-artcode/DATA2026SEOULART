@@ -271,6 +271,92 @@
     UI.toast('저장된 분석을 불러왔어요.');
   }
 
+  /* ============ 작품 캔버스(이미지 내보내기 · 썸네일) ============ */
+  // 관계망(로컬) 또는 세계 격차(SDG)를 한 장의 '작품 이미지'로 그린다.
+  function renderArtCanvas(W, H) {
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const x = cv.getContext('2d');
+    const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#0d1226'); g.addColorStop(1, '#05060e');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    const F = 'Pretendard, "Apple SD Gothic Neo", system-ui, sans-serif';
+    if (type === 'local' && netPos) {
+      const s = L(), mX = W * 0.1, mY = H * 0.2, sw = W - mX * 2, sh = H - mY * 2;
+      const P = k => [mX + netPos[k][0] / 360 * sw, mY + netPos[k][1] / 250 * sh];
+      s.ties.forEach(([a, b, t, w]) => {
+        if (!netPos[a] || !netPos[b]) return; const A = P(a), B = P(b);
+        x.strokeStyle = t === '공감' ? 'rgba(47,182,168,0.8)' : 'rgba(208,86,106,0.8)';
+        x.lineWidth = 1.5 + w * 5; x.shadowColor = x.strokeStyle; x.shadowBlur = H * 0.02;
+        x.beginPath(); x.moveTo(A[0], A[1]); x.lineTo(B[0], B[1]); x.stroke();
+      });
+      x.shadowBlur = 0;
+      s.subjects.forEach(k => {
+        const [cx, cy] = P(k), r = Math.max(7, H * 0.016);
+        const rg = x.createRadialGradient(cx, cy, 0, cx, cy, r * 2.6); rg.addColorStop(0, 'rgba(125,155,245,0.9)'); rg.addColorStop(1, 'rgba(125,155,245,0)');
+        x.fillStyle = rg; x.beginPath(); x.arc(cx, cy, r * 2.6, 0, 7); x.fill();
+        x.fillStyle = '#d7e1ff'; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.fill();
+        x.fillStyle = '#eef3ff'; x.font = '600 ' + Math.round(H * 0.028) + 'px ' + F; x.textAlign = 'center';
+        x.fillText(k, cx, cy - r - H * 0.012);
+      });
+      x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = '800 ' + Math.round(H * 0.05) + 'px ' + F;
+      x.fillText('〈' + s.title + '〉', W * 0.06, H * 0.12);
+      x.fillStyle = '#93a4e8'; x.font = '600 ' + Math.round(H * 0.026) + 'px ' + F;
+      x.fillText(s.sdg + ' · 관계망', W * 0.06, H * 0.12 + H * 0.042);
+    } else if (type === 'sdg') {
+      const d = SDG[current];
+      x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = '800 ' + Math.round(H * 0.052) + 'px ' + F;
+      x.fillText(d.label, W * 0.06, H * 0.13);
+      x.fillStyle = '#93a4e8'; x.font = '600 ' + Math.round(H * 0.026) + 'px ' + F;
+      x.fillText(d.sdg + ' · 세계 격차 (' + d.rows + '개국)', W * 0.06, H * 0.13 + H * 0.042);
+      const rows = d.top5.concat(d.bottom5), mx = Math.abs(d.top5[0][1]) || 1;
+      const bx = W * 0.30, bw = W * 0.6; let y = H * 0.26; const bh = H * 0.04, gap = H * 0.028;
+      rows.forEach(([n, v], i) => {
+        const top = i < 5;
+        x.fillStyle = '#cdd9ff'; x.textAlign = 'right'; x.font = '600 ' + Math.round(H * 0.026) + 'px ' + F;
+        x.fillText(n, bx - W * 0.012, y + bh * 0.78);
+        x.fillStyle = '#11203f'; x.fillRect(bx, y, bw, bh);
+        x.fillStyle = top ? 'rgba(120,150,240,0.95)' : 'rgba(143,192,181,0.9)';
+        x.fillRect(bx, y, bw * Math.max(0.02, Math.abs(v) / mx), bh);
+        y += bh + gap;
+      });
+    }
+    x.fillStyle = 'rgba(255,255,255,0.5)'; x.textAlign = 'right'; x.font = '500 ' + Math.round(H * 0.022) + 'px ' + F;
+    x.fillText('데이터의 눈 · 사회 분석', W - W * 0.04, H - H * 0.04);
+    return cv;
+  }
+  function downloadImage() {
+    const cv = renderArtCanvas(1120, 760), a = document.createElement('a');
+    a.download = 'society_' + current + '_' + (type === 'local' ? L().title : SDG[current].label) + '.png';
+    a.href = cv.toDataURL('image/png'); a.click();
+    UI.toast('작품 이미지를 저장했어요.');
+  }
+  function thumbDataURL() { try { return renderArtCanvas(360, 252).toDataURL('image/jpeg', 0.72); } catch (e) { return ''; } }
+
+  /* ============ 갤러리에 전시 ============ */
+  async function exhibitWork() {
+    const u = curUser();
+    if (!u) { UI.toast('전시하려면 로그인이 필요해요.'); setTimeout(() => location.href = 'index.html?next=society.html', 900); return; }
+    const intent = ($('#soc-intent') ? $('#soc-intent').value.trim() : '');
+    if (!intent) { UI.toast('전시 전에 ‘이 분석으로 무엇을 말하려는지’ 한 문장을 적어 주세요.'); if ($('#soc-intent')) $('#soc-intent').focus(); return; }
+    let title, evidence, settings;
+    if (type === 'sdg') {
+      const d = SDG[current];
+      title = '사회 분석 · ' + d.title;
+      evidence = d.label + ' ' + d.yearThen + '→' + d.latestYear + (d.changePct != null ? ' (' + (d.changePct > 0 ? '+' : '') + d.changePct + '%)' : '')
+        + ' · 최고 ' + d.top5[0][0] + ' / 최저 ' + d.bottom5[0][0] + ' · 세계 ' + d.rows + '개국 (출처 OWID·World Bank)';
+      settings = { sdgKey: current, meta: d };
+    } else {
+      const s = L();
+      title = '사회 분석 · ' + s.title;
+      evidence = '주체 ' + s.subjects.length + ' · 관점 ' + s.perspectives.length + ' · 렌즈 ' + LENS.slice(0, 4).map(k => k + ' ' + s.lenses[k].toFixed(2)).join(', ') + '…';
+      settings = scenarioState();
+    }
+    try {
+      await Store.saveWork({ userId: u.userId, by: u.display || u.userId, klass: u.klass, kind: 'society', title, intent, evidence, dataName: title, settings, thumb: thumbDataURL(), exhibited: true });
+      UI.toast('🎉 갤러리에 전시했어요!');
+      setTimeout(() => location.href = 'gallery.html', 1000);
+    } catch (e) { UI.toast('전시 실패: ' + (e && e.message ? e.message : e)); }
+  }
+
   /* ============ 전환·초기화 ============ */
   function selectScenario(val) {
     if (SDG && SDG[val]) { type = 'sdg'; current = val; renderSDG(val); }
@@ -297,6 +383,8 @@
     const ap = $('#soc-apply-subjects'); if (ap) ap.addEventListener('click', applySubjects);
     const sv = $('#soc-save'); if (sv) sv.addEventListener('click', saveAnalysis);
     const ld = $('#soc-load'); if (ld) ld.addEventListener('click', loadAnalysis);
+    const im = $('#soc-image'); if (im) im.addEventListener('click', downloadImage);
+    const ex = $('#soc-exhibit'); if (ex) ex.addEventListener('click', exhibitWork);
     document.querySelectorAll('[data-send]').forEach(b => b.addEventListener('click', handoff));
     // 저장된 내 분석을 custom에 복원(있으면)
     try { const st = JSON.parse(localStorage.getItem('dn_society_save') || 'null'); if (st) applyState(st); } catch (e) {}
