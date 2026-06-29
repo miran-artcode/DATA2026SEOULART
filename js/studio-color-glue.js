@@ -66,6 +66,8 @@
     if (!u) { toast('전시하려면 로그인하세요.'); setTimeout(() => location.href = 'index.html?next=studio-color.html', 900); return; }
     if (!window.ColorStudio.hasAnalysis()) { toast('먼저 이미지를 분석하세요.'); return; }
     const meta = window.ColorStudio.meta();
+    const recURL = (window.ColorStudio.lastVideoURL && window.ColorStudio.lastVideoURL()) || '';
+    const recKB = recURL ? Math.round(recURL.length / 1024 / 1.37) : 0;   // dataURL → 대략 KB
     const inp = 'width:100%;font:inherit;font-size:14px;background:#0a0c12;color:#e8ecf6;border:1px solid #2a3145;border-radius:8px;padding:9px 11px;margin-top:4px';
     const b = modal('🖼 갤러리에 전시', `
       <p style="color:#9aa3bd;font-size:12.5px;margin:0 0 10px">‘의도 한 문장 + 조형 근거 1개’를 채워야 전시할 수 있어요(근거가 먼저!).</p>
@@ -75,6 +77,11 @@
       <input id="g-intent" style="${inp}" value="${esc(meta.intent || '')}" placeholder="예: 소리로 그림을 연주하는 경험">
       <label style="font-size:12px;color:#9aa3bd;display:block;margin-top:10px">조형 요소 근거(최소 1개)</label>
       <textarea id="g-evi" rows="2" style="${inp}" placeholder="예: 대표색을 8개로 줄여 분위기를 단순화"></textarea>
+      ${recURL ? `<label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:13px;color:#e8ecf6;cursor:pointer">
+        <input type="checkbox" id="g-vid" checked style="margin-top:3px">
+        <span>🎬 방금 <b>녹화한 인터랙티브 영상</b>으로 전시 <span style="color:#9aa3bd">(움직이는 그대로 갤러리에서 재생 · 약 ${recKB.toLocaleString()}KB)</span></span>
+      </label>`
+      : `<p style="color:#9aa3bd;font-size:11.5px;margin:12px 0 0">💡 ‘● 영상 녹화’로 움직이는 작품을 먼저 녹화하면, 갤러리에서 영상 그대로 재생되도록 전시할 수 있어요.</p>`}
       <button id="g-go" class="btn primary" style="margin-top:12px">전시하기</button>`);
     b.querySelector('#g-go').addEventListener('click', async () => {
       const go = b.querySelector('#g-go');
@@ -85,6 +92,7 @@
       if (!intent || !evidence) { toast('의도와 근거를 모두 채워 주세요.'); return; }
       const goText = go.textContent; go.disabled = true; go.textContent = '전시하는 중…';
       try {
+        const useVideo = !!(recURL && b.querySelector('#g-vid') && b.querySelector('#g-vid').checked);
         const cv = window.ColorStudio.canvas();
         let thumb = '';
         if (cv) {
@@ -102,10 +110,21 @@
         } else {
           srcImg = window.ColorStudio.sourceURL();
         }
-        await Store.saveWork({ userId: u.userId, by: u.display, klass: u.klass, kind: 'color', title, intent, evidence,
-          settings: window.ColorStudio.settings(), meta, thumb, srcImg, srcSample, exhibited: true });
-        document.getElementById('glue-modal').style.display = 'none';
-        toast('🎉 갤러리에 전시했습니다!');
+        const work = { userId: u.userId, by: u.display, klass: u.klass, kind: 'color', title, intent, evidence,
+          settings: window.ColorStudio.settings(), meta, thumb, srcImg, srcSample, exhibited: true };
+        if (useVideo) work.video = recURL;   // 갤러리/뷰어가 <video> 로 재생(멈춤 없이 움직임 그대로)
+        try {
+          await Store.saveWork(work);
+          document.getElementById('glue-modal').style.display = 'none';
+          toast(useVideo ? '🎉 인터랙티브 영상으로 전시했습니다!' : '🎉 갤러리에 전시했습니다!');
+        } catch (e) {
+          // 영상이 너무 커 저장 용량을 초과한 경우 등 — 영상 없이 다시 시도
+          if (useVideo) {
+            delete work.video;
+            try { await Store.saveWork(work); document.getElementById('glue-modal').style.display = 'none'; toast('영상이 너무 커서 영상 없이 전시했어요(짧게 녹화하면 영상으로 전시돼요).'); return; } catch (e2) {}
+          }
+          toast('전시 저장에 실패했어요. 잠시 후 다시 시도해 주세요.');
+        }
       } catch (e) {
         toast('전시 중 오류가 발생했어요. 다시 시도해 주세요.');
       } finally {

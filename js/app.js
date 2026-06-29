@@ -39,7 +39,7 @@
   let analysis = null;       // 분석 결과
   let system = null;         // 입자 시스템
   let p5i = null;            // p5 인스턴스
-  let recorder = null, recChunks = [], recording = false;
+  let recorder = null, recChunks = [], recording = false, lastVideoURL = '';
   let dragging = false, dragX = 0, dragY = 0, lastAngle = 0, lastAngleX = 0;
 
   /* ----------------------------- 작은 도우미 ----------------------------- */
@@ -443,7 +443,11 @@
         a.download = 'artwork_' + Date.now() + '.webm';
         a.href = URL.createObjectURL(blob);
         a.click();
-        toast('영상을 저장했습니다.');
+        // 갤러리에 '영상으로 전시'할 수 있도록 dataURL 로 보관(움직이는 인터랙티브 아트 그대로 재생)
+        const fr = new FileReader();
+        fr.onload = () => { lastVideoURL = fr.result; toast('영상 저장 완료 · ‘🖼 전시’에서 녹화 영상으로 전시할 수 있어요.'); };
+        fr.onerror = () => toast('영상을 저장했습니다.');
+        fr.readAsDataURL(blob);
       };
       recorder.start();
       recording = true; btn.textContent = '■ 녹화 중지'; btn.classList.add('rec');
@@ -874,6 +878,8 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
       space: state.space, rules: describeRules(), intent: (state.meta && state.meta.intent) || '' }),
     meta: () => state.meta,
     settings: () => JSON.parse(JSON.stringify(state)),
+    // 방금 녹화한 인터랙티브 영상(webm dataURL) — 없으면 ''
+    lastVideoURL: () => lastVideoURL,
     // 전시 재생용: 원본 이미지를 작게 dataURL 로 (작품을 다시 점으로 살려내기)
     sourceURL: (maxDim) => {
       if (!sourceCanvas) return '';

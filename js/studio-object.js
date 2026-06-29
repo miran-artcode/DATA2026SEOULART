@@ -37,6 +37,23 @@
   let model = null;         // cocoSsd 모델(로드되면)
   let busy = false;
   let live = false, liveStream = null, liveVideo = null;   // 실시간 카메라(웹캠/휴대폰)
+  // 자동 기록(로그): 감지 결과를 시간에 따라 표로 누적 → 데이터셋
+  let logging = false, logRows = [], logStartT = 0, logFrame = 0, lastLogAt = 0, logByCam = false, curSource = '예시';
+  const LOG_INTERVAL = 900, LOG_MAX = 200000;   // 사실상 제한 없이 계속 기록(안전 상한만)
+  const LOGCOLS = ['초', '회차', '사물', '중심x', '중심y', '가로', '세로', '크기', '종횡비', '신뢰도', '장면개수', '출처'];
+  // 실시간 관찰(센서): 화면·소리에서 바로 읽히는 신호를 시간에 따라 그리고 기록
+  let micOn = false, obsRaf = 0, lastChartAt = 0, lastObsAt = 0, prevLum = null, obsScratch = null, obsRows = [], chartBuf = [];
+  const OBSCOLS = ['초', '밝기', '어두움', '채도', '따뜻함', '움직임', '사람수', '사물수', '소리', '높은소리'];
+  const METRICS = [
+    { k: '밝기', c: '#f4d35e' }, { k: '어두움', c: '#7c8696' }, { k: '채도', c: '#e26d5c' },
+    { k: '따뜻함', c: '#e8973a' }, { k: '움직임', c: '#2FB6A8' }, { k: '사람수', c: '#6E84B8' },
+    { k: '사물수', c: '#93A4E8' }, { k: '소리', c: '#9b5de5' }, { k: '높은소리', c: '#00bbf9' }
+  ];
+  const obsSel = { 밝기: true, 어두움: false, 채도: true, 따뜻함: false, 움직임: true, 사람수: true, 사물수: false, 소리: true, 높은소리: true };
+  const dispScale = { 사람수: 8, 사물수: 5 };   // 개수(0~)를 0~100 그래프에 맞게 보기 좋게 확대
+  const CHART_MS = 140, OBS_MS = 1000, CHART_CAP = 6000, OBS_MAX = 200000;   // 그래프는 '전 구간'을 계속 표시, 기록은 사실상 무제한
+  function nowMs() { return (window.performance && performance.now) ? performance.now() : Date.now(); }
+  function disp(k, v) { return Math.max(0, Math.min(100, (v || 0) * (dispScale[k] || 1))); }
 
   function setStatus(msg, kind) {
     const el = $('#od-status'); if (!el) return;
@@ -117,11 +134,14 @@
     $('#btn-od-csv').disabled = false; $('#btn-od-send').disabled = false;
   }
 
-  function applyDetections(dets, note) {
+  function applyDetections(dets, note, source) {
     // 화면이 작을 때 너무 많은 박스를 피하려고 신뢰도 0.3 이상만
     detections = (dets || []).filter(d => d.score >= 0.3).sort((a, b) => b.score - a.score).slice(0, 40);
     render(); summarize();
     if (note) setStatus(note);
+    curSource = source || '사진';
+    logSnapshot(curSource, true);   // 자동 기록이 켜져 있으면 한 줄 남김
+    if (!live) obsTick();           // 정지 화면도 관찰값(밝기·색·사물수…)을 한 점 남김
   }
 
   /* ----------------------------- 데이터 변환 ----------------------------- */
@@ -145,6 +165,214 @@
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
     UI.toast('데이터 점 스튜디오로 보냈어요!');
     setTimeout(() => location.href = 'studio-data.html', 500);
+  }
+
+  /* ----------------------------- 자동 기록(로그) → 데이터 누적 ----------------------------- */
+  // 감지될 때마다(특히 실시간 카메라) 한 줄씩 표로 쌓아 시간에 따른 데이터셋을 자동으로 만든다.
+  function logCSV() { return LOGCOLS.join(',') + '\n' + logRows.map(o => LOGCOLS.map(c => o[c]).join(',')).join('\n'); }
+  function updateLogUI() {
+    const has = logRows.length > 0;
+    const stat = $('#od-log-stat');
+    if (stat) {
+      if (has) {
+        const types = new Set(logRows.map(r => r.사물)).size;
+        const secs = Math.max.apply(null, logRows.map(r => r.초));
+        stat.innerHTML = `📊 <b>${logRows.length.toLocaleString()}행</b> 기록 · ${logFrame}회차 · 사물 ${types}종 · ${secs.toFixed(0)}초` + (logging ? ' · <span class="od-warn">⏺ 기록 중</span>' : ' · ⏸ 멈춤');
+      } else {
+        stat.innerHTML = logging ? '⏺ 기록 중 — 감지되는 사물이 표로 쌓입니다…'
+          : '자동 기록을 켜면 감지 결과(시간·사물·위치·크기·종횡비·신뢰도·장면 개수 등)가 표처럼 계속 쌓여 <b>데이터</b>가 됩니다. 📹 실시간 카메라와 함께 쓰면 자동으로 기록돼요.';
+      }
+    }
+    const set = (id, dis) => { const e = $(id); if (e) e.disabled = dis; };
+    set('#btn-od-log-csv', !has); set('#btn-od-log-send', !has); set('#btn-od-log-clear', !has);
+    const b = $('#btn-od-log'); if (b) { b.textContent = logging ? '■ 자동 기록 중지' : '⏺ 자동 기록'; b.classList.toggle('rec', logging); }
+  }
+  function logSnapshot(source, force) {
+    if (!logging || !srcCanvas || !detections.length) return;
+    const now = (window.performance && performance.now) ? performance.now() : Date.now();
+    if (!force && now - lastLogAt < LOG_INTERVAL) return;   // 카메라 프레임 폭주 방지(약 1초 간격)
+    lastLogAt = now; logFrame++;
+    const W = srcCanvas.width, H = srcCanvas.height, A = W * H, cnt = detections.length, t = (now - logStartT) / 1000;
+    detections.forEach(d => {
+      const [bx, by, bw, bh] = d.bbox;
+      logRows.push({
+        초: +t.toFixed(1), 회차: logFrame, 사물: ko(d.class),
+        중심x: fmt((bx + bw / 2) / W * 100), 중심y: fmt((by + bh / 2) / H * 100),
+        가로: fmt(bw / W * 100), 세로: fmt(bh / H * 100), 크기: fmt(bw * bh / A * 100),
+        종횡비: +(bw / Math.max(1, bh)).toFixed(2), 신뢰도: fmt(d.score * 100),
+        장면개수: cnt, 출처: source || '사진'
+      });
+    });
+    if (logRows.length >= LOG_MAX) { stopLog(); setStatus('자동 기록이 최대치(' + LOG_MAX.toLocaleString() + '행)에 도달해 멈췄어요. 내보내거나 비우고 다시 시작하세요.', 'warn'); }
+    updateLogUI();
+  }
+  function startLog(silent) {
+    if (logging) return;
+    logging = true; lastLogAt = 0; lastObsAt = 0;
+    if (!logRows.length) { logStartT = (window.performance && performance.now) ? performance.now() : Date.now(); logFrame = 0; }
+    if (!silent) setStatus('⏺ 자동 기록을 시작했어요 — 감지되는 사물이 데이터로 쌓입니다.');
+    if (detections.length) logSnapshot(live ? '카메라' : curSource, true);   // 이미 떠 있는 화면이면 즉시 한 줄
+    updateLogUI();
+  }
+  function stopLog() { if (!logging) return; logging = false; updateLogUI(); }
+  function toggleLog() { logging ? stopLog() : startLog(); }
+  function exportLogCSV() {
+    if (!logRows.length) return;
+    const blob = new Blob(['﻿' + logCSV()], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'); a.download = 'object_log_' + Date.now() + '.csv'; a.href = URL.createObjectURL(blob); a.click();
+    setStatus('자동 기록 ' + logRows.length.toLocaleString() + '행을 CSV로 저장했어요.');
+  }
+  function sendLogToData() {
+    if (!logRows.length) return;
+    const payload = { name: '사물 감지 자동기록', csv: logCSV(), intent: ($('#od-intent') ? $('#od-intent').value.trim() : ''), omit: ($('#od-omit') ? $('#od-omit').value.trim() : '') };
+    try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(기록이 커요 — CSV로 내보낸 뒤 불러오세요).'); return; }
+    UI.toast('자동 기록 데이터를 데이터 점 스튜디오로 보냈어요!');
+    setTimeout(() => location.href = 'studio-data.html', 500);
+  }
+  function clearLog() { logRows = []; logFrame = 0; logging = false; obsRows = []; chartBuf = []; prevLum = null; updateLogUI(); updateObsUI(); drawChart(); setStatus('기록을 비웠어요.'); }
+
+  /* ----------------------------- 실시간 관찰(센서) → 시간에 따른 변화 ----------------------------- */
+  // 화면을 작은 캔버스로 빠르게 재서 밝기·어두움·채도·따뜻함·움직임을 신호로.
+  function computeScene() {
+    if (!srcCanvas) return null;
+    if (!obsScratch) { obsScratch = document.createElement('canvas'); obsScratch.width = 64; obsScratch.height = 48; }
+    const sw = obsScratch.width, sh = obsScratch.height, sx = obsScratch.getContext('2d');
+    try { sx.drawImage(srcCanvas, 0, 0, sw, sh); } catch (e) { return null; }
+    let data; try { data = sx.getImageData(0, 0, sw, sh).data; } catch (e) { return null; }   // 외부 이미지 보호(tainted) 시 건너뜀
+    const N = sw * sh, lum = new Float32Array(N); let sumL = 0, sumS = 0, sumR = 0, sumB = 0, motion = 0;
+    for (let i = 0, p = 0; i < N; i++, p += 4) {
+      const r = data[p], g = data[p + 1], b = data[p + 2];
+      const L = 0.299 * r + 0.587 * g + 0.114 * b; lum[i] = L; sumL += L; sumR += r; sumB += b;
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b); sumS += mx > 8 ? (mx - mn) / mx : 0;
+    }
+    if (prevLum && prevLum.length === N) { for (let i = 0; i < N; i++) motion += Math.abs(lum[i] - prevLum[i]); motion /= N; }
+    prevLum = lum;
+    const bright = sumL / N / 255 * 100;
+    return {
+      밝기: Math.round(bright), 어두움: Math.round(100 - bright), 채도: Math.round(sumS / N * 100),
+      따뜻함: Math.round(Math.max(0, Math.min(100, 50 + (sumR - sumB) / N / 255 * 140))),
+      움직임: Math.round(Math.max(0, Math.min(100, motion / 255 * 100 * 3.2)))
+    };
+  }
+  function currentMetrics() {
+    const sc = computeScene() || { 밝기: 0, 어두움: 0, 채도: 0, 따뜻함: 0, 움직임: 0 };
+    let people = 0; detections.forEach(d => { if (d.class === 'person') people++; });
+    let sound = 0, high = 0;
+    if (micOn && window.AudioInput && AudioInput.enabled) { const v = AudioInput.getValues(); sound = Math.round(v.volume * 100); high = Math.round(v.high * 100); }
+    return { 밝기: sc.밝기, 어두움: sc.어두움, 채도: sc.채도, 따뜻함: sc.따뜻함, 움직임: sc.움직임, 사람수: people, 사물수: detections.length, 소리: sound, 높은소리: high };
+  }
+  function drawMeters(m) {
+    const host = $('#od-meters'); if (!host) return;
+    host.innerHTML = METRICS.filter(x => obsSel[x.k]).map(x =>
+      `<div class="obs-meter"><span>${x.k}</span><div class="bar"><i style="width:${disp(x.k, m[x.k])}%;background:${x.c}"></i></div><span class="val">${m[x.k] || 0}</span></div>`).join('');
+  }
+  function drawChart() {
+    const cv = $('#od-chart'); if (!cv) return; const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height, pad = 8;
+    ctx.fillStyle = '#07080d'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+    for (let g = 0; g <= 4; g++) { const y = pad + (H - pad * 2) * g / 4; ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke(); }
+    const n = chartBuf.length;
+    if (n < 2) {
+      ctx.fillStyle = '#5b6480'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('📹 카메라나 🎤 소리를 켜면 여기에 시간에 따른 변화가 그려져요', W / 2, H / 2);
+      return;
+    }
+    METRICS.filter(m => obsSel[m.k]).forEach(m => {
+      ctx.strokeStyle = m.c; ctx.lineWidth = 2; ctx.beginPath();
+      for (let i = 0; i < n; i++) { const x = pad + (W - pad * 2) * (i / (n - 1)), y = pad + (H - pad * 2) * (1 - disp(m.k, chartBuf[i][m.k]) / 100); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+      ctx.stroke();
+    });
+    if (obsRows.length) {   // 전 구간 표시 — 기록한 만큼(약 N초) 계속 늘어남
+      ctx.fillStyle = '#5b6480'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+      ctx.fillText('전 구간 · 기록 ' + obsRows.length.toLocaleString() + '초', W - pad - 2, H - 3);
+    }
+  }
+  function recordObs(m) {   // 자동 기록 중이면 ~1초 간격으로 한 줄 누적
+    if (!logging) return;
+    const now = nowMs();
+    if (now - lastObsAt < OBS_MS || obsRows.length >= OBS_MAX) return;
+    lastObsAt = now;
+    obsRows.push(Object.assign({ 초: +((now - logStartT) / 1000).toFixed(1) }, m));
+    updateObsUI();
+  }
+  function obsTick() {   // 차트 버퍼에 한 점 + 미터/차트 갱신 + (기록 중이면) 한 줄
+    const m = currentMetrics();
+    chartBuf.push(m);
+    // 20초 창이 아니라 '전 구간'을 계속 보여 준다 — 너무 길어지면 오래된 점을 버리지 않고
+    // 해상도만 절반으로 줄여(짝수 인덱스만 유지) 끝없이 이어 그린다.
+    if (chartBuf.length > CHART_CAP) chartBuf = chartBuf.filter((_, i) => i % 2 === 0);
+    drawMeters(m); drawChart(); recordObs(m);
+  }
+  function obsActive() { return live || micOn; }
+  function obsLoop() {
+    if (!obsActive()) { obsRaf = 0; return; }
+    const now = nowMs();
+    if (now - lastChartAt >= CHART_MS) { lastChartAt = now; obsTick(); }
+    obsRaf = requestAnimationFrame(obsLoop);
+  }
+  function startObs() { if (!obsRaf && obsActive()) { lastChartAt = 0; obsRaf = requestAnimationFrame(obsLoop); } }
+  function stopObs() { if (!obsActive() && obsRaf) { cancelAnimationFrame(obsRaf); obsRaf = 0; } }
+  async function toggleMic() {
+    const b = $('#btn-od-mic');
+    if (micOn) { if (window.AudioInput) AudioInput.stop(); micOn = false; if (b) { b.textContent = '🎤 소리도 관찰'; b.classList.remove('rec'); } stopObs(); updateObsUI(); setStatus('소리 관찰을 껐어요.'); return; }
+    if (!window.AudioInput) { UI.toast('오디오 모듈이 없어요.'); return; }
+    try { await AudioInput.start(); micOn = true; if (b) { b.textContent = '🔇 소리 끄기'; b.classList.add('rec'); } startObs(); updateObsUI(); setStatus('🎤 소리 관찰 중 — 소리 크기·높은 소리가 그래프에 더해져요(소리는 저장되지 않아요).'); }
+    catch (e) { UI.toast('마이크를 켤 수 없어요(권한/지원을 확인하세요).'); }
+  }
+  function obsCSV() { return OBSCOLS.join(',') + '\n' + obsRows.map(o => OBSCOLS.map(c => o[c]).join(',')).join('\n'); }
+  function updateObsUI() {
+    const has = obsRows.length > 0;
+    const set = (id, d) => { const e = $(id); if (e) e.disabled = d; };
+    set('#btn-od-obs-csv', !has); set('#btn-od-obs-send', !has);
+    const stat = $('#od-obs-stat');
+    if (stat) stat.innerHTML = has ? `📈 관찰 <b>${obsRows.length.toLocaleString()}행</b> 기록됨` + (logging ? ' · <span class="od-warn">⏺ 기록 중</span>' : '')
+      : (obsActive() ? '실시간 관찰 중 — ⏺ 자동 기록을 켜면 시간에 따라 데이터로 쌓여요.' : '카메라나 소리를 켜고 자동 기록을 누르면 시간에 따른 변화가 데이터로 쌓여요.');
+  }
+  function exportObsCSV() {
+    if (!obsRows.length) return;
+    const blob = new Blob(['﻿' + obsCSV()], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'); a.download = 'observation_' + Date.now() + '.csv'; a.href = URL.createObjectURL(blob); a.click();
+    setStatus('관찰 ' + obsRows.length.toLocaleString() + '행을 CSV로 저장했어요.');
+  }
+  function sendObsToData() {
+    if (!obsRows.length) return;
+    const payload = { name: '실시간 관찰 기록', csv: obsCSV(), intent: ($('#od-intent') ? $('#od-intent').value.trim() : ''), omit: ($('#od-omit') ? $('#od-omit').value.trim() : '') };
+    try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(기록이 커요 — CSV로 내보내세요).'); return; }
+    UI.toast('관찰 기록을 데이터 점 스튜디오로 보냈어요!');
+    setTimeout(() => location.href = 'studio-data.html', 500);
+  }
+  // 현재 그래프를 제목·범례·현재값과 함께 JPG로 저장
+  function exportObsJPG() {
+    const W = 960, H = 560, ex = document.createElement('canvas'); ex.width = W; ex.height = H; const x = ex.getContext('2d');
+    x.fillStyle = '#0c0e16'; x.fillRect(0, 0, W, H);
+    x.fillStyle = '#e8ecf6'; x.font = 'bold 22px sans-serif'; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    x.fillText('실시간 관찰 — 시간에 따른 변화', 28, 40);
+    x.fillStyle = '#9aa3bd'; x.font = '13px sans-serif';
+    x.fillText('데이터의 눈 · 객체 감지 렌즈 · ' + new Date().toLocaleString('ko-KR'), 28, 62);
+    const gx = 28, gy = 84, gw = W - 56, gh = 360;
+    x.fillStyle = '#07080d'; x.fillRect(gx, gy, gw, gh);
+    x.strokeStyle = 'rgba(255,255,255,0.08)'; x.lineWidth = 1;
+    for (let g = 0; g <= 4; g++) { const yy = gy + gh * g / 4; x.beginPath(); x.moveTo(gx, yy); x.lineTo(gx + gw, yy); x.stroke(); }
+    const n = chartBuf.length, picks = METRICS.filter(m => obsSel[m.k]);
+    if (n >= 2) picks.forEach(m => {
+      x.strokeStyle = m.c; x.lineWidth = 2.4; x.beginPath();
+      for (let i = 0; i < n; i++) { const px = gx + gw * (i / (n - 1)), py = gy + gh * (1 - disp(m.k, chartBuf[i][m.k]) / 100); i ? x.lineTo(px, py) : x.moveTo(px, py); }
+      x.stroke();
+    });
+    const last = chartBuf[n - 1] || {}; let lx = 28, ly = gy + gh + 40; x.font = '14px sans-serif'; x.textBaseline = 'middle';
+    picks.forEach(m => {
+      const label = m.k + (last[m.k] != null ? ' ' + last[m.k] : ''), wlab = x.measureText(label).width;
+      if (lx + 18 + wlab > W - 28) { lx = 28; ly += 26; }
+      x.fillStyle = m.c; x.fillRect(lx, ly - 6, 12, 12); x.fillStyle = '#e8ecf6'; x.fillText(label, lx + 18, ly); lx += 18 + wlab + 22;
+    });
+    const a = document.createElement('a'); a.download = 'observation_' + Date.now() + '.jpg'; a.href = ex.toDataURL('image/jpeg', 0.92); a.click();
+    setStatus('관찰 그래프를 JPG로 저장했어요.');
+  }
+  function initObsPicks() {
+    const host = $('#od-obs-picks'); if (!host) return;
+    host.innerHTML = METRICS.map(m => `<label class="obs-pick"><input type="checkbox" data-obs="${m.k}"${obsSel[m.k] ? ' checked' : ''}><i style="background:${m.c}"></i>${m.k}</label>`).join('');
+    host.querySelectorAll('input[data-obs]').forEach(inp => inp.addEventListener('change', () => { obsSel[inp.dataset.obs] = inp.checked; if (chartBuf.length) drawMeters(chartBuf[chartBuf.length - 1]); drawChart(); }));
   }
 
   /* ----------------------------- 모델 로드 + 감지 ----------------------------- */
@@ -172,7 +400,9 @@
       await liveVideo.play();
       live = true;
       const b = $('#btn-od-cam'); if (b) { b.textContent = '■ 카메라 끄기'; b.classList.add('rec'); }
-      setStatus('📹 실시간 감지 중 — 카메라를 사물(사람·컵·휴대폰·의자…)에 향해 보세요. 영상은 저장되지 않아요.');
+      if (!logging) { startLog(true); logByCam = true; }   // 실시간 감지는 자동으로 기록 시작(화면 감지=자동 데이터화)
+      startObs();                                           // 실시간 관찰 그래프(밝기·색·움직임…) 시작
+      setStatus('📹 실시간 감지 + ⏺ 자동 기록 중 — 카메라를 사물(사람·컵·휴대폰·의자…)에 향해 보세요. 감지 결과가 데이터로 쌓이고, 옆 그래프에 시간 변화가 그려져요(영상은 저장 안 됨).');
       requestAnimationFrame(liveStep);
     } catch (e) {
       live = false;
@@ -187,6 +417,8 @@
     if (liveStream) { liveStream.getTracks().forEach(t => t.stop()); liveStream = null; }
     liveVideo = null;
     const b = $('#btn-od-cam'); if (b) { b.textContent = '📹 실시간 카메라'; b.classList.remove('rec'); }
+    if (logByCam) { stopLog(); logByCam = false; }   // 카메라가 자동 시작한 기록만 멈춤(쌓인 데이터는 유지). 수동 기록은 사진·예시에서 계속됨
+    stopObs();   // 마이크도 꺼져 있으면 관찰 루프 정지
   }
   function toggleLive() { if (live) { stopLive(); setStatus('카메라를 껐어요.'); } else startLive(); }
   async function liveStep() {
@@ -202,6 +434,8 @@
         srcCanvas.getContext('2d').drawImage(liveVideo, 0, 0, srcCanvas.width, srcCanvas.height);
         detections = dets.filter(d => d.score >= 0.45).sort((a, b) => b.score - a.score).slice(0, 20);
         render(); summarize();
+        curSource = '카메라';
+        logSnapshot('카메라', false);   // 실시간 프레임을 약 1초 간격으로 자동 기록
       } catch (e) { /* 프레임 단위 오류는 건너뜀 */ }
     }
     if (live) requestAnimationFrame(liveStep);
@@ -213,7 +447,7 @@
     try {
       const m = await ensureModel();
       const dets = await m.detect(srcCanvas, 40);
-      applyDetections(dets, dets.length ? 'AI 감지 완료 · ' + dets.length + '개' : 'AI가 아무것도 찾지 못했어요 — 이게 결과이자 ‘비평거리’예요.');
+      applyDetections(dets, dets.length ? 'AI 감지 완료 · ' + dets.length + '개' : 'AI가 아무것도 찾지 못했어요 — 이게 결과이자 ‘비평거리’예요.', '사진');
     } catch (e) {
       setStatus('AI 모델을 불러오지 못했어요(네트워크 차단/오프라인일 수 있어요). 아래 ‘오프라인 예시’로 객체 감지가 무엇인지 체험해 보세요.', 'warn');
     } finally { busy = false; if (btn) { btn.disabled = false; btn.textContent = '🤖 AI로 사물 감지'; } }
@@ -249,7 +483,7 @@
   function loadStreetDemo() {
     stopLive();
     const { cv, baked } = drawStreet(720, 480);
-    srcCanvas = cv; applyDetections(baked, '오프라인 예시 장면 · baked 감지(네트워크 없이도 작동) — 실제 AI 감지는 사진을 업로드해 보세요.');
+    srcCanvas = cv; applyDetections(baked, '오프라인 예시 장면 · baked 감지(네트워크 없이도 작동) — 실제 AI 감지는 사진을 업로드해 보세요.', '예시');
   }
 
   /* ----------------------------- 춤추는 점(감지 → 미디어아트) ----------------------------- */
@@ -351,6 +585,19 @@
     $('#sel-od-art').addEventListener('change', e => { if (e.target.value) loadArtDemo(e.target.value); });
     $('#btn-od-csv').addEventListener('click', exportCSV);
     $('#btn-od-send').addEventListener('click', sendToData);
+    // 자동 기록(로그)
+    const onClick = (id, fn) => { const e = $(id); if (e) e.addEventListener('click', fn); };
+    onClick('#btn-od-log', toggleLog);
+    onClick('#btn-od-log-csv', exportLogCSV);
+    onClick('#btn-od-log-send', sendLogToData);
+    onClick('#btn-od-log-clear', clearLog);
+    updateLogUI();
+    // 실시간 관찰(센서) 패널
+    onClick('#btn-od-mic', toggleMic);
+    onClick('#btn-od-jpg', exportObsJPG);
+    onClick('#btn-od-obs-csv', exportObsCSV);
+    onClick('#btn-od-obs-send', sendObsToData);
+    initObsPicks(); drawChart(); updateObsUI();
     // 드래그&드롭
     const stage = $('#odstage-wrap');
     if (stage) {
@@ -361,5 +608,5 @@
     loadStreetDemo(); // 시작하자마자 살아있는 화면(오프라인 안전)
   });
 
-  window.ObjectStudio = { rows: toRows };   // (외부 연동용 최소 창구)
+  window.ObjectStudio = { rows: toRows, log: () => logRows.slice(), logCSV, obs: () => obsRows.slice(), obsCSV, chartLen: () => chartBuf.length };   // (외부 연동용 최소 창구)
 })();

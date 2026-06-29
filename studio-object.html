@@ -21,6 +21,18 @@
   .art-modal-x { position: absolute; top: 12px; right: 14px; background: none; border: none; color: var(--muted, #9aa3bd); font-size: 20px; cursor: pointer; }
   .art-modal-box .map-row { display: flex; gap: 8px; padding: 5px 0; border-top: 1px dashed var(--line); font-size: 13px; }
   .art-modal-box .map-row b { color: var(--accent2, #93A4E8); min-width: 92px; }
+  /* 실시간 관찰 패널 */
+  .obs-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; align-items: start; }
+  @media (max-width: 760px) { .obs-grid { grid-template-columns: 1fr; } }
+  #od-chart { width: 100%; height: 260px; background: #07080d; border: 1px solid var(--line); border-radius: 12px; display: block; }
+  .obs-picks { display: flex; gap: 6px 12px; flex-wrap: wrap; margin: 4px 0 10px; }
+  .obs-pick { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; cursor: pointer; user-select: none; }
+  .obs-pick i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .obs-meters { display: grid; gap: 7px; }
+  .obs-meter { display: grid; grid-template-columns: 64px 1fr 42px; gap: 8px; align-items: center; font-size: 12px; }
+  .obs-meter .bar { height: 10px; border-radius: 6px; background: #1a1d28; overflow: hidden; }
+  .obs-meter .bar > i { display: block; height: 100%; border-radius: 6px; transition: width .12s linear; }
+  .obs-meter .val { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -81,6 +93,35 @@
       <button id="btn-od-send" class="btn accent2" disabled>→ 데이터 점 스튜디오로 보내기</button>
     </div>
     <p class="muted" style="font-size:11.5px;margin-top:8px">보내면 <b>사물·중심x·중심y·크기·신뢰도</b> 열로 데이터 점 스튜디오에서 더 깊이 다룰 수 있어요. 또는 바로 아래에서 ‘춤추는 점’으로 봐요.</p>
+
+    <div style="margin-top:14px; border-top:1px solid var(--line); padding-top:12px">
+      <h4 style="margin:0 0 8px; font-size:14px">⏺ 자동 기록 — 감지 결과를 데이터로 쌓기</h4>
+      <div class="od-tools">
+        <button id="btn-od-log" class="btn accent2">⏺ 자동 기록</button>
+        <button id="btn-od-log-csv" class="btn" disabled>⬇ 기록 CSV</button>
+        <button id="btn-od-log-send" class="btn" disabled>→ 기록을 데이터 점으로</button>
+        <button id="btn-od-log-clear" class="btn ghost" disabled>🗑 기록 비우기</button>
+      </div>
+      <p id="od-log-stat" class="muted" style="font-size:11.5px;margin-top:8px"></p>
+      <p class="muted" style="font-size:11.5px;margin-top:4px">기록 열: <b>초·회차·사물·중심x·중심y·가로·세로·크기·종횡비·신뢰도·장면개수·출처</b> — 시간에 따라 ‘무엇이, 어디서, 얼마나’ 보였는지가 데이터가 돼요.</p>
+    </div>
+  </div>
+
+  <div class="card" id="od-obs-card" style="margin-top:16px">
+    <h3>📈 실시간 관찰 — 시간에 따른 변화를 옆에서 보기</h3>
+    <p class="muted" style="font-size:11.5px; margin:2px 0 10px">사물뿐 아니라 화면·소리에서 바로 읽히는 신호들(<b>색·명도·어두움·채도·움직임</b>, 사람수·사물수, 그리고 마이크를 켜면 <b>소리·높은 소리</b>)을 실시간으로 그려요. <b>📹 실시간 카메라</b>나 <b>🎤 소리</b>를 켜고 <b>⏺ 자동 기록</b>을 누르면 시간에 따라 데이터로 쌓여요. <b>원하는 만큼 계속</b> 기록되고, 그래프는 <b>전 구간</b>(20초 창이 아니라 처음부터 지금까지)을 보여 줘요.</p>
+    <div class="obs-picks" id="od-obs-picks"></div>
+    <div class="obs-grid">
+      <canvas id="od-chart" width="700" height="260"></canvas>
+      <div class="obs-meters" id="od-meters"></div>
+    </div>
+    <div class="od-tools" style="margin-top:12px">
+      <button id="btn-od-mic" class="btn">🎤 소리도 관찰</button>
+      <button id="btn-od-jpg" class="btn accent2">📸 그래프 JPG 저장</button>
+      <button id="btn-od-obs-csv" class="btn" disabled>⬇ 관찰 CSV</button>
+      <button id="btn-od-obs-send" class="btn" disabled>→ 관찰을 데이터 점으로</button>
+    </div>
+    <p id="od-obs-stat" class="muted" style="font-size:11.5px;margin-top:8px"></p>
   </div>
 
   <div class="card" id="od-art-card" style="margin-top:16px">
@@ -132,6 +173,7 @@
 <script src="js/auth.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/analysis.js"></script>
+<script src="js/audio.js"></script>
 <script src="js/studio-object.js"></script>
 </body>
 </html>
