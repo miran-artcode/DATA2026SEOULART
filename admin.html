@@ -113,7 +113,7 @@
     UI.callout('<b>실시간 클라우드 미설정</b> · 지금은 이 기기에 저장된 데이터만 보여요. <code>config/cloud-config.js</code>를 설정하면 한 링크에서 학급 전체가 실시간 공유됩니다(README 참고). 그 전엔 학생 JSON을 ‘취합’해 모으세요.', 'warn');
 
   let works = [], notes = [], feedback = {}, allFb = [];
-  const KIND = { color: '색 군집', data: '데이터 점', lab: '분석실', reflection: '성찰', project: '프로젝트' };
+  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', lab: '분석실', reflection: '성찰', project: '프로젝트' };
 
   async function load() {
     works = await Store.listWorks();

@@ -7,7 +7,7 @@
   const $ = s => document.querySelector(s);
   const esc = (s) => UI.escapeHTML(s);
   const rubSel = id => '<select id="' + id + '"><option value="0">— 미평가 —</option><option value="3">상 ●●●</option><option value="2">중 ●●</option><option value="1">하 ●</option></select>';
-  const KIND = { color: '색 군집', data: '데이터 점', lab: '분석', society: '사회 분석' };
+  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', lab: '분석', society: '사회 분석' };
   const COLORLBL = { value: '값 그라데이션', warm: '난색', cool: '한색' };
   const id = new URLSearchParams(location.search).get('id');
   let work = null;

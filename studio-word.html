@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>낱말 구름 스튜디오 · 자연어 분석 → 굿즈</title>
+<link rel="stylesheet" href="css/site.css" />
+<!-- 표현력 있는 한글 웹폰트(온라인 시) — 오프라인이면 시스템 글꼴로 자동 대체 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu&family=Nanum+Pen+Script&family=Song+Myung&family=Gowun+Batang:wght@400;700&display=swap" />
+<style>
+  .wstudio { display: grid; grid-template-columns: 1fr 360px; gap: 16px; align-items: start; }
+  /* 미리보기 무대 */
+  #wstage-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+  .stage-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .stage-bar .seg { display: inline-flex; background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+  .stage-bar .seg button { font: inherit; font-size: 12.5px; font-weight: 700; color: var(--muted); background: none; border: 0; border-radius: 7px; padding: 6px 11px; cursor: pointer; }
+  .stage-bar .seg button.on { color: #fff; background: var(--accent); }
+  .stage-bar .grow { flex: 1; }
+  #wstage { position: relative; width: 100%; min-height: 460px; display: grid; place-items: center;
+    background: repeating-conic-gradient(#0c0e16 0% 25%, #0a0c13 0% 50%) 0 0 / 22px 22px; border-radius: 10px; overflow: auto; }
+  #wstage canvas { max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 12px 34px rgba(0,0,0,.45); }
+  #wbusy { position: absolute; inset: 0; display: none; place-items: center; background: rgba(6,8,14,.55); border-radius: 10px; z-index: 3; }
+  #wbusy.on { display: grid; }
+
+  /* 패널 */
+  .wpanel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; max-height: 80vh; overflow-y: auto; }
+  .wpanel details { border-bottom: 1px solid var(--line); }
+  .wpanel summary { cursor: pointer; padding: 12px 15px; font-weight: 700; font-size: 13.5px; list-style: none; }
+  .wpanel summary::-webkit-details-marker { display: none; }
+  .wpanel .sect { padding: 4px 15px 16px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .row.tight { gap: 6px; }
+  .half { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  input[type=color] { width: 42px; height: 26px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; cursor: pointer; vertical-align: middle; }
+
+  /* 낱말 범례(빈도 분석 결과) */
+  .wlegend { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .wlegend .wchip { font-size: 11.5px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line);
+    display: inline-flex; align-items: center; gap: 5px; }
+  .wlegend .wchip i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .wlegend .wchip b { font-weight: 700; }
+  .wlegend .wchip small { color: var(--muted); }
+
+  /* 팔레트 스와치 (작게) */
+  .pal { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .pal .sw { height: 30px; min-width: 26px; flex: 1 1 26px; border-radius: 7px; border: 1px solid rgba(255,255,255,.14);
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1px; }
+  .pal .sw small { font-size: 8.5px; color: #fff; background: rgba(0,0,0,.32); padding: 0 3px; border-radius: 3px; }
+
+  @media (max-width: 920px) { .wstudio { grid-template-columns: 1fr; } }
+
+  /* 모양 틀 — 종류별 그리드 피커 */
+  .shape-groups { display: flex; flex-direction: column; gap: 2px; }
+  .shape-grp h5 { margin: 9px 0 5px; font-size: 11px; color: var(--muted2); font-weight: 700; letter-spacing: .02em; }
+  .shape-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .shape-btn { border: 1px solid var(--line); background: var(--bg2); border-radius: 9px; padding: 4px 1px 3px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 1px; transition: .12s; }
+  .shape-btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .shape-btn.on { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(var(--accent-rgb), .28); }
+  .shape-btn canvas { width: 36px; height: 36px; display: block; border-radius: 5px; }
+  .shape-btn span { font-size: 9px; color: var(--muted); line-height: 1.05; text-align: center; word-break: keep-all; }
+  #draw-pad { width: 100%; max-width: 300px; background: #0c0e16; border: 1px solid var(--line); border-radius: 10px;
+    touch-action: none; cursor: crosshair; display: block; }
+</style>
+</head>
+<body>
+<div id="app-header"></div>
+
+<div class="wrap" style="max-width:1280px">
+  <div class="page-head">
+    <span class="eyebrow">낱말 구름 스튜디오 · 자연어 분석</span>
+    <h1>작가의 말을 그림으로 — 낱말 구름 · 굿즈</h1>
+    <p>작가 감상문·작가 정보를 <b>자연어 분석</b>해 낱말의 <b>빈도→크기</b>로, 글자 색은 그림의 <b>대표색(K)·비율 순</b>으로, 낱말을 <b>내가 정한 모양 틀</b>에 채워 넣고 — 그대로 <b>엽서·카드·책갈피</b> 같은 실생활 굿즈로 디자인하세요.</p>
+  </div>
+  <div id="idea"></div>
+
+  <div class="wstudio">
+    <!-- 미리보기 -->
+    <section id="wstage-wrap">
+      <div class="stage-bar">
+        <div class="seg" id="view-seg">
+          <button data-view="cloud" class="on">🔤 낱말 구름</button>
+          <button data-view="goods">🎁 굿즈 미리보기</button>
+        </div>
+        <div class="seg" id="side-seg" style="display:none">
+          <button data-side="front" class="on">앞면</button>
+          <button data-side="back">뒷면</button>
+        </div>
+        <span class="grow"></span>
+        <button id="btn-shuffle" class="btn sm" title="같은 설정에서 배치만 다시 — 자리(시드)를 바꿔요">🎲 다시 배치</button>
+        <button id="btn-generate" class="btn sm accent2" title="텍스트·색·모양 설정으로 낱말 구름을 다시 만들어요">✦ 생성</button>
+      </div>
+      <div id="wstage">
+        <canvas id="wcanvas" width="900" height="900"></canvas>
+        <div id="wbusy"><span class="spinner"></span></div>
+      </div>
+      <p class="muted" style="font-size:11.5px;margin:10px 2px 0">큰 글자 = 자주 나온 낱말, 글자 색 = 그림의 대표색(비율 순). 모양 틀 안에만 낱말이 채워져요. 글자가 너무 넘치면 <b>최대 낱말 수</b>를 줄이거나 <b>틀</b>을 키우세요.</p>
+    </section>
+
+    <!-- 설정 패널 -->
+    <aside class="wpanel">
+      <details open>
+        <summary>1 · 글 — 작가의 말 <span class="info-ic" data-info="word-nlp">ⓘ</span></summary>
+        <div class="sect">
+          <label class="field">작가 글 예시 (감상문·작가 소개)</label>
+          <select id="sel-artist"></select>
+          <label class="field" style="margin-top:10px">직접 입력 / 붙여넣기 (감상문·작가 정보·시 등)</label>
+          <textarea id="ta-text" rows="6" placeholder="예: 데이비드 호크니의 수영장 그림은 캘리포니아의 빛과 물의 반짝임을 평면적인 색면으로 담는다. 그의 색은 따뜻하고 명랑하며…"></textarea>
+          <div class="row" style="margin-top:8px">
+            <button id="btn-analyze" class="btn sm accent2">낱말 분석</button>
+            <button id="btn-upload-txt" class="btn sm">파일 열기(.txt)</button>
+            <button id="btn-wiki" class="btn sm ghost" title="온라인일 때 위키백과 요약을 가져와 채워요(선택). 오프라인이면 예시로 안내합니다.">🌐 위키백과 가져오기</button>
+            <input id="txtfile" type="file" accept=".txt,text/plain,.md,.csv" hidden />
+          </div>
+          <div class="half" style="margin-top:10px">
+            <div>
+              <label class="field" style="margin-top:0">최대 낱말 수 <output id="o-maxwords">120</output></label>
+              <input id="r-maxwords" type="range" min="20" max="220" step="10" value="120">
+            </div>
+            <div>
+              <label class="field" style="margin-top:0">최소 글자 수 <output id="o-minlen">2</output></label>
+              <input id="r-minlen" type="range" min="1" max="4" step="1" value="2">
+            </div>
+          </div>
+          <label class="chk-row" style="margin-top:10px"><input type="checkbox" id="chk-particle" checked> 한국어 조사·어미 다듬기(어림) <span class="info-ic" data-info="word-particle">ⓘ</span></label>
+          <label class="chk-row" style="margin:6px 0"><input type="checkbox" id="chk-stop" checked> 불용어(흔한 낱말) 빼기</label>
+          <label class="field">불용어 추가 (쉼표로 구분)</label>
+          <input id="in-stop" type="text" placeholder="예: 그림, 작가, 작품">
+          <div class="wlegend" id="wlegend"></div>
+          <p class="muted" id="word-stat" style="font-size:11.5px;margin-top:8px"></p>
+        </div>
+      </details>
+
+      <details open>
+        <summary>2 · 그림 색 — 대표색(K)·비율 <span class="info-ic" data-info="word-color">ⓘ</span></summary>
+        <div class="sect">
+          <label class="field">그림 고르기 (퍼블릭 도메인 명화)</label>
+          <select id="sel-painting"></select>
+          <div class="row" style="margin-top:8px">
+            <button id="btn-upload-img" class="btn sm">그림 업로드</button>
+            <input id="imgfile" type="file" accept="image/*" hidden />
+          </div>
+          <label class="field">대표색 개수 K <output id="o-k">8</output></label>
+          <input id="r-k" type="range" min="3" max="16" step="1" value="8">
+          <div class="pal" id="palette"></div>
+          <p class="muted" id="paint-stat" style="font-size:11.5px;margin-top:8px"></p>
+        </div>
+      </details>
+
+      <details open>
+        <summary>3 · 색 입히기 · 배경</summary>
+        <div class="sect">
+          <label class="field">글자 색 방식 <span class="info-ic" data-info="word-colormode">ⓘ</span></label>
+          <select id="sel-colormode">
+            <option value="rank">빈도 순위 ↔ 비율 순위 매칭(기본)</option>
+            <option value="weighted">비율 가중 무작위</option>
+            <option value="dominant">지배색 강조(상위 3색)</option>
+            <option value="mono">단색 · 빈도→명도</option>
+          </select>
+          <div id="mono-row" class="row" style="margin-top:8px; display:none">
+            <span style="font-size:12px;color:var(--muted)">기준 색</span>
+            <input type="color" id="in-mono" value="#1f3b6e">
+          </div>
+          <label class="field">배경</label>
+          <select id="sel-bg">
+            <option value="paper">따뜻한 종이(기본)</option>
+            <option value="white">전시 흰색</option>
+            <option value="cream">아이보리</option>
+            <option value="ink">잉크 남색</option>
+            <option value="black">순흑</option>
+          </select>
+          <label class="chk-row" style="margin-top:10px"><input type="checkbox" id="chk-contrast" checked> 배경과 너무 비슷한 글자색 자동 보정</label>
+        </div>
+      </details>
+
+      <details open>
+        <summary>4 · 모양 틀 — 낱말을 채울 형태 <span class="info-ic" data-info="word-shape">ⓘ</span></summary>
+        <div class="sect">
+          <label class="field">틀 모양 — 종류별로 고르거나 직접 그려요</label>
+          <div id="shape-picker" class="shape-groups"></div>
+          <div id="letter-row" style="display:none;margin-top:8px">
+            <label class="field" style="margin-top:0">틀로 쓸 글자(1~3자) — 작가 이니셜 등</label>
+            <input id="in-letter" type="text" maxlength="3" placeholder="예: DH / 호 / P">
+          </div>
+          <div id="upload-row" style="display:none;margin-top:8px">
+            <button id="btn-upload-mask" class="btn sm">실루엣 이미지 올리기</button>
+            <input id="maskfile" type="file" accept="image/*" hidden />
+            <p class="muted" style="font-size:11px;margin:6px 0 0">진한 부분(불투명/어두운 영역)을 틀로 인식해요. 단순한 실루엣이 잘 됩니다.</p>
+          </div>
+          <div id="draw-row" style="display:none;margin-top:8px">
+            <p class="muted" style="font-size:11px;margin:0 0 6px">마우스(또는 손가락)로 칠해 틀을 직접 만들어요 — <b>흰 부분</b>에 낱말이 채워져요.</p>
+            <canvas id="draw-pad"></canvas>
+            <div class="row tight" style="margin-top:6px; align-items:center">
+              <button id="btn-draw-undo" class="btn sm">↶ 되돌리기</button>
+              <button id="btn-draw-clear" class="btn sm ghost">지우기</button>
+              <label style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;flex:1;min-width:120px">붓 굵기 <input id="r-brush" type="range" min="0.04" max="0.32" step="0.01" value="0.12" style="flex:1"></label>
+            </div>
+          </div>
+          <label class="field">틀 비율</label>
+          <select id="sel-ratio">
+            <option value="1">정사각 1:1</option>
+            <option value="1.414" selected>세로 엽서 1:1.41</option>
+            <option value="0.707">가로 1.41:1</option>
+          </select>
+          <label class="field">글자 사이 여백 <output id="o-pad">2</output></label>
+          <input id="r-pad" type="range" min="0" max="6" step="1" value="2">
+          <label class="chk-row" style="margin-top:10px"><input type="checkbox" id="chk-rotate"> 세로(90°) 글자 섞기</label>
+          <label class="field">글꼴</label>
+          <select id="sel-font">
+            <option value="sans">굵은 고딕</option>
+            <option value="serif">명조</option>
+            <option value="round">둥근(Jua)</option>
+            <option value="dohyeon">도현(굵은)</option>
+            <option value="impact">임팩트(검은 고딕)</option>
+            <option value="pen">펜 손글씨</option>
+            <option value="hand">개구 손글씨</option>
+            <option value="mono">고정폭</option>
+          </select>
+          <div class="half" style="margin-top:8px">
+            <div>
+              <label class="field" style="margin-top:0">글자 굵기</label>
+              <select id="sel-weight">
+                <option value="400">가늘게</option>
+                <option value="600">보통</option>
+                <option value="800" selected>굵게</option>
+                <option value="900">매우 굵게</option>
+              </select>
+            </div>
+            <div>
+              <label class="field" style="margin-top:0">기울임</label>
+              <label class="chk-row" style="margin-top:6px"><input type="checkbox" id="chk-italic"> 이탤릭</label>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>5 · 빈도 → 크기</summary>
+        <div class="sect">
+          <label class="field">크기 척도 <span class="info-ic" data-info="word-scale">ⓘ</span></label>
+          <select id="sel-scale">
+            <option value="sqrt">제곱근 (완만 · 기본)</option>
+            <option value="linear">선형 (빈도에 비례)</option>
+            <option value="log">로그 (편차 큰 글에)</option>
+          </select>
+          <div class="half" style="margin-top:8px">
+            <div>
+              <label class="field" style="margin-top:0">가장 작은 글자 <output id="o-minf">16</output></label>
+              <input id="r-minf" type="range" min="8" max="40" step="2" value="16">
+            </div>
+            <div>
+              <label class="field" style="margin-top:0">가장 큰 글자 <output id="o-maxf">120</output></label>
+              <input id="r-maxf" type="range" min="60" max="220" step="10" value="120">
+            </div>
+          </div>
+          <hr class="sep" style="margin:14px 0 10px">
+          <label class="chk-row"><input type="checkbox" id="chk-3d"> 입체(3D) — 글자에 두께·돌출 <span class="info-ic" data-info="word-3d">ⓘ</span></label>
+          <div id="d3-controls" style="display:none;margin-top:8px">
+            <label class="field" style="margin-top:0">두께(깊이) <output id="o-depth">12</output></label>
+            <input id="r-depth" type="range" min="2" max="30" step="1" value="12">
+            <label class="field">돌출 방향(빛)</label>
+            <select id="sel-light">
+              <option value="45" selected>↘ 오른쪽 아래</option>
+              <option value="90">↓ 아래</option>
+              <option value="135">↙ 왼쪽 아래</option>
+              <option value="315">↗ 오른쪽 위</option>
+              <option value="225">↖ 왼쪽 위</option>
+              <option value="0">→ 오른쪽</option>
+            </select>
+            <p class="muted" style="font-size:11px;margin-top:6px">글자가 종이에서 솟아오른 듯한 입체감 — 엽서·포스터에 또렷하게 찍혀요. 두께가 클수록 인쇄 색이 진해 보일 수 있어요.</p>
+          </div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>6 · 굿즈 디자인 — 실생활용품 <span class="info-ic" data-info="word-goods">ⓘ</span></summary>
+        <div class="sect">
+          <label class="field">제품</label>
+          <select id="sel-product">
+            <option value="postcard">엽서 (앞면 구름 + 뒷면 편지)</option>
+            <option value="card">접는 카드 (앞표지)</option>
+            <option value="bookmark">책갈피 (세로)</option>
+            <option value="sticker">스티커/원형</option>
+          </select>
+          <label class="field">작가/제목 (큰 글씨)</label>
+          <input id="in-name" type="text" placeholder="예: David Hockney">
+          <label class="field">한 줄 설명/메시지 (작게)</label>
+          <input id="in-caption" type="text" placeholder="예: 빛과 물의 화가 · 감상으로 만든 낱말 구름">
+          <div class="row" style="margin-top:12px">
+            <button id="btn-png-front" class="btn sm">PNG 저장(앞)</button>
+            <button id="btn-png-back" class="btn sm">PNG 저장(뒤)</button>
+            <button id="btn-json" class="btn sm ghost">설정 저장(JSON)</button>
+          </div>
+          <p class="muted" style="font-size:11px;margin-top:8px">앞면=낱말 구름, 뒷면=편지/주소 칸 + 원본 그림 미니. 인쇄용 고해상으로 저장돼요.</p>
+        </div>
+      </details>
+
+      <details open>
+        <summary>7 · 의도 · 근거 <span class="badge core">전시 전 필수</span></summary>
+        <div class="sect">
+          <label class="field">작품 제목(무엇인가)</label>
+          <input id="in-title" type="text" placeholder="예: 호크니의 색으로 읽은 ‘물’">
+          <label class="field">관람 경험 목표(의도, 한 문장)</label>
+          <input id="in-intent" type="text" placeholder="예: 감상문에서 가장 자주 쓴 낱말이 곧 그림의 분위기가 되도록">
+          <label class="field">자연어·조형 근거(최소 1개)</label>
+          <textarea id="in-evidence" rows="2" placeholder="예: ‘빛’·‘물’이 가장 많아 가장 큰 글자로, 색은 수영장 그림의 청록 대표색을 비율 순으로 입혔다."></textarea>
+        </div>
+      </details>
+
+      <details open>
+        <summary>8 · 코치 · 저장 · 공유</summary>
+        <div class="sect">
+          <button id="btn-coach" class="btn wide" style="margin-bottom:8px">🧭 감상 코치에게 질문받기</button>
+          <div class="row">
+            <button id="btn-img" class="btn sm">이미지 저장</button>
+            <button id="btn-note" class="btn sm">작업노트 저장</button>
+            <button id="btn-exhibit" class="btn sm accent2">전시하기</button>
+          </div>
+          <p class="muted" style="font-size:11.5px;margin-top:8px">⚠ 글의 출처(누가 쓴 감상문·어디서 가져온 정보)를 작품 설명에 밝히세요. 빈도 분석은 형태소 분석기 없는 ‘어림’이라 완벽하지 않아요.</p>
+        </div>
+      </details>
+    </aside>
+  </div>
+  <p class="footer-note">자연어 분석은 ‘무엇을 자주 말했나’를 세는 일 — 빈도·불용어 선택이 곧 해석이에요 · 글의 출처를 밝히세요</p>
+</div>
+
+<script src="js/explain.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/auth.js"></script>
+<script src="config/cloud-config.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ratelimit.js"></script>
+<script src="js/coach.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/kmeans.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/studio-word.js"></script>
+</body>
+</html>
