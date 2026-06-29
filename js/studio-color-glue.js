@@ -77,17 +77,40 @@
       <textarea id="g-evi" rows="2" style="${inp}" placeholder="예: 대표색을 8개로 줄여 분위기를 단순화"></textarea>
       <button id="g-go" class="btn primary" style="margin-top:12px">전시하기</button>`);
     b.querySelector('#g-go').addEventListener('click', async () => {
+      const go = b.querySelector('#g-go');
+      if (go.disabled) return;                       // 업로드 중 중복 제출 방지
       const title = b.querySelector('#g-title').value.trim() || '색 군집 작품';
       const intent = b.querySelector('#g-intent').value.trim();
       const evidence = b.querySelector('#g-evi').value.trim();
       if (!intent || !evidence) { toast('의도와 근거를 모두 채워 주세요.'); return; }
-      const cv = window.ColorStudio.canvas();
-      let thumb = '';
-      if (cv) { const w = 360, h = Math.round(w * cv.height / cv.width); const t = document.createElement('canvas'); t.width = w; t.height = h; t.getContext('2d').drawImage(cv, 0, 0, w, h); thumb = t.toDataURL('image/jpeg', 0.6); }
-      await Store.saveWork({ userId: u.userId, by: u.display, klass: u.klass, kind: 'color', title, intent, evidence,
-        settings: window.ColorStudio.settings(), meta, thumb, srcImg: window.ColorStudio.sourceURL(), exhibited: true });
-      document.getElementById('glue-modal').style.display = 'none';
-      toast('🎉 갤러리에 전시했습니다!');
+      const goText = go.textContent; go.disabled = true; go.textContent = '전시하는 중…';
+      try {
+        const cv = window.ColorStudio.canvas();
+        let thumb = '';
+        if (cv) {
+          thumb = window.ImgUtil
+            ? ImgUtil.encode(cv, { maxDim: 900, budget: 300000 })
+            : (function () { const w = 360, h = Math.round(w * cv.height / cv.width); const t = document.createElement('canvas'); t.width = w; t.height = h; t.getContext('2d').drawImage(cv, 0, 0, w, h); return t.toDataURL('image/jpeg', 0.6); })();
+        }
+        // 원본 사진: 가능하면 Storage 에 고화질(최대 ~5MB)로 보관하고 문서엔 URL만 저장.
+        // srcSample(작은 인라인)은 전시 재생(점 애니메이션)이 교차출처 CORS 없이 색을 읽도록 같은 출처로 남긴다.
+        const rawSrc = window.ColorStudio.sourceCanvasRaw ? window.ColorStudio.sourceCanvasRaw() : null;
+        let srcImg = '', srcSample = '';
+        if (rawSrc && window.ImgUtil && ImgUtil.storePhoto) {
+          srcImg = await ImgUtil.storePhoto(rawSrc, { dir: 'works', maxDim: 2560, quality: 0.92, maxBytes: 5 * 1024 * 1024, fallbackMaxDim: 1600, fallbackBudget: 560000 });
+          srcSample = ImgUtil.encode(rawSrc, { maxDim: 220, budget: 60000 });
+        } else {
+          srcImg = window.ColorStudio.sourceURL();
+        }
+        await Store.saveWork({ userId: u.userId, by: u.display, klass: u.klass, kind: 'color', title, intent, evidence,
+          settings: window.ColorStudio.settings(), meta, thumb, srcImg, srcSample, exhibited: true });
+        document.getElementById('glue-modal').style.display = 'none';
+        toast('🎉 갤러리에 전시했습니다!');
+      } catch (e) {
+        toast('전시 중 오류가 발생했어요. 다시 시도해 주세요.');
+      } finally {
+        go.disabled = false; go.textContent = goText;
+      }
     });
   }
 

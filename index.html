@@ -60,7 +60,7 @@
 
   /* ── 4단계 학습 경로 ─────────────────────────────────── */
   .path { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
-  @media (min-width: 940px) { .path { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
+  @media (min-width: 940px) { .path { grid-template-columns: repeat(5, 1fr); gap: 11px; } }
   .pstep { position: relative; min-width: 0; }
   @media (min-width: 940px) { .pstep:not(:last-child)::after { content: "→"; position: absolute; right: -12px; top: 36px;
     transform: translate(50%,-50%); color: var(--muted2); font-weight: 800; font-size: 15px; } }
@@ -173,8 +173,8 @@
   <section class="sec">
     <div class="sec-head">
       <span class="eyebrow">Journey</span>
-      <h2>4단계 창작 여정</h2>
-      <p>왼쪽에서 오른쪽으로 <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회), <b>나의 주체성이 깊어져요</b>. 처음이라면 1단계부터.</p>
+      <h2>5단계 창작 여정</h2>
+      <p>왼쪽에서 오른쪽으로 <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회→세계), <b>나의 주체성이 깊어져요</b>. 처음이라면 1단계부터.</p>
     </div>
     <ol class="path">
       <li class="pstep">
@@ -214,7 +214,29 @@
           <span class="pcta">사회문제 프로젝트 →</span>
         </a>
       </li>
+      <li class="pstep">
+        <a class="pcard" href="society.html">
+          <div class="ptop"><span class="pnum">5</span><span class="pstage">5단계 · 세계·비평</span></div>
+          <h3>🌍 사회를 데이터로</h3>
+          <div class="pflow"><span>실제 SDG 빅데이터</span><span>7비평 렌즈·관계망</span><span>세계를 작품으로</span></div>
+          <p class="pdesc">기후·불평등·물… <b>실제 세계 데이터</b>를 추세·격차·기준선으로 읽고 <b>비평 렌즈</b>로 해석해 작품으로. ‘우리 동네’는 직접 분석·저장.</p>
+          <span class="pcta">사회 분석 · 비평 렌즈 →</span>
+        </a>
+      </li>
     </ol>
+  </section>
+
+  <!-- ════════ 사회를 데이터로 (신규 하이라이트) ════════ -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="eyebrow">New · 실제 빅데이터</span>
+      <h2>데이터로 사회를 읽고, 작품으로 말하다</h2>
+      <p>실제 세계 데이터(SDG)와 캐글 빅데이터를 직접 분석하고, 점이 춤추는 미디어아트로. <b>관점·관계·맥락</b>으로 우리 동네부터 지구까지.</p>
+    </div>
+    <div class="grid c2">
+      <a class="card hover tool" href="society.html"><span class="ti">🌍</span><span class="badge core">사회 분석 · NEW</span><h3>사회 분석 · 비평 렌즈</h3><p>실제 <b>SDG 10종</b>(기후·불평등·빈곤·성평등·생물다양성…) 국가별 빅데이터를 <b>추세·세계 격차·기준선</b>으로 읽고, <b>7가지 비평 렌즈</b>로. ‘우리 동네’는 주체·관계망을 직접 편집·저장.</p><span class="pcta">사회 분석 시작 →</span></a>
+      <a class="card hover tool" href="studio-data.html"><span class="ti">📊</span><span class="badge core">빅데이터 작품 · NEW</span><h3>데이터 점 스튜디오</h3><p><b>CSV·엑셀</b>을 올리면 자동 분석 + 매핑 제안 + <b>⚠ 문제 강조</b>. 캐글 빅데이터(Spotify·Pokémon·운석·지진…)를 점이 춤추는 작품으로.</p><span class="pcta">데이터 점 스튜디오 →</span></a>
+    </div>
   </section>
 
   <!-- ════════ 도구/기능 ════════ -->

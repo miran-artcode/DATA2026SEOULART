@@ -1,0 +1,171 @@
+﻿국가,코드,대륙,연도,지니계수(불평등)
+Haiti,HTI,북미,2012,0.605
+Namibia,NAM,아프리카,2015,0.591
+Botswana,BWA,아프리카,2015,0.549
+Eswatini,SWZ,아프리카,2016,0.546
+Colombia,COL,남미,2024,0.544
+South Africa,ZAF,아프리카,2022,0.541
+Zambia,ZMB,아프리카,2022,0.515
+Angola,AGO,아프리카,2018,0.513
+Saint Lucia,LCA,북미,2015,0.512
+Brazil,BRA,남미,2024,0.503
+Zimbabwe,ZWE,아프리카,2019,0.503
+Panama,PAN,북미,2024,0.497
+Mozambique,MOZ,아프리카,2022,0.496
+Congo,COG,아프리카,2011,0.489
+Nicaragua,NIC,북미,2014,0.462
+Ecuador,ECU,남미,2025,0.459
+Honduras,HND,북미,2024,0.457
+Costa Rica,CRI,북미,2025,0.455
+Guatemala,GTM,북미,2023,0.452
+Guyana,GUY,남미,1998,0.451
+Lesotho,LSO,아프리카,2017,0.449
+Democratic Republic of Congo,COD,아프리카,2020,0.447
+Venezuela,VEN,남미,2006,0.447
+Paraguay,PRY,남미,2024,0.442
+South Sudan,SSD,아프리카,2016,0.44
+Grenada,GRD,북미,2018,0.438
+Turkey,TUR,아시아,2023,0.437
+Ghana,GHA,아프리카,2016,0.435
+Central African Republic,CAF,아프리카,2021,0.43
+Chile,CHL,남미,2024,0.43
+Uganda,UGA,아프리카,2019,0.427
+Mexico,MEX,북미,2024,0.426
+Cape Verde,CPV,아프리카,2015,0.424
+Cameroon,CMR,아프리카,2021,0.422
+Papua New Guinea,PNG,오세아니아,2009,0.419
+United States,USA,북미,2024,0.418
+Djibouti,DJI,아프리카,2017,0.416
+Bolivia,BOL,남미,2024,0.409
+Turkmenistan,TKM,아시아,1998,0.408
+Malaysia,MYS,아시아,2021,0.407
+Sao Tome and Principe,STP,아프리카,2017,0.407
+Tanzania,TZA,아프리카,2018,0.405
+Trinidad and Tobago,TTO,북미,1992,0.402
+Micronesia (country),FSM,오세아니아,2013,0.401
+Peru,PER,남미,2024,0.401
+Uruguay,URY,남미,2024,0.4
+Belize,BLZ,북미,2018,0.399
+Jamaica,JAM,북미,2021,0.399
+El Salvador,SLV,북미,2023,0.398
+Bulgaria,BGR,유럽,2023,0.395
+Morocco,MAR,아프리카,2013,0.395
+Rwanda,RWA,아프리카,2023,0.394
+Suriname,SUR,남미,2022,0.392
+Tuvalu,TUV,오세아니아,2010,0.391
+Dominican Republic,DOM,북미,2024,0.39
+Gambia,GMB,아프리카,2020,0.388
+Samoa,WSM,오세아니아,2013,0.387
+Equatorial Guinea,GNQ,아프리카,2022,0.385
+Kenya,KEN,아프리카,2022,0.385
+Malawi,MWI,아프리카,2019,0.385
+Israel,ISR,아시아,2022,0.383
+Gabon,GAB,아프리카,2017,0.38
+Togo,TGO,아프리카,2021,0.379
+Sri Lanka,LKA,아시아,2019,0.377
+Burundi,BDI,아프리카,2020,0.375
+Burkina Faso,BFA,아프리카,2021,0.374
+Chad,TCD,아프리카,2022,0.374
+Solomon Islands,SLB,오세아니아,2012,0.371
+Madagascar,MDG,아프리카,2021,0.368
+Mauritius,MUS,아프리카,2017,0.368
+Yemen,YEM,아시아,2014,0.367
+Palestine,PSE,아시아,2023,0.364
+Senegal,SEN,아프리카,2021,0.362
+Russia,RUS,유럽,2020,0.361
+Tajikistan,TJK,아시아,2024,0.361
+Vietnam,VNM,아시아,2022,0.361
+China,CHN,아시아,2022,0.36
+Lithuania,LTU,유럽,2023,0.36
+Iran,IRN,아시아,2023,0.359
+Mali,MLI,아프리카,2021,0.357
+Sierra Leone,SLE,아프리카,2018,0.357
+Lebanon,LBN,아시아,2022,0.355
+Marshall Islands,MHL,오세아니아,2019,0.355
+Cote d'Ivoire,CIV,아프리카,2021,0.353
+Liberia,LBR,아프리카,2016,0.353
+Philippines,PHL,아시아,2023,0.352
+Qatar,QAT,아시아,2017,0.351
+Laos,LAO,아시아,2024,0.347
+Benin,BEN,아프리카,2021,0.344
+Indonesia,IDN,아시아,2025,0.344
+Italy,ITA,유럽,2023,0.343
+Montenegro,MNE,유럽,2021,0.343
+Sudan,SDN,아프리카,2014,0.342
+Barbados,BRB,북미,2016,0.341
+Latvia,LVA,유럽,2023,0.34
+Georgia,GEO,아시아,2024,0.339
+Nigeria,NGA,아프리카,2022,0.339
+Portugal,PRT,유럽,2023,0.339
+Australia,AUS,오세아니아,2020,0.338
+Switzerland,CHE,유럽,2022,0.338
+Germany,DEU,유럽,2022,0.337
+Jordan,JOR,아시아,2010,0.337
+Tunisia,TUN,아프리카,2021,0.337
+Luxembourg,LUX,유럽,2023,0.336
+North Macedonia,MKD,유럽,2019,0.335
+Pakistan,PAK,아시아,2024,0.335
+Greece,GRC,유럽,2023,0.334
+Guinea-Bissau,GNB,아프리카,2021,0.334
+Spain,ESP,유럽,2023,0.334
+Thailand,THA,아시아,2024,0.333
+Niger,NER,아프리카,2021,0.329
+South Korea,KOR,아시아,2021,0.329
+Serbia,SRB,유럽,2023,0.328
+Uzbekistan,UZB,아시아,2025,0.327
+Nauru,NRU,오세아니아,2012,0.324
+United Kingdom,GBR,유럽,2021,0.324
+Japan,JPN,아시아,2020,0.323
+Vanuatu,VUT,오세아니아,2019,0.323
+Seychelles,SYC,아프리카,2018,0.321
+Mauritania,MRT,아프리카,2019,0.32
+Cyprus,CYP,유럽,2023,0.318
+France,FRA,유럽,2023,0.318
+Malta,MLT,유럽,2023,0.318
+Taiwan,TWN,아시아,2021,0.316
+Canada,CAN,북미,2022,0.315
+Mongolia,MNG,아시아,2022,0.314
+Austria,AUT,유럽,2023,0.312
+Ethiopia,ETH,아프리카,2021,0.311
+Bangladesh,BGD,아시아,2022,0.309
+Estonia,EST,유럽,2023,0.307
+Fiji,FJI,오세아니아,2019,0.307
+Myanmar,MMR,아시아,2017,0.307
+Hungary,HUN,유럽,2017,0.306
+Bosnia and Herzegovina,BIH,유럽,2021,0.303
+Comoros,COM,아프리카,2024,0.303
+Croatia,HRV,유럽,2023,0.301
+Nepal,NPL,아시아,2022,0.3
+Denmark,DNK,유럽,2023,0.299
+Iraq,IRQ,아시아,2023,0.298
+Romania,ROU,유럽,2023,0.298
+Guinea,GIN,아프리카,2018,0.296
+Albania,ALB,유럽,2020,0.294
+Maldives,MDV,아시아,2019,0.293
+Sweden,SWE,유럽,2023,0.293
+Kazakhstan,KAZ,아시아,2021,0.292
+Ireland,IRL,유럽,2023,0.29
+East Timor,TLS,아시아,2014,0.287
+Bhutan,BTN,아시아,2022,0.285
+Egypt,EGY,아프리카,2021,0.285
+Poland,POL,유럽,2023,0.285
+Algeria,DZA,아프리카,2011,0.276
+Kyrgyzstan,KGZ,아시아,2024,0.275
+Armenia,ARM,아시아,2024,0.274
+Finland,FIN,유럽,2023,0.274
+Tonga,TON,오세아니아,2021,0.271
+Belgium,BEL,유럽,2023,0.268
+Iceland,ISL,유럽,2019,0.268
+Moldova,MDA,유럽,2023,0.268
+Azerbaijan,AZE,아시아,2005,0.266
+Norway,NOR,유럽,2023,0.265
+Syria,SYR,아시아,2022,0.264
+United Arab Emirates,ARE,아시아,2018,0.264
+Czechia,CZE,유럽,2023,0.257
+Netherlands,NLD,유럽,2021,0.257
+Ukraine,UKR,유럽,2020,0.256
+India,IND,아시아,2022,0.255
+Kiribati,KIR,오세아니아,2023,0.247
+Slovenia,SVN,유럽,2023,0.247
+Belarus,BLR,유럽,2020,0.244
+Slovakia,SVK,유럽,2023,0.238

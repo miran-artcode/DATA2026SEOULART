@@ -1,0 +1,35 @@
+rules_version = '2';
+// =============================================================================
+// Firebase Storage 보안 규칙 — 수업용 (프로젝트: data-art-2026)
+// -----------------------------------------------------------------------------
+// 무엇: 학생이 올린 '사진 원본'을 Firestore(문서 1MB 한계) 대신 Storage 에 보관하기
+//       위한 규칙. 문서에는 다운로드 URL만 저장되고 실제 이미지는 여기에 들어온다.
+//
+// 적용(교사용, 1회):
+//   1) Firebase 콘솔 → Build → Storage → "시작하기"로 Storage 사용 설정.
+//      (새 프로젝트는 종량제(Blaze) 요금제가 필요할 수 있음 — 사용량은 매우 적음)
+//   2) Storage → "Rules" 탭에 아래 내용을 붙여넣고 "게시".
+//   3) (선택) 전시 재생의 '살아있는 점' 효과까지 교차출처에서 켜려면 버킷 CORS 허용:
+//        gcloud storage buckets update gs://data-art-2026.firebasestorage.app \
+//          --cors-file=config/cors.json
+//      앱은 같은 출처 작은 샘플(srcSample)로 이미 동작하므로 이 단계는 없어도 됨.
+//
+// 이 앱은 Firebase Auth 를 쓰지 않습니다(이름+PIN 로컬 로그인). 그래서 Firestore 규칙과
+// 같은 방침으로, 'uploads/' 경로에 한해 이미지·크기 가드를 두고 열되 나머지는 전부 막습니다.
+// "수업 기간 한정" 설정이며, 단원이 끝나면 데이터 내보내기 후 프로젝트 정리/삭제를 권장합니다.
+// =============================================================================
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // 학생 업로드(사진 원본). 8MB 미만 · 이미지 형식만 허용.
+    match /uploads/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if true;
+    }
+
+    // 그 외 모든 경로는 차단
+    match /{allPaths=**} { allow read, write: if false; }
+  }
+}

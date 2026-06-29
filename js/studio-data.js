@@ -13,15 +13,34 @@
   const BGS = { night: [7, 8, 13], black: [0, 0, 0], ink: [18, 10, 26], slate: [22, 26, 34], paper: [244, 240, 230], white: [248, 249, 252] };
   const bgRGB = () => { const c = BGS[state.bg] || BGS.night; return c[0] + ',' + c[1] + ',' + c[2]; };
 
-  // 예시 데이터를 '사회 문제'와 연결 — 의미 있는 시각화로(데이터=사회현상을 드러내는 시각자료).
+  // 예시 데이터 — 뻔하지 않지만 교육적인 '진짜' 공개 데이터(수천~수만 행). data/ 폴더에 CSV·엑셀로 번들.
+  // 고르면 추천 매핑이 함께 적용되고, 전체 데이터는 엑셀/CSV로 바로 받거나 원본(캐글)으로 연결된다.
+  // 스튜디오는 부드러운 작품을 위해 균등 표본 일부만 그리고, '받은 파일'엔 더 많은 행이 들어 있다.
   const SAMPLES = {
-    climate: { name: '기후위기 · 한반도 평균기온', issue: '🌡 기후위기 — 점이 점점 위로·뜨겁게. 이 변화를 세상에 어떻게 ‘보여줄’까요?', csv: '연도,평균기온\n1980,12.2\n1990,12.6\n2000,13.1\n2010,13.4\n2015,13.6\n2020,13.9\n2023,14.2' },
-    finedust: { name: '대기오염 · 월별 초미세먼지', issue: '😷 대기오염 — 봄철 농도가 치솟는 리듬. 보이지 않는 위협을 점으로.', csv: '월,초미세먼지\n1월,42\n2월,55\n3월,68\n4월,60\n5월,38\n6월,28\n7월,22\n8월,20\n9월,26\n10월,34\n11월,46\n12월,50' },
-    inequality: { name: '소득 불평등 · 분위별 월소득', issue: '⚖ 불평등 — 1분위와 10분위의 간극을 점의 크기·거리로.', csv: '소득분위,월소득\n1분위,90\n2분위,150\n3분위,210\n4분위,270\n5분위,340\n6분위,420\n7분위,520\n8분위,650\n9분위,850\n10분위,1300' },
-    extinction: { name: '지역소멸 · 지역별 인구·청년', issue: '🏚 지역소멸 — 농촌일수록 인구는 줄고 청년은 적게. 사라지는 것을 어떻게 기억할까?', csv: '지역,인구변화율,청년비율\n수도권,5,28\n광역시,-2,22\n중소도시,-8,16\n농촌,-15,9' },
-    animal: { name: '동물권 · 연도별 유기동물', issue: '🐾 동물권 — 늘어나는 유기동물 수. 숫자 뒤의 생명을 점으로.', csv: '연도,유기동물수\n2016,89000\n2017,102000\n2018,121000\n2019,135000\n2020,128000\n2021,118000\n2022,113000' },
+    spotify: { name: '음악 감정 지도(Spotify)', file: 'spotify', bundleRows: 5000, fullRows: 32833, source: 'https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset',
+      map: { size: '에너지', colorMode: 'gradient', colorField: '긍정도', gradLow: '#2740c8', gradHigh: '#ffd23c', layout: 'flowField', motionStyle: 'wave', vib: 0.8 },
+      issue: '🎵 음악 감정 — 긍정도(valence)와 에너지는 함께 가지 않아요. 색=긍정도(파랑↔노랑), 크기=에너지. 수천 곡의 ‘감정 지도’. (Spotify 오디오 특징)' },
+    pokemon: { name: '강함의 모양(Pokémon)', file: 'pokemon', bundleRows: 1215, fullRows: 1215, source: 'https://www.kaggle.com/datasets/abcsds/pokemon',
+      map: { size: '총합', colorMode: 'category', colorField: '타입', layout: 'flowField', motionStyle: 'orbit', vib: 0.6 },
+      issue: '⚡ 강함의 모양 — 타입=색, 총합=크기. 전국도감 1,215마리의 ‘강함의 별자리’. 어떤 타입이 센가? 분포는 공평한가?' },
+    ufo: { name: '목격의 사회학(UFO)', file: 'ufo', bundleRows: 5000, fullRows: 97714, source: 'https://www.kaggle.com/datasets/mysarahmadbhat/ufo-sightings',
+      map: { size: '지속초', shape: '모양', colorMode: 'category', colorField: '모양', layout: 'flowField', motionStyle: 'wave', vib: 0.7 },
+      issue: '👽 목격의 사회학 — 모양=형태·색, 지속시간=크기. 목격은 영화·미디어와 함께 출렁여요 — 데이터는 ‘외계인’이 아니라 ‘사회’를 말해요(미디어 리터러시). (NUFORC)' },
+    meteorite: { name: '하늘에서 온 것들(운석)', file: 'meteorites', bundleRows: 5000, fullRows: 45716, source: 'https://www.kaggle.com/datasets/nasa/meteorite-landings',
+      map: { size: '질량g', colorMode: 'category', colorField: '낙하', layout: 'flowField', motionStyle: 'burst', vib: 0.5 },
+      issue: '🌑 하늘에서 온 것들 — 질량=크기(몇 g~수십 톤!). 거대 운석 몇 개가 화면을 지배해요 — 왜 로그 스케일이 필요할까? 색=목격/발견(관측 편향). (NASA)' },
+    earthquake: { name: '떨림의 데이터(지진)', file: 'earthquakes', bundleRows: 8265, fullRows: null, source: 'https://www.kaggle.com/datasets/usgs/earthquake-database',
+      map: { size: '규모', colorMode: 'gradient', colorField: '깊이km', gradLow: '#2740c8', gradHigh: '#ff5a3c', layout: 'flowField', motionStyle: 'vibrate', vib: 1.8 },
+      issue: '🌋 떨림의 데이터 — 규모=크기·떨림, 깊이=색. 1965~2024년 규모 6 이상 지진 8,265건. 지구는 쉬지 않고 떨려요(불의 고리·로그 규모). (USGS)' },
+    chocolate: { name: '맛을 숫자로(초콜릿)', file: 'chocolate', bundleRows: 2530, fullRows: 2530, source: 'https://www.kaggle.com/datasets/rtatman/chocolate-bar-ratings',
+      map: { size: '평점', colorMode: 'category', colorField: '원산지', layout: 'flowField', motionStyle: 'orbit', vib: 0.5 },
+      issue: '🍫 맛을 숫자로 — 평점=크기, 원산지=색. 코코아%가 높다고 평점이 높진 않아요. 맛을 숫자로 옮길 때 잃는 것은?(데이터 휴머니즘) 2,530개 바.' },
+    student: { name: '잠과 화면의 줄다리기(학생)', map: { size: 'SNS시간', speed: '스트레스', colorMode: 'gradient', colorField: '수면시간', gradLow: '#ff5a3c', gradHigh: '#2740c8', layout: 'flowField', motionStyle: 'vibrate', vib: 1.6 },
+      issue: '😴 잠과 화면의 줄다리기 — 우리 반 친구들의 하루를 직접 입력해 만들어요(데이터 휴머니즘). SNS=크기, 수면=색(빨강=부족), 스트레스=떨림.',
+      csv: '학생,수면시간,공부시간,SNS시간,스트레스,성적\nA,7,3,2,3,82\nB,5,4,5,7,75\nC,8,2,1,2,70\nD,4,5,6,9,68\nE,6,3,4,6,80\nF,7,4,3,4,88\nG,5,2,7,8,60\nH,6,5,2,5,90\nI,4,1,8,9,55\nJ,8,3,2,3,84\nK,5,4,5,7,72\nL,6,2,6,8,64' },
     emotion: { name: '(개인) 우리 반 하루 감정', issue: '🙂 내 삶의 데이터 — 숫자로는 평온해 보여도 사실은? (데이터 휴머니즘)', csv: '시간,감정온도,활동\n9시,3,수업\n10시,4,발표\n11시,3,토론\n12시,2,점심\n13시,2,휴식\n14시,1,체육\n15시,2,실습\n16시,4,정리\n17시,5,하교' }
   };
+  const STUDIO_MAX = 1800;   // 부드러운 작품을 위한 렌더용 표본 상한(받은 파일엔 전체가 들어 있음)
 
   const state = {
     dataset: null, dataName: '',
@@ -37,29 +56,56 @@
   let ruleA = null, ruleB = null, abFlag = false, P = null, p5i = null;
 
   /* ----------------------------- CSV 파싱 ----------------------------- */
+  // 따옴표 인식 분할 — "값, 쉼표 포함"·""(이스케이프)을 올바로 처리(실제 CSV 필수).
+  function splitLine(line, delim) {
+    if (delim !== ',' && delim !== '\t') return line.split(delim);
+    const out = []; let cur = '', q = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (q) {
+        if (ch === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+        else cur += ch;
+      } else if (ch === '"') { q = true; }
+      else if (ch === delim) { out.push(cur); cur = ''; }
+      else cur += ch;
+    }
+    out.push(cur);
+    return out;
+  }
   function parseData(text) {
-    text = (text || '').trim(); if (!text) return null;
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    text = (text || '').replace(/^﻿/, '').trim(); if (!text) return null;
+    const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
     if (!lines.length) return null;
     if (lines.length === 1 && !/[^\d.,;\s-]/.test(lines[0])) {       // 한 줄 숫자 목록
       const vals = lines[0].split(/[,\s;]+/).map(Number).filter(v => !isNaN(v));
       if (vals.length < 1) return null;
       return makeDataset([{ name: '값', type: 'num' }], vals.map(v => ({ '값': v })));
     }
-    const delim = lines[0].indexOf(',') >= 0 ? ',' : /\t/.test(lines[0]) ? '\t' : /\s{2,}/.test(lines[0]) ? /\s+/ : ',';
-    const cells = lines.map(l => (typeof delim === 'string' ? l.split(delim) : l.split(delim)).map(c => c.trim()));
+    const head = lines[0];
+    const delim = head.indexOf(',') >= 0 ? ',' : /\t/.test(head) ? '\t' : /\s{2,}/.test(head) ? /\s+/ : ',';
+    const cells = lines.map(l => splitLine(l, delim).map(c => c.trim()));
+    return cellsToDataset(cells);
+  }
+  // 2차원 셀 배열(CSV·엑셀 공용) → dataset. 머리글 자동 인식 + 빈/중복 머리글 보정.
+  function cellsToDataset(cells) {
+    cells = (cells || []).map(r => (r || []).map(c => (c == null ? '' : String(c)).trim())).filter(r => r.some(c => c !== ''));
+    if (!cells.length) return null;
     const firstNonNum = cells[0].some(c => c !== '' && isNaN(Number(c)));
     let header, body;
-    if (firstNonNum && cells.length > 1) { header = cells[0]; body = cells.slice(1); }
+    if (firstNonNum && cells.length > 1) { header = cells[0].slice(); body = cells.slice(1); }
     else { header = cells[0].map((_, i) => '열' + (i + 1)); body = cells; }
+    const seen = {};
+    header = header.map((h, i) => { let n = h || ('열' + (i + 1)); while (seen[n]) n = n + '·' + (i + 1); seen[n] = 1; return n; });
     const cols = header.length;
     const rows = body.filter(r => r.some(c => c !== '')).map(r => { const o = {}; for (let c = 0; c < cols; c++) o[header[c]] = r[c] != null ? r[c] : ''; return o; });
+    // 실데이터 결측 마커(NA·N/A·null·NaN·-·.)를 빈 값으로 취급해 숫자 열을 올바로 인식.
+    const BLANK = v => { const s = String(v == null ? '' : v).trim(); return s === '' || /^(na|n\/a|nan|null|none|nil|-|\.|#n\/a)$/i.test(s); };
     const fields = header.map(name => {
-      const someVal = rows.some(o => o[name] !== '' && o[name] != null);
-      const allNum = rows.every(o => o[name] === '' || o[name] == null || !isNaN(Number(o[name])));
+      const someVal = rows.some(o => !BLANK(o[name]));
+      const allNum = rows.every(o => BLANK(o[name]) || !isNaN(Number(o[name])));
       return { name, type: (allNum && someVal) ? 'num' : 'cat' };
     });
-    fields.forEach(f => { if (f.type === 'num') rows.forEach(o => { o[f.name] = (o[f.name] === '' || o[f.name] == null) ? null : Number(o[f.name]); }); });
+    fields.forEach(f => { if (f.type === 'num') rows.forEach(o => { o[f.name] = BLANK(o[f.name]) ? null : Number(o[f.name]); }); });
     return makeDataset(fields, rows);
   }
   function makeDataset(fields, rows) {
@@ -88,9 +134,14 @@
   /* ----------------------------- 데이터 적용 ----------------------------- */
   function applyDataset(ds, name) {
     if (!ds || !ds.n) { UI.toast('데이터를 읽지 못했어요. 형식을 확인하세요.'); return; }
+    ds = capForStudio(ds);                                          // 너무 많으면 렌더용 균등 표본으로(원본 행수는 _fullN)
     state.dataset = ds; if (name != null) state.dataName = name;
-    autoMapping(); populateFieldSelects(); renderFieldChips(); renderColorUI(); build();
-    $('#data-info').textContent = (state.dataName || '데이터') + ' · ' + ds.n + '행 · 열 ' + ds.fields.length + '개';
+    const dd = $('#dataset-download'); if (dd) dd.innerHTML = '';    // loadSample이 샘플일 때 다시 채움
+    autoMapping(); populateFieldSelects(); renderFieldChips(); renderColorUI(); build(); renderAnalysis();
+    const full = ds._fullN || ds.n;
+    $('#data-info').textContent = (state.dataName || '데이터') + ' · '
+      + (full > ds.n ? '원본 ' + full.toLocaleString() + '행 중 ' + ds.n.toLocaleString() + '행' : full.toLocaleString() + '행')
+      + ' · 열 ' + ds.fields.length + '개';
   }
   function autoMapping() {
     const nums = numFields().map(f => f.name), cats = catFields().map(f => f.name), m = state.mapping;
@@ -171,10 +222,11 @@
   function build() {
     if (!p5i || !state.dataset) return;
     const W = p5i.width, H = p5i.height, n = state.dataset.n, marg = 50, arr = [];
+    const big = n > 250;   // 빅데이터: 1점=1행(부드럽고 정직한 점구름). 작은 데이터: 풍성하게.
     for (let i = 0; i < n; i++) {
       const sizeNorm = state.mapping.size ? norm(state.mapping.size, i) : 0.5;
       const dv = state.mapping.density ? norm(state.mapping.density, i) : 0.5;
-      const count = state.mapping.density ? Math.round(5 + dv * 45) : 16;
+      const count = big ? 1 : (state.mapping.density ? Math.round(5 + dv * 45) : 16);
       const hm = homeOf(i, n, W, H, marg, sizeNorm);
       for (let k = 0; k < count; k++) {
         arr.push({ ri: i, hx: hm.hx + (Math.random() - 0.5) * 16, hy: hm.hy + (Math.random() - 0.5) * hm.band, px: hm.hx, py: hm.hy, vx: 0, vy: 0, ph: Math.random() * 6.28 });
@@ -206,6 +258,189 @@
     ctx.fill();
   }
 
+  /* ----------------------------- 데이터 분석 · 매핑 제안 ----------------------------- */
+  const fmtNum = v => (v == null || isNaN(v)) ? '–' : (Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : (Math.round(v * 100) / 100));
+  function seriesOf(name) { return state.dataset.rows.map(r => r[name]); }
+  function numStats(name) {
+    const vals = seriesOf(name).filter(v => v != null && !isNaN(v)).map(Number);
+    const n = vals.length; if (!n) return null;
+    const mean = vals.reduce((a, b) => a + b, 0) / n;
+    const sorted = vals.slice().sort((a, b) => a - b);
+    const median = n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+    const min = sorted[0], max = sorted[n - 1];
+    const std = Math.sqrt(vals.reduce((a, b) => a + (b - mean) * (b - mean), 0) / n);
+    const first = vals[0], last = vals[n - 1], slope = n > 1 ? last - first : 0;
+    const maxZ = std > 0 ? Math.max.apply(null, vals.map(v => Math.abs((v - mean) / std))) : 0;
+    const cv = mean !== 0 ? std / Math.abs(mean) : 0;
+    const ratio = median > 0 ? max / median : (min !== 0 ? Math.abs(max / min) : 0);
+    return { n, mean, median, min, max, std, first, last, slope, maxZ, cv, ratio, vals, missing: state.dataset.rows.length - n };
+  }
+  function catStatsOf(name) {
+    const counts = {}, order = [];
+    seriesOf(name).forEach(v => { const s = String(v == null ? '' : v); if (s === '') return; if (counts[s] == null) { counts[s] = 0; order.push(s); } counts[s]++; });
+    const total = order.reduce((a, c) => a + counts[c], 0);
+    const top = order.slice().sort((a, b) => counts[b] - counts[a]);
+    return { counts, cats: order, total, top, dominantShare: total ? counts[top[0]] / total : 0 };
+  }
+  // 불평등 신호는 '음수가 없고 평균>0'일 때만(평균이 0 근처면 변동계수가 왜곡되므로 추세로 판단)
+  const ineqOK = s => s.min >= 0 && s.mean > 0;
+  function numRead(s) {
+    const p = [];
+    if (s.n > 2 && Math.abs(s.slope) > s.std * 0.6) p.push(s.slope > 0 ? '값이 갈수록 커져요(상승)' : '값이 갈수록 작아져요(하락)');
+    if (ineqOK(s) && s.cv > 0.6) p.push('편차가 매우 커요 — 쏠림·불평등');
+    else if (s.cv < 0.15) p.push('대체로 고른 편');
+    if (s.maxZ > 2.2) p.push('평균에서 크게 벗어난 값(이상치)');
+    return p.length ? p.join(' · ') : '완만한 분포';
+  }
+  function detectProblem() {
+    let best = null;
+    numFields().forEach(f => {
+      const s = numStats(f.name); if (!s) return;
+      const ineq = ineqOK(s) ? Math.min(1, s.cv) : 0;
+      const out = Math.min(1, Math.max(0, (s.maxZ - 2) / 2));
+      const trend = s.std > 0 ? Math.min(1, Math.abs(s.slope) / (s.std * 3)) : 0;
+      const score = Math.max(ineq, out, trend);
+      const kind = (ineq >= out && ineq >= trend) ? 'inequality' : (trend >= out ? 'trend' : 'outlier');
+      if (!best || score > best.score) best = { name: f.name, score, kind, s };
+    });
+    return best;
+  }
+  function diagText(pr) {
+    const s = pr.s, nm = pr.name;
+    if (pr.kind === 'inequality') return '‘' + nm + '’의 최댓값 ' + fmtNum(s.max) + '이(가) 중앙값 ' + fmtNum(s.median) + '의 약 ' + (s.ratio).toFixed(1) + '배 — 쏠림·불평등이 큽니다.';
+    if (pr.kind === 'trend') return '‘' + nm + '’이(가) ' + (s.slope > 0 ? '꾸준히 상승' : '꾸준히 하락') + '(' + fmtNum(s.first) + '→' + fmtNum(s.last) + ') — 흐름이 만든 변화예요.';
+    return '‘' + nm + '’에 평균에서 크게 벗어난 값(이상치)이 있어요 — 그 점이 곧 메시지일 수 있어요.';
+  }
+  function spark(vals) {
+    const w = 132, h = 26, n = vals.length; if (n < 2) return '';
+    const mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals), rg = (mx - mn) || 1;
+    const pts = vals.map((v, i) => (i / (n - 1) * w).toFixed(1) + ',' + (h - 2 - ((v - mn) / rg) * (h - 4)).toFixed(1)).join(' ');
+    return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none"><polyline points="' + pts + '" fill="none" stroke="var(--accent2)" stroke-width="1.5"/></svg>';
+  }
+  function datasetToCSV(ds) {
+    const cols = ds.fields.map(f => f.name);
+    return cols.join(',') + '\n' + ds.rows.map(r => cols.map(c => (r[c] == null ? '' : r[c])).join(',')).join('\n');
+  }
+  // 제안 적용: 한 열을 점의 한 특성으로(바로 작품에 반영)
+  function applyMap(prop, field, mode) {
+    if (prop === 'color') {
+      state.mapping.colorMode = mode; state.mapping.colorField = field;
+      if (mode === 'category') assignCatColors();
+      const cm = $('#map-colormode'); if (cm) cm.value = mode;
+    } else { state.mapping[prop] = field; }
+    populateFieldSelects(); renderColorUI(); build();
+    UI.toast('적용: ‘' + field + '’ → ' + ({ size: '크기', speed: '속도', color: '색', shape: '형태' }[prop] || prop));
+  }
+  // 문제 강조: 가장 강한 ‘문제 신호’ 열을 크기·색·배치·움직임으로 한 번에 드러낸다.
+  function applyProblemPreset() {
+    const pr = detectProblem();
+    if (!pr) { UI.toast('수치 열이 없어 문제 강조를 못 해요.'); return; }
+    const m = state.mapping;
+    m.size = pr.name; m.speed = pr.name; m.direction = pr.kind === 'trend' ? pr.name : null;
+    m.colorMode = 'gradient'; m.colorField = pr.name; m.gradLow = '#2740c8'; m.gradHigh = '#ff5a3c';
+    state.layout = 'flowField'; state.motionStyle = 'vibrate'; state.vib = 1.8; state.cohesion = 0.9; state.baseSpeed = 1.2;
+    syncMotion(); populateFieldSelects(); renderColorUI(); build();
+    const diag = $('#analysis-diag');
+    if (diag) diag.innerHTML = '<b>⚠ 문제 신호</b> · ' + esc(diagText(pr)) +
+      '<br><span class="muted" style="font-size:11px">→ 큰 값일수록 크고 뜨겁게, 세로로 벌어지게, 변화는 떨림으로 — 데이터의 문제점을 작품으로 드러냈어요.</span>';
+    UI.toast('문제 강조 적용 — ‘' + pr.name + '’의 ' + ({ inequality: '불평등', trend: '추세', outlier: '이상치' }[pr.kind]) + '을 시각화합니다.');
+  }
+  // 샘플의 '추천 매핑'을 적용(autoMapping을 덮어써 의미 있는 첫 작품을 보여준다)
+  function applyRecommended(map) {
+    if (!map) return; const m = state.mapping;
+    ['size', 'speed', 'direction', 'density', 'alpha', 'shape'].forEach(k => { if (map[k] !== undefined) m[k] = map[k]; });
+    if (map.colorMode) { m.colorMode = map.colorMode; if (map.colorField) m.colorField = map.colorField; if (m.colorMode === 'category') assignCatColors(); }
+    if (map.gradLow) m.gradLow = map.gradLow; if (map.gradHigh) m.gradHigh = map.gradHigh;
+    if (map.layout) state.layout = map.layout;
+    if (map.motionStyle) state.motionStyle = map.motionStyle;
+    if (map.vib != null) state.vib = map.vib;
+    syncMotion(); populateFieldSelects(); renderColorUI(); build();
+  }
+  // 렌더 안정화: 행이 너무 많으면 범위를 보존하는 균등 표본으로 줄인다(_fullN에 원본 행수 보관).
+  function capForStudio(ds) {
+    if (!ds) return ds;
+    if (ds.n <= STUDIO_MAX) { ds._fullN = ds.n; return ds; }
+    const step = ds.n / STUDIO_MAX, rows = [];
+    for (let i = 0; i < STUDIO_MAX; i++) rows.push(ds.rows[Math.floor(i * step)]);
+    const capped = makeDataset(ds.fields, rows);
+    capped._fullN = ds.n;
+    return capped;
+  }
+  // 전체 데이터 다운로드(엑셀·CSV) + 원본 링크
+  function renderDownload(s, shownN) {
+    const el = $('#dataset-download'); if (!el) return;
+    if (!s || !s.file) { el.innerHTML = ''; return; }
+    const fmt = n => n ? n.toLocaleString() : '';
+    el.innerHTML = '📥 <b>전체 데이터 받기</b> — '
+      + '<a class="dl" href="data/' + s.file + '.xlsx" download>엑셀(.xlsx)</a> · '
+      + '<a class="dl" href="data/' + s.file + '.csv" download>CSV</a>'
+      + (s.source ? ' · <a class="dl" href="' + s.source + '" target="_blank" rel="noopener">원본(캐글' + (s.fullRows ? ' ' + fmt(s.fullRows) + '행' : '') + ')</a>' : '')
+      + '<br><span class="muted" style="font-size:10.5px">받은 파일엔 <b>' + fmt(s.bundleRows) + '행</b>이 들어 있어요'
+      + (shownN && s.bundleRows && shownN < s.bundleRows ? ' · 스튜디오는 그중 ' + fmt(shownN) + '행을 그려요(부드러운 작품)' : '') + '.</span>';
+  }
+  async function loadSample(key) {
+    const s = SAMPLES[key]; if (!s) return;
+    $('#in-dataname').value = s.name;
+    const di = $('#data-issue');
+    if (s.file) {
+      $('#ta-data').value = '(' + s.name + ' · 원본 데이터에서 불러오는 중…)';
+      if (di) di.textContent = '데이터 불러오는 중…';
+      let csv;
+      try { const r = await fetch('data/' + s.file + '.csv'); if (!r.ok) throw new Error(r.status); csv = await r.text(); }
+      catch (e) { if (di) di.textContent = '데이터를 불러오지 못했어요(' + e.message + ').'; UI.toast('데이터 로드 실패'); return; }
+      $('#ta-data').value = '(' + s.name + ' · 원본 데이터에서 불러옴 — 아래에서 전체 받기)';
+      applyDataset(parseData(csv), s.name);
+    } else {
+      $('#ta-data').value = s.csv;
+      applyDataset(parseData(s.csv), s.name);
+    }
+    if (s.map) applyRecommended(s.map);
+    if (di) di.textContent = s.issue || '';
+    renderDownload(s, state.dataset ? state.dataset.n : 0);
+  }
+  function renderAnalysis() {
+    const host = $('#analysis-host'); if (!host || !state.dataset) return;
+    const ds = state.dataset, cols = ds.fields.map(f => f.name);
+    let html = '<div class="dprev"><table><thead><tr>' + cols.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr></thead><tbody>';
+    ds.rows.slice(0, 5).forEach(r => { html += '<tr>' + cols.map(c => '<td>' + esc(r[c] == null ? '' : r[c]) + '</td>').join('') + '</tr>'; });
+    html += '</tbody></table></div><p class="muted" style="font-size:11px;margin:4px 0 8px">총 ' + ds.n + '행 · 열 ' + ds.fields.length + '개 (앞 5행)</p>';
+    html += '<div id="analysis-diag" class="adiag"></div>';
+    html += '<button id="btn-problem" class="btn wide accent2" style="margin:2px 0 12px">⚠ 문제 강조 — 데이터의 문제점을 작품으로</button>';
+    ds.fields.forEach(f => {
+      if (f.type === 'num') {
+        const s = numStats(f.name); if (!s) return;
+        let sig = '';
+        if (ineqOK(s) && s.cv > 0.6) sig = '<span class="psig ineq">불평등</span>';
+        else if (s.maxZ > 2.2) sig = '<span class="psig out">이상치</span>';
+        else if (s.n > 2 && Math.abs(s.slope) > s.std * 0.8) sig = '<span class="psig tr">' + (s.slope > 0 ? '상승' : '하락') + '</span>';
+        html += '<div class="acard"><div class="ahead"><b>' + esc(f.name) + '</b><span class="tnum">수치</span>' + sig + '</div>'
+          + '<div class="aspark">' + spark(s.vals) + '</div>'
+          + '<div class="astat">최소 ' + fmtNum(s.min) + ' · 평균 ' + fmtNum(s.mean) + ' · 최대 ' + fmtNum(s.max) + (s.missing ? ' · 빈칸 ' + s.missing : '') + '</div>'
+          + '<div class="aread">' + esc(numRead(s)) + '</div>'
+          + '<div class="asug"><button class="btn xs" data-sug="size" data-f="' + esc(f.name) + '">📏 크기</button>'
+          + '<button class="btn xs" data-sug="color" data-f="' + esc(f.name) + '">🎨 색</button>'
+          + '<button class="btn xs" data-sug="speed" data-f="' + esc(f.name) + '">⚡ 속도</button></div></div>';
+      } else {
+        const s = catStatsOf(f.name);
+        const chips = s.top.slice(0, 6).map(c => '<span class="cchip">' + esc(c) + '·' + s.counts[c] + '</span>').join('');
+        html += '<div class="acard"><div class="ahead"><b>' + esc(f.name) + '</b><span class="tcat">범주</span></div>'
+          + '<div class="astat">' + s.cats.length + '종 · ' + chips + '</div>'
+          + '<div class="asug"><button class="btn xs" data-sug="catcolor" data-f="' + esc(f.name) + '">🎨 범주색</button>'
+          + '<button class="btn xs" data-sug="shape" data-f="' + esc(f.name) + '">▲ 형태</button></div></div>';
+      }
+    });
+    host.innerHTML = html;
+    host.querySelectorAll('[data-sug]').forEach(btn => btn.addEventListener('click', () => {
+      const f = btn.dataset.f, k = btn.dataset.sug;
+      if (k === 'size') applyMap('size', f);
+      else if (k === 'speed') applyMap('speed', f);
+      else if (k === 'color') applyMap('color', f, 'gradient');
+      else if (k === 'catcolor') applyMap('color', f, 'category');
+      else if (k === 'shape') applyMap('shape', f);
+    }));
+    const bp = $('#btn-problem'); if (bp) bp.addEventListener('click', applyProblemPreset);
+  }
+
   /* ----------------------------- 다른 스튜디오에서 온 데이터 ----------------------------- */
   // 소리·사진·객체감지 스튜디오에서 보낸 데이터를 (있으면) 우선 로드한다.
   // p5 setup 타이밍과 무관하게 결정적으로 동작하도록 setup 안에서 '먼저' 호출한다.
@@ -232,9 +467,8 @@
       const st = $('#dstage'); const c = p.createCanvas(st.clientWidth, st.clientHeight); c.parent(st); p.pixelDensity(1);
       // 보낸 데이터가 있으면 그것을, 없으면 기본 샘플(기후위기)을 로드
       if (!loadIncoming()) {
-        applyDataset(parseData(SAMPLES.climate.csv), SAMPLES.climate.name);
-        $('#in-dataname').value = state.dataName; $('#ta-data').value = SAMPLES.climate.csv;
-        const di = $('#data-issue'); if (di) di.textContent = SAMPLES.climate.issue;
+        const ss = $('#sel-sample'); if (ss) ss.value = 'spotify';
+        loadSample('spotify');
       }
     };
     p.windowResized = () => { const st = $('#dstage'); p.resizeCanvas(st.clientWidth, st.clientHeight); build(); };
@@ -321,6 +555,8 @@
 
   /* ----------------------------- 저장/전시 ----------------------------- */
   function thumb() {
+    // 생성된 시각화를 더 선명하게(데이터셋이 큰 문서도 1MB 안에 들어오도록 예산은 보수적으로).
+    if (window.ImgUtil) return ImgUtil.encode(p5i.canvas, { maxDim: 820, budget: 260000, quality: 0.82 });
     const w = 360, h = Math.round(w * p5i.height / p5i.width);
     const c = document.createElement('canvas'); c.width = w; c.height = h;
     c.getContext('2d').drawImage(p5i.canvas, 0, 0, w, h);
@@ -365,7 +601,8 @@
     // 요소별 안내(마우스 오버) — 학생이 무엇을 할지/왜 흥미로운지
     (function () {
       const tips = [
-        '먼저 데이터를 골라요 — 사회문제 샘플 또는 직접 입력/CSV. 작성 양식도 받을 수 있어요.',
+        '먼저 데이터를 골라요 — 사회문제 샘플 또는 직접 입력/CSV·엑셀. 작성 양식도 받을 수 있어요.',
+        '올린 데이터를 자동 분석해요 — 열별 분포를 보고 한 번에 매핑하거나 ‘문제 강조’로 문제점을 드러내요.',
         '어떤 열을 점의 어떤 특성(크기·속도·방향·밀도·색·형태)으로 바꿀지 직접 설계해요.',
         '기본 속도·진동·잔상으로 움직임의 결을 정해요.',
         '‘객관적 데이터’ 뒤의 내 선택을 적어요 — 무엇을 셌고 무엇을 일부러 뺐는지.',
@@ -381,10 +618,30 @@
       tip('#sel-sample', '사회문제와 연결된 예시 — 의미 있는 시각화로.');
     })();
 
-    $('#sel-sample').addEventListener('change', e => { const s = SAMPLES[e.target.value]; if (!s) return; $('#ta-data').value = s.csv; $('#in-dataname').value = s.name; applyDataset(parseData(s.csv), s.name); const di = $('#data-issue'); if (di) di.textContent = s.issue || ''; });
+    $('#sel-sample').addEventListener('change', e => loadSample(e.target.value));
     $('#btn-apply-data').addEventListener('click', () => { const ds = parseData($('#ta-data').value); if (!ds) { UI.toast('데이터 형식을 확인하세요.'); return; } applyDataset(ds, $('#in-dataname').value || '내 데이터'); UI.toast('데이터를 적용했습니다.'); });
     $('#btn-upload-csv').addEventListener('click', () => $('#csv').click());
-    $('#csv').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#ta-data').value = r.result; if (!$('#in-dataname').value) $('#in-dataname').value = f.name.replace(/\.[^.]+$/, ''); applyDataset(parseData(r.result), $('#in-dataname').value); }; r.readAsText(f); });
+    $('#csv').addEventListener('change', async e => {
+      const f = e.target.files[0]; if (!f) return;
+      const base = f.name.replace(/\.[^.]+$/, '');
+      if (/\.xlsx$/i.test(f.name) || (f.type && /sheet|excel/i.test(f.type))) {
+        try {
+          if (typeof XlsxReader === 'undefined') { UI.toast('엑셀 리더를 불러오지 못했어요. CSV로 올려 주세요.'); e.target.value = ''; return; }
+          const { grid } = await XlsxReader.read(await f.arrayBuffer());
+          const ds = cellsToDataset(grid);
+          if (!ds || !ds.n) { UI.toast('엑셀에서 표를 읽지 못했어요(첫 시트에 표가 있나요?).'); e.target.value = ''; return; }
+          $('#in-dataname').value = base;
+          $('#ta-data').value = datasetToCSV(ds);
+          applyDataset(ds, $('#in-dataname').value);
+          UI.toast('엑셀을 분석했어요 · ' + ds.n + '행 · 열 ' + ds.fields.length + '개');
+        } catch (err) { UI.toast('엑셀 읽기 실패: ' + (err && err.message ? err.message : err)); }
+      } else {
+        const r = new FileReader();
+        r.onload = () => { $('#ta-data').value = r.result; $('#in-dataname').value = base; applyDataset(parseData(r.result), $('#in-dataname').value); };
+        r.readAsText(f);
+      }
+      e.target.value = '';
+    });
     $('#btn-template').addEventListener('click', downloadTemplate);
 
     // 매핑 선택
