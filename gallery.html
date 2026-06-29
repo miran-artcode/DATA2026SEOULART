@@ -313,6 +313,21 @@
     if (w.evidence) p.push(`그 근거로, ${w.evidence}.`);
     if (w.kind === 'color' && s.K != null) p.push(`대표색 ${s.K}개로 분석해 점 ${fmt(s.N) || ''}개로 다시 그렸습니다.`);
     if (w.kind === 'data' && s.dataName) p.push(`${s.dataName} 데이터를 점의 움직임으로 옮겼습니다.`);
+    if (w.kind === 'society') {
+      const m = s.meta;
+      if (m) {
+        p.push(`${m.sdg} ‘${m.label}’ 세계 데이터입니다.`);
+        if (m.changePct != null) p.push(`전세계는 ${m.yearThen}년부터 ${m.latestYear}년까지 ${m.changePct > 0 ? '약 ' + m.changePct + '퍼센트 늘었' : (m.changePct < 0 ? '약 ' + Math.abs(m.changePct) + '퍼센트 줄었' : '거의 변하지 않았')}습니다.`);
+        if (m.top5 && m.top5[0] && m.bottom5 && m.bottom5[0]) p.push(`가장 높은 나라는 ${m.top5[0][0]}, 가장 낮은 나라는 ${m.bottom5[0][0]} 입니다.`);
+        if (m.gap) p.push(`최고와 중앙값의 격차는 약 ${m.gap}배. ${m.dir === 'good' ? '높을수록 좋은' : '높을수록 심각한'} 지표예요. 어디에 기준선을 그을지가 곧 ‘문제’의 정의가 됩니다.`);
+      } else if (s.lenses) {
+        const LK = ['공감', '대립', '형평', '참여', '책임', '연대', '지속가능'];
+        if (s.subjects) p.push(`${s.subjects.length}개 주체와 ${s.perspectives ? s.perspectives.length : 0}개 관점으로 본 사회 분석입니다.`);
+        const top = LK.filter(k => s.lenses[k] != null).sort((a, b) => s.lenses[b] - s.lenses[a])[0];
+        if (top) p.push(`가장 두드러진 비평 렌즈는 ‘${top}’입니다.`);
+        if (s.issues && s.issues.length) { const iss = s.issues.slice().sort((a, b) => Math.abs(b[1] - 50) - Math.abs(a[1] - 50))[0]; if (iss) p.push(`가장 입장이 뚜렷한 쟁점은 ‘${iss[0]}’, 찬성 ${iss[1]}퍼센트입니다.`); }
+      }
+    }
     return p.join(' ');
   }
   function startDocent() {
