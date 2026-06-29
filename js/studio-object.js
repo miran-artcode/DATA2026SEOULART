@@ -39,7 +39,7 @@
   let live = false, liveStream = null, liveVideo = null;   // 실시간 카메라(웹캠/휴대폰)
   // 자동 기록(로그): 감지 결과를 시간에 따라 표로 누적 → 데이터셋
   let logging = false, logRows = [], logStartT = 0, logFrame = 0, lastLogAt = 0, logByCam = false, curSource = '예시';
-  const LOG_INTERVAL = 900, LOG_MAX = 6000;
+  const LOG_INTERVAL = 900, LOG_MAX = 200000;   // 사실상 제한 없이 계속 기록(안전 상한만)
   const LOGCOLS = ['초', '회차', '사물', '중심x', '중심y', '가로', '세로', '크기', '종횡비', '신뢰도', '장면개수', '출처'];
   // 실시간 관찰(센서): 화면·소리에서 바로 읽히는 신호를 시간에 따라 그리고 기록
   let micOn = false, obsRaf = 0, lastChartAt = 0, lastObsAt = 0, prevLum = null, obsScratch = null, obsRows = [], chartBuf = [];
@@ -51,7 +51,7 @@
   ];
   const obsSel = { 밝기: true, 어두움: false, 채도: true, 따뜻함: false, 움직임: true, 사람수: true, 사물수: false, 소리: true, 높은소리: true };
   const dispScale = { 사람수: 8, 사물수: 5 };   // 개수(0~)를 0~100 그래프에 맞게 보기 좋게 확대
-  const CHART_MS = 140, OBS_MS = 1000, CHART_MAX = 160, OBS_MAX = 4000;
+  const CHART_MS = 140, OBS_MS = 1000, CHART_CAP = 6000, OBS_MAX = 200000;   // 그래프는 '전 구간'을 계속 표시, 기록은 사실상 무제한
   function nowMs() { return (window.performance && performance.now) ? performance.now() : Date.now(); }
   function disp(k, v) { return Math.max(0, Math.min(100, (v || 0) * (dispScale[k] || 1))); }
 
@@ -283,6 +283,10 @@
       for (let i = 0; i < n; i++) { const x = pad + (W - pad * 2) * (i / (n - 1)), y = pad + (H - pad * 2) * (1 - disp(m.k, chartBuf[i][m.k]) / 100); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
       ctx.stroke();
     });
+    if (obsRows.length) {   // 전 구간 표시 — 기록한 만큼(약 N초) 계속 늘어남
+      ctx.fillStyle = '#5b6480'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+      ctx.fillText('전 구간 · 기록 ' + obsRows.length.toLocaleString() + '초', W - pad - 2, H - 3);
+    }
   }
   function recordObs(m) {   // 자동 기록 중이면 ~1초 간격으로 한 줄 누적
     if (!logging) return;
@@ -294,7 +298,10 @@
   }
   function obsTick() {   // 차트 버퍼에 한 점 + 미터/차트 갱신 + (기록 중이면) 한 줄
     const m = currentMetrics();
-    chartBuf.push(m); if (chartBuf.length > CHART_MAX) chartBuf.shift();
+    chartBuf.push(m);
+    // 20초 창이 아니라 '전 구간'을 계속 보여 준다 — 너무 길어지면 오래된 점을 버리지 않고
+    // 해상도만 절반으로 줄여(짝수 인덱스만 유지) 끝없이 이어 그린다.
+    if (chartBuf.length > CHART_CAP) chartBuf = chartBuf.filter((_, i) => i % 2 === 0);
     drawMeters(m); drawChart(); recordObs(m);
   }
   function obsActive() { return live || micOn; }
@@ -601,5 +608,5 @@
     loadStreetDemo(); // 시작하자마자 살아있는 화면(오프라인 안전)
   });
 
-  window.ObjectStudio = { rows: toRows, log: () => logRows.slice(), logCSV, obs: () => obsRows.slice(), obsCSV };   // (외부 연동용 최소 창구)
+  window.ObjectStudio = { rows: toRows, log: () => logRows.slice(), logCSV, obs: () => obsRows.slice(), obsCSV, chartLen: () => chartBuf.length };   // (외부 연동용 최소 창구)
 })();
