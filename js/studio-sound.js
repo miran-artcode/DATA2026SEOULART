@@ -1,5 +1,5 @@
 /*
- * studio-sound.js — 소리를 데이터로 (학습 2단계)
+ * studio-sound.js — 내 소리를 데이터로 (학습 3단계)
  * -----------------------------------------------------------------------------
  * 마이크 녹음(5~20초) 또는 오디오 파일에서 약 0.15초 프레임마다
  * 음량(RMS)·저/중/고 주파수 에너지를 추출 → 시계열 데이터(CSV) → 데이터 점 스튜디오로.
@@ -268,7 +268,8 @@
   }
   function sendToData() {
     if (!rows.length) return;
-    const payload = { name: datasetName, issue: datasetIssue, csv: toCSV(), intent: $('#snd-intent').value.trim(), omit: $('#snd-omit').value.trim() };
+    // stage: 데이터 점 스튜디오에서 만든 작품이 '몇 단계에서 온 것'인지 남긴다(허브의 진행 표시용).
+    const payload = { name: datasetName, issue: datasetIssue, csv: toCSV(), intent: $('#snd-intent').value.trim(), omit: $('#snd-omit').value.trim(), stage: 3 };
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
     UI.toast('데이터 점 스튜디오로 보냅니다…');
     setTimeout(() => location.href = 'studio-data.html', 600);

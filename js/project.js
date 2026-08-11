@@ -10,7 +10,8 @@
   function send() {
     const csv = $('#pj-data').value.trim();
     if (!csv) { UI.toast('먼저 데이터를 붙여넣거나 CSV를 여세요(2단계).'); return; }
-    const payload = { name: topic() + ' 프로젝트', csv, intent: $('#pj-statement').value.trim() || $('#pj-why').value.trim(),
+    // stage: 데이터 점 스튜디오에서 만든 작품이 '몇 단계에서 온 것'인지 남긴다(허브의 진행 표시용).
+    const payload = { name: topic() + ' 프로젝트', csv, intent: $('#pj-statement').value.trim() || $('#pj-why').value.trim(), stage: 4,
       issue: '📣 사회문제 프로젝트 — ' + topic() + ': 이 문제를 어떻게 보여줄까?' };
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
     UI.toast('데이터 점 스튜디오로 보냅니다…'); setTimeout(() => location.href = 'studio-data.html', 600);

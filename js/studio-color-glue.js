@@ -113,7 +113,7 @@
         }
         // draftId: 전시 전에 쌓인 로그·버전을 이 작품과 이어 주는 자리표
         const draftId = window.Log ? Log.workId() : null;
-        const work = { userId: u.userId, by: u.display, klass: u.klass, kind: 'color', title, intent, evidence,
+        const work = { userId: u.userId, by: u.display, klass: u.klass, kind: 'color', title, intent, evidence, stage: 1,
           settings: window.ColorStudio.settings(), meta, thumb, srcImg, srcSample, exhibited: true, consent: true, draftId };
         if (useVideo) work.video = recURL;   // 갤러리/뷰어가 <video> 로 재생(멈춤 없이 움직임 그대로)
         try {

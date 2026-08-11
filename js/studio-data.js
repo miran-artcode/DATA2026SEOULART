@@ -43,7 +43,7 @@
   const STUDIO_MAX = 1800;   // 부드러운 작품을 위한 렌더용 표본 상한(받은 파일엔 전체가 들어 있음)
 
   const state = {
-    dataset: null, dataName: '',
+    dataset: null, dataName: '', stageFrom: null,   // 다른 스튜디오(내 사진·소리·사회)에서 보낸 경우 그 단계 번호
     mapping: {
       size: null, speed: null, direction: null, density: null, alpha: null, shape: null,
       colorMode: 'gradient', colorField: null,
@@ -482,6 +482,7 @@
     let d; try { d = JSON.parse(inc); } catch (e) { try { localStorage.removeItem('dn_data_incoming'); } catch (_) {} return false; }
     try { localStorage.removeItem('dn_data_incoming'); } catch (e) {}
     const ds = parseData(d.csv); if (!ds || !ds.n) return false;
+    if (d.stage) state.stageFrom = d.stage;      // 어느 단계에서 보낸 데이터인지(작품에 함께 저장)
     const ta = $('#ta-data'); if (ta) ta.value = d.csv;
     const nm = $('#in-dataname'); if (nm) nm.value = d.name || '가져온 데이터';
     const it = $('#in-intent'); if (it && d.intent) it.value = d.intent;
@@ -631,7 +632,7 @@
     if (!intent || !evidence) { UI.toast('전시 전에 ‘의도 한 문장 + 근거 1개 이상’을 채워 주세요.'); return; }
     // draftId: 전시 전에 쌓인 로그·버전을 이 작품과 이어 주는 자리표(교사 화면의 타임라인이 한 줄로 이어진다)
     const draftId = window.Log ? Log.workId() : null;
-    const id = await Store.saveWork({ userId: u.userId, by: u.display, klass: u.klass, kind: 'data', title: ($('#in-dataname').value || state.dataName), intent, evidence, dataName: $('#in-dataname').value || state.dataName, settings: settings(), thumb: thumb(), exhibited: true, consent: true, draftId });
+    const id = await Store.saveWork({ userId: u.userId, by: u.display, klass: u.klass, kind: 'data', title: ($('#in-dataname').value || state.dataName), intent, evidence, dataName: $('#in-dataname').value || state.dataName, settings: settings(), thumb: thumb(), exhibited: true, consent: true, draftId, stage: state.stageFrom || null });
     if (window.Log) {
       await Log.push({ stage: 'share', action: 'exhibit', workId: draftId, payload: { workRealId: id } });
       Log.newWork();   // 다음 작품은 새 자리표로 — 이전 작품의 버전·로그와 섞이지 않게

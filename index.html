@@ -73,8 +73,12 @@
     color: var(--accent); font-weight: 800; font-size: 16px; display: grid; place-items: center; }
   .pstage { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--muted2); }
   .pcard h3 { margin: 2px 0 0; font-size: 16px; }
-  .pflow { display: flex; gap: 5px; flex-wrap: wrap; }
-  .pflow span { font-size: 10.5px; background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; color: var(--muted); }
+  /* 메타 칩 — '출처/방법/산출물'이라는 뜻을 눈으로도, 텍스트로 읽어도 알 수 있게 라벨을 함께 넣는다.
+     라벨이 없으면 텍스트 추출 시 "명화·그림색 군집 분석점·인터랙션"처럼 붙어 읽힌다. */
+  .pflow { display: flex; flex-direction: column; gap: 3px; }
+  .pflow span { font-size: 10.5px; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 3px 9px; color: var(--muted); display: flex; gap: 6px; }
+  .pflow span i { font-style: normal; color: var(--muted2); font-weight: 700; flex: none; width: 34px; }
   .pdesc { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
   .pdesc b { color: var(--text); font-weight: 600; }
   .pcta { margin-top: auto; font-size: 12px; color: var(--accent); font-weight: 700; }
@@ -115,6 +119,9 @@
 <div id="app-header"></div>
 
 <div class="wrap">
+
+  <!-- 시작 화면 표기(연구보고서 제목·대상 학년) — ui.js 의 UI.REPORT 한 곳에서 관리 -->
+  <div id="report-head"></div>
 
   <!-- ════════ 히어로 ════════ -->
   <section class="lp-hero">
@@ -174,47 +181,49 @@
     <div class="sec-head">
       <span class="eyebrow">Journey</span>
       <h2>4단계 창작 여정</h2>
-      <p>왼쪽에서 오른쪽으로 <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회), <b>나의 주체성이 깊어져요</b>. 처음이라면 1단계부터.</p>
+      <p>단계가 올라갈수록 <b>내가 정하는 몫이 커집니다</b>. 교사가 준 그림에서 시작해, 내 사진을 고르고, 내 소리를 녹음하고, 마침내 내가 정한 사회 문제로 갑니다. 앞 단계에서 익힌 것을 다음 단계가 다시 쓰므로 <b>1단계부터 순서대로</b> 하세요.</p>
     </div>
     <ol class="path">
       <li class="pstep">
         <span class="start-badge">여기서 시작</span>
-        <a class="pcard" href="studio-color.html">
-          <div class="ptop"><span class="pnum">1</span><span class="pstage">1단계 · 출발점</span></div>
-          <h3>🖼 그림을 데이터로</h3>
-          <div class="pflow"><span>명화·그림</span><span>색 군집 분석</span><span>점·인터랙션</span></div>
-          <p class="pdesc">K-means로 그림을 대표색 점으로 치환하고 마우스·소리로 ‘연주’. <b>그림→분석→창작</b>의 흐름을 처음 익혀요.</p>
+        <a class="pcard" href="studio-color.html" aria-label="1단계 그림을 데이터로 — 색 군집 스튜디오 열기">
+          <div class="ptop"><span class="pnum" aria-hidden="true">1</span><span class="pstage">출발점 · 교사가 준 그림</span></div>
+          <h3><span aria-hidden="true">🖼</span> 그림을 데이터로</h3>
+          <div class="pflow"><span><i>출처</i>명화·그림</span><span><i>방법</i>색 군집(K-means)</span><span><i>산출물</i>점·인터랙션</span></div>
+          <p class="pdesc">그림을 대표색 점으로 바꾸고 마우스·소리로 ‘연주’해요. 첫 결과가 나오면 화면 안 <b>질문 카드</b>가 “무엇이 사라졌나”를 되물어요.</p>
           <span class="pcta">색 군집 스튜디오 시작 →</span>
         </a>
       </li>
       <li class="pstep">
-        <a class="pcard" href="studio-sound.html">
-          <div class="ptop"><span class="pnum">2</span><span class="pstage">2단계 · 정서</span></div>
-          <h3>🎤 소리를 데이터로</h3>
-          <div class="pflow"><span>소리·녹음</span><span>음량·리듬·음색</span><span>춤추는 점</span></div>
-          <p class="pdesc">‘아빠의 한 달 코골이’를 상황별 이야기로 — 숫자 뒤의 <b>피로·곁에 있다는 감각</b>을 점의 움직임으로.</p>
-          <span class="pcta">소리 스튜디오 →</span>
-        </a>
-      </li>
-      <li class="pstep">
-        <a class="pcard" href="studio-life.html">
-          <div class="ptop"><span class="pnum">3</span><span class="pstage">3단계 · 의미</span></div>
-          <h3>🧑 내 삶을 데이터로</h3>
-          <div class="pflow"><span>내 삶의 순간</span><span>사진·대화 분석</span><span>나의 미디어아트</span></div>
-          <p class="pdesc">‘무엇을 셀지’를 내가 정하는 단계. 사진의 밝기·생생함·북적임을 측정해 <b>‘나’의 예술</b>로.</p>
+        <a class="pcard" href="studio-life.html" aria-label="2단계 내 사진을 데이터로 — 내 삶 스튜디오 열기">
+          <div class="ptop"><span class="pnum" aria-hidden="true">2</span><span class="pstage">나의 소재 · 무엇을 셀지 내가</span></div>
+          <h3><span aria-hidden="true">🧑</span> 내 사진을 데이터로</h3>
+          <div class="pflow"><span><i>출처</i>내가 찍은 사진</span><span><i>방법</i>1단계의 색·밝기 분석</span><span><i>산출물</i>나의 미디어아트</span></div>
+          <p class="pdesc">방법은 1단계와 같고 <b>소재만 내 것</b>으로 바뀝니다. 그래서 새로 배울 것 없이 <b>‘무엇을 셀지 내가 정하는’</b> 일에만 집중할 수 있어요.</p>
           <span class="pcta">내 삶 스튜디오 →</span>
         </a>
       </li>
       <li class="pstep">
-        <a class="pcard" href="project.html">
-          <div class="ptop"><span class="pnum">4</span><span class="pstage">4단계 · 발언</span></div>
-          <h3>📣 사회문제 프로젝트</h3>
-          <div class="pflow"><span>공공데이터</span><span>정제·CSV</span><span>사회적 미디어아트</span></div>
-          <p class="pdesc">기후·불평등·동물권… 데이터를 찾아 정제해 <b>CSV</b>로 만들고 작품으로. <b>미술이 사회적 발언</b>이 됩니다.</p>
+        <a class="pcard" href="studio-sound.html" aria-label="3단계 내 소리를 데이터로 — 소리 스튜디오 열기">
+          <div class="ptop"><span class="pnum" aria-hidden="true">3</span><span class="pstage">시간·정서 · 새 개념이 늘어요</span></div>
+          <h3><span aria-hidden="true">🎤</span> 내 소리를 데이터로</h3>
+          <div class="pflow"><span><i>출처</i>내가 녹음한 소리</span><span><i>방법</i>음량·주파수·변화량</span><span><i>산출물</i>춤추는 점</span></div>
+          <p class="pdesc">소리는 <b>시간에 따라 흐르는 데이터</b>라 다룰 개념이 한 번에 늘어납니다. 앞의 두 단계를 지나고 오세요. <span class="muted">(학생 작품 예시: 「아빠의 한 달 코골이」)</span></p>
+          <span class="pcta">소리 스튜디오 →</span>
+        </a>
+      </li>
+      <li class="pstep">
+        <a class="pcard" href="project.html" aria-label="4단계 사회문제 프로젝트 — 프로젝트 페이지 열기">
+          <div class="ptop"><span class="pnum" aria-hidden="true">4</span><span class="pstage">발언 · 문제를 내가 정해요</span></div>
+          <h3><span aria-hidden="true">📣</span> 사회 문제를 데이터로</h3>
+          <div class="pflow"><span><i>출처</i>공공데이터</span><span><i>방법</i>탐색·정제·CSV</span><span><i>산출물</i>사회적 미디어아트</span></div>
+          <p class="pdesc">기후·불평등·동물권 가운데 <b>내가 문제를 골라</b> 데이터를 찾고 다듬어 작품으로. 미술이 사회적 발언이 됩니다.</p>
           <span class="pcta">사회문제 프로젝트 →</span>
         </a>
       </li>
     </ol>
+    <p class="muted" style="font-size:12.5px; text-align:center; margin:14px 0 0">
+      <b>데이터 점 스튜디오</b>와 <b>객체 감지</b>는 단계가 아니라 <b>모든 단계에서 꺼내 쓰는 도구</b>예요 — 2·3·4단계의 결과가 모두 데이터 점 스튜디오로 흘러 들어갑니다.</p>
   </section>
 
   <!-- ════════ 사회를 데이터로 (신규 하이라이트) ════════ -->
@@ -315,6 +324,9 @@
 <script src="js/auth.js"></script>
 <script src="js/ui.js"></script>
 <script>
+/* ── 시작 화면 표기(연구보고서 제목·대상 학년) ────────── */
+UI.mountReportHeader('report-head');
+
 /* ── 개인정보 안내 ───────────────────────────────────── */
 document.getElementById('privacy-note').innerHTML = UI.callout(
   '<b>개인정보 안내</b> · 이 사이트는 <b>실명을 받지 않습니다</b>. 화면·작품·전시에 보이는 이름은 언제나 <b>별명</b>이고, ' +

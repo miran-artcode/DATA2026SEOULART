@@ -10,16 +10,27 @@
   // 저장된 테마를 가능한 한 일찍 적용(깜빡임 최소화)
   /* 테마는 페이지별로 <html data-theme>로 고정(HANDOFF: 한 화면=한 컨셉). 전역 토글 없음. */
 
+  /*
+   * 시작 화면 표기(연구보고서 제목·대상 학년).
+   * 요강이 소프트웨어 시작 화면에 명시하도록 요구하는 항목이라, 한 곳에서 관리하고
+   * index.html·hub.html 두 시작 화면에 같은 값을 심는다.
+   */
+  const REPORT = {
+    title: '데이터의 눈으로 그림 읽기 — 분석에서 창작까지',
+    grade: '고등학교 1학년',
+    school: '서울미술고등학교'
+  };
+
   const NAV = [
     { label: '사용 안내', href: 'start.html' },
     { label: '만들기', drop: [
-      { href: 'studio-color.html', t: '색 군집 스튜디오', s: '명화를 대표색 점으로 · 1단계 기초' },
-      { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '데이터를 춤추는 점으로 · 1단계 기초' },
-      { href: 'studio-sound.html', t: '소리를 데이터로', s: '녹음·소리에서 특징 추출 · 2단계' },
-      { href: 'studio-life.html', t: '내 삶을 데이터로', s: '사진·대화를 데이터로 · 3단계' },
+      { href: 'studio-color.html', t: '그림을 데이터로', s: '명화를 대표색 점으로 · 1단계' },
+      { href: 'studio-life.html', t: '내 사진을 데이터로', s: '소재를 내가 고름 · 2단계' },
+      { href: 'studio-sound.html', t: '내 소리를 데이터로', s: '녹음에서 특징 추출 · 3단계' },
       { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터로 사회적 발언 · 4단계' },
-      { href: 'society.html', t: '사회 분석 · 비평 렌즈', s: '관점·관계·맥락으로 〈우리 동네〉를 · SDG' },
-      { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: '사진 속 사물을 AI로 · AI 렌즈' },
+      { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '모든 단계의 데이터가 작품이 되는 공용 화면 · 도구' },
+      { href: 'society.html', t: '사회 분석 · 비평 렌즈', s: '관점·관계·맥락으로 〈우리 동네〉를 · 도구' },
+      { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: 'AI가 무엇을 놓치는지 · 도구' },
       { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구' }
     ] },
     { label: '배우기', drop: [
@@ -39,7 +50,25 @@
   ];
 
   const UI = {};
+  UI.REPORT = REPORT;
   const cur = () => location.pathname.split('/').pop() || 'index.html';
+
+  /*
+   * 시작 화면 머리에 '연구보고서 제목 + 대상 학년'을 올린다.
+   * 심사 요강의 표기 의무를 화면으로 해결하는 자리이므로, 장식이 아니라 정보로 읽히게
+   * 라벨(연구보고서 / 대상)을 함께 적는다.
+   */
+  UI.mountReportHeader = function (hostId) {
+    const host = document.getElementById(hostId || 'report-head');
+    if (!host || !REPORT.title) return;
+    host.innerHTML =
+      '<div class="report-head">' +
+        '<p class="rh-title"><span class="rh-k">연구보고서</span> ' + escapeHTML(REPORT.title) + '</p>' +
+        '<p class="rh-meta"><span class="rh-k">대상</span> ' + escapeHTML(REPORT.grade) +
+        (REPORT.school ? ' <span class="rh-sep" aria-hidden="true">·</span> ' + escapeHTML(REPORT.school) : '') +
+        '</p>' +
+      '</div>';
+  };
 
   UI.mountHeader = function (activeOverride) {
     const host = document.getElementById('app-header');

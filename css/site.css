@@ -251,6 +251,17 @@ table.data tr:hover td { background: var(--panel2); }
 @keyframes spin { to { transform: rotate(360deg); } }
 .footer-note { text-align: center; color: var(--muted2); font-size: 12px; padding: 30px 0 10px; }
 
+/* 시작 화면 표기 — 연구보고서 제목·대상 학년(심사 요강 표기 의무) */
+.report-head { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px;
+  padding: 10px 14px; margin: 14px 0 0; background: var(--panel2); }
+.report-head p { margin: 0; line-height: 1.6; }
+.report-head .rh-title { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.report-head .rh-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.report-head .rh-k { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: .06em;
+  color: var(--accent); background: rgba(var(--accent-rgb),.12); border-radius: 5px; padding: 2px 7px; margin-right: 6px;
+  vertical-align: 1px; }
+.report-head .rh-sep { color: var(--muted2); }
+
 /* ----------------------------- 공통 다크 크레딧 풋터(항상 다크) ----------------------------- */
 #site-footer { position: relative; overflow: hidden; margin-top: 44px; padding: 38px 18px 40px; background: var(--footer); border-top: 1px solid rgba(255,255,255,.06); }
 #site-footer::before { content: ""; position: absolute; left: 14%; top: -50%; width: 60%; height: 140%; background: radial-gradient(closest-side, rgba(72,102,228,.30), transparent 70%); pointer-events: none; }
