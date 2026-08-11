@@ -31,11 +31,12 @@
       else { if (by && !m[anon].name) m[anon].name = by; if (klass && !m[anon].klass) m[anon].klass = klass; }
     };
     (works || []).forEach(w => add(w.userId, w.by, w.klass));
-    // 노트에는 반이 없다 → 작품에서 알아낸 반으로 같은 코드가 만들어질 때만 이어진다.
+    // 대부분의 노트에는 반이 없다 → 작품에서 알아낸 반으로 같은 코드가 만들어질 때만 이어진다.
+    // (학습지 노트는 스스로 반을 갖고 있어, 작품이 아직 없는 학생도 이 단계에서 이어진다.)
     (notes || []).forEach(n => {
       if (!n.userId) return;
       const w = (works || []).find(x => x.userId === n.userId);
-      add(n.userId, n.by, w ? w.klass : '');
+      add(n.userId, n.by, n.klass || (w ? w.klass : ''));
     });
     return m;
   }
@@ -55,10 +56,12 @@
     (notes || []).forEach(n => {
       // 노트에는 반이 없으므로 같은 학생의 작품에서 반을 찾아 익명 코드를 맞춘다(안 맞으면 다른 사람으로 셈해 버린다)
       const w = (works || []).find(x => x.userId === n.userId);
-      const a = Log.anonOf({ userId: n.userId, klass: w ? w.klass : '' }); if (!a) return;
+      const a = Log.anonOf({ userId: n.userId, klass: n.klass || (w ? w.klass : '') }); if (!a) return;
       if (n.kind === 'reflection' || n.kind === 'statement') perStage.own.add(a);
       if (n.kind === 'revision') perStage.revise.add(a);
       if (n.kind === 'literacy' || n.kind === 'card') perStage.judge.add(a);
+      // 학습지: 어느 차시를 썼는지에 따라 단계가 다르다(차시마다 procStage 를 갖고 저장된다).
+      if (n.kind === 'worksheet' && perStage[n.procStage]) perStage[n.procStage].add(a);
     });
     return STAGES.map(s => ({ key: s.key, label: s.label, desc: s.desc, n: perStage[s.key].size, uids: [...perStage[s.key]] }));
   }
@@ -147,7 +150,13 @@
     });
     notes.forEach(n => {
       const w = works.find(x => x.userId === n.userId);
-      if (Log.anonOf({ userId: n.userId, klass: w ? w.klass : '' }) !== anon) return;
+      if (Log.anonOf({ userId: n.userId, klass: n.klass || (w ? w.klass : '') }) !== anon) return;
+      if (n.kind === 'worksheet') {                 // 학습지는 '몇 칸을 채웠나'가 곧 과정의 흔적이다
+        const pct = n.total ? Math.round((n.filled || 0) * 100 / n.total) : 0;
+        items.push({ t: n.updatedAt, type: 'note', stage: n.procStage || 'make', icon: '📄',
+          text: `학습지 ${n.title || ''} — ${n.filled || 0} / ${n.total || 0}칸 (${pct}%)` });
+        return;
+      }
       items.push({ t: n.updatedAt, type: 'note', stage: n.kind === 'reflection' ? 'own' : 'judge', icon: '📝',
         text: `${n.title || '메모'}${n.line ? ' — ' + n.line : ''}` });
     });

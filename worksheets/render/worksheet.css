@@ -1,0 +1,85 @@
+/*
+ * worksheet.css — 학습지 표시 (화면 + A4 인쇄 한 벌)
+ * 색은 모두 변수로 빼 두었다. 붙이는 사이트의 테마 변수가 있으면 그 값이 이긴다.
+ */
+.ws {
+  --ws-fg: var(--fg, #1b1b1b);
+  --ws-muted: var(--muted, #666);
+  --ws-line: var(--line, #c9c9c9);
+  --ws-bg: var(--bg, #fff);
+  --ws-band: var(--band, #f2f2f2);
+  --ws-ink: var(--accent, #1b1b1b);
+  color: var(--ws-fg);
+  background: var(--ws-bg);
+  font: 15px/1.6 system-ui, "Malgun Gothic", "맑은 고딕", sans-serif;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+@media (prefers-color-scheme: dark) {
+  .ws:not([data-theme="light"]) { --ws-fg: #e9e9e9; --ws-bg: #141414; --ws-line: #444; --ws-band: #202020; --ws-muted: #9a9a9a; }
+}
+[data-theme="dark"] .ws { --ws-fg: #e9e9e9; --ws-bg: #141414; --ws-line: #444; --ws-band: #202020; --ws-muted: #9a9a9a; }
+
+.ws-head { display: flex; gap: .9rem; align-items: flex-start; border: 1px solid var(--ws-line); }
+.ws-badge { background: var(--ws-ink); color: var(--ws-bg); font-weight: 700; padding: .7rem .9rem; white-space: nowrap; }
+.ws-head > div:last-child { padding: .55rem .3rem; }
+.ws-title { font-size: 1.15rem; margin: 0; }
+.ws-screens { margin: .15rem 0 0; font-size: .85rem; color: var(--ws-muted); }
+
+.ws-today { background: var(--ws-band); border: 1px solid var(--ws-line); padding: .6rem .8rem; margin: .9rem 0 1.2rem; }
+.ws-today p { margin: .15rem 0 0; }
+
+.ws-block { margin: 0 0 1.5rem; break-inside: avoid; }
+.ws-section { font-size: 1.05rem; margin: 2rem 0 .8rem; padding-top: .6rem; border-top: 2px solid var(--ws-ink); }
+.ws-bhead { margin: 0 0 .4rem; }
+.ws-btitle { font-size: .98rem; margin: 0; display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; }
+.ws-n { font-weight: 700; }
+.ws-card { font-weight: 500; font-size: .85rem; color: var(--ws-muted); }
+.ws-note, .ws-prompt { font-size: .85rem; color: var(--ws-muted); margin: .2rem 0; }
+.ws-prompt { color: var(--ws-fg); }
+.ws-lab { font-weight: 600; font-size: .9rem; text-align: left; }
+.ws-lead { margin: .2rem 0 .6rem; }
+.ws-quote { margin: .2rem 0 .6rem; font-weight: 600; }
+.ws-eq { margin: .2rem 0 .6rem 1.2rem; padding: 0; }
+
+.ws-t { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.ws-t th, .ws-t td { border: 1px solid var(--ws-line); padding: .35rem .5rem; vertical-align: top; }
+.ws-t thead th { background: var(--ws-band); font-size: .88rem; text-align: center; }
+.ws-t-fields th { width: 34%; background: transparent; }
+.ws-c { text-align: center; width: 3.2rem; }
+.ws-leadrow { display: flex; align-items: center; gap: .5rem; margin: 0 0 .4rem; }
+
+.ws-in {
+  width: 100%; box-sizing: border-box; border: 0; background: transparent;
+  color: inherit; font: inherit; padding: .15rem 0; resize: vertical; min-height: 1.7rem;
+}
+.ws-in:focus { outline: 2px solid var(--ws-ink); outline-offset: 1px; }
+.ws-in::placeholder { color: var(--ws-muted); opacity: .7; }
+.ws-inwrap { position: relative; }
+.ws-count { font-size: .75rem; color: var(--ws-muted); text-align: right; }
+
+.ws-cloze { border: 1px solid var(--ws-line); padding: .6rem .7rem; }
+.ws-sentence { margin: .3rem 0; line-height: 2.4; }
+.ws-sentence .ws-in { display: inline-block; width: 8.5rem; border-bottom: 1px solid var(--ws-line); text-align: center; }
+.ws-bank { font-size: .85rem; margin: 0 0 .4rem; }
+.ws-chip { display: inline-block; border: 1px solid var(--ws-line); border-radius: 999px; padding: .05rem .55rem; margin-right: .3rem; }
+.ws-starter { margin: .2rem 0; font-weight: 600; }
+
+.ws-carry { border-top: 2px solid var(--ws-line); padding-top: .6rem; }
+.ws-selfcheck .ws-t td { padding: .25rem .5rem; }
+.ws-selfcheck label { cursor: pointer; margin-left: .15rem; }
+.ws-foot { margin-top: 2rem; text-align: center; font-size: .8rem; color: var(--ws-muted); }
+.ws-pagebreak { break-after: page; page-break-after: always; height: 0; }
+
+/* -------------------------------- 인쇄 -------------------------------- */
+@page { size: A4; margin: 14mm 12mm; }
+@media print {
+  .ws { max-width: none; padding: 0; font-size: 10.5pt; --ws-fg: #000; --ws-bg: #fff; --ws-line: #000; --ws-band: #eee; --ws-muted: #333; }
+  .ws-in { border-bottom: none; }
+  .ws-in::placeholder { color: transparent; }
+  .ws-count { display: none; }
+  textarea.ws-in { min-height: calc(var(--rows, 2) * 1.6em); }
+  .ws-block { break-inside: avoid; }
+  .ws-noprint, .ws-toolbar { display: none !important; }
+}

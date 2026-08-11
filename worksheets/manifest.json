@@ -1,0 +1,2309 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "content/worksheets/build.mjs",
+  "units": [
+    {
+      "id": "data-eye",
+      "dir": "unit-data-eye",
+      "title": "데이터의 눈",
+      "subtitle": "감각을 번역하는 예술 · 학습 꾸러미",
+      "sessions": 8,
+      "unitFile": "unit.json",
+      "sheets": [
+        {
+          "id": "cover",
+          "file": "00-cover.json",
+          "order": 0,
+          "session": null,
+          "kind": "cover",
+          "title": "표지",
+          "yield": null,
+          "pages": 1,
+          "screens": [],
+          "dataset": null,
+          "eq": [],
+          "generalizations": [],
+          "scaffold": null,
+          "selfCheck": null,
+          "carryOverTo": []
+        },
+        {
+          "id": "s1",
+          "file": "01-seven-eyes.json",
+          "order": 1,
+          "session": 1,
+          "kind": "session",
+          "title": "한 그림, 일곱 개의 눈",
+          "yield": "요약과 손실을 읽은 기록",
+          "pages": 1,
+          "screens": [
+            "lab.html",
+            "learn.html"
+          ],
+          "dataset": null,
+          "eq": [
+            "EQ1"
+          ],
+          "generalizations": [
+            "G1"
+          ],
+          "scaffold": "wordBank",
+          "selfCheck": "standard",
+          "carryOverTo": [
+            "s2.report"
+          ]
+        },
+        {
+          "id": "s2",
+          "file": "02-replayed.json",
+          "order": 2,
+          "session": 2,
+          "kind": "session",
+          "title": "그림이 분해되어 다시 연주되다",
+          "yield": "설정을 바꾸며 비교한 표",
+          "pages": 1,
+          "screens": [
+            "studio-color.html"
+          ],
+          "dataset": null,
+          "eq": [
+            "EQ4"
+          ],
+          "generalizations": [
+            "G1"
+          ],
+          "scaffold": "blanks",
+          "selfCheck": "standard",
+          "carryOverTo": [
+            "s3.report",
+            "s4.report"
+          ]
+        },
+        {
+          "id": "s3",
+          "file": "03-two-rules.json",
+          "order": 3,
+          "session": 3,
+          "kind": "session",
+          "title": "규칙 두 개 만들기",
+          "yield": "내 매핑 규칙 A·B 와 고른 이유",
+          "pages": 1,
+          "screens": [
+            "studio-data.html"
+          ],
+          "dataset": null,
+          "eq": [
+            "EQ1"
+          ],
+          "generalizations": [
+            "G2"
+          ],
+          "scaffold": "blanks",
+          "selfCheck": "standard",
+          "carryOverTo": [
+            "s4.choose_discard"
+          ]
+        },
+        {
+          "id": "s4",
+          "file": "04-counting-sound.json",
+          "order": 4,
+          "session": 4,
+          "kind": "session",
+          "title": "소리를 세어 보기",
+          "yield": "무엇을 세고 무엇을 버렸는지",
+          "pages": 1,
+          "screens": [
+            "studio-sound.html",
+            "studio-data.html"
+          ],
+          "dataset": null,
+          "eq": [
+            "EQ1"
+          ],
+          "generalizations": [
+            "G2"
+          ],
+          "scaffold": "blanks",
+          "selfCheck": "standard",
+          "carryOverTo": [
+            "s5.report"
+          ]
+        },
+        {
+          "id": "s5",
+          "file": "05-my-life-as-data.json",
+          "order": 5,
+          "session": 5,
+          "kind": "session",
+          "title": "내 삶을 데이터로",
+          "yield": "숨긴 선택과 데이터가 놓친 것",
+          "pages": 1,
+          "screens": [
+            "studio-life.html",
+            "studio-data.html"
+          ],
+          "dataset": null,
+          "eq": [
+            "EQ1"
+          ],
+          "generalizations": [
+            "G2",
+            "G4"
+          ],
+          "scaffold": "starter",
+          "selfCheck": "standard",
+          "carryOverTo": [
+            "s6.read_data"
+          ]
+        },
+        {
+          "id": "s6",
+          "file": "06-can-numbers-speak.json",
+          "order": 6,
+          "session": 6,
+          "kind": "session",
+          "title": "숫자가 사람을 말할 수 있을까",
+          "yield": "기본값을 되물은 기록",
+          "pages": 1,
+          "screens": [
+            "studio-data.html",
+            "society.html",
+            "literacy.html"
+          ],
+          "dataset": {
+            "file": "data/bodyfat.csv",
+            "meta": "data/bodyfat.meta.json",
+            "rows": 252
+          },
+          "eq": [
+            "EQ2",
+            "EQ4"
+          ],
+          "generalizations": [
+            "G2",
+            "G3"
+          ],
+          "scaffold": "blank",
+          "selfCheck": "standard",
+          "carryOverTo": [
+            "s8.critique_friend"
+          ]
+        },
+        {
+          "id": "s7",
+          "file": "07-words-in-color.json",
+          "order": 7,
+          "session": 7,
+          "kind": "session",
+          "title": "내 말이 색을 입다",
+          "yield": "창작 진술문과 주체성 기록",
+          "pages": 1,
+          "screens": [
+            "studio-word.html",
+            "notes.html"
+          ],
+          "dataset": null,
+          "eq": [
+            "EQ3",
+            "EQ4"
+          ],
+          "generalizations": [
+            "G4"
+          ],
+          "scaffold": "blank",
+          "selfCheck": "standard",
+          "carryOverTo": [
+            "s8.critique_friend"
+          ]
+        },
+        {
+          "id": "s8",
+          "file": "08-exhibit-critique.json",
+          "order": 8,
+          "session": 8,
+          "kind": "session",
+          "title": "전시·비평·되돌아보기",
+          "yield": "최종 일반화 네 문장과 전이 계획",
+          "pages": 2,
+          "screens": [
+            "exhibit.html",
+            "work.html",
+            "admin.html"
+          ],
+          "dataset": null,
+          "eq": [
+            "EQ2",
+            "EQ3",
+            "EQ4"
+          ],
+          "generalizations": [
+            "G1",
+            "G2",
+            "G3",
+            "G4"
+          ],
+          "scaffold": "topics",
+          "selfCheck": "final",
+          "carryOverTo": []
+        }
+      ],
+      "toc": [
+        {
+          "session": 1,
+          "id": "s1",
+          "title": "한 그림, 일곱 개의 눈",
+          "yield": "요약과 손실을 읽은 기록"
+        },
+        {
+          "session": 2,
+          "id": "s2",
+          "title": "그림이 분해되어 다시 연주되다",
+          "yield": "설정을 바꾸며 비교한 표"
+        },
+        {
+          "session": 3,
+          "id": "s3",
+          "title": "규칙 두 개 만들기",
+          "yield": "내 매핑 규칙 A·B 와 고른 이유"
+        },
+        {
+          "session": 4,
+          "id": "s4",
+          "title": "소리를 세어 보기",
+          "yield": "무엇을 세고 무엇을 버렸는지"
+        },
+        {
+          "session": 5,
+          "id": "s5",
+          "title": "내 삶을 데이터로",
+          "yield": "숨긴 선택과 데이터가 놓친 것"
+        },
+        {
+          "session": 6,
+          "id": "s6",
+          "title": "숫자가 사람을 말할 수 있을까",
+          "yield": "기본값을 되물은 기록"
+        },
+        {
+          "session": 7,
+          "id": "s7",
+          "title": "내 말이 색을 입다",
+          "yield": "창작 진술문과 주체성 기록"
+        },
+        {
+          "session": 8,
+          "id": "s8",
+          "title": "전시·비평·되돌아보기",
+          "yield": "최종 일반화 네 문장과 전이 계획"
+        }
+      ],
+      "fieldIndex": [
+        {
+          "path": "cover.identity.student_code",
+          "sheet": "cover",
+          "block": "identity",
+          "field": "student_code",
+          "evidence": null,
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "label": "학번 코드 (이름 대신)"
+        },
+        {
+          "path": "cover.identity.work_title",
+          "sheet": "cover",
+          "block": "identity",
+          "field": "work_title",
+          "evidence": null,
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "label": "내 작품 제목"
+        },
+        {
+          "path": "s1.report.picked_painting",
+          "sheet": "s1",
+          "block": "report",
+          "field": "picked_painting",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "내가 고른 그림"
+        },
+        {
+          "path": "s1.report.r0.analysis_name",
+          "sheet": "s1",
+          "block": "report",
+          "field": "r0.analysis_name",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "분석 이름",
+          "repeatable": true
+        },
+        {
+          "path": "s1.report.r0.one_number",
+          "sheet": "s1",
+          "block": "report",
+          "field": "r0.one_number",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "알게 된 수치 한 가지",
+          "repeatable": true
+        },
+        {
+          "path": "s1.report.r0.lost_in_recreation",
+          "sheet": "s1",
+          "block": "report",
+          "field": "r0.lost_in_recreation",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "재창조 화면에서 사라진 것",
+          "repeatable": true
+        },
+        {
+          "path": "s1.report.r1.analysis_name",
+          "sheet": "s1",
+          "block": "report",
+          "field": "r1.analysis_name",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "분석 이름",
+          "repeatable": true
+        },
+        {
+          "path": "s1.report.r1.one_number",
+          "sheet": "s1",
+          "block": "report",
+          "field": "r1.one_number",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "알게 된 수치 한 가지",
+          "repeatable": true
+        },
+        {
+          "path": "s1.report.r1.lost_in_recreation",
+          "sheet": "s1",
+          "block": "report",
+          "field": "r1.lost_in_recreation",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "재창조 화면에서 사라진 것",
+          "repeatable": true
+        },
+        {
+          "path": "s1.report.r2.analysis_name",
+          "sheet": "s1",
+          "block": "report",
+          "field": "r2.analysis_name",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "분석 이름",
+          "repeatable": true
+        },
+        {
+          "path": "s1.report.r2.one_number",
+          "sheet": "s1",
+          "block": "report",
+          "field": "r2.one_number",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "알게 된 수치 한 가지",
+          "repeatable": true
+        },
+        {
+          "path": "s1.report.r2.lost_in_recreation",
+          "sheet": "s1",
+          "block": "report",
+          "field": "r2.lost_in_recreation",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "재창조 화면에서 사라진 것",
+          "repeatable": true
+        },
+        {
+          "path": "s1.choose_discard.first_impression",
+          "sheet": "s1",
+          "block": "choose_discard",
+          "field": "first_impression",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "그림의 첫 인상 한 단어"
+        },
+        {
+          "path": "s1.choose_discard.three_elements",
+          "sheet": "s1",
+          "block": "choose_discard",
+          "field": "three_elements",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "그 인상을 만든 조형 요소 세 가지 (색·명도·구도·질감 중)"
+        },
+        {
+          "path": "s1.choose_discard.k4_vs_k16",
+          "sheet": "s1",
+          "block": "choose_discard",
+          "field": "k4_vs_k16",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "색을 4개로 줄였을 때와 16개일 때 무엇이 달라졌나"
+        },
+        {
+          "path": "s1.my_words.summary.seen",
+          "sheet": "s1",
+          "block": "my_words",
+          "field": "summary.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "요약 / 수업에서 본 장면"
+        },
+        {
+          "path": "s1.my_words.summary.reworded",
+          "sheet": "s1",
+          "block": "my_words",
+          "field": "summary.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "요약 / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s1.my_words.loss.seen",
+          "sheet": "s1",
+          "block": "my_words",
+          "field": "loss.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "손실 / 수업에서 본 장면"
+        },
+        {
+          "path": "s1.my_words.loss.reworded",
+          "sheet": "s1",
+          "block": "my_words",
+          "field": "loss.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "손실 / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s1.one_sentence.k",
+          "sheet": "s1",
+          "block": "one_sentence",
+          "field": "k",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "wordBank",
+          "logAction": "reflect_submit",
+          "label": "색 개수"
+        },
+        {
+          "path": "s1.one_sentence.visible",
+          "sheet": "s1",
+          "block": "one_sentence",
+          "field": "visible",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "wordBank",
+          "logAction": "reflect_submit",
+          "label": "잘 보이게 된 것"
+        },
+        {
+          "path": "s1.one_sentence.gone",
+          "sheet": "s1",
+          "block": "one_sentence",
+          "field": "gone",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "wordBank",
+          "logAction": "reflect_submit",
+          "label": "사라진 것"
+        },
+        {
+          "path": "s1.one_sentence.act",
+          "sheet": "s1",
+          "block": "one_sentence",
+          "field": "act",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "wordBank",
+          "logAction": "reflect_submit",
+          "label": "그 일을 뭐라 부를까"
+        },
+        {
+          "path": "s1.next_line.text",
+          "sheet": "s1",
+          "block": "next_line",
+          "field": "text",
+          "label": "다음 시간에 더 알고 싶은 색이나 장면은?",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "carryOverTo": [
+            "s2.report"
+          ]
+        },
+        {
+          "path": "s1.selfcheck.why",
+          "sheet": "s1",
+          "block": "selfcheck",
+          "field": "why",
+          "label": "오늘 내가 무엇을 고르고 무엇을 버렸는지 이유와 함께 말할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s1.selfcheck.concept",
+          "sheet": "s1",
+          "block": "selfcheck",
+          "field": "concept",
+          "label": "오늘 만난 개념어를 내 말로 설명할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s1.selfcheck.sentence",
+          "sheet": "s1",
+          "block": "selfcheck",
+          "field": "sentence",
+          "label": "오늘 알게 된 것을 한 문장으로 쓸 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s2.report.r0.changed_setting",
+          "sheet": "s2",
+          "block": "report",
+          "field": "r0.changed_setting",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "바꾼 설정",
+          "repeatable": true
+        },
+        {
+          "path": "s2.report.r0.screen_change",
+          "sheet": "s2",
+          "block": "report",
+          "field": "r0.screen_change",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "화면에서 달라진 것",
+          "repeatable": true
+        },
+        {
+          "path": "s2.report.r0.my_feeling",
+          "sheet": "s2",
+          "block": "report",
+          "field": "r0.my_feeling",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "내가 받은 느낌",
+          "repeatable": true
+        },
+        {
+          "path": "s2.report.r1.changed_setting",
+          "sheet": "s2",
+          "block": "report",
+          "field": "r1.changed_setting",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "바꾼 설정",
+          "repeatable": true
+        },
+        {
+          "path": "s2.report.r1.screen_change",
+          "sheet": "s2",
+          "block": "report",
+          "field": "r1.screen_change",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "화면에서 달라진 것",
+          "repeatable": true
+        },
+        {
+          "path": "s2.report.r1.my_feeling",
+          "sheet": "s2",
+          "block": "report",
+          "field": "r1.my_feeling",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "내가 받은 느낌",
+          "repeatable": true
+        },
+        {
+          "path": "s2.report.r2.changed_setting",
+          "sheet": "s2",
+          "block": "report",
+          "field": "r2.changed_setting",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "바꾼 설정",
+          "repeatable": true
+        },
+        {
+          "path": "s2.report.r2.screen_change",
+          "sheet": "s2",
+          "block": "report",
+          "field": "r2.screen_change",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "화면에서 달라진 것",
+          "repeatable": true
+        },
+        {
+          "path": "s2.report.r2.my_feeling",
+          "sheet": "s2",
+          "block": "report",
+          "field": "r2.my_feeling",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "내가 받은 느낌",
+          "repeatable": true
+        },
+        {
+          "path": "s2.choose_discard.kept_three",
+          "sheet": "s2",
+          "block": "choose_discard",
+          "field": "kept_three",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "끝까지 남긴 설정 세 가지"
+        },
+        {
+          "path": "s2.choose_discard.discarded_one",
+          "sheet": "s2",
+          "block": "choose_discard",
+          "field": "discarded_one",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "일부러 버린 설정 하나와 그 이유"
+        },
+        {
+          "path": "s2.choose_discard.mic_help_harm",
+          "sheet": "s2",
+          "block": "choose_discard",
+          "field": "mic_help_harm",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "마이크로 소리를 넣었을 때 의도에 도움이 된 점과 방해가 된 점"
+        },
+        {
+          "path": "s2.my_words.parameter.seen",
+          "sheet": "s2",
+          "block": "my_words",
+          "field": "parameter.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "설정값(매개변수) / 수업에서 본 장면"
+        },
+        {
+          "path": "s2.my_words.parameter.reworded",
+          "sheet": "s2",
+          "block": "my_words",
+          "field": "parameter.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "설정값(매개변수) / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s2.my_words.expression.seen",
+          "sheet": "s2",
+          "block": "my_words",
+          "field": "expression.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "표현 / 수업에서 본 장면"
+        },
+        {
+          "path": "s2.my_words.expression.reworded",
+          "sheet": "s2",
+          "block": "my_words",
+          "field": "expression.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "표현 / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s2.one_sentence.what",
+          "sheet": "s2",
+          "block": "one_sentence",
+          "field": "what",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "blanks",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s2.one_sentence.result",
+          "sheet": "s2",
+          "block": "one_sentence",
+          "field": "result",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "blanks",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s2.one_sentence.meaning",
+          "sheet": "s2",
+          "block": "one_sentence",
+          "field": "meaning",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "blanks",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s2.next_line.text",
+          "sheet": "s2",
+          "block": "next_line",
+          "field": "text",
+          "label": "내 소리나 사진을 이렇게 다룬다면 무엇부터 바꿔 보고 싶은가?",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "carryOverTo": [
+            "s3.report",
+            "s4.report"
+          ]
+        },
+        {
+          "path": "s2.selfcheck.why",
+          "sheet": "s2",
+          "block": "selfcheck",
+          "field": "why",
+          "label": "오늘 내가 무엇을 고르고 무엇을 버렸는지 이유와 함께 말할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s2.selfcheck.concept",
+          "sheet": "s2",
+          "block": "selfcheck",
+          "field": "concept",
+          "label": "오늘 만난 개념어를 내 말로 설명할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s2.selfcheck.sentence",
+          "sheet": "s2",
+          "block": "selfcheck",
+          "field": "sentence",
+          "label": "오늘 알게 된 것을 한 문장으로 쓸 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s3.report.data_name",
+          "sheet": "s3",
+          "block": "report",
+          "field": "data_name",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "내가 쓴 데이터 이름"
+        },
+        {
+          "path": "s3.report.columns_present",
+          "sheet": "s3",
+          "block": "report",
+          "field": "columns_present",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "이 데이터에 있는 열(항목)"
+        },
+        {
+          "path": "s3.report.columns_used_dropped",
+          "sheet": "s3",
+          "block": "report",
+          "field": "columns_used_dropped",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "그중 내가 쓴 열 / 뺀 열"
+        },
+        {
+          "path": "s3.rules_ab.size.plan_a",
+          "sheet": "s3",
+          "block": "rules_ab",
+          "field": "size.plan_a",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "크기 / A안 — 무엇과 연결했나"
+        },
+        {
+          "path": "s3.rules_ab.size.plan_b",
+          "sheet": "s3",
+          "block": "rules_ab",
+          "field": "size.plan_b",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "크기 / B안 — 무엇과 연결했나"
+        },
+        {
+          "path": "s3.rules_ab.color.plan_a",
+          "sheet": "s3",
+          "block": "rules_ab",
+          "field": "color.plan_a",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "색 / A안 — 무엇과 연결했나"
+        },
+        {
+          "path": "s3.rules_ab.color.plan_b",
+          "sheet": "s3",
+          "block": "rules_ab",
+          "field": "color.plan_b",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "색 / B안 — 무엇과 연결했나"
+        },
+        {
+          "path": "s3.rules_ab.speed.plan_a",
+          "sheet": "s3",
+          "block": "rules_ab",
+          "field": "speed.plan_a",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "속도·떨림 / A안 — 무엇과 연결했나"
+        },
+        {
+          "path": "s3.rules_ab.speed.plan_b",
+          "sheet": "s3",
+          "block": "rules_ab",
+          "field": "speed.plan_b",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "속도·떨림 / B안 — 무엇과 연결했나"
+        },
+        {
+          "path": "s3.rules_ab.shape.plan_a",
+          "sheet": "s3",
+          "block": "rules_ab",
+          "field": "shape.plan_a",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "형태·배치 / A안 — 무엇과 연결했나"
+        },
+        {
+          "path": "s3.rules_ab.shape.plan_b",
+          "sheet": "s3",
+          "block": "rules_ab",
+          "field": "shape.plan_b",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "형태·배치 / B안 — 무엇과 연결했나"
+        },
+        {
+          "path": "s3.choose_discard.chosen_plan_why",
+          "sheet": "s3",
+          "block": "choose_discard",
+          "field": "chosen_plan_why",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "ab_switch",
+          "label": "내가 고른 안과 그 이유"
+        },
+        {
+          "path": "s3.choose_discard.missed_from_discarded",
+          "sheet": "s3",
+          "block": "choose_discard",
+          "field": "missed_from_discarded",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "ab_switch",
+          "label": "버린 안에서 아까웠던 것"
+        },
+        {
+          "path": "s3.my_words.mapping.seen",
+          "sheet": "s3",
+          "block": "my_words",
+          "field": "mapping.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "매핑(번역) / 수업에서 본 장면"
+        },
+        {
+          "path": "s3.my_words.mapping.reworded",
+          "sheet": "s3",
+          "block": "my_words",
+          "field": "mapping.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "매핑(번역) / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s3.my_words.selection.seen",
+          "sheet": "s3",
+          "block": "my_words",
+          "field": "selection.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "선택과 배제 / 수업에서 본 장면"
+        },
+        {
+          "path": "s3.my_words.selection.reworded",
+          "sheet": "s3",
+          "block": "my_words",
+          "field": "selection.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "선택과 배제 / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s3.one_sentence.from",
+          "sheet": "s3",
+          "block": "one_sentence",
+          "field": "from",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "blanks",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s3.one_sentence.to",
+          "sheet": "s3",
+          "block": "one_sentence",
+          "field": "to",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "blanks",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s3.one_sentence.what",
+          "sheet": "s3",
+          "block": "one_sentence",
+          "field": "what",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "blanks",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s3.next_line.text",
+          "sheet": "s3",
+          "block": "next_line",
+          "field": "text",
+          "label": "내 규칙을 전혀 다른 데이터에 그대로 쓰면 어떻게 될까?",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "carryOverTo": [
+            "s4.choose_discard"
+          ]
+        },
+        {
+          "path": "s3.selfcheck.why",
+          "sheet": "s3",
+          "block": "selfcheck",
+          "field": "why",
+          "label": "오늘 내가 무엇을 고르고 무엇을 버렸는지 이유와 함께 말할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s3.selfcheck.concept",
+          "sheet": "s3",
+          "block": "selfcheck",
+          "field": "concept",
+          "label": "오늘 만난 개념어를 내 말로 설명할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s3.selfcheck.sentence",
+          "sheet": "s3",
+          "block": "selfcheck",
+          "field": "sentence",
+          "label": "오늘 알게 된 것을 한 문장으로 쓸 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s4.report.my_sound",
+          "sheet": "s4",
+          "block": "report",
+          "field": "my_sound",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "내가 다룬 소리"
+        },
+        {
+          "path": "s4.report.features_used",
+          "sheet": "s4",
+          "block": "report",
+          "field": "features_used",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "추출된 특징 가운데 내가 쓴 것 (음량·저음·중음·고음·날카로움·변화량)"
+        },
+        {
+          "path": "s4.report.biggest_change",
+          "sheet": "s4",
+          "block": "report",
+          "field": "biggest_change",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "그래프에서 가장 크게 변한 순간과 그때 무슨 일이 있었는가"
+        },
+        {
+          "path": "s4.choose_discard.loudness_mapping",
+          "sheet": "s4",
+          "block": "choose_discard",
+          "field": "loudness_mapping",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "음량을 점의 무엇에 연결했나, 왜 그렇게 했나"
+        },
+        {
+          "path": "s4.choose_discard.unused_features",
+          "sheet": "s4",
+          "block": "choose_discard",
+          "field": "unused_features",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "쓰지 않은 특징과 버린 이유"
+        },
+        {
+          "path": "s4.my_words.feature_extraction.seen",
+          "sheet": "s4",
+          "block": "my_words",
+          "field": "feature_extraction.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "특징 추출 / 수업에서 본 장면"
+        },
+        {
+          "path": "s4.my_words.feature_extraction.reworded",
+          "sheet": "s4",
+          "block": "my_words",
+          "field": "feature_extraction.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "특징 추출 / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s4.my_words.time_flow.seen",
+          "sheet": "s4",
+          "block": "my_words",
+          "field": "time_flow.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "시간의 흐름 / 수업에서 본 장면"
+        },
+        {
+          "path": "s4.my_words.time_flow.reworded",
+          "sheet": "s4",
+          "block": "my_words",
+          "field": "time_flow.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "시간의 흐름 / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s4.one_sentence.counted",
+          "sheet": "s4",
+          "block": "one_sentence",
+          "field": "counted",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "blanks",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s4.one_sentence.uncounted",
+          "sheet": "s4",
+          "block": "one_sentence",
+          "field": "uncounted",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "blanks",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s4.next_line.text",
+          "sheet": "s4",
+          "block": "next_line",
+          "field": "text",
+          "label": "내 삶에서 세어 보고 싶은 것 한 가지는?",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "carryOverTo": [
+            "s5.report"
+          ]
+        },
+        {
+          "path": "s4.selfcheck.why",
+          "sheet": "s4",
+          "block": "selfcheck",
+          "field": "why",
+          "label": "오늘 내가 무엇을 고르고 무엇을 버렸는지 이유와 함께 말할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s4.selfcheck.concept",
+          "sheet": "s4",
+          "block": "selfcheck",
+          "field": "concept",
+          "label": "오늘 만난 개념어를 내 말로 설명할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s4.selfcheck.sentence",
+          "sheet": "s4",
+          "block": "selfcheck",
+          "field": "sentence",
+          "label": "오늘 알게 된 것을 한 문장으로 쓸 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s5.report.collected",
+          "sheet": "s5",
+          "block": "report",
+          "field": "collected",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "내가 모은 자료(사진 몇 장·대화 기록 등)"
+        },
+        {
+          "path": "s5.report.extracted_values",
+          "sheet": "s5",
+          "block": "report",
+          "field": "extracted_values",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "화면이 뽑아낸 값"
+        },
+        {
+          "path": "s5.hidden_choice.r0.removed",
+          "sheet": "s5",
+          "block": "hidden_choice",
+          "field": "r0.removed",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "일부러 뺀 것",
+          "repeatable": true
+        },
+        {
+          "path": "s5.hidden_choice.r0.reason",
+          "sheet": "s5",
+          "block": "hidden_choice",
+          "field": "r0.reason",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "뺀 이유",
+          "repeatable": true
+        },
+        {
+          "path": "s5.hidden_choice.r1.removed",
+          "sheet": "s5",
+          "block": "hidden_choice",
+          "field": "r1.removed",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "일부러 뺀 것",
+          "repeatable": true
+        },
+        {
+          "path": "s5.hidden_choice.r1.reason",
+          "sheet": "s5",
+          "block": "hidden_choice",
+          "field": "r1.reason",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "뺀 이유",
+          "repeatable": true
+        },
+        {
+          "path": "s5.unmeasured.text",
+          "sheet": "s5",
+          "block": "unmeasured",
+          "field": "text",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "이 데이터가 담지 못한 내 삶의 진실은 무엇인가?",
+          "maxChars": null
+        },
+        {
+          "path": "s5.my_words.representation.seen",
+          "sheet": "s5",
+          "block": "my_words",
+          "field": "representation.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "재현 / 수업에서 본 장면"
+        },
+        {
+          "path": "s5.my_words.representation.reworded",
+          "sheet": "s5",
+          "block": "my_words",
+          "field": "representation.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "재현 / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s5.my_words.left_and_lost.seen",
+          "sheet": "s5",
+          "block": "my_words",
+          "field": "left_and_lost.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "남은 것과 사라진 것 / 수업에서 본 장면"
+        },
+        {
+          "path": "s5.my_words.left_and_lost.reworded",
+          "sheet": "s5",
+          "block": "my_words",
+          "field": "left_and_lost.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "남은 것과 사라진 것 / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s5.one_sentence.rest",
+          "sheet": "s5",
+          "block": "one_sentence",
+          "field": "rest",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "starter",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s5.next_line.text",
+          "sheet": "s5",
+          "block": "next_line",
+          "field": "text",
+          "label": "내 데이터가 아니라 다른 사람의 데이터라면 무엇을 조심해야 할까?",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "carryOverTo": [
+            "s6.read_data"
+          ]
+        },
+        {
+          "path": "s5.selfcheck.why",
+          "sheet": "s5",
+          "block": "selfcheck",
+          "field": "why",
+          "label": "오늘 내가 무엇을 고르고 무엇을 버렸는지 이유와 함께 말할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s5.selfcheck.concept",
+          "sheet": "s5",
+          "block": "selfcheck",
+          "field": "concept",
+          "label": "오늘 만난 개념어를 내 말로 설명할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s5.selfcheck.sentence",
+          "sheet": "s5",
+          "block": "selfcheck",
+          "field": "sentence",
+          "label": "오늘 알게 된 것을 한 문장으로 쓸 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s6.read_data.r0.measures",
+          "sheet": "s6",
+          "block": "read_data",
+          "field": "r0.measures",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "이 데이터가 재고 있는 것",
+          "repeatable": true
+        },
+        {
+          "path": "s6.read_data.r0.not_measures",
+          "sheet": "s6",
+          "block": "read_data",
+          "field": "r0.not_measures",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "이 데이터가 재지 않는 것",
+          "repeatable": true
+        },
+        {
+          "path": "s6.read_data.r1.measures",
+          "sheet": "s6",
+          "block": "read_data",
+          "field": "r1.measures",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "이 데이터가 재고 있는 것",
+          "repeatable": true
+        },
+        {
+          "path": "s6.read_data.r1.not_measures",
+          "sheet": "s6",
+          "block": "read_data",
+          "field": "r1.not_measures",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "이 데이터가 재지 않는 것",
+          "repeatable": true
+        },
+        {
+          "path": "s6.apply_recommended.made_visible",
+          "sheet": "s6",
+          "block": "apply_recommended",
+          "field": "made_visible",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "화면에서 잘 보이게 된 것"
+        },
+        {
+          "path": "s6.apply_recommended.made_invisible",
+          "sheet": "s6",
+          "block": "apply_recommended",
+          "field": "made_invisible",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "map_apply",
+          "label": "화면에서 사라지거나 뭉개진 것"
+        },
+        {
+          "path": "s6.question_defaults.auto_decided",
+          "sheet": "s6",
+          "block": "question_defaults",
+          "field": "auto_decided",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "화면이 알아서 정해 버린 조건은 무엇인가"
+        },
+        {
+          "path": "s6.question_defaults.outside_average",
+          "sheet": "s6",
+          "block": "question_defaults",
+          "field": "outside_average",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "평균 밖에 있는 사람은 화면 어디에 있는가"
+        },
+        {
+          "path": "s6.question_defaults.whose_values",
+          "sheet": "s6",
+          "block": "question_defaults",
+          "field": "whose_values",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "coach_answer",
+          "label": "이 기준은 누구의 가치에서 나왔는가"
+        },
+        {
+          "path": "s6.my_rule.r0.changed",
+          "sheet": "s6",
+          "block": "my_rule",
+          "field": "r0.changed",
+          "evidence": "process",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "revise",
+          "label": "바꾼 것",
+          "repeatable": true
+        },
+        {
+          "path": "s6.my_rule.r0.why",
+          "sheet": "s6",
+          "block": "my_rule",
+          "field": "r0.why",
+          "evidence": "process",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "revise",
+          "label": "바꾼 이유",
+          "repeatable": true
+        },
+        {
+          "path": "s6.my_rule.r1.changed",
+          "sheet": "s6",
+          "block": "my_rule",
+          "field": "r1.changed",
+          "evidence": "process",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "revise",
+          "label": "바꾼 것",
+          "repeatable": true
+        },
+        {
+          "path": "s6.my_rule.r1.why",
+          "sheet": "s6",
+          "block": "my_rule",
+          "field": "r1.why",
+          "evidence": "process",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "revise",
+          "label": "바꾼 이유",
+          "repeatable": true
+        },
+        {
+          "path": "s6.one_sentence.sentence",
+          "sheet": "s6",
+          "block": "one_sentence",
+          "field": "sentence",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "blank",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s6.next_line.text",
+          "sheet": "s6",
+          "block": "next_line",
+          "field": "text",
+          "label": "전시에서 관람객에게 던지고 싶은 질문 하나는?",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "carryOverTo": [
+            "s8.critique_friend"
+          ]
+        },
+        {
+          "path": "s6.selfcheck.why",
+          "sheet": "s6",
+          "block": "selfcheck",
+          "field": "why",
+          "label": "오늘 내가 무엇을 고르고 무엇을 버렸는지 이유와 함께 말할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s6.selfcheck.concept",
+          "sheet": "s6",
+          "block": "selfcheck",
+          "field": "concept",
+          "label": "오늘 만난 개념어를 내 말로 설명할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s6.selfcheck.sentence",
+          "sheet": "s6",
+          "block": "selfcheck",
+          "field": "sentence",
+          "label": "오늘 알게 된 것을 한 문장으로 쓸 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s7.analyze_my_text.top_words",
+          "sheet": "s7",
+          "block": "analyze_my_text",
+          "field": "top_words",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "가장 크게 나온 낱말 세 개"
+        },
+        {
+          "path": "s7.analyze_my_text.surprise",
+          "sheet": "s7",
+          "block": "analyze_my_text",
+          "field": "surprise",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "예상과 달랐던 것"
+        },
+        {
+          "path": "s7.analyze_my_text.color_source",
+          "sheet": "s7",
+          "block": "analyze_my_text",
+          "field": "color_source",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "analyze",
+          "label": "글자에 입힌 색은 어느 그림에서 왔는가"
+        },
+        {
+          "path": "s7.artist_statement.text",
+          "sheet": "s7",
+          "block": "artist_statement",
+          "field": "text",
+          "evidence": "product",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "reflect_submit",
+          "label": "창작 진술문 150자",
+          "maxChars": 150
+        },
+        {
+          "path": "s7.agency_record.r0.tool_did",
+          "sheet": "s7",
+          "block": "agency_record",
+          "field": "r0.tool_did",
+          "evidence": "process",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "note_save",
+          "label": "도구(AI)가 도운 것",
+          "repeatable": true
+        },
+        {
+          "path": "s7.agency_record.r0.i_decided",
+          "sheet": "s7",
+          "block": "agency_record",
+          "field": "r0.i_decided",
+          "evidence": "process",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "note_save",
+          "label": "내가 결정한 것",
+          "repeatable": true
+        },
+        {
+          "path": "s7.agency_record.r1.tool_did",
+          "sheet": "s7",
+          "block": "agency_record",
+          "field": "r1.tool_did",
+          "evidence": "process",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "note_save",
+          "label": "도구(AI)가 도운 것",
+          "repeatable": true
+        },
+        {
+          "path": "s7.agency_record.r1.i_decided",
+          "sheet": "s7",
+          "block": "agency_record",
+          "field": "r1.i_decided",
+          "evidence": "process",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "note_save",
+          "label": "내가 결정한 것",
+          "repeatable": true
+        },
+        {
+          "path": "s7.agency_record.r2.tool_did",
+          "sheet": "s7",
+          "block": "agency_record",
+          "field": "r2.tool_did",
+          "evidence": "process",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "note_save",
+          "label": "도구(AI)가 도운 것",
+          "repeatable": true
+        },
+        {
+          "path": "s7.agency_record.r2.i_decided",
+          "sheet": "s7",
+          "block": "agency_record",
+          "field": "r2.i_decided",
+          "evidence": "process",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "note_save",
+          "label": "내가 결정한 것",
+          "repeatable": true
+        },
+        {
+          "path": "s7.my_words.intent.seen",
+          "sheet": "s7",
+          "block": "my_words",
+          "field": "intent.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "의도 / 수업에서 본 장면"
+        },
+        {
+          "path": "s7.my_words.intent.reworded",
+          "sheet": "s7",
+          "block": "my_words",
+          "field": "intent.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "의도 / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s7.my_words.warrant.seen",
+          "sheet": "s7",
+          "block": "my_words",
+          "field": "warrant.seen",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "당위성(왜 이것이어야 하는가) / 수업에서 본 장면"
+        },
+        {
+          "path": "s7.my_words.warrant.reworded",
+          "sheet": "s7",
+          "block": "my_words",
+          "field": "warrant.reworded",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "당위성(왜 이것이어야 하는가) / 내 말로 다시 쓰면"
+        },
+        {
+          "path": "s7.one_sentence.sentence",
+          "sheet": "s7",
+          "block": "one_sentence",
+          "field": "sentence",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "blank",
+          "logAction": "reflect_submit",
+          "label": ""
+        },
+        {
+          "path": "s7.next_line.text",
+          "sheet": "s7",
+          "block": "next_line",
+          "field": "text",
+          "label": "전시에서 내 작품이 어떻게 보이기를 바라는가?",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "carryOverTo": [
+            "s8.critique_friend"
+          ]
+        },
+        {
+          "path": "s7.selfcheck.why",
+          "sheet": "s7",
+          "block": "selfcheck",
+          "field": "why",
+          "label": "오늘 내가 무엇을 고르고 무엇을 버렸는지 이유와 함께 말할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s7.selfcheck.concept",
+          "sheet": "s7",
+          "block": "selfcheck",
+          "field": "concept",
+          "label": "오늘 만난 개념어를 내 말로 설명할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s7.selfcheck.sentence",
+          "sheet": "s7",
+          "block": "selfcheck",
+          "field": "sentence",
+          "label": "오늘 알게 된 것을 한 문장으로 쓸 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "good",
+            "mid",
+            "need"
+          ]
+        },
+        {
+          "path": "s8.critique_friend.describe.text",
+          "sheet": "s8",
+          "block": "critique_friend",
+          "field": "describe.text",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "critique_write",
+          "label": "기술 / "
+        },
+        {
+          "path": "s8.critique_friend.analyze.text",
+          "sheet": "s8",
+          "block": "critique_friend",
+          "field": "analyze.text",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "critique_write",
+          "label": "분석 / "
+        },
+        {
+          "path": "s8.critique_friend.interpret.text",
+          "sheet": "s8",
+          "block": "critique_friend",
+          "field": "interpret.text",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "critique_write",
+          "label": "해석 / "
+        },
+        {
+          "path": "s8.critique_friend.judge.text",
+          "sheet": "s8",
+          "block": "critique_friend",
+          "field": "judge.text",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": "critique_write",
+          "label": "평가 / "
+        },
+        {
+          "path": "s8.critique_received.r0.sharpest",
+          "sheet": "s8",
+          "block": "critique_received",
+          "field": "r0.sharpest",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "revise",
+          "label": "가장 뾰족했던 한 마디",
+          "repeatable": true
+        },
+        {
+          "path": "s8.critique_received.r0.what_to_fix",
+          "sheet": "s8",
+          "block": "critique_received",
+          "field": "r0.what_to_fix",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": "revise",
+          "label": "그것으로 무엇을 고칠까",
+          "repeatable": true
+        },
+        {
+          "path": "s8.class_similarity.similarity_level",
+          "sheet": "s8",
+          "block": "class_similarity",
+          "field": "similarity_level",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "우리 반 작품의 닮음 정도"
+        },
+        {
+          "path": "s8.class_similarity.most_different",
+          "sheet": "s8",
+          "block": "class_similarity",
+          "field": "most_different",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "가장 닮지 않은 작품은 어떤 작품인가"
+        },
+        {
+          "path": "s8.class_similarity.is_different_good",
+          "sheet": "s8",
+          "block": "class_similarity",
+          "field": "is_different_good",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "닮지 않은 작품은 좋은 작품인가? 왜 그렇게 생각하는가"
+        },
+        {
+          "path": "s8.unit_generalizations.g1.sentence",
+          "sheet": "s8",
+          "block": "unit_generalizations",
+          "field": "g1.sentence",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "topics",
+          "logAction": "reflect_submit",
+          "label": "요약과 손실에 대하여 / "
+        },
+        {
+          "path": "s8.unit_generalizations.g2.sentence",
+          "sheet": "s8",
+          "block": "unit_generalizations",
+          "field": "g2.sentence",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "topics",
+          "logAction": "reflect_submit",
+          "label": "데이터와 관점에 대하여 / "
+        },
+        {
+          "path": "s8.unit_generalizations.g3.sentence",
+          "sheet": "s8",
+          "block": "unit_generalizations",
+          "field": "g3.sentence",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "topics",
+          "logAction": "reflect_submit",
+          "label": "그럴듯함과 타당함에 대하여 / "
+        },
+        {
+          "path": "s8.unit_generalizations.g4.sentence",
+          "sheet": "s8",
+          "block": "unit_generalizations",
+          "field": "g4.sentence",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": "topics",
+          "logAction": "reflect_submit",
+          "label": "도구와 나의 관계에 대하여 / "
+        },
+        {
+          "path": "s8.transfer_plan.first",
+          "sheet": "s8",
+          "block": "transfer_plan",
+          "field": "first",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "먼저 할 일"
+        },
+        {
+          "path": "s8.transfer_plan.next",
+          "sheet": "s8",
+          "block": "transfer_plan",
+          "field": "next",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "그다음"
+        },
+        {
+          "path": "s8.transfer_plan.last_check",
+          "sheet": "s8",
+          "block": "transfer_plan",
+          "field": "last_check",
+          "evidence": "understanding",
+          "rubric": true,
+          "scaffold": null,
+          "logAction": null,
+          "label": "마지막에 확인할 것"
+        },
+        {
+          "path": "s8.selfcheck.explain_rule",
+          "sheet": "s8",
+          "block": "selfcheck",
+          "field": "explain_rule",
+          "label": "나는 내 작품의 규칙과 그 이유를 남에게 설명할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "full",
+            "some",
+            "notyet"
+          ]
+        },
+        {
+          "path": "s8.selfcheck.rechose",
+          "sheet": "s8",
+          "block": "selfcheck",
+          "field": "rechose",
+          "label": "나는 도구가 제안한 것을 내 기준으로 다시 골랐다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "full",
+            "some",
+            "notyet"
+          ]
+        },
+        {
+          "path": "s8.selfcheck.unmeasured",
+          "sheet": "s8",
+          "block": "selfcheck",
+          "field": "unmeasured",
+          "label": "나는 데이터가 담지 못한 것을 말할 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "full",
+            "some",
+            "notyet"
+          ]
+        },
+        {
+          "path": "s8.selfcheck.critique",
+          "sheet": "s8",
+          "block": "selfcheck",
+          "field": "critique",
+          "label": "나는 친구의 작품을 근거를 들어 비평했다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "full",
+            "some",
+            "notyet"
+          ]
+        },
+        {
+          "path": "s8.selfcheck.transfer",
+          "sheet": "s8",
+          "block": "selfcheck",
+          "field": "transfer",
+          "label": "나는 이 방법을 다른 데이터에도 쓸 수 있다.",
+          "evidence": "process",
+          "rubric": false,
+          "scaffold": null,
+          "logAction": null,
+          "choices": [
+            "full",
+            "some",
+            "notyet"
+          ]
+        }
+      ],
+      "counts": {
+        "sheets": 9,
+        "fields": 163,
+        "rubricFields": 68
+      }
+    }
+  ],
+  "roster": [],
+  "logActions": [
+    "view",
+    "analyze",
+    "map_apply",
+    "ab_switch",
+    "coach_ask",
+    "coach_answer",
+    "note_save",
+    "revise",
+    "exhibit",
+    "critique_write",
+    "reflect_submit"
+  ]
+}

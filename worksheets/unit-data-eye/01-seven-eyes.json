@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "id": "s1",
+  "kind": "session",
+  "order": 1,
+  "session": 1,
+  "title": "한 그림, 일곱 개의 눈",
+  "yield": "요약과 손실을 읽은 기록",
+  "todayQuestion": "그림을 숫자로 옮기면 무엇이 보이고 무엇이 사라질까?",
+  "screens": [
+    { "label": "알고리즘 분석실", "page": "lab.html", "exists": true },
+    { "label": "배움터", "page": "learn.html", "exists": true }
+  ],
+  "eq": ["EQ1"],
+  "generalizations": ["G1"],
+  "microConcepts": ["요약", "손실"],
+
+  "blocks": [
+    {
+      "id": "report",
+      "n": 1,
+      "label": "보고 하기",
+      "kind": "table",
+      "evidence": "process",
+      "rubric": false,
+      "logAction": "analyze",
+      "lead": { "id": "picked_painting", "label": "내가 고른 그림", "lines": 1 },
+      "note": "분석 세 가지를 골라 채운다.",
+      "columns": [
+        { "id": "analysis_name", "label": "분석 이름" },
+        { "id": "one_number", "label": "알게 된 수치 한 가지" },
+        { "id": "lost_in_recreation", "label": "재창조 화면에서 사라진 것" }
+      ],
+      "rows": 3
+    },
+    {
+      "id": "choose_discard",
+      "n": 2,
+      "label": "고르기와 버리기",
+      "card": "form_reading",
+      "kind": "fields",
+      "evidence": "process",
+      "rubric": false,
+      "logAction": "coach_answer",
+      "items": [
+        { "id": "first_impression", "label": "그림의 첫 인상 한 단어", "lines": 1 },
+        { "id": "three_elements", "label": "그 인상을 만든 조형 요소 세 가지 (색·명도·구도·질감 중)", "lines": 2 },
+        { "id": "k4_vs_k16", "label": "색을 4개로 줄였을 때와 16개일 때 무엇이 달라졌나", "lines": 3 }
+      ]
+    },
+    {
+      "id": "my_words",
+      "n": 3,
+      "label": "오늘 만난 개념을 내 말로",
+      "kind": "conceptTable",
+      "evidence": "understanding",
+      "rubric": true,
+      "columns": [
+        { "id": "term", "label": "개념어" },
+        { "id": "seen", "label": "수업에서 본 장면" },
+        { "id": "reworded", "label": "내 말로 다시 쓰면" }
+      ],
+      "terms": [
+        { "id": "summary", "term": "요약" },
+        { "id": "loss", "term": "손실" }
+      ]
+    },
+    {
+      "id": "one_sentence",
+      "n": 4,
+      "label": "알게 된 것 한 문장",
+      "kind": "cloze",
+      "evidence": "understanding",
+      "rubric": true,
+      "logAction": "reflect_submit",
+      "scaffold": "wordBank",
+      "note": "보기에서 골라 넣어 문장을 완성한다.",
+      "wordBank": ["큰 흐름", "미세한 질감", "선택", "손실"],
+      "template": "그림을 ({{k}})개의 색으로 요약하면 ({{visible}})이 잘 보이고 ({{gone}})이 사라진다. 그래서 요약한다는 것은 무엇을 잃을지 ({{act}})하는 일이다.",
+      "slots": [
+        { "id": "k", "hint": "색 개수" },
+        { "id": "visible", "hint": "잘 보이게 된 것" },
+        { "id": "gone", "hint": "사라진 것" },
+        { "id": "act", "hint": "그 일을 뭐라 부를까" }
+      ]
+    }
+  ],
+
+  "carryOver": {
+    "id": "next_line",
+    "label": "다음 시간으로 넘기는 한 줄",
+    "prompt": "다음 시간에 더 알고 싶은 색이나 장면은?",
+    "to": ["s2.report"],
+    "as": "설정 바꾸기의 출발"
+  },
+
+  "selfCheck": "standard"
+}

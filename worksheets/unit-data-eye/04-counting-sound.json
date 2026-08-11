@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "id": "s4",
+  "kind": "session",
+  "order": 4,
+  "session": 4,
+  "title": "소리를 세어 보기",
+  "yield": "무엇을 세고 무엇을 버렸는지",
+  "todayQuestion": "들리는 것을 어떻게 셀 수 있을까? 세는 순간 무엇이 달라지는가?",
+  "screens": [
+    { "label": "소리를 데이터로", "page": "studio-sound.html", "exists": true },
+    { "label": "데이터 점 스튜디오", "page": "studio-data.html", "exists": true }
+  ],
+  "eq": ["EQ1"],
+  "generalizations": ["G2"],
+  "microConcepts": ["특징 추출", "시간의 흐름"],
+
+  "blocks": [
+    {
+      "id": "report",
+      "n": 1,
+      "label": "보고 하기",
+      "kind": "fields",
+      "evidence": "process",
+      "rubric": false,
+      "logAction": "analyze",
+      "items": [
+        { "id": "my_sound", "label": "내가 다룬 소리", "lines": 1 },
+        { "id": "features_used", "label": "추출된 특징 가운데 내가 쓴 것 (음량·저음·중음·고음·날카로움·변화량)", "lines": 2 },
+        { "id": "biggest_change", "label": "그래프에서 가장 크게 변한 순간과 그때 무슨 일이 있었는가", "lines": 3 }
+      ]
+    },
+    {
+      "id": "choose_discard",
+      "n": 2,
+      "label": "고르기와 버리기",
+      "card": "decision_basis",
+      "kind": "fields",
+      "evidence": "process",
+      "rubric": false,
+      "logAction": "map_apply",
+      "items": [
+        { "id": "loudness_mapping", "label": "음량을 점의 무엇에 연결했나, 왜 그렇게 했나", "lines": 2 },
+        { "id": "unused_features", "label": "쓰지 않은 특징과 버린 이유", "lines": 2 }
+      ]
+    },
+    {
+      "id": "my_words",
+      "n": 3,
+      "label": "오늘 만난 개념을 내 말로",
+      "kind": "conceptTable",
+      "evidence": "understanding",
+      "rubric": true,
+      "columns": [
+        { "id": "term", "label": "개념어" },
+        { "id": "seen", "label": "수업에서 본 장면" },
+        { "id": "reworded", "label": "내 말로 다시 쓰면" }
+      ],
+      "terms": [
+        { "id": "feature_extraction", "term": "특징 추출" },
+        { "id": "time_flow", "term": "시간의 흐름" }
+      ]
+    },
+    {
+      "id": "one_sentence",
+      "n": 4,
+      "label": "알게 된 것 한 문장",
+      "kind": "cloze",
+      "evidence": "understanding",
+      "rubric": true,
+      "logAction": "reflect_submit",
+      "scaffold": "blanks",
+      "template": "소리를 셀 때 나는 ({{counted}})을 숫자로 바꾸었고, 그 대신 ({{uncounted}})은 숫자가 되지 못했다.",
+      "slots": [
+        { "id": "counted", "hint": "" },
+        { "id": "uncounted", "hint": "" }
+      ]
+    }
+  ],
+
+  "carryOver": {
+    "id": "next_line",
+    "label": "다음 시간으로 넘기는 한 줄",
+    "prompt": "내 삶에서 세어 보고 싶은 것 한 가지는?",
+    "to": ["s5.report"],
+    "as": "내 삶의 데이터 고르기"
+  },
+
+  "selfCheck": "standard"
+}

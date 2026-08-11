@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>학습지 · 데이터의 눈</title>
+<link rel="stylesheet" href="css/site.css" />
+<link rel="stylesheet" href="worksheets/render/worksheet.css" />
+<style>
+  /* 왼쪽 차례 · 오른쪽 학습지 한 장. 좁은 화면에서는 차례가 위로 접힌다. */
+  .ws-layout { display: grid; grid-template-columns: 300px 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 900px) { .ws-layout { grid-template-columns: 1fr; } }
+  .ws-side { position: sticky; top: 78px; }
+  @media (max-width: 900px) { .ws-side { position: static; } }
+  .ws-paper { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px 10px; }
+  /* 인쇄는 학습지 한 장만 — 사이트 껍데기(내비·차례·푸터)는 종이에 남지 않는다 */
+  @media print {
+    .site-header, #site-footer, .page-head, .ws-side, #idea, .footer-note { display: none !important; }
+    .wrap { max-width: none; padding: 0; margin: 0; }
+    .ws-layout { display: block; }
+    .ws-paper { border: 0; padding: 0; background: #fff; }
+  }
+</style>
+</head>
+<body>
+<div id="app-header"></div>
+
+<div class="wrap">
+  <div class="page-head">
+    <span class="eyebrow">학습지 · 데이터의 눈</span>
+    <h1>오늘 차시의 학습지</h1>
+    <p>수업 시간마다 한 장씩 채웁니다. 쓰는 즉시 <b>내 계정에 자동 저장</b>되고, 선생님 대시보드와 내 포트폴리오로 그대로 이어져요.
+      종이로 받았다면 <b>🖨 인쇄</b>로 같은 학습지를 A4 한 장에 뽑을 수 있어요.</p>
+  </div>
+  <div id="idea"></div>
+
+  <div class="ws-layout">
+    <aside class="ws-side">
+      <div class="card">
+        <h3 style="margin:0 0 3px;font-size:14.5px">단원 차례</h3>
+        <p class="muted" style="font-size:11.5px;margin:0 0 10px">차시 번호가 곧 순서예요. 앞 차시에서 넘긴 한 줄이 다음 차시에서 쓰입니다.</p>
+        <nav class="ws-toc" id="ws-toc" aria-label="학습지 차례"></nav>
+      </div>
+    </aside>
+
+    <div>
+      <div id="ws-head"></div>
+      <div id="ws-carry-in"></div>
+      <div class="ws-paper"><div id="sheet"></div></div>
+    </div>
+  </div>
+
+  <p class="footer-note">학습지에는 <b>실명을 쓰지 않습니다</b> — 로그인한 별명과 학번 코드로만 저장돼요 · 답은 언제든 고칠 수 있고 마지막 내용이 저장됩니다</p>
+</div>
+
+<script src="js/explain.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/auth.js"></script>
+<script src="config/cloud-config.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/log.js"></script>
+<script src="worksheets/render/worksheet.js"></script>
+<script src="js/worksheet.js"></script>
+<script>
+  UI.mountIdeaBar('idea', 'notes');
+  WS.mountPage();
+</script>
+</body>
+</html>

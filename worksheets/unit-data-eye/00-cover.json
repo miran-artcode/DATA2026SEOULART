@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "cover",
+  "kind": "cover",
+  "order": 0,
+  "session": null,
+  "title": "표지",
+  "yield": null,
+  "screens": [],
+  "eq": [],
+  "generalizations": [],
+  "microConcepts": [],
+  "blocks": [
+    {
+      "id": "identity",
+      "n": null,
+      "label": null,
+      "kind": "fields",
+      "evidence": null,
+      "rubric": false,
+      "items": [
+        { "id": "student_code", "label": "학번 코드 (이름 대신)", "lines": 1, "role": "studentCode" },
+        { "id": "work_title", "label": "내 작품 제목", "lines": 1, "role": "workTitle" }
+      ]
+    },
+    { "id": "transfer_goal", "n": null, "label": "이 꾸러미를 다 채우면 나는 이렇게 말할 수 있다.", "kind": "static", "source": "unit.transferGoal" },
+    { "id": "concept", "n": null, "label": "단원을 꿰는 하나의 개념", "kind": "static", "source": "unit.concept" },
+    { "id": "eq", "n": null, "label": "단원의 본질적 질문", "kind": "static", "source": "unit.essentialQuestions" },
+    { "id": "toc", "n": null, "label": "꾸러미 차례", "kind": "static", "source": "auto.toc" }
+  ],
+  "selfCheck": null,
+  "carryOver": null
+}

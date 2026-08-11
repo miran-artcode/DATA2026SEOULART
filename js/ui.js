@@ -35,6 +35,7 @@
       { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구' }
     ] },
     { label: '배우기', drop: [
+      { href: 'worksheet.html', t: '학습지', s: '차시마다 한 장 · 쓰면 자동 저장' },
       { href: 'literacy.html', t: 'AI 리터러시 7장', s: '읽고 → 해 보고 → 한 줄 답하기' },
       { href: 'learn.html', t: '알고리즘 배움터', s: '쉬운→깊은 설명' },
       { href: 'critique.html', t: '데이터 비평 읽기', s: '차트를 비판적으로 (질문 3층위)' },

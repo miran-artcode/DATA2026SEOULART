@@ -96,5 +96,7 @@
   document.getElementById('ethics-card').innerHTML = card('ethics-ai').replace('<div class="card">', '').replace(/<\/div>$/, '');
   UI.mountIdeaBar('idea', 'learn');
 </script>
+<script src="js/worksheet.js" defer></script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
 </body>
 </html>

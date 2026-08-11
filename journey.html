@@ -92,6 +92,13 @@
     </a>
   </div>
 
+  <!-- 학습지 — '차시' 축. 위의 4단계(무엇을 데이터로 삼는가)와 다른 축이라 관계를 밝혀 둔다. -->
+  <div class="dn-cluster" id="ws-hub" style="margin:18px 0"></div>
+  <p class="muted" style="font-size:12.5px;margin:-6px 0 18px">
+    ⚠ <b>선생님께</b> — 순차 진행의 기준은 <b>차시 번호</b>입니다. 학습지끼리 <b>‘다음 시간으로 넘기는 한 줄’</b>이
+    1→2→3→4→5→6→8차시(7차시는 8차시로)로 이어져 있어, 단계 순서대로 배치하면 아직 쓰지 않은 학습지의 한 줄을 앞 차시가 요구하게 됩니다.
+    배치를 바꾸려면 <code>js/worksheet.js</code>의 <code>COURSE</code> 표 한 곳만 고치면 됩니다.</p>
+
   <div class="spine">
     <h3 style="margin:0">🦴 단계가 올라가도 변하지 않는 척추</h3>
     <p class="muted" style="font-size:12.5px;margin:4px 0 0">데이터 출처(그림·소리·삶·사회)는 바뀌어도, 미술 교육의 본질은 같습니다.</p>
@@ -120,8 +127,10 @@
 <script src="js/store.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/log.js"></script>
+<script src="js/worksheet.js"></script>
 <script>
   UI.mountIdeaBar && UI.mountIdeaBar('idea', 'general');
+  WS.mountHub('ws-hub');
 
   /* 창작 과정 7단계 — 내 학습 로그·작품·노트를 읽어 도달 여부를 표시 */
   (async function renderProcess() {

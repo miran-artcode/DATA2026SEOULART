@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "id": "s2",
+  "kind": "session",
+  "order": 2,
+  "session": 2,
+  "title": "그림이 분해되어 다시 연주되다",
+  "yield": "설정을 바꾸며 비교한 표",
+  "todayQuestion": "같은 그림인데 왜 다르게 보일까? 무엇이 화면을 바꾸는가?",
+  "screens": [
+    { "label": "색 군집 스튜디오", "page": "studio-color.html", "exists": true }
+  ],
+  "eq": ["EQ4"],
+  "generalizations": ["G1"],
+  "microConcepts": ["설정값(매개변수)", "표현"],
+
+  "blocks": [
+    {
+      "id": "report",
+      "n": 1,
+      "label": "보고 하기",
+      "note": "설정을 하나씩 바꾸며 관찰한다",
+      "kind": "table",
+      "evidence": "process",
+      "rubric": false,
+      "logAction": "analyze",
+      "columns": [
+        { "id": "changed_setting", "label": "바꾼 설정" },
+        { "id": "screen_change", "label": "화면에서 달라진 것" },
+        { "id": "my_feeling", "label": "내가 받은 느낌" }
+      ],
+      "rows": 3
+    },
+    {
+      "id": "choose_discard",
+      "n": 2,
+      "label": "고르기와 버리기",
+      "card": "decision_basis",
+      "kind": "fields",
+      "evidence": "process",
+      "rubric": false,
+      "logAction": "coach_answer",
+      "items": [
+        { "id": "kept_three", "label": "끝까지 남긴 설정 세 가지", "lines": 2 },
+        { "id": "discarded_one", "label": "일부러 버린 설정 하나와 그 이유", "lines": 2 },
+        { "id": "mic_help_harm", "label": "마이크로 소리를 넣었을 때 의도에 도움이 된 점과 방해가 된 점", "lines": 3 }
+      ]
+    },
+    {
+      "id": "my_words",
+      "n": 3,
+      "label": "오늘 만난 개념을 내 말로",
+      "kind": "conceptTable",
+      "evidence": "understanding",
+      "rubric": true,
+      "columns": [
+        { "id": "term", "label": "개념어" },
+        { "id": "seen", "label": "수업에서 본 장면" },
+        { "id": "reworded", "label": "내 말로 다시 쓰면" }
+      ],
+      "terms": [
+        { "id": "parameter", "term": "설정값(매개변수)" },
+        { "id": "expression", "term": "표현" }
+      ]
+    },
+    {
+      "id": "one_sentence",
+      "n": 4,
+      "label": "알게 된 것 한 문장",
+      "kind": "cloze",
+      "evidence": "understanding",
+      "rubric": true,
+      "logAction": "reflect_submit",
+      "scaffold": "blanks",
+      "template": "같은 그림이라도 ({{what}})이 달라지면 ({{result}})이 달라진다. 그래서 설정을 고르는 일은 ({{meaning}})이다.",
+      "slots": [
+        { "id": "what", "hint": "" },
+        { "id": "result", "hint": "" },
+        { "id": "meaning", "hint": "" }
+      ]
+    }
+  ],
+
+  "carryOver": {
+    "id": "next_line",
+    "label": "다음 시간으로 넘기는 한 줄",
+    "prompt": "내 소리나 사진을 이렇게 다룬다면 무엇부터 바꿔 보고 싶은가?",
+    "to": ["s3.report", "s4.report"],
+    "as": "데이터 고르기의 출발"
+  },
+
+  "selfCheck": "standard"
+}

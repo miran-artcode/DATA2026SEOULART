@@ -115,6 +115,9 @@
       기록(의도·근거·버전·성찰)은 각 스튜디오 안에서 그때그때 남으니, 마지막에 몰아 쓸 필요가 없어요.</p>
   </div>
 
+  <!-- 학습지 — 차시대로 한 장씩. 여정(무엇을 데이터로 삼는가)과 짝을 이루는 '수업의 순서'. -->
+  <div class="dn-cluster" id="ws-hub"></div>
+
   <!-- 최근 내 작업 — 저장 작업이 있을 때만 노출 -->
   <div class="dn-cluster" id="recent" style="display:none">
     <div class="dn-cluster-head">
@@ -189,9 +192,14 @@
 <script src="js/store.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/log.js"></script>
+<script src="js/worksheet.js"></script>
 <script>
   UI.mountIdeaBar('idea', 'hub');
   UI.mountReportHeader('report-head');
+
+  /* 학습지 — 차시 목록과 진행률. 여정 노드에는 '이 단계에서 쓰는 차시' 꼬리표를 단다. */
+  WS.mountHub('ws-hub');
+  WS.tagStageNodes('#spine');
 
   /*
    * 진행 상태 — 학생이 어디까지 왔는지 허브에서 바로 보여 준다.

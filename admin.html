@@ -23,7 +23,7 @@
   <div class="card" style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center">
     <span class="muted" style="font-size:12.5px; font-weight:700">🔎 검색·필터</span>
     <input id="q" type="text" placeholder="별명·반·제목 검색" style="width:auto; flex:1; min-width:180px">
-    <select id="f-kind" style="width:auto"><option value="">전체 유형</option><option value="color">색 군집</option><option value="data">데이터 점</option></select>
+    <select id="f-kind" style="width:auto"><option value="">전체 유형</option><option value="color">색 군집</option><option value="data">데이터 점</option><option value="worksheet">학습지</option></select>
     <span class="muted" style="font-size:11.5px">아래 표 전체에 적용돼요</span>
   </div>
 
@@ -32,6 +32,7 @@
       <button class="dn-tab active" data-tab="process">📊 과정 지표</button>
       <button class="dn-tab" data-tab="timeline">🧭 학생 타임라인</button>
       <button class="dn-tab" data-tab="similar">🔬 학급 유사도</button>
+      <button class="dn-tab" data-tab="worksheet">📄 학습지</button>
       <button class="dn-tab" data-tab="students">👥 학습 현황</button>
       <button class="dn-tab" data-tab="works">🎨 작품</button>
       <button class="dn-tab" data-tab="notes">📝 성찰·메모</button>
@@ -85,10 +86,46 @@
       </div>
     </div>
 
+    <!-- D-6 학습지 — 차시별 제출과 칸별 답 -->
+    <div class="dn-tabpanel" data-tabpanel="worksheet" hidden>
+      <div class="card">
+        <h3>D-6 · 학습지 제출 현황</h3>
+        <p class="muted" style="font-size:12.5px;margin:0 0 12px">학생이 <b>학습지 화면</b>에서 쓴 내용이 그대로 모입니다(자동 저장 · 한 학생·한 차시에 한 건).
+          완성도는 <b>채운 칸 ÷ 그 차시의 전체 칸</b>이에요. <b>차시 줄을 누르면</b> 그 차시의 칸별 답을 모아 볼 수 있어요.</p>
+        <div class="grid c4" id="ws-stats"></div>
+        <div style="overflow-x:auto;margin-top:14px"><table class="data" id="tbl-ws-sessions">
+          <thead><tr><th>차시</th><th>학습지</th><th>단계</th><th>쓴 학생</th><th>평균 완성도</th><th>다 씀</th><th>자기점검</th></tr></thead>
+          <tbody></tbody></table></div>
+        <p class="muted" style="font-size:11.5px;margin:8px 0 0">자기점검 = 학생이 학습지 맨 아래에 스스로 고른 값의 분포입니다
+          (○ 잘함 · △ 보통 · ✕ 더 필요함 · 8차시는 충분히/어느 정도/아직). 성적이 아니라 <b>다음 시간에 무엇을 다시 짚을지</b>의 신호예요.</p>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>학생 × 차시</h3>
+        <p class="muted" style="font-size:12.5px;margin:0 0 10px">칸의 숫자는 완성도(%)예요. <b>칸을 누르면</b> 그 학생의 그 차시 답이 아래에 펼쳐집니다.</p>
+        <div style="overflow-x:auto" id="ws-grid"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3 id="ws-detail-title">답 보기</h3>
+        <div id="ws-detail"><p class="muted" style="font-size:12.5px;margin:0">위에서 차시나 학생 칸을 고르면 여기에 답이 보입니다.</p></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>학습지 내보내기</h3>
+        <p class="muted" style="font-size:12.5px;margin:0 0 10px">엑셀에서 바로 열립니다. 답안 CSV는 <b>한 줄에 한 칸</b>(반·별명·차시·칸이름·증거층·루브릭대상·답)이라 정렬·필터로 채점표를 만들기 좋아요.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+          <button id="btn-csv-ws" class="btn">📄 제출 현황 CSV(학생 × 차시)</button>
+          <button id="btn-csv-ws-ans" class="btn">🧾 답안 CSV(칸별 · 루브릭 표시)</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 학습 현황 -->
     <div class="dn-tabpanel" data-tabpanel="students" hidden>
-      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-students"><thead><tr><th>별명</th><th>반</th><th>작품</th><th>전시</th><th>노트</th><th>피드백</th><th>근거기록</th><th>수준</th></tr></thead><tbody></tbody></table></div>
-      <p class="muted" style="font-size:11.5px;margin:6px 0 0">수준은 활동량(작품·전시·노트·피드백·근거 기록)에 따른 <b>자동 추정</b>이며, 성적 평가가 아니라 지도 참고용입니다.</p>
+      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-students"><thead><tr><th>별명</th><th>반</th><th>작품</th><th>전시</th><th>노트</th><th>학습지</th><th>피드백</th><th>근거기록</th><th>수준</th></tr></thead><tbody></tbody></table></div>
+      <p class="muted" style="font-size:11.5px;margin:6px 0 0">수준은 활동량(작품·전시·노트·학습지·피드백·근거 기록)에 따른 <b>자동 추정</b>이며, 성적 평가가 아니라 지도 참고용입니다.
+        학습지는 장수가 많아 최대 3점까지만 셉니다.</p>
     </div>
 
     <!-- 작품 -->
@@ -187,6 +224,7 @@
 <script src="js/coach.js"></script>
 <script src="js/log.js"></script>
 <script src="js/metrics.js"></script>
+<script src="js/worksheet.js"></script>
 <script>
   document.getElementById('mode-label').textContent = Store.mode === 'cloud' ? '클라우드(실시간)' : '로컬(이 기기)';
   (function(){ const ae = document.getElementById('admin-email'); if (ae && window.AdminGate) ae.textContent = '· ' + AdminGate.email; })();
@@ -194,7 +232,7 @@
     UI.callout('<b>실시간 클라우드 미설정</b> · 지금은 이 기기에 저장된 데이터만 보여요. <code>config/cloud-config.js</code>를 설정하면 한 링크에서 학급 전체가 실시간 공유됩니다(README 참고). 그 전엔 학생 JSON을 ‘취합’해 모으세요.', 'warn');
 
   let works = [], notes = [], feedback = {}, allFb = [], logs = [], versions = [], judge = null;
-  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', lab: '분석실', reflection: '성찰', project: '프로젝트', card: '질문 카드', revision: '수정 근거', society: '사회 분석' };
+  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', lab: '분석실', reflection: '성찰', project: '프로젝트', card: '질문 카드', revision: '수정 근거', society: '사회 분석', worksheet: '학습지', literacy: '리터러시', statement: '창작 진술문' };
 
   async function load() {
     works = await Store.listWorks();
@@ -203,6 +241,7 @@
     for (const w of works) { const items = await Store.listFeedback(w.id); feedback[w.id] = items.length; allFb.push(...items); }
     // 기존 표(작품·성찰·취합)를 먼저 그린다 — 새 지표 계산이 실패해도 대시보드의 나머지는 살아 있도록.
     stats(); renderStudents(); renderWorks(); renderNotes();
+    renderWorksheets().catch(e => console.warn('[admin] 학습지 표 실패', e));
     try {
       logs = await Store.listLogs();
       versions = await Store.listVersions();
@@ -216,22 +255,24 @@
   }
 
   function studentLevel(s) {
-    const score = s.exhibited * 2 + s.works + s.notes + s.fb + (s.evidence ? 1 : 0);
+    // 학습지는 장수가 많아(최대 9장) 그대로 더하면 다른 활동을 덮는다 → 최대 3점까지만 센다.
+    const score = s.exhibited * 2 + s.works + s.notes + s.fb + Math.min(3, s.ws || 0) + (s.evidence ? 1 : 0);
     if (score >= 5) return ['심화', 'adv'];
     if (score >= 2) return ['중간', 'good'];
     return ['기초', ''];
   }
   function renderStudents() {
     const map = new Map();
-    const get = (id, name, klass) => { if (!map.has(id)) map.set(id, { name, klass: klass || '', works: 0, exhibited: 0, notes: 0, fb: 0, evidence: false }); const s = map.get(id); if (name && !s.name) s.name = name; if (klass && !s.klass) s.klass = klass; return s; };
+    const get = (id, name, klass) => { if (!map.has(id)) map.set(id, { name, klass: klass || '', works: 0, exhibited: 0, notes: 0, ws: 0, fb: 0, evidence: false }); const s = map.get(id); if (name && !s.name) s.name = name; if (klass && !s.klass) s.klass = klass; return s; };
     works.forEach(w => { if (!w.userId) return; const s = get(w.userId, w.by, w.klass); s.works++; if (w.exhibited) s.exhibited++; if (w.evidence) s.evidence = true; });
-    notes.forEach(n => { if (!n.userId) return; get(n.userId, n.by).notes++; });
+    // 학습지는 노트로 저장되지만 성격이 달라 따로 센다(노트 칸이 학습지 장수에 묻히지 않도록).
+    notes.forEach(n => { if (!n.userId) return; const s = get(n.userId, n.by, n.klass); if (n.kind === 'worksheet') s.ws++; else s.notes++; });
     allFb.forEach(f => { if (!f.userId) return; get(f.userId, f.by).fb++; });
     const q = document.getElementById('q').value.trim().toLowerCase();
     const rows = [...map.values()].filter(s => !q || (s.name || '').toLowerCase().includes(q))
       .sort((a, b) => (b.exhibited - a.exhibited) || (b.works - a.works))
-      .map(s => { const [lvl, cls] = studentLevel(s); return `<tr><td>${UI.escapeHTML(s.name || '')}</td><td>${UI.escapeHTML(s.klass)}</td><td>${s.works}</td><td>${s.exhibited}</td><td>${s.notes}</td><td>${s.fb}</td><td>${s.evidence ? '✅' : ''}</td><td><span class="badge ${cls}">${lvl}</span></td></tr>`; }).join('');
-    document.querySelector('#tbl-students tbody').innerHTML = rows || '<tr><td colspan="8" class="muted">데이터 없음</td></tr>';
+      .map(s => { const [lvl, cls] = studentLevel(s); return `<tr><td>${UI.escapeHTML(s.name || '')}</td><td>${UI.escapeHTML(s.klass)}</td><td>${s.works}</td><td>${s.exhibited}</td><td>${s.notes}</td><td>${s.ws}</td><td>${s.fb}</td><td>${s.evidence ? '✅' : ''}</td><td><span class="badge ${cls}">${lvl}</span></td></tr>`; }).join('');
+    document.querySelector('#tbl-students tbody').innerHTML = rows || '<tr><td colspan="9" class="muted">데이터 없음</td></tr>';
   }
   function stats() {
     const students = new Set([...works.map(w => w.userId), ...notes.map(n => n.userId)].filter(Boolean));
@@ -267,6 +308,220 @@
     document.querySelector('#tbl-notes tbody').innerHTML = rows || '<tr><td colspan="5" class="muted">데이터 없음</td></tr>';
   }
 
+  /* ============================ D-6 학습지 ============================
+   * 학습지 한 장 = 작업노트 한 건(kind:'worksheet'). 새 컬렉션이 없으므로
+   * 위의 load() 가 이미 읽어 온 notes 를 그대로 쓴다.
+   * 칸 이름·증거층·루브릭 대상 여부는 꾸러미 색인(worksheets/manifest.json)에서 읽는다.
+   */
+  let wsIndex = null, wsPick = null;      // wsPick: 지금 펼쳐 본 것 {sheet, userId|null, path|null}
+
+  const wsNotes = () => notes.filter(n => n.kind === 'worksheet' && n.unit === WS.UNIT && n.sheet);
+  const wsPathsOf = (sheet) => (wsIndex.fieldIndex || []).filter(f => f.sheet === sheet);
+  const wsMeta = (sheet) => (wsIndex.sheets || []).find(s => s.id === sheet) || {};
+  // 별명은 노트가 직접 갖고 있지만(by), 비어 있으면 같은 학생의 작품에서 찾아 채운다.
+  function wsName(n) {
+    if (n.by) return n.by;
+    const w = works.find(x => x.userId === n.userId && x.by);
+    return (w && w.by) || (n.code || '');
+  }
+  const wsPct = (n) => { const t = wsPathsOf(n.sheet).length; return t ? Math.round(wsFilled(n) * 100 / t) : 0; };
+  const wsFilled = (n) => wsPathsOf(n.sheet).reduce((k, f) =>
+    k + (String((n.answers || {})[f.path] == null ? '' : n.answers[f.path]).trim() ? 1 : 0), 0);
+
+  async function renderWorksheets() {
+    const host = document.getElementById('tbl-ws-sessions').querySelector('tbody');
+    if (!wsIndex) {
+      try { wsIndex = await WS.loadManifest(); }
+      catch (e) {
+        document.getElementById('ws-stats').innerHTML =
+          UI.callout('<b>학습지 꾸러미를 읽지 못했습니다.</b> <code>worksheets/manifest.json</code> 을 찾을 수 없어요(' +
+            UI.escapeHTML(e.message) + '). 파일을 직접 열었다면 학교 주소(https://…)로 열어 주세요.', 'warn');
+        return;
+      }
+    }
+    const list = wsNotes();
+    const students = new Set(list.map(n => n.userId));
+    const allPct = list.map(wsPct);
+    const avg = allPct.length ? Math.round(allPct.reduce((a, b) => a + b, 0) / allPct.length) : 0;
+    const done = allPct.filter(p => p >= WS.DONE_PCT).length;
+
+    document.getElementById('ws-stats').innerHTML = [
+      ['학습지를 쓴 학생', students.size], ['제출된 장수', list.length],
+      ['평균 완성도', avg + '%'], ['다 쓴 장수(' + WS.DONE_PCT + '% 이상)', done]
+    ].map(([k, v]) => `<div class="card" style="text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--accent)">${v}</div><div class="muted">${k}</div></div>`).join('');
+
+    // 차시별 줄
+    const rows = WS.COURSE.map(c => {
+      const meta = wsMeta(c.sheet), mine = list.filter(n => n.sheet === c.sheet);
+      const pcts = mine.map(wsPct);
+      const a = pcts.length ? Math.round(pcts.reduce((x, y) => x + y, 0) / pcts.length) : 0;
+      // 자기점검은 학생이 스스로 고른 값 — 차시마다 항목 수가 다르므로 '상·중·하' 분포로 센다.
+      // 값 이름은 꾸러미의 두 척도를 그대로 쓴다(standard: good·mid·need / final: full·some·notyet).
+      const sc = { hi: 0, mid: 0, lo: 0, etc: 0 };
+      mine.forEach(n => Object.keys(n.answers || {}).forEach(p => {
+        if (p.indexOf('.selfcheck.') < 0) return;
+        const v = String(n.answers[p] || '');
+        if (v === 'good' || v === 'full') sc.hi++;
+        else if (v === 'mid' || v === 'some') sc.mid++;
+        else if (v === 'need' || v === 'notyet') sc.lo++;
+        else if (v) sc.etc++;
+      }));
+      const total = sc.hi + sc.mid + sc.lo + sc.etc;
+      return `<tr class="ws-row" data-sheet="${c.sheet}" style="cursor:pointer">
+        <td>${c.sheet === 'cover' ? '표지' : meta.session + '차시'}</td>
+        <td>${UI.escapeHTML(meta.title || c.sheet)}</td>
+        <td><span class="badge">${UI.escapeHTML(c.badge)}</span></td>
+        <td>${mine.length}</td>
+        <td>${a}%</td>
+        <td>${pcts.filter(p => p >= WS.DONE_PCT).length}</td>
+        <td class="muted" style="font-size:11.5px">${total ? `○ ${sc.hi} · △ ${sc.mid} · ✕ ${sc.lo}` : ''}</td></tr>`;
+    }).join('');
+    host.innerHTML = rows;
+
+    renderWsGrid(list);
+    if (wsPick) renderWsDetail();
+  }
+
+  /* 학생 × 차시 격자 — 누가 어느 차시에서 멈춰 있는지 한눈에 */
+  function renderWsGrid(list) {
+    const cols = WS.COURSE.filter(c => c.sheet !== 'cover');
+    const byUser = new Map();
+    list.forEach(n => {
+      if (!byUser.has(n.userId)) byUser.set(n.userId, { name: wsName(n), klass: n.klass || '', cells: {} });
+      byUser.get(n.userId).cells[n.sheet] = wsPct(n);
+    });
+    const q = document.getElementById('q').value.trim().toLowerCase();
+    const users = [...byUser.entries()]
+      .filter(([, s]) => !q || (s.name + ' ' + s.klass).toLowerCase().includes(q))
+      .sort((a, b) => (a[1].klass || '').localeCompare(b[1].klass || '') || (a[1].name || '').localeCompare(b[1].name || ''));
+
+    if (!users.length) {
+      document.getElementById('ws-grid').innerHTML = '<p class="muted" style="font-size:12.5px;margin:0">아직 제출된 학습지가 없습니다.</p>';
+      return;
+    }
+    const head = '<tr><th>별명</th><th>반</th>' + cols.map(c => `<th>${wsMeta(c.sheet).session}차시</th>`).join('') + '<th>평균</th></tr>';
+    const body = users.map(([uid, s]) => {
+      const vals = cols.map(c => s.cells[c.sheet]);
+      const avg = Math.round(vals.reduce((a, v) => a + (v || 0), 0) / cols.length);
+      return `<tr><td>${UI.escapeHTML(s.name)}</td><td>${UI.escapeHTML(s.klass)}</td>` +
+        cols.map((c, i) => {
+          const v = vals[i];
+          if (v == null) return `<td class="muted" style="text-align:center">·</td>`;
+          const bg = v >= WS.DONE_PCT ? 'rgba(77,199,138,.20)' : v > 0 ? 'rgba(var(--accent-rgb),.14)' : 'transparent';
+          return `<td class="ws-cell" data-uid="${UI.escapeHTML(uid)}" data-sheet="${c.sheet}"
+            style="text-align:center;cursor:pointer;background:${bg}">${v}%</td>`;
+        }).join('') + `<td style="text-align:center"><b>${avg}%</b></td></tr>`;
+    }).join('');
+    document.getElementById('ws-grid').innerHTML =
+      `<table class="data"><thead>${head}</thead><tbody>${body}</tbody></table>`;
+  }
+
+  /* 답 보기 — ① 한 학생의 한 차시 전체, ② 한 차시의 한 칸을 학급 전체로 */
+  function renderWsDetail() {
+    const box = document.getElementById('ws-detail'), title = document.getElementById('ws-detail-title');
+    const list = wsNotes(), meta = wsMeta(wsPick.sheet);
+    const fields = wsPathsOf(wsPick.sheet);
+    const label = (wsPick.sheet === 'cover' ? '표지' : meta.session + '차시') + ' · ' + (meta.title || '');
+
+    if (wsPick.userId) {                                  // ① 한 학생의 한 장
+      const n = list.find(x => x.userId === wsPick.userId && x.sheet === wsPick.sheet);
+      title.textContent = '답 보기 — ' + label + ' · ' + (n ? wsName(n) : '');
+      if (!n) { box.innerHTML = '<p class="muted">아직 쓰지 않았습니다.</p>'; return; }
+      box.innerHTML = `<p class="muted" style="font-size:12px;margin:0 0 10px">완성도 ${wsPct(n)}% (${wsFilled(n)} / ${fields.length}칸) ·
+        마지막 저장 ${new Date(n.updatedAt).toLocaleString('ko-KR')} · 가명코드 ${UI.escapeHTML(n.code || '')}
+        <button class="btn sm" id="ws-back" style="margin-left:8px">← 이 차시 전체 보기</button></p>
+        <table class="data"><thead><tr><th style="width:34%">칸</th><th>답</th><th style="width:80px">증거</th></tr></thead><tbody>` +
+        fields.map(f => {
+          const v = (n.answers || {})[f.path];
+          return `<tr><td>${UI.escapeHTML(f.label || f.field)}${f.rubric ? ' <span class="badge core" title="루브릭으로 보는 칸">평가</span>' : ''}</td>
+            <td>${v ? UI.escapeHTML(String(v)) : '<span class="muted">—</span>'}</td>
+            <td class="muted" style="font-size:11.5px">${EVID[f.evidence] || ''}</td></tr>`;
+        }).join('') + '</tbody></table>';
+      const back = document.getElementById('ws-back');
+      if (back) back.addEventListener('click', () => { wsPick = { sheet: wsPick.sheet, userId: null, path: wsPick.path }; renderWsDetail(); });
+      return;
+    }
+
+    // ② 한 차시의 한 칸을 학급 전체로 — 같은 질문에 학급이 어떻게 답했는지 나란히 본다
+    const path = wsPick.path || (fields.find(f => f.rubric) || fields[0] || {}).path;
+    wsPick.path = path;
+    const f = fields.find(x => x.path === path) || {};
+    const mine = list.filter(n => n.sheet === wsPick.sheet);
+    title.textContent = '답 보기 — ' + label;
+    box.innerHTML =
+      `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+        <label class="field" style="margin:0">칸 고르기</label>
+        <select id="ws-field" style="width:auto;min-width:280px;max-width:100%">` +
+          fields.map(x => `<option value="${x.path}"${x.path === path ? ' selected' : ''}>${UI.escapeHTML(x.label || x.field)}${x.rubric ? ' ★' : ''}</option>`).join('') +
+        `</select>
+        <span class="muted" style="font-size:11.5px">★ = 루브릭으로 보는 칸 · 증거층 ${EVID[f.evidence] || '—'}</span>
+      </div>` +
+      (mine.length ? `<table class="data"><thead><tr><th style="width:130px">별명</th><th style="width:60px">반</th><th>답</th></tr></thead><tbody>` +
+        mine.sort((a, b) => (a.klass || '').localeCompare(b.klass || '') || wsName(a).localeCompare(wsName(b))).map(n => {
+          const v = (n.answers || {})[path];
+          return `<tr><td>${UI.escapeHTML(wsName(n))}</td><td>${UI.escapeHTML(n.klass || '')}</td>
+            <td>${v ? UI.escapeHTML(String(v)) : '<span class="muted">—</span>'}</td></tr>`;
+        }).join('') + '</tbody></table>'
+        : '<p class="muted" style="font-size:12.5px;margin:0">이 차시를 쓴 학생이 아직 없습니다.</p>');
+    const sel = document.getElementById('ws-field');
+    if (sel) sel.addEventListener('change', () => { wsPick.path = sel.value; renderWsDetail(); });
+  }
+  const EVID = { product: '작품', process: '과정', understanding: '이해' };
+
+  document.addEventListener('click', (e) => {
+    const cell = e.target.closest && e.target.closest('.ws-cell');
+    if (cell) { wsPick = { sheet: cell.dataset.sheet, userId: cell.dataset.uid, path: null }; renderWsDetail();
+      document.getElementById('ws-detail-title').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    const row = e.target.closest && e.target.closest('.ws-row');
+    if (row) { wsPick = { sheet: row.dataset.sheet, userId: null, path: null }; renderWsDetail();
+      document.getElementById('ws-detail-title').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+
+  document.getElementById('btn-csv-ws').addEventListener('click', () => {
+    if (!wsIndex) { UI.toast('학습지 꾸러미를 아직 읽지 못했습니다.'); return; }
+    const cols = WS.COURSE.filter(c => c.sheet !== 'cover');
+    const byUser = new Map();
+    wsNotes().forEach(n => {
+      if (!byUser.has(n.userId)) byUser.set(n.userId, { name: wsName(n), klass: n.klass || '', code: n.code || '', cells: {} });
+      byUser.get(n.userId).cells[n.sheet] = wsPct(n);
+    });
+    Metrics.download('worksheet_progress_' + new Date().toISOString().slice(0, 10) + '.csv',
+      Metrics.toCSV([...byUser.values()], [
+        { label: '별명', key: 'name' }, { label: '반', key: 'klass' }, { label: '가명코드', key: 'code' },
+        ...cols.map(c => ({ label: wsMeta(c.sheet).session + '차시(%)', get: s => s.cells[c.sheet] == null ? '' : s.cells[c.sheet] })),
+        { label: '평균(%)', get: s => Math.round(cols.reduce((a, c) => a + (s.cells[c.sheet] || 0), 0) / cols.length) }
+      ]));
+    UI.toast('학습지 제출 현황 CSV를 저장했습니다.');
+  });
+
+  document.getElementById('btn-csv-ws-ans').addEventListener('click', () => {
+    if (!wsIndex) { UI.toast('학습지 꾸러미를 아직 읽지 못했습니다.'); return; }
+    const rows = [];
+    wsNotes().forEach(n => {
+      const meta = wsMeta(n.sheet);
+      wsPathsOf(n.sheet).forEach(f => {
+        const v = (n.answers || {})[f.path];
+        if (v == null || !String(v).trim()) return;         // 빈 칸은 싣지 않는다(파일이 커지기만 한다)
+        rows.push({ name: wsName(n), klass: n.klass || '', code: n.code || '',
+          session: meta.session || '', sheetTitle: meta.title || n.sheet,
+          label: f.label || f.field, path: f.path, evidence: EVID[f.evidence] || '',
+          rubric: f.rubric ? 'O' : '', answer: String(v), when: n.updatedAt });
+      });
+    });
+    if (!rows.length) { UI.toast('내보낼 답이 없습니다.'); return; }
+    Metrics.download('worksheet_answers_' + new Date().toISOString().slice(0, 10) + '.csv',
+      Metrics.toCSV(rows, [
+        { label: '별명', key: 'name' }, { label: '반', key: 'klass' }, { label: '가명코드', key: 'code' },
+        { label: '차시', key: 'session' }, { label: '학습지', key: 'sheetTitle' },
+        { label: '칸', key: 'label' }, { label: '저장경로', key: 'path' },
+        { label: '증거층', key: 'evidence' }, { label: '루브릭대상', key: 'rubric' },
+        { label: '답', key: 'answer' },
+        { label: '마지막저장', get: r => new Date(r.when).toLocaleString('ko-KR') }
+      ]));
+    UI.toast('학습지 답안 CSV를 저장했습니다(빈 칸 제외 · 실명 없음).');
+  });
+
   document.getElementById('btn-export').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(Store.exportAll(), null, 2)], { type: 'application/json' });
     const a = document.createElement('a'); a.download = 'class_data_' + Date.now() + '.json'; a.href = URL.createObjectURL(blob); a.click();
@@ -289,7 +544,10 @@
     else return;
     await Store.saveWork(w); UI.toast('큐레이션 저장됨');
   });
-  document.getElementById('q').addEventListener('input', () => { renderStudents(); renderWorks(); renderNotes(); if (judge) renderJudge(); });
+  document.getElementById('q').addEventListener('input', () => {
+    renderStudents(); renderWorks(); renderNotes(); if (judge) renderJudge();
+    if (wsIndex) renderWsGrid(wsNotes());
+  });
   document.getElementById('f-kind').addEventListener('change', () => { renderWorks(); renderNotes(); });
 
   if (!Auth.isTeacher()) UI.toast('교사 계정으로 로그인하면 관리 기능이 모두 열려요(현재는 열람만).');

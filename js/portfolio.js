@@ -39,11 +39,22 @@
     const hidden = mine.length - shown.length;
     const myNotes = notes.filter(n => {
       const w = works.find(x => x.userId === n.userId);
-      return Log.anonOf({ userId: n.userId, klass: w ? w.klass : '' }) === uid;
+      return Log.anonOf({ userId: n.userId, klass: n.klass || (w ? w.klass : '') }) === uid;
     });
     const pick = (kind) => myNotes.filter(n => n.kind === kind).sort((a, b) => a.updatedAt - b.updatedAt);
     const literacy = pick('literacy'), cards = pick('card'), revisions = pick('revision');
     const reflections = pick('reflection'), statements = pick('statement');
+
+    /* ---------- 학습지 — 차시별 진행과 '다음 시간으로 넘긴 한 줄' ----------
+     * 넘긴 한 줄은 차시와 차시를 잇는 문장이라, 시간 순으로 모아 두면
+     * 한 학기 동안 생각이 어떻게 옮겨 갔는지가 A4 한 장에서 읽힌다. */
+    const sheets = pick('worksheet').sort((a, b) => (a.session || 0) - (b.session || 0));
+    const carried = sheets.map(n => {
+      const key = Object.keys(n.answers || {}).find(p => /\.next_line\.text$/.test(p));
+      const line = key && String(n.answers[key] || '').trim();
+      return line ? { session: n.session, line } : null;
+    }).filter(Boolean);
+    const sheetsDone = sheets.filter(n => n.total && (n.filled || 0) / n.total >= 0.6).length;
 
     /* ---------- 7단계 진행 ---------- */
     const reached = new Set(logs.filter(l => l.uid === uid).map(l => l.stage));
@@ -53,6 +64,7 @@
     if (cards.length || literacy.length) reached.add('judge');
     if (shown.some(w => w.exhibited)) reached.add('share');
     if (reflections.length || statements.length) reached.add('own');
+    sheets.forEach(n => { if (n.procStage && (n.filled || 0) > 0) reached.add(n.procStage); });
     const stageBar = Log.STAGES.map((s, i) =>
       `<span class="pf-stage ${reached.has(s.key) ? 'on' : ''}">${i + 1}. ${s.label}</span>`).join('');
 
@@ -90,6 +102,17 @@
             ${w.statement ? `<p class="pf-statement"><span class="pf-lab">창작 진술문</span>${esc(w.statement)}</p>` : ''}
           </div></div>`).join('')}
         ${hidden ? `<p class="pf-note">※ 공개 동의를 하지 않은 작품 ${hidden}점은 인쇄에서 제외했습니다.</p>` : ''}
+      </section>` : ''}
+
+      ${sheets.length ? `<section class="pf-sec">
+        <h2>학습지 — 차시별 기록</h2>
+        <div class="pf-stages">${sheets.map(n => {
+          const pct = n.total ? Math.round((n.filled || 0) * 100 / n.total) : 0;
+          return `<span class="pf-stage ${pct >= 60 ? 'on' : ''}">${n.session}차시 ${pct}%</span>`;
+        }).join('')}</div>
+        <p class="pf-note">${sheets.length}장 가운데 <b>${sheetsDone}장</b>을 다 썼습니다(60% 이상).</p>
+        ${carried.length ? `<ul class="pf-list">${carried.map(c =>
+          `<li><b>${c.session}차시 → 다음 시간으로 넘긴 한 줄</b> — ${esc(c.line)}</li>`).join('')}</ul>` : ''}
       </section>` : ''}
 
       ${revisions.length ? `<section class="pf-sec">

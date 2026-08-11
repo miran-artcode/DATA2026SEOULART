@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "id": "s8",
+  "kind": "session",
+  "order": 8,
+  "session": 8,
+  "title": "전시·비평·되돌아보기",
+  "yield": "최종 일반화 네 문장과 전이 계획",
+  "todayQuestion": "나는 그럴듯함 앞에서 멈춰 내 감각으로 돌아왔는가?",
+  "pages": 2,
+  "_note_pages": "종이로는 두 장(전시·비평 / 마무리 되돌아보기). 8차시 한 장이므로 sheet 를 쪼개지 않는다. 설계원리 문서가 '8차시 ④번 칸'으로 참조하는 것이 아래 unit_generalizations 블록이다.",
+  "screens": [
+    { "label": "키오스크 전시", "page": "exhibit.html", "exists": true },
+    { "label": "작품 페이지", "page": "work.html", "exists": true },
+    { "label": "유사도 지수", "page": "admin.html", "exists": true, "note": "metrics.js 학급 유사도 지수. 학생용으로 열어 줄 화면을 통합 시 정한다." }
+  ],
+  "eq": ["EQ2", "EQ3", "EQ4"],
+  "generalizations": ["G1", "G2", "G3", "G4"],
+  "microConcepts": ["비평", "다양성", "전이"],
+
+  "blocks": [
+    {
+      "id": "critique_friend",
+      "n": 1,
+      "label": "친구 작품 비평하기",
+      "note": "네 단계",
+      "kind": "table",
+      "evidence": "understanding",
+      "rubric": true,
+      "logAction": "critique_write",
+      "framework": "Feldman",
+      "page": 1,
+      "columns": [
+        { "id": "step", "label": "단계", "fixed": true },
+        { "id": "text", "label": "" }
+      ],
+      "rows": [
+        { "id": "describe", "step": "기술" },
+        { "id": "analyze", "step": "분석" },
+        { "id": "interpret", "step": "해석" },
+        { "id": "judge", "step": "평가" }
+      ]
+    },
+    {
+      "id": "critique_received",
+      "n": 2,
+      "label": "내가 받은 비평",
+      "kind": "table",
+      "evidence": "process",
+      "rubric": false,
+      "logAction": "revise",
+      "page": 1,
+      "columns": [
+        { "id": "sharpest", "label": "가장 뾰족했던 한 마디" },
+        { "id": "what_to_fix", "label": "그것으로 무엇을 고칠까" }
+      ],
+      "rows": 1
+    },
+    {
+      "id": "class_similarity",
+      "n": 3,
+      "label": "우리 반은 서로 얼마나 닮았는가",
+      "note": "유사도 지수 보기",
+      "kind": "fields",
+      "evidence": "understanding",
+      "rubric": true,
+      "page": 1,
+      "items": [
+        { "id": "similarity_level", "label": "우리 반 작품의 닮음 정도", "lines": 1 },
+        { "id": "most_different", "label": "가장 닮지 않은 작품은 어떤 작품인가", "lines": 2 },
+        { "id": "is_different_good", "label": "닮지 않은 작품은 좋은 작품인가? 왜 그렇게 생각하는가", "lines": 3 }
+      ]
+    },
+    {
+      "id": "unit_generalizations",
+      "n": 4,
+      "label": "이 단원에서 알게 된 것 네 문장",
+      "note": "앞의 일곱 장을 펼쳐 놓고, 여러 차시에 걸쳐 되풀이해 나타난 것을 문장으로 쓴다.",
+      "kind": "table",
+      "evidence": "understanding",
+      "rubric": true,
+      "logAction": "reflect_submit",
+      "scaffold": "topics",
+      "page": 2,
+      "sectionLabel": "마무리 · 단원 되돌아보기",
+      "columns": [
+        { "id": "topic", "label": "", "fixed": true },
+        { "id": "sentence", "label": "" }
+      ],
+      "rows": [
+        { "id": "g1", "topic": "요약과 손실에 대하여", "target": "G1" },
+        { "id": "g2", "topic": "데이터와 관점에 대하여", "target": "G2" },
+        { "id": "g3", "topic": "그럴듯함과 타당함에 대하여", "target": "G3" },
+        { "id": "g4", "topic": "도구와 나의 관계에 대하여", "target": "G4" }
+      ]
+    },
+    {
+      "id": "transfer_plan",
+      "n": 5,
+      "label": "옮겨 쓰기",
+      "note": "낯선 데이터와 도구를 만난다면",
+      "kind": "fields",
+      "evidence": "understanding",
+      "rubric": true,
+      "page": 2,
+      "items": [
+        { "id": "first", "label": "먼저 할 일", "lines": 2 },
+        { "id": "next", "label": "그다음", "lines": 2 },
+        { "id": "last_check", "label": "마지막에 확인할 것", "lines": 2 }
+      ]
+    }
+  ],
+
+  "carryOver": null,
+  "selfCheck": "final"
+}

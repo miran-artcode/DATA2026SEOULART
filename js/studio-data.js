@@ -35,6 +35,11 @@
     chocolate: { name: '맛을 숫자로(초콜릿)', file: 'chocolate', bundleRows: 2530, fullRows: 2530, source: 'https://www.kaggle.com/datasets/rtatman/chocolate-bar-ratings',
       map: { size: '평점', colorMode: 'category', colorField: '원산지', layout: 'flowField', motionStyle: 'orbit', vib: 0.5 },
       issue: '🍫 맛을 숫자로 — 평점=크기, 원산지=색. 코코아%가 높다고 평점이 높진 않아요. 맛을 숫자로 옮길 때 잃는 것은?(데이터 휴머니즘) 2,530개 바.' },
+    // 6차시 학습지가 쓰는 자료. 열 이름을 원본(영문) 그대로 두었다 — 단위가 파운드·인치·센티미터로
+    // 섞여 있는 것까지가 '번역'이라는 단원 개념의 재료다. 열 설명은 worksheets/unit-data-eye/data/bodyfat.meta.json 에 있다.
+    bodyfat: { name: '숫자가 사람을 말할 수 있을까(신체측정 252명)', file: 'bodyfat', bundleRows: 252, fullRows: 252, xlsx: false,
+      map: { size: 'BodyFat', colorMode: 'gradient', colorField: 'Age', gradLow: '#2740c8', gradHigh: '#ffd23c', layout: 'flowField', motionStyle: 'vibrate', vib: 0.6 },
+      issue: '📏 숫자가 사람을 말할 수 있을까 — 체지방률(BodyFat)=크기, 나이(Age)=색. 252명이 <b>전원 남성</b>이고, 키 29.5인치·체지방률 0%처럼 있을 수 없는 값이 섞여 있어요. 화면은 그 점도 아무 말 없이 그립니다 — 6차시 학습지와 함께 쓰세요.' },
     student: { name: '잠과 화면의 줄다리기(학생)', map: { size: 'SNS시간', speed: '스트레스', colorMode: 'gradient', colorField: '수면시간', gradLow: '#ff5a3c', gradHigh: '#2740c8', layout: 'flowField', motionStyle: 'vibrate', vib: 1.6 },
       issue: '😴 잠과 화면의 줄다리기 — 우리 반 친구들의 하루를 직접 입력해 만들어요(데이터 휴머니즘). SNS=크기, 수면=색(빨강=부족), 스트레스=떨림.',
       csv: '학생,수면시간,공부시간,SNS시간,스트레스,성적\nA,7,3,2,3,82\nB,5,4,5,7,75\nC,8,2,1,2,70\nD,4,5,6,9,68\nE,6,3,4,6,80\nF,7,4,3,4,88\nG,5,2,7,8,60\nH,6,5,2,5,90\nI,4,1,8,9,55\nJ,8,3,2,3,84\nK,5,4,5,7,72\nL,6,2,6,8,64' },
@@ -404,7 +409,7 @@
     if (!s || !s.file) { el.innerHTML = ''; return; }
     const fmt = n => n ? n.toLocaleString() : '';
     el.innerHTML = '📥 <b>전체 데이터 받기</b> — '
-      + '<a class="dl" href="data/' + s.file + '.xlsx" download>엑셀(.xlsx)</a> · '
+      + (s.xlsx === false ? '' : '<a class="dl" href="data/' + s.file + '.xlsx" download>엑셀(.xlsx)</a> · ')
       + '<a class="dl" href="data/' + s.file + '.csv" download>CSV</a>'
       + (s.source ? ' · <a class="dl" href="' + s.source + '" target="_blank" rel="noopener">원본(캐글' + (s.fullRows ? ' ' + fmt(s.fullRows) + '행' : '') + ')</a>' : '')
       + '<br><span class="muted" style="font-size:10.5px">받은 파일엔 <b>' + fmt(s.bundleRows) + '행</b>이 들어 있어요'

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "id": "bodyfat",
+  "file": "bodyfat.csv",
+  "label": "신체측정·체지방 자료",
+  "rows": 252,
+  "who": "성인 남성 252명",
+  "_who_note": "널리 쓰이는 공개 교육용 자료. 조사 대상이 전원 남성이다. 학습지가 던지는 '이 기준은 누구의 가치에서 나왔는가'에 그대로 걸리는 지점이므로 '성인 252명'이 아니라 '성인 남성 252명'으로 적는다.",
+  "source": {
+    "origin": "Penrose, Nelson & Fisher (1985) 체지방 예측 연구 자료 · 공개 교육용 데이터셋",
+    "license": "교육용 공개 자료로 널리 배포됨. 수업 전 학교 방침에 따라 출처 표기 확인 권장."
+  },
+
+  "columns": [
+    { "id": "Density", "label": "밀도", "unit": "g/cm³", "type": "number", "note": "물속 무게로 잰 값. 체지방률을 계산하는 근거가 된 원자료." },
+    { "id": "BodyFat", "label": "체지방률", "unit": "%", "type": "number", "note": "밀도에서 공식(Siri)으로 계산한 값 — 직접 잰 것이 아니라 '번역된' 값이다." },
+    { "id": "Age", "label": "나이", "unit": "세", "type": "number" },
+    { "id": "Weight", "label": "몸무게", "unit": "lbs(파운드)", "type": "number", "note": "×0.4536 하면 kg" },
+    { "id": "Height", "label": "키", "unit": "in(인치)", "type": "number", "note": "×2.54 하면 cm" },
+    { "id": "Neck", "label": "목둘레", "unit": "cm", "type": "number" },
+    { "id": "Chest", "label": "가슴둘레", "unit": "cm", "type": "number" },
+    { "id": "Abdomen", "label": "배둘레", "unit": "cm", "type": "number" },
+    { "id": "Hip", "label": "엉덩이둘레", "unit": "cm", "type": "number" },
+    { "id": "Thigh", "label": "허벅지둘레", "unit": "cm", "type": "number" },
+    { "id": "Knee", "label": "무릎둘레", "unit": "cm", "type": "number" },
+    { "id": "Ankle", "label": "발목둘레", "unit": "cm", "type": "number" },
+    { "id": "Biceps", "label": "팔뚝둘레", "unit": "cm", "type": "number" },
+    { "id": "Forearm", "label": "아래팔둘레", "unit": "cm", "type": "number" },
+    { "id": "Wrist", "label": "손목둘레", "unit": "cm", "type": "number" }
+  ],
+
+  "_units_note": "몸무게·키는 파운드와 인치, 둘레는 센티미터다. 한 표 안에서 단위계가 섞여 있다 — '무엇을 무엇으로 옮기는가'라는 단원 개념(번역)이 데이터 자체에 이미 들어 있는 셈이다.",
+
+  "quirks": [
+    { "row": 42, "column": "Height", "value": 29.5, "what": "키가 29.5인치(75cm)로 적힌 사람. 몸무게는 205파운드다.", "use": "화면은 이 점을 아무 말 없이 그린다. '그럴듯한 화면'이 틀린 데이터를 어떻게 감추는지 보여 주는 자리." },
+    { "row": 182, "column": "BodyFat", "value": 0.0, "what": "체지방률 0% — 사람에게 불가능한 값이다.", "use": "계산으로 나온 값도 틀릴 수 있다. 6차시 ③ '화면이 알아서 정해 버린 조건'과 이어진다." },
+    { "row": 172, "column": "BodyFat", "value": 0.7, "what": "체지방률 0.7% — 마찬가지로 현실에서 나오기 어려운 값.", "use": "위와 같음." },
+    { "row": 39, "column": "Weight", "value": 363.15, "what": "가장 무거운 사람(363파운드·165kg). 평균에서 가장 멀리 있는 점.", "use": "6차시 ③ '평균 밖에 있는 사람은 화면 어디에 있는가' 칸에서 직접 찾아보게 한다." },
+    { "row": null, "column": null, "what": "252명 전원이 남성이다.", "use": "6차시 ③ '이 기준은 누구의 가치에서 나왔는가'의 답이 데이터 안에 이미 있다. 이 자료로 만든 '표준'은 절반의 사람에게서 나온 적이 없다." }
+  ],
+  "_quirks_note": "일부러 고치지 않고 그대로 둔다. 학습지 6차시는 '그럴듯한 화면이 언제 타당한가'를 묻는 시간이고, 이 값들이 그 질문의 재료다. 오류를 지우면 수업이 사라진다.",
+
+  "suggestedMappings": [
+    { "for": "크기", "column": "Weight" },
+    { "for": "색", "column": "BodyFat" },
+    { "for": "가로 위치", "column": "Age" },
+    { "for": "세로 위치", "column": "Abdomen" }
+  ],
+  "_suggested_note": "화면이 '추천'하는 기본 매핑. 6차시 ②는 이것을 그대로 적용해 본 뒤, ④에서 학생이 자기 규칙으로 고치는 순서다."
+}

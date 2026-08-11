@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "id": "data-eye",
+  "title": "데이터의 눈",
+  "subtitle": "감각을 번역하는 예술 · 학습 꾸러미",
+  "grade": "고등학교 미술 · 정보 융합",
+  "sessions": 8,
+
+  "concept": {
+    "name": "번역",
+    "statement": "무엇을 무엇으로 옮기는 일. 그림을 숫자로, 소리를 점으로, 데이터를 색으로 옮길 때마다 우리는 얻는 것과 잃는 것을 함께 고른다."
+  },
+
+  "transferGoal": "낯선 데이터나 처음 보는 도구를 만나도, 무엇을 세고 무엇을 버릴지 스스로 정하고 그 이유를 조형 언어로 설명할 수 있다.",
+
+  "essentialQuestions": [
+    { "id": "EQ1", "text": "무언가를 데이터로 옮길 때 우리는 무엇을 얻고 무엇을 잃는가?", "sessions": [1, 3, 4, 5] },
+    { "id": "EQ2", "text": "그럴듯한 것과 타당한 것은 어떻게 다른가?", "sessions": [6, 8] },
+    { "id": "EQ3", "text": "이 작품이 왜 나에게 의미가 있고 미술 작품으로 가치가 있는가?", "sessions": [7, 8] },
+    { "id": "EQ4", "text": "도구가 제안한 것이 내 것이 되는 순간은 언제인가?", "sessions": [2, 6, 7, 8] }
+  ],
+
+  "generalizations": [
+    { "id": "G1", "topic": "요약과 손실에 대하여", "text": "모든 요약은 손실을 동반하며, 무엇을 잃을지 정하는 선택이 표현의 시작이다." },
+    { "id": "G2", "topic": "데이터와 관점에 대하여", "text": "데이터는 세상 그 자체가 아니라 누군가의 기준으로 옮겨진 결과다." },
+    { "id": "G3", "topic": "그럴듯함과 타당함에 대하여", "text": "그럴듯함은 평균에 가까움에서 오고, 타당함은 의도와 근거의 일치에서 온다." },
+    { "id": "G4", "topic": "도구와 나의 관계에 대하여", "text": "창작의 주체성은 도구의 제안을 자신의 기준으로 다시 고르고 그 이유를 말할 때 생긴다." }
+  ],
+
+  "_note_generalizations": "학생에게 미리 보여 주지 않는다. 8차시 ④번 칸에서 학생이 스스로 도달한다. 렌더러는 unit.generalizations 를 학생 화면에 절대 출력하지 않는다(교사 화면 전용).",
+
+  "performanceTask": {
+    "goal": "내 삶이나 사회에서 고른 데이터를 시각 언어로 옮겨 관람객이 다시 생각하게 만든다",
+    "role": "데이터를 다루는 미디어 아트 작가",
+    "audience": "전시장에 온 다른 학급 학생과 교사, QR로 들어온 관람객",
+    "situation": "학급 전시. 관람객은 작품만 보고 작가의 의도를 읽어야 한다",
+    "product": ["작품", "창작 진술문 150자", "매핑 규칙과 근거", "비평문"],
+    "standards": "아래 rubric 4수준"
+  },
+
+  "rubric": {
+    "title": "판단의 근거 짓기",
+    "levels": [
+      { "level": 4, "text": "선택과 배제를 모두 밝히고 조형 언어로 이유를 대며, 다른 데이터에도 적용할 원리로 말한다" },
+      { "level": 3, "text": "선택의 이유를 조형 요소와 연결해 설명한다" },
+      { "level": 2, "text": "선택은 밝히지만 이유가 취향 표현에 머문다" },
+      { "level": 1, "text": "화면이 준 기본값을 그대로 쓰고 이유를 대지 못한다" }
+    ]
+  },
+
+  "evidenceLayers": [
+    { "id": "product", "label": "작품 증거", "what": "최종 작품과 진술문" },
+    { "id": "process", "label": "과정 증거", "what": "고르고 버린 흔적, 수정 이유" },
+    { "id": "understanding", "label": "이해 증거", "what": "개념을 자기 말로 쓰는가, 일반화에 도달하는가" }
+  ],
+
+  "scaffoldLadder": {
+    "wordBank": "빈칸 + 보기 낱말 제시",
+    "blanks": "빈칸만 제시",
+    "starter": "문장 첫머리만 제시",
+    "blank": "백지 — 한 문장 스스로 짓기",
+    "topics": "백지 여러 칸 + 주제어만 제시"
+  },
+
+  "selfCheckSets": {
+    "standard": {
+      "label": "자기 점검",
+      "scale": [
+        { "id": "good", "mark": "○", "label": "잘함" },
+        { "id": "mid", "mark": "△", "label": "보통" },
+        { "id": "need", "mark": "✕", "label": "더 필요함" }
+      ],
+      "items": [
+        { "id": "why", "text": "오늘 내가 무엇을 고르고 무엇을 버렸는지 이유와 함께 말할 수 있다." },
+        { "id": "concept", "text": "오늘 만난 개념어를 내 말로 설명할 수 있다." },
+        { "id": "sentence", "text": "오늘 알게 된 것을 한 문장으로 쓸 수 있다." }
+      ]
+    },
+    "final": {
+      "label": "마무리 자기 평가",
+      "scale": [
+        { "id": "full", "mark": "", "label": "충분히" },
+        { "id": "some", "mark": "", "label": "어느 정도" },
+        { "id": "notyet", "mark": "", "label": "아직" }
+      ],
+      "items": [
+        { "id": "explain_rule", "text": "나는 내 작품의 규칙과 그 이유를 남에게 설명할 수 있다." },
+        { "id": "rechose", "text": "나는 도구가 제안한 것을 내 기준으로 다시 골랐다." },
+        { "id": "unmeasured", "text": "나는 데이터가 담지 못한 것을 말할 수 있다." },
+        { "id": "critique", "text": "나는 친구의 작품을 근거를 들어 비평했다." },
+        { "id": "transfer", "text": "나는 이 방법을 다른 데이터에도 쓸 수 있다." }
+      ]
+    }
+  },
+
+  "questionCards": [
+    { "id": "form_reading", "label": "조형적 읽기" },
+    { "id": "decision_basis", "label": "결정의 근거" },
+    { "id": "plausibility", "label": "그럴듯함 판별" },
+    { "id": "default_challenge", "label": "기본값 되묻기" }
+  ],
+
+  "identity": {
+    "policy": "anonymous",
+    "note": "이름을 저장하지 않는다. 학번 코드(익명 코드)만 쓴다. js/log.js 의 anonOf() 와 같은 규칙."
+  }
+}
