@@ -200,8 +200,8 @@
   /* ------------------------- 진행률 요약(이 기기) -------------------------
    * 학습지 단추와 위치 스트립은 18개 화면에 뜬다. 그때마다 저장소를 읽으면 클라우드에서는
    * 한 시간 수업에 학급 전체 노트를 수백 번 읽게 된다(읽기 비용·속도 둘 다 문제).
-   * 그래서 '몇 %를 채웠나'만 이 기기에 남겨 두고 단추·허브는 그것만 본다.
-   * 답 자체는 언제나 저장소가 원본이고, 학습지 화면을 한 번 열면 요약이 다시 맞춰진다.
+   * 그래서 '몇 %를 채웠나'만 이 기기에 남겨 두고 단추·스트립은 그것만 본다.
+   * 답 자체는 언제나 저장소가 원본이고, 학습지 화면이나 서랍을 한 번 열면 요약이 다시 맞춰진다.
    * 기기를 함께 쓰는 교실을 생각해 userId 를 함께 적고, 다른 학생이면 무시한다.
    */
   const K_PROG = 'dn_ws_prog';
@@ -211,13 +211,50 @@
       return (user && raw.userId === user.userId && raw.sheets) || {};
     } catch (e) { return {}; }
   }
-  function writeProgress(user, stats) {
+  // 이 기기가 이 학생의 답을 저장소에서 한 번이라도 확인했는가
+  function syncedFor(user) {
+    try {
+      const raw = JSON.parse(localStorage.getItem(K_PROG) || '{}');
+      return !!(user && raw.userId === user.userId && raw.syncedAt);
+    } catch (e) { return false; }
+  }
+
+  /*
+   * 요약이 없으면 저장소에서 한 번 되살린다.
+   * -----------------------------------------------------------------------------
+   * 요약은 '쓴 기기'에만 남는다. 그래서 답이 저장소에 멀쩡히 있어도 그 기기에서 학습지를
+   * 아직 안 열었으면 허브·여정이 전부 0으로 보였다. 세 경우에서 실제로 겪는다.
+   *   · 학생이 다른 기기(집·다른 교실 컴퓨터)에서 연다
+   *   · 한 기기를 여러 학생이 나눠 쓴다(다음 학생 차례)
+   *   · 교사가 우수 사례 학급을 불러와 학생 화면을 보여 준다 — 여덟 차시를 다 쓴 기록인데
+   *     허브는 '첫 차시'라고 말했다. 자료가 안 보이는 게 아니라 요약이 없었을 뿐이다.
+   * 그래서 요약이 없을 때만, 그것도 지도 화면(허브·여정) 두 곳에서만 한 번 읽어 되살린다.
+   * 18개 화면의 단추·스트립은 여전히 저장소를 읽지 않는다. 읽고 나면 '확인함' 표시를 남겨
+   * 진행이 0인 학생에게 매번 다시 읽지 않는다(요약은 저장할 때마다 스스로 갱신된다).
+   */
+  async function ensureProgress(user) {
+    if (!user) return {};
+    if (syncedFor(user)) return readProgress(user);
+    try {
+      const [ix, notes] = await Promise.all([loadManifest(), myNotes(user)]);
+      const stats = statsFromNotes(ix, notes);
+      writeProgress(user, stats, true);
+      return stats;
+    } catch (e) {
+      console.warn('[worksheet] 진행률을 되살리지 못했어요', e);
+      return readProgress(user);       // 못 읽어도 화면은 그린다(0으로 보일 뿐)
+    }
+  }
+  // synced=true 는 '저장소를 통째로 확인해 맞춘 요약'이라는 뜻이다(ensureProgress·학습지 화면·서랍).
+  function writeProgress(user, stats, synced) {
     if (!user) return;
     try {
       const raw = JSON.parse(localStorage.getItem(K_PROG) || '{}');
-      const sheets = (raw.userId === user.userId && raw.sheets) || {};
+      const mine = raw.userId === user.userId;
+      const sheets = (mine && raw.sheets) || {};
       Object.keys(stats).forEach(k => { sheets[k] = stats[k]; });
-      localStorage.setItem(K_PROG, JSON.stringify({ userId: user.userId, sheets }));
+      const syncedAt = synced ? Date.now() : (mine && raw.syncedAt) || null;
+      localStorage.setItem(K_PROG, JSON.stringify({ userId: user.userId, sheets, syncedAt }));
     } catch (e) { /* 용량 초과: 요약은 없어도 화면이 동작한다 */ }
   }
 
@@ -302,7 +339,7 @@
 
     const notes = await myNotes(user);
     const stats = statsFromNotes(pack.entry, notes);
-    writeProgress(user, stats);                      // 단추·허브가 저장소를 다시 읽지 않도록
+    writeProgress(user, stats, true);                // 단추·허브가 저장소를 다시 읽지 않도록
     const plan = planOf(pack.entry, stats);
 
     // 어느 학습지를 열 것인가: ?s=s3 > 마지막으로 보던 것 > 다음에 할 차시
@@ -972,7 +1009,7 @@
         await Promise.all([loadRenderer(), loadPaperCSS(), loadManifest(), loadUnit(), loadSheet(c.sheet), myNotes(user)]);
 
       // 통째로 한 번 읽은 김에 진행률 요약도 맞춰 둔다(스트립·허브가 이것만 본다)
-      writeProgress(user, statsFromNotes(ix, notes));
+      writeProgress(user, statsFromNotes(ix, notes), true);
 
       const meta = (ix.sheets || []).find(s => s.id === c.sheet) || {};
       const host = document.createElement('div');
@@ -1065,7 +1102,9 @@
     const eqText = {};
     ((unit && unit.essentialQuestions) || []).forEach(q => { eqText[q.id] = q.text; });
     const metaOf = id => (entryIndex.sheets || []).find(s => s.id === id) || {};
-    const plan = planOf(entryIndex, readProgress(user));
+    // 이 기기에 요약이 없으면 저장소에서 한 번 되살린다(다른 기기에서 썼거나, 교사가 우수
+    // 사례를 불러왔을 때 여덟 차시를 다 쓴 기록이 0으로 보이던 자리).
+    const plan = planOf(entryIndex, await ensureProgress(user));
     const MARK = { done: '✔ 다 씀', doing: '· 하는 중', open: '이번 차례', locked: '🔒 아직' };
     const rows = plan.rows.filter(r => r.course.sheet !== 'cover');
 
@@ -1149,7 +1188,7 @@
     BASE, UNIT, UNIT_ID: UNIT, COURSE, STAGE_NAME, SLOT, DONE_PCT, OPEN_PCT,
     load, loadSheet, loadManifest, loadUnit, entryOf, indexOf, forPage, hrefOf, slotOf, resolveSession, stampOf, goTo,
     noteIdOf, blankNote, myNotes, attachSheet,
-    statOf, statsFromNotes, readProgress, planOf, mountPage, mountContext, mountDock,
+    statOf, statsFromNotes, readProgress, ensureProgress, planOf, mountPage, mountContext, mountDock,
     openDock, closeDock,
     // mountLauncher 는 옛 이름이다. 18개 화면이 이 이름으로 부르고 있어 그대로 살려 둔다
     // (이제 학습지 화면으로 '데려가는' 단추가 아니라 그 자리에서 펼치는 서랍이다).

@@ -121,7 +121,9 @@
     let plan = null;
     try {
       const ix = await WS.loadManifest();
-      plan = WS.planOf(ix, WS.readProgress(Auth.current()));
+      // ensureProgress: 이 기기에 요약이 없으면 저장소에서 한 번 되살린다(다른 기기에서 썼거나
+      // 교사가 우수 사례를 불러온 경우). 통합 여정과 같은 값을 보게 하려면 여기도 같은 길을 쓴다.
+      plan = WS.planOf(ix, await WS.ensureProgress(Auth.current()));
     } catch (e) {
       // 색인을 못 읽는 경우(file:// 로 열기 등): 첫 차시를 가리키고 조용히 물러난다
       document.getElementById('feat-progress-tx').textContent = '';
