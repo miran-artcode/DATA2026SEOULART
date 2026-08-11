@@ -432,7 +432,7 @@
   })();
 
   document.addEventListener('DOMContentLoaded', () => {
-    UI.mountIdeaBar('idea', 'data');
+    UI.mountIdeaBar('idea', 'sound');
     $('#btn-rec').addEventListener('click', toggleMic);
     $('#btn-file').addEventListener('click', () => $('#audio-file').click());
     $('#audio-file').addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });

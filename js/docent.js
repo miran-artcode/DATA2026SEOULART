@@ -4,7 +4,7 @@
  */
 (function (global) {
   'use strict';
-  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', lab: '분석' };
+  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', society: '사회 분석', lab: '분석' };
   const COLORLBL = { value: '값 그라데이션(한↔난색)', warm: '난색', cool: '한색' };
 
   // 매핑 요약(신/구 형식 모두 지원). 신: {size:'열이름',...} / 구: {mSize:true,...}
@@ -32,6 +32,10 @@
       else if (s.color) lines.push(`색은 ${COLORLBL[s.color] || s.color}으로 표현했습니다.`);
     } else if (w.kind === 'color') {
       lines.push(`명화를 K-means로 분석해 대표색 ${s.K || '여러'}개로 압축하고, ${s.N ? s.N + '개의 ' : ''}점으로 재구성했습니다${s.space ? ' (' + String(s.space).toUpperCase() + ' 색공간)' : ''}.`);
+    } else if (w.kind === 'word') {
+      lines.push(`${w.dataName ? '‘' + w.dataName + '’ 글' : '작가의 말'}을 자연어로 분석해 낱말의 빈도를 글자 크기로, 그림의 대표색을 글자 색으로 옮겼습니다.`);
+    } else if (w.kind === 'society') {
+      lines.push(`${w.dataName ? '‘' + w.dataName + '’' : '실제 세계 데이터'}를 추세와 격차로 읽고 비평 렌즈로 해석해 화면에 옮겼습니다.`);
     }
 
     if (w.intent) lines.push(`작가는 “${w.intent}”라는 의도를 담았습니다.`);

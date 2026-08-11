@@ -159,12 +159,14 @@
    * 페이지가 스스로 Log.view(stage) 를 부르면 그 값이 우선한다(먼저 부른 쪽이 이긴다).
    * 이 자동 기록이 있어야 '어느 단계에서 멈춰 있는가'(D-1)를 로그만으로 읽을 수 있다.
    */
+  /* 판별(judge) 화면 셋에 유의: 데이터 비평·퀴즈만이 아니라, AI 눈의 한계를 확인하는
+     객체 감지와 비평 렌즈로 읽는 사회 분석도 판별이다(COURSE 의 6차시 logStage 와 같은 판단). */
   const PAGE_STAGE = {
     'start.html': 'sense', 'journey.html': 'sense', 'learn.html': 'sense', 'literacy.html': 'sense',
-    'lab.html': 'sense', 'society.html': 'sense',
+    'lab.html': 'sense',
     'studio-color.html': 'make', 'studio-data.html': 'make', 'studio-sound.html': 'make',
-    'studio-life.html': 'make', 'studio-object.html': 'make', 'project.html': 'intent',
-    'critique.html': 'judge', 'quiz.html': 'judge',
+    'studio-life.html': 'make', 'studio-word.html': 'own', 'project.html': 'intent',
+    'critique.html': 'judge', 'quiz.html': 'judge', 'studio-object.html': 'judge', 'society.html': 'judge',
     'gallery.html': 'share', 'work.html': 'share', 'exhibit.html': 'share',
     'notes.html': 'own', 'portfolio.html': 'own'
   };

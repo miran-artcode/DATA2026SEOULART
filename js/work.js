@@ -94,13 +94,20 @@
         <h3>🧭 작가의 과정·성찰 <span class="muted" style="font-size:12px">· 학습 과정도 작품의 일부예요</span></h3>
         ${notes.map(noteHTML).join('')}
       </div>` : '';
+    /* Player 는 data·color 만 살아 움직이게 재생한다. 낱말 구름·사회 분석은 캔버스를 주면
+       빈 화면이 되므로(QR로 온 관람객이 처음 보는 화면이다) 갤러리와 같은 규칙으로 썸네일을 쓴다. */
+    const canLive = work.kind === 'data' || work.kind === 'color';
     const liveMedia = work.video
       ? `<video id="live-video" src="${work.video}" controls autoplay loop muted playsinline${work.thumb ? ` poster="${work.thumb}"` : ''} style="width:100%;aspect-ratio:4/3;object-fit:contain;background:#000;border-radius:12px;border:1px solid var(--line);display:block"></video>`
-      : `<canvas id="live-canvas" style="width:100%;aspect-ratio:4/3;background:#07080d;border-radius:12px;border:1px solid var(--line);display:block"></canvas>`;
+      : canLive
+      ? `<canvas id="live-canvas" style="width:100%;aspect-ratio:4/3;background:#07080d;border-radius:12px;border:1px solid var(--line);display:block"></canvas>`
+      : work.thumb
+      ? `<img src="${work.thumb}" alt="${esc(work.title || '')}" style="width:100%;aspect-ratio:4/3;object-fit:contain;background:#07080d;border-radius:12px;border:1px solid var(--line);display:block">`
+      : `<div style="width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:#07080d;border-radius:12px;border:1px solid var(--line);color:var(--muted)">미리보기가 없는 작품이에요</div>`;
     $('#work-root').innerHTML = `
       <div class="card">
         ${liveMedia}
-        <p class="muted" style="font-size:11px;margin:6px 0 0">▶ 살아 움직이는 재생 · 마우스를 올려 반응을 느껴 보세요</p>
+        ${canLive || work.video ? '<p class="muted" style="font-size:11px;margin:6px 0 0">▶ 살아 움직이는 재생 · 마우스를 올려 반응을 느껴 보세요</p>' : ''}
         <h1 style="margin:14px 0 4px;font-size:24px">${esc(work.title || '제목 없음')}</h1>
         <p class="muted" style="margin:0">${esc(work.by || '익명')} · <span class="badge">${KIND[work.kind] || work.kind}</span></p>
       </div>
@@ -173,6 +180,10 @@
     render();
   }
 
-  if (!id) { $('#work-root').innerHTML = UI.callout('작품 id가 없어요. 갤러리에서 작품을 선택하세요.', 'warn'); }
+  if (!id) {
+    // 8차시 여정 링크로 맨손으로 들어온 학생을 위한 길 안내(막다른 경고가 아니라)
+    $('#work-root').innerHTML = UI.callout('아직 작품을 고르지 않았어요. <a href="gallery.html?s=s8">전시 갤러리</a>에서 작품을 눌러 ' +
+      '「🔍 단독 페이지」로 들어오거나, <a href="exhibit.html?s=s8">키오스크 화면</a>의 QR을 휴대폰으로 찍으면 이 화면이 열려요.', 'info');
+  }
   else render();
 })();

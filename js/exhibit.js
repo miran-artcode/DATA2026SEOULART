@@ -5,7 +5,15 @@
   'use strict';
   const $ = s => document.querySelector(s);
   const esc = s => UI.escapeHTML(s);
-  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', lab: '분석' };
+  /*
+   * 작품 종류는 저장 시점의 kind 네 가지(color·data·word·society)다.
+   * 소리·내 삶·사회문제에서 온 작품은 kind='data'에 stage 로 출처가 남으므로,
+   * 배지에 출처를 함께 적어 8차시 전시에서 "어느 차시의 작품인지"가 보이게 한다.
+   */
+  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', society: '사회 분석', lab: '분석' };
+  const ORIGIN = { 2: '내 소리에서', 3: '내 사진에서', 4: '사회 문제에서' };
+  const kindLabel = w => (KIND[w.kind] || w.kind) +
+    (w.kind === 'data' && ORIGIN[w.stage] ? ' · ' + ORIGIN[w.stage] : '');
   const COLORLBL = { value: '값 그라데이션', warm: '난색', cool: '한색' };
   const ADVANCE = 9000;
 
@@ -30,6 +38,11 @@
       else if (s.color) parts.push('색: ' + (COLORLBL[s.color] || s.color));
     } else if (w.kind === 'color') {
       if (s.K) parts.push('K=' + s.K); if (s.space) parts.push(String(s.space).toUpperCase()); if (s.N) parts.push('점 N=' + s.N);
+    } else if (w.kind === 'word') {
+      parts.push('글감: ' + (w.dataName || '작가의 말'));
+      if (s.maxWords) parts.push('낱말 ' + s.maxWords + '개');
+    } else if (w.kind === 'society') {
+      parts.push('사회 데이터: ' + (w.dataName || w.title || '-'));
     }
     return parts.join(' · ');
   }
@@ -41,16 +54,26 @@
     const notes = w.userId ? (await Store.listNotes(w.userId)) : [];
     const procCount = notes.filter(n => n.line || n.aiHelp || n.myDecision || (n.memos && Object.keys(n.memos).length)).length;
     const st = story(w);
+    /*
+     * 무엇으로 보여줄 것인가.
+     * Player 는 data·color 만 '살아 움직이게' 재생할 수 있다. 낱말 구름·사회 분석 작품에
+     * 캔버스를 주면 빈 화면이 전시되므로(예전 결함), 갤러리와 같은 규칙으로 썸네일을 쓴다.
+     */
+    const canLive = w.kind === 'data' || w.kind === 'color';
     const artMedia = w.video
       ? `<video id="kiosk-video" src="${w.video}" autoplay loop muted playsinline${w.thumb ? ` poster="${w.thumb}"` : ''} style="width:92%;height:86%;object-fit:contain;border-radius:12px;background:#000"></video>`
-      : `<canvas id="kiosk-canvas" style="width:92%;height:86%;border-radius:12px"></canvas>`;
+      : canLive
+      ? `<canvas id="kiosk-canvas" style="width:92%;height:86%;border-radius:12px"></canvas>`
+      : w.thumb
+      ? `<img src="${w.thumb}" alt="${esc(w.title || '')}" style="width:92%;height:86%;object-fit:contain;border-radius:12px;background:#0a0c14">`
+      : `<div style="width:92%;height:86%;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#0a0c14;color:#8794b0">미리보기가 없는 작품이에요. QR로 작품 페이지에서 만나요.</div>`;
     $('#kroot').innerHTML = `
       <div class="stage">
         <div class="art">${artMedia}</div>
         <div class="info">
           <div class="eyebrow2">오늘의 시선 · 학생 전시</div>
           <h1>${esc(w.title || '제목 없음')}</h1>
-          <div class="artist">${esc(w.by || '익명')} <span class="badge">${KIND[w.kind] || w.kind}</span></div>
+          <div class="artist">${esc(w.by || '익명')} <span class="badge">${esc(kindLabel(w))}</span></div>
           ${w.statement ? `<div class="statement">${esc(w.statement)}</div>` : ''}
           ${w.intent ? `<div class="statement"><b>작가노트</b>: ${esc(w.intent)}</div>` : ''}
           ${w.evidence ? `<div class="statement muted">근거 · ${esc(w.evidence)}</div>` : ''}
@@ -65,7 +88,7 @@
       </div>`;
     if (window.QR) QR.draw($('#qr'), workURL(w.id), { size: 150, margin: 2 });
     if (w.video) { const kv = $('#kiosk-video'); if (kv) { kv.muted = true; const pp = kv.play(); if (pp && pp.catch) pp.catch(() => {}); } }
-    else { const kc = $('#kiosk-canvas'); if (kc && window.Player) liveCtl = Player.mount(kc, w, { interactive: false }); }
+    else if (canLive) { const kc = $('#kiosk-canvas'); if (kc && window.Player) liveCtl = Player.mount(kc, w, { interactive: false }); }
     $('#k-counter').textContent = (idx + 1) + ' / ' + works.length;
     restartProgress();
   }
