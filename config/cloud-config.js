@@ -80,6 +80,35 @@
     async getQuiz(id) { return (await all('quizzes')).find(q => q.id === id) || null; },
     async deleteQuiz(id) { const r = await ready; if (r) await r.fs.deleteDoc(r.fs.doc(r.db, 'quizzes', id)); },
     async addQuizAnswer(a) { a.createdAt = Date.now(); return add('quizAnswers', a); },
-    async listQuizAnswers(quizId) { return (await all('quizAnswers')).filter(a => !quizId || a.quizId === quizId); }
+    async listQuizAnswers(quizId) { return (await all('quizAnswers')).filter(a => !quizId || a.quizId === quizId); },
+
+    /* ---- 학습 로그(log.js) ----
+     * 이름은 올라가지 않는다 — 반 + 익명 코드(uid)만 담긴다. 이 컬렉션이 없으면
+     * store.js 가 로컬로 폴백해서, 작품은 클라우드·로그는 각자 브라우저에 흩어진다. */
+    async addLog(l) { l.ts = l.ts || Date.now(); return add('logs', l, l.id); },
+    async listLogs() { return (await all('logs')).sort((a, b) => a.ts - b.ts); },
+    async clearLogs() {
+      const r = await ready; if (!r) throw new Error('cloud-not-ready');
+      const snap = await r.fs.getDocs(r.fs.collection(r.db, 'logs'));
+      for (const d of snap.docs) await r.fs.deleteDoc(d.ref);
+    },
+
+    // ---- 버전 스냅샷(version.js) ----
+    // 작품 하나당 최근 8개만 남긴다(로컬 저장과 같은 상한 — 썸네일이 무한정 쌓이지 않도록).
+    async saveVersion(v) {
+      v.createdAt = v.createdAt || Date.now();
+      const id = await add('versions', v, v.id);
+      try {
+        const r = await ready;
+        const mine = (await all('versions')).filter(x => x.workId === v.workId).sort((a, b) => a.createdAt - b.createdAt);
+        for (const old of mine.slice(0, Math.max(0, mine.length - 8))) {
+          await r.fs.deleteDoc(r.fs.doc(r.db, 'versions', old.id));
+        }
+      } catch (e) { console.warn('[cloud] 버전 정리 실패', e && e.message); }
+      return id;
+    },
+    async listVersions(workId) {
+      return (await all('versions')).filter(v => !workId || v.workId === workId).sort((a, b) => a.createdAt - b.createdAt);
+    }
   };
 })(window);

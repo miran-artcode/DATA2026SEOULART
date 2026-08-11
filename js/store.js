@@ -8,13 +8,38 @@
  *   - 어떤 경우든 exportAll()/importJSON() 으로 교사가 취합할 수 있다.
  *
  * 데이터: works(작품) · feedback(또래 피드백) · notes(작업노트/버전로그)
+ *         logs(학습 로그 · log.js) · versions(버전 스냅샷 · version.js)
  */
 (function (global) {
   'use strict';
 
   const K_WORKS = 'dn_works', K_FB = 'dn_feedback', K_NOTES = 'dn_notes', K_QUIZ = 'dn_quizzes', K_QA = 'dn_quizans';
+  const K_LOGS = 'dn_logs', K_VER = 'dn_versions';
+  const LOG_CAP = 4000, VER_PER_WORK = 8;   // 브라우저 저장 용량 보호선
   const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { return []; } };
-  const write = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+  /*
+   * write — 저장 용량(QuotaExceededError) 안전판.
+   * 작품 썸네일·영상·버전 스냅샷이 쌓이면 localStorage 5MB 한계에 닿는다. 그때
+   *   ① 부수적 데이터(로그)를 절반으로 줄여 자리를 만들고 한 번 더 시도하고,
+   *   ② 그래도 실패하면 예외를 그대로 올린다(호출부의 기존 폴백/경고가 동작하도록).
+   */
+  function write(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); }
+    catch (e) {
+      try {
+        const logs = read(K_LOGS);
+        if (logs.length > 40 && k !== K_LOGS) {
+          localStorage.setItem(K_LOGS, JSON.stringify(logs.slice(Math.floor(logs.length / 2))));
+          localStorage.setItem(k, JSON.stringify(v));
+          if (global.UI && UI.toast) UI.toast('저장 공간이 부족해 오래된 학습 로그 일부를 정리했어요.');
+          return;
+        }
+      } catch (e2) { /* 아래에서 원래 예외를 올린다 */ }
+      if (global.UI && UI.toast) UI.toast('⚠ 브라우저 저장 공간이 가득 찼어요. 교사 대시보드에서 데이터를 내보낸 뒤 정리해 주세요.');
+      throw e;
+    }
+  }
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
   // -------- 로컬 백엔드 --------
@@ -59,7 +84,32 @@
     async getQuiz(id) { return read(K_QUIZ).find(q => q.id === id) || null; },
     async deleteQuiz(id) { write(K_QUIZ, read(K_QUIZ).filter(q => q.id !== id)); },
     async addQuizAnswer(a) { const list = read(K_QA); a.id = uid(); a.createdAt = Date.now(); list.push(a); write(K_QA, list); return a.id; },
-    async listQuizAnswers(quizId) { return read(K_QA).filter(a => !quizId || a.quizId === quizId); }
+    async listQuizAnswers(quizId) { return read(K_QA).filter(a => !quizId || a.quizId === quizId); },
+
+    // ---- 학습 로그(log.js) ----
+    async addLog(l) {
+      const list = read(K_LOGS); l.id = l.id || uid(); list.push(l);
+      write(K_LOGS, list.length > LOG_CAP ? list.slice(list.length - LOG_CAP) : list);
+      return l.id;
+    },
+    async listLogs() { return read(K_LOGS); },
+    async clearLogs() { write(K_LOGS, []); },
+
+    // ---- 버전 스냅샷(version.js) ----
+    async saveVersion(v) {
+      const list = read(K_VER); v.id = v.id || uid(); v.createdAt = v.createdAt || Date.now();
+      list.push(v);
+      // 작품 하나당 최근 VER_PER_WORK 개만 남긴다(썸네일이 쌓여 용량을 먹지 않도록)
+      const mine = list.filter(x => x.workId === v.workId);
+      if (mine.length > VER_PER_WORK) {
+        const drop = new Set(mine.sort((a, b) => a.createdAt - b.createdAt).slice(0, mine.length - VER_PER_WORK).map(x => x.id));
+        write(K_VER, list.filter(x => !drop.has(x.id)));
+      } else write(K_VER, list);
+      return v.id;
+    },
+    async listVersions(workId) {
+      return read(K_VER).filter(v => !workId || v.workId === workId).sort((a, b) => a.createdAt - b.createdAt);
+    }
   };
 
   // 클라우드가 있으면 우선 사용하되, 실패 시 로컬로 폴백(네트워크가 끊겨도 수업이 멈추지 않도록)
@@ -97,11 +147,17 @@
     deleteQuiz: (id) => call('deleteQuiz', id),
     addQuizAnswer: (a) => call('addQuizAnswer', a),
     listQuizAnswers: (id) => call('listQuizAnswers', id),
+    addLog: (l) => call('addLog', l),
+    listLogs: () => call('listLogs'),
+    clearLogs: () => call('clearLogs'),
+    saveVersion: (v) => call('saveVersion', v),
+    listVersions: (id) => call('listVersions', id),
 
     // 교사 취합용: 로컬 데이터 전체 내보내기/불러오기(병합)
     exportAll() {
       return { app: 'DATA2026SEOULART', exportedAt: new Date().toISOString(),
-        works: read(K_WORKS), feedback: read(K_FB), notes: read(K_NOTES), quizzes: read(K_QUIZ), quizAnswers: read(K_QA) };
+        works: read(K_WORKS), feedback: read(K_FB), notes: read(K_NOTES), quizzes: read(K_QUIZ), quizAnswers: read(K_QA),
+        logs: read(K_LOGS), versions: read(K_VER) };
     },
     importJSON(data) {
       const merge = (k, items) => {
@@ -112,7 +168,8 @@
       };
       const a = merge(K_WORKS, data.works), b = merge(K_FB, data.feedback), c = merge(K_NOTES, data.notes);
       const d = merge(K_QUIZ, data.quizzes), e = merge(K_QA, data.quizAnswers);
-      return { works: a, feedback: b, notes: c, quizzes: d, quizAnswers: e };
+      const f = merge(K_LOGS, data.logs), g = merge(K_VER, data.versions);
+      return { works: a, feedback: b, notes: c, quizzes: d, quizAnswers: e, logs: f, versions: g };
     }
   };
 

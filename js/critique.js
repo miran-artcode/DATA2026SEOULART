@@ -53,11 +53,14 @@
     if (!v('q1') && !v('q2') && !v('q3')) { UI.toast('비평을 한 가지 이상 적어 주세요.'); return; }
     await Store.saveNote({ userId: u.userId, by: u.display, kind: 'reflection', title: '데이터 비평 · ' + DATA[cur].title,
       aiHelp: '사실: ' + v('q1'), myDecision: '해석: ' + v('q2'), line: '가치/응답: ' + v('q3') });
+    if (window.Log) Log.push({ stage: 'judge', action: 'critique_write',
+      payload: { topic: cur, layers: [!!v('q1'), !!v('q2'), !!v('q3')].filter(Boolean).length } });
     UI.toast('비평을 작업노트에 저장했습니다.');
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     UI.mountIdeaBar('idea', 'lab');
+    if (window.Log) Log.view('judge');
     $('#crit-data').addEventListener('change', e => { cur = e.target.value; draw(); });
     document.querySelectorAll('[data-ax]').forEach(b => b.addEventListener('click', () => {
       axis = b.dataset.ax; document.querySelectorAll('[data-ax]').forEach(x => x.classList.toggle('on', x === b)); draw();

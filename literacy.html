@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI 리터러시 7장 · 데이터의 눈</title>
+<meta name="description" content="이미지가 숫자가 되는 원리부터 그럴듯함의 함정·데이터의 관점·저작권·창작의 책임까지, 직접 해 보며 배우는 생성형 AI 리터러시 7챕터." />
+<link rel="stylesheet" href="css/site.css" />
+<style>
+  .lit-ch { margin-bottom: 20px; scroll-margin-top: 76px; }
+  .lit-head { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .lit-n { flex: none; width: 38px; height: 38px; border-radius: 11px; background: var(--accent); color: #fff;
+    font-weight: 800; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+  .lit-read { font-size: 14px; line-height: 1.85; }
+  .lit-tasklabel { margin: 14px 0 8px; font-size: 13px; font-weight: 700; color: var(--accent2); }
+  .lit-answer { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 12px; }
+  .lit-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .lit-row input[type=text] { flex: 1; min-width: 200px; width: auto; }
+  .lit-widget { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--bg2); }
+  .lit-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .lit-2col { grid-template-columns: 1fr; } }
+  .lit-cv { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .lit-readout { font-size: 13px; }
+  .lit-swatch { width: 100%; height: 46px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 8px; }
+  .lit-kv { width: 100%; font-size: 12.5px; border-collapse: collapse; }
+  .lit-kv td { padding: 3px 0; border-bottom: 1px solid var(--line); }
+  .lit-kv td:first-child { color: var(--muted); width: 78px; }
+  .lit-grid div { display: flex; }
+  .lit-grid span { width: 20px; height: 20px; display: block; border: 1px solid rgba(127,140,180,.25); }
+  .lit-pal { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+  .lit-pal span { width: 30px; height: 22px; border-radius: 5px; border: 1px solid var(--line); }
+  .lit-msg { font-size: 13px; line-height: 1.75; margin-top: 10px; }
+  .lit-gen { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .lit-genitem { text-align: center; }
+  .lit-genitem canvas { width: 132px; border-radius: 8px; border: 1px solid var(--line); display: block; }
+  .lit-genitem span { font-size: 11px; color: var(--muted); }
+  .lit-chk { display: flex; gap: 6px; align-items: center; font-size: 12.5px; cursor: pointer; }
+  .lit-people { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .lit-people span { font-size: 11.5px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); }
+  .lit-people .fit { color: var(--good); border-color: rgba(81,216,138,.5); background: rgba(81,216,138,.1); }
+  .lit-people .unfit { color: var(--danger); border-color: rgba(255,90,60,.45); background: rgba(255,90,60,.08); }
+  .lit-out3 { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .lit-outitem { width: 132px; font-size: 11.5px; display: flex; flex-direction: column; gap: 2px; }
+  .lit-outitem img { width: 100%; height: 84px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+  .lit-prog { height: 8px; background: rgba(127,140,180,.18); border-radius: 999px; overflow: hidden; margin-bottom: 6px; }
+  .lit-prog div { height: 100%; background: var(--accent); border-radius: 999px; transition: .3s; }
+  .lit-toc { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 18px; }
+  .lit-toc a { font-size: 12px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); text-decoration: none; }
+  .lit-toc a:hover { color: var(--accent); border-color: var(--accent); }
+</style>
+</head>
+<body>
+<div id="app-header"></div>
+<div class="wrap">
+  <div class="page-head">
+    <span class="eyebrow">AI 리터러시</span>
+    <h1>만들기 전에, 왜 이런 결과가 나오는지부터</h1>
+    <p>일곱 장을 지나며 <b>읽고 → 직접 해 보고 → 한 줄로 답합니다</b>. 그 한 줄이 학습 기록과 포트폴리오에 그대로 남아요.
+      결과를 잘 뽑는 법이 아니라, <b>결과를 의심하는 법</b>을 배웁니다.</p>
+  </div>
+  <div id="idea"></div>
+  <div id="lit-progress"></div>
+  <nav class="lit-toc">
+    <a href="#ch1">1 · 이미지는 어떻게 숫자가 되는가</a>
+    <a href="#ch2">2 · 요약은 손실이다</a>
+    <a href="#ch3">3 · 생성형 AI는 무엇을 잘하는가</a>
+    <a href="#ch4">4 · 그럴듯함의 함정</a>
+    <a href="#ch5">5 · 데이터는 관점이다</a>
+    <a href="#ch6">6 · 저작권 · 약관 · 개인정보</a>
+    <a href="#ch7">7 · 창작의 책임</a>
+  </nav>
+
+  <div id="lit-root"></div>
+
+  <p class="footer-note">이 페이지의 모든 계산은 <b>이 브라우저 안에서</b> 이루어집니다 · 이미지·소리 원본은 서버로 전송되지 않아요</p>
+</div>
+
+<script src="js/explain.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/auth.js"></script>
+<script src="config/cloud-config.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/log.js"></script>
+<script src="js/imgutil.js"></script>
+<script src="js/kmeans.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/algos/algorithms.js"></script>
+<script src="js/metrics.js"></script>
+<script src="js/literacy.js"></script>
+</body>
+</html>

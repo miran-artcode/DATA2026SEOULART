@@ -23,15 +23,17 @@
       { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구' }
     ] },
     { label: '배우기', drop: [
+      { href: 'literacy.html', t: 'AI 리터러시 7장', s: '읽고 → 해 보고 → 한 줄 답하기' },
       { href: 'learn.html', t: '알고리즘 배움터', s: '쉬운→깊은 설명' },
       { href: 'critique.html', t: '데이터 비평 읽기', s: '차트를 비판적으로 (질문 3층위)' },
-      { href: 'journey.html', t: '학습 여정 지도', s: '4단계·2축·평가 4영역' }
+      { href: 'journey.html', t: '학습 여정 지도', s: '7단계 과정 · 4단계 지도' }
     ] },
     { label: '나누기', drop: [
       { href: 'gallery.html', t: '전시 갤러리', s: '작품 감상 + 또래 피드백' },
       { href: 'exhibit.html', t: '키오스크 전시', s: '큰 화면 슬라이드쇼 + QR 비평' },
       { href: 'quiz.html', t: '분석 퀴즈', s: '출제하고 맞히고 겨루기' },
-      { href: 'notes.html', t: '작업 노트', s: '과정·버전·성찰 기록' }
+      { href: 'notes.html', t: '작업 노트', s: '과정·버전·성찰 기록' },
+      { href: 'portfolio.html', t: '내 포트폴리오', s: '판단의 과정을 A4 한 장으로' }
     ] },
     { label: '교사', href: 'admin.html' }
   ];

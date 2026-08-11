@@ -360,6 +360,7 @@
       const cm = $('#map-colormode'); if (cm) cm.value = mode;
     } else { state.mapping[prop] = field; }
     populateFieldSelects(); renderColorUI(); build();
+    if (window.Log) Log.push({ stage: 'make', action: 'map_apply', workId: Log.workId(), payload: { prop, field, mode: mode || null } });
     UI.toast('적용: ‘' + field + '’ → ' + ({ size: '크기', speed: '속도', color: '색', shape: '형태' }[prop] || prop));
   }
   // 문제 강조: 가장 강한 ‘문제 신호’ 열을 크기·색·배치·움직임으로 한 번에 드러낸다.
@@ -581,6 +582,7 @@
   function mdToHtml(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/_(.+?)_/g, '<i>$1</i>').replace(/\n/g, '<br>'); }
   async function coach() {
     UI.modal('🧭 감상 코치', '<div class="spinner"></div> 질문을 준비하는 중…', '답이 아니라 질문이에요');
+    if (window.Log) Log.push({ stage: 'judge', action: 'coach_ask', workId: Log.workId(), payload: { where: 'studio-data' } });
     const res = await Coach.ask({ kind: 'data', intent: $('#in-intent').value, dataName: $('#in-dataname').value || state.dataName, rules: rulesText() });
     const note = res.source.indexOf('api') === 0 ? '실제 모델' : '오프라인 코치';
     UI.modal('🧭 감상 코치 <span class="badge">' + note + '</span>', '<div class="lvl-b">' + mdToHtml(res.text) + '</div>', '답이 아니라 질문이에요');
@@ -603,16 +605,38 @@
       fields: state.dataset ? state.dataset.fields : [], rows: state.dataset ? state.dataset.rows : [] };
   }
   function requireUser() { const u = Auth.current(); if (!u) { UI.toast('로그인이 필요합니다.'); setTimeout(() => location.href = 'index.html?next=studio-data.html', 900); return null; } return u; }
+  // 판단의 흔적 위젯(질문 카드·버전 스냅샷) — 처음 한 번, 그리고 전시로 새 작품이 시작될 때 다시 그린다.
+  function mountTrace() {
+    if (window.Cards) Cards.mount($('#dn-cards'), {
+      ctx: () => ({ kind: 'data', intent: $('#in-intent').value, dataName: $('#in-dataname').value || state.dataName,
+        rules: rulesText(), mapping: state.mapping }),
+      workId: () => Log.workId()
+    });
+    if (window.Versions) Versions.mount($('#dn-versions'), {
+      workId: () => Log.workId(),
+      canvas: () => (p5i && p5i.canvas) || null,
+      settings: () => settings()
+    });
+  }
   async function saveNote() {
     const u = requireUser(); if (!u) return;
     await Store.saveNote({ userId: u.userId, by: u.display, kind: 'data', title: ($('#in-dataname').value || state.dataName), intent: $('#in-intent').value, evidence: $('#in-evidence').value, settings: settings() });
+    if (window.Log) Log.push({ stage: 'intent', action: 'note_save', workId: Log.workId(),
+      payload: { hasIntent: !!$('#in-intent').value.trim(), hasEvidence: !!$('#in-evidence').value.trim() } });
     UI.toast('작업노트에 저장했습니다.');
   }
   async function exhibit() {
     const u = requireUser(); if (!u) return;
     const intent = $('#in-intent').value.trim(), evidence = $('#in-evidence').value.trim();
     if (!intent || !evidence) { UI.toast('전시 전에 ‘의도 한 문장 + 근거 1개 이상’을 채워 주세요.'); return; }
-    await Store.saveWork({ userId: u.userId, by: u.display, klass: u.klass, kind: 'data', title: ($('#in-dataname').value || state.dataName), intent, evidence, dataName: $('#in-dataname').value || state.dataName, settings: settings(), thumb: thumb(), exhibited: true });
+    // draftId: 전시 전에 쌓인 로그·버전을 이 작품과 이어 주는 자리표(교사 화면의 타임라인이 한 줄로 이어진다)
+    const draftId = window.Log ? Log.workId() : null;
+    const id = await Store.saveWork({ userId: u.userId, by: u.display, klass: u.klass, kind: 'data', title: ($('#in-dataname').value || state.dataName), intent, evidence, dataName: $('#in-dataname').value || state.dataName, settings: settings(), thumb: thumb(), exhibited: true, consent: true, draftId });
+    if (window.Log) {
+      await Log.push({ stage: 'share', action: 'exhibit', workId: draftId, payload: { workRealId: id } });
+      Log.newWork();   // 다음 작품은 새 자리표로 — 이전 작품의 버전·로그와 섞이지 않게
+    }
+    mountTrace();   // 새 작품 기준으로 질문 카드·버전 목록을 다시 그린다
     UI.toast('🎉 갤러리에 전시했습니다!');
   }
   function saveImage() { const a = document.createElement('a'); a.download = 'data_art_' + Date.now() + '.png'; a.href = p5i.canvas.toDataURL('image/png'); a.click(); UI.toast('이미지를 저장했습니다.'); }
@@ -697,12 +721,22 @@
 
     $('#btn-ruleA').addEventListener('click', () => { ruleA = snapRule(); renderAB(); UI.toast('규칙 A 저장됨 — 매핑을 바꿔 규칙 B도 저장해 비교하세요.'); });
     $('#btn-ruleB').addEventListener('click', () => { ruleB = snapRule(); renderAB(); UI.toast('규칙 B 저장됨 — ‘A/B 전환’으로 비교하세요.'); });
-    $('#btn-ab').addEventListener('click', () => { if (!ruleA || !ruleB) { UI.toast('먼저 규칙 A·B를 저장하세요.'); return; } abFlag = !abFlag; applyRule(abFlag ? ruleB : ruleA); renderAB(); UI.toast('적용: 규칙 ' + (abFlag ? 'B' : 'A')); });
+    $('#btn-ab').addEventListener('click', () => {
+      if (!ruleA || !ruleB) { UI.toast('먼저 규칙 A·B를 저장하세요.'); return; }
+      abFlag = !abFlag; applyRule(abFlag ? ruleB : ruleA); renderAB();
+      if (window.Log) Log.push({ stage: 'judge', action: 'ab_switch', workId: Log.workId(),
+        payload: { from: abFlag ? 'A' : 'B', to: abFlag ? 'B' : 'A' } });
+      UI.toast('적용: 규칙 ' + (abFlag ? 'B' : 'A'));
+    });
 
     $('#btn-coach').addEventListener('click', coach);
     $('#btn-img').addEventListener('click', saveImage);
     $('#btn-note').addEventListener('click', saveNote);
     $('#btn-exhibit').addEventListener('click', exhibit);
+
+    // 판단의 흔적 — 질문 카드 4종 · 버전 스냅샷(공통 위젯)
+    if (window.Log) Log.view('make');
+    mountTrace();
     // (보낸 데이터 수신은 p5 setup의 loadIncoming()에서 결정적으로 처리)
   });
 })();

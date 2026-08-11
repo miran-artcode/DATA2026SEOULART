@@ -96,6 +96,7 @@
 
       <div class="card" style="margin-top:16px">
         <h3>작가노트</h3>
+        ${work.statement ? `<p style="font-size:14.5px;line-height:1.8;border-left:3px solid var(--accent);padding-left:12px">${esc(work.statement)}</p>` : ''}
         ${work.intent ? `<p><b>의도</b> · ${esc(work.intent)}</p>` : ''}
         ${work.evidence ? `<p><b>조형/데이터 근거</b> · ${esc(work.evidence)}</p>` : ''}
         ${st.length ? `<p class="muted" style="font-size:13px"><b>데이터·알고리즘</b> · ${st.map(esc).join(' · ')}</p>` : ''}
@@ -112,7 +113,7 @@
         <hr class="sep">
         <h3 style="font-size:15px">비평 남기기</h3>
         <div class="grid c2">
-          <div><label class="field">이름(관람객)</label><input id="c-name" type="text" value="${u ? esc(u.display) : ''}" placeholder="이름 또는 별명"></div>
+          <div><label class="field">별명(관람객)</label><input id="c-name" type="text" value="${u ? esc(u.display) : ''}" placeholder="별명 (실명은 적지 마세요)"></div>
           <div><label class="field">별점</label>
             <select id="c-rating"><option value="5">★★★★★</option><option value="4">★★★★</option><option value="3" selected>★★★</option><option value="2">★★</option><option value="1">★</option></select></div>
         </div>
@@ -155,6 +156,8 @@
       rating: +$('#c-rating').value, comment, describe: d, analyze: a, interpret: i, judge: j,
       rubric: hasRb ? rb : null
     });
+    if (window.Log) Log.push({ stage: 'share', action: 'critique_write', workId: id,
+      payload: { rubric: hasRb, steps: [d, a, i, j].filter(Boolean).length } });
     UI.toast('비평을 등록했습니다. 고맙습니다!');
     render();
   }

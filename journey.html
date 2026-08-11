@@ -20,6 +20,18 @@
   .axis-note { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 6px 0 16px; }
   .rubric-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
   @media (max-width: 700px) { .rubric-grid { grid-template-columns: 1fr; } }
+  /* 7단계 창작 과정 진행 바 — 학습 로그에서 내 위치를 읽어 표시 */
+  .proc { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 10px 0 6px; }
+  @media (max-width: 760px) { .proc { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 460px) { .proc { grid-template-columns: repeat(2, 1fr); } }
+  .proc-step { border: 1px solid var(--line); border-radius: 11px; padding: 9px 10px; position: relative; }
+  .proc-step .pn { font-size: 11px; color: var(--muted2); font-weight: 700; }
+  .proc-step b { display: block; font-size: 13px; margin: 1px 0 3px; }
+  .proc-step p { font-size: 11.5px; color: var(--muted); margin: 0; line-height: 1.5; }
+  .proc-step.on { border-color: var(--accent); background: rgba(var(--accent-rgb),.09); }
+  .proc-step.on .pn { color: var(--accent); }
+  .proc-step.cur { box-shadow: 0 0 0 2px rgba(var(--accent-rgb),.35); }
+  .proc-step .tick { position: absolute; top: 7px; right: 9px; color: var(--good); font-size: 12px; }
 </style>
 </head>
 <body>
@@ -30,6 +42,16 @@
     <h1>데이터는 숫자 표가 아니라, 세상의 무엇이든 될 수 있다</h1>
     <p>두 축이 맞물려 한 학기가 됩니다 — <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회), <b>학생의 주체성이 깊어져요</b>(교사 데이터→내 삶→내가 정한 사회문제).</p>
   </div>
+  <!-- 창작 과정 7단계 — 아래 4단계 지도와 '다른 축'이다.
+       4단계 = 무엇을 데이터로 삼는가(한 학기의 지도) · 7단계 = 한 작품을 만드는 동안 거치는 과정. -->
+  <div class="card" style="margin-bottom:18px">
+    <h2 style="margin:0 0 2px;font-size:17px">창작 과정 7단계 — 지금 나는 어디에</h2>
+    <p class="muted" style="font-size:12.5px;margin:2px 0 0">아래 <b>4단계 지도</b>가 “무엇을 데이터로 삼는가”라면, 이 7단계는 <b>한 작품을 만드는 동안</b> 거치는 과정이에요.
+      스튜디오·리터러시·노트에 남긴 기록을 읽어 자동으로 채워집니다.</p>
+    <div class="proc" id="proc"></div>
+    <p class="muted" style="font-size:11.5px;margin:6px 0 0" id="proc-msg"></p>
+  </div>
+
   <div class="axis-note">
     <span>↔ 가로축 <b style="color:var(--accent2)">무엇을 데이터로 만드는가</b> (출처가 넓어짐)</span>
     <span>↕ 세로축 <b style="color:var(--good)">누가·왜 고르는가</b> (주체성이 깊어짐)</span>
@@ -92,7 +114,40 @@
 <script src="js/explain.js"></script>
 <script src="js/guide.js"></script>
 <script src="js/auth.js"></script>
+<script src="config/cloud-config.js"></script>
+<script src="js/store.js"></script>
 <script src="js/ui.js"></script>
-<script>UI.mountIdeaBar && UI.mountIdeaBar('idea', 'general');</script>
+<script src="js/log.js"></script>
+<script>
+  UI.mountIdeaBar && UI.mountIdeaBar('idea', 'general');
+
+  /* 창작 과정 7단계 — 내 학습 로그·작품·노트를 읽어 도달 여부를 표시 */
+  (async function renderProcess() {
+    const host = document.getElementById('proc'), msg = document.getElementById('proc-msg');
+    const u = Auth.current();
+    const reached = new Set();
+    if (u) {
+      const uid = Log.anonOf(u);
+      (await Log.list({ uid })).forEach(l => reached.add(l.stage));
+      const works = await Store.listWorks({ userId: u.userId });
+      const notes = await Store.listNotes(u.userId);
+      if (works.length) reached.add('make');
+      if (works.some(w => w.intent)) reached.add('intent');
+      if (works.some(w => w.exhibited)) reached.add('share');
+      if (notes.some(n => n.kind === 'reflection' || n.kind === 'statement')) reached.add('own');
+      if (notes.some(n => n.kind === 'revision')) reached.add('revise');
+    }
+    // 다음에 갈 곳 = 아직 밟지 않은 가장 앞 단계
+    const nextIdx = Log.STAGES.findIndex(s => !reached.has(s.key));
+    host.innerHTML = Log.STAGES.map((s, i) => `
+      <div class="proc-step ${reached.has(s.key) ? 'on' : ''} ${i === nextIdx ? 'cur' : ''}">
+        ${reached.has(s.key) ? '<span class="tick">✔</span>' : ''}
+        <span class="pn">${i + 1}</span><b>${s.label}</b><p>${s.desc}</p></div>`).join('');
+    msg.innerHTML = !u
+      ? '로그인하면 <b>내가 어디까지 왔는지</b>가 여기에 표시돼요.'
+      : nextIdx < 0 ? '<b>일곱 단계를 모두 지났어요.</b> <a href="portfolio.html">→ 포트폴리오에서 내 과정 보기</a>'
+      : `다음은 <b>${Log.STAGES[nextIdx].label}</b> — ${Log.STAGES[nextIdx].desc}.`;
+  })();
+</script>
 </body>
 </html>

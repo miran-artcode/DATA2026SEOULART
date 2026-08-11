@@ -208,6 +208,7 @@
 <script src="config/cloud-config.js"></script>
 <script src="js/store.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/log.js"></script>
 <script src="js/player.js"></script>
 <script>
   const KIND = { color: '색 군집', data: '데이터 점', sound: '소리', life: '내 삶', object: '객체 감지', project: '사회문제', lab: '분석' };
@@ -219,7 +220,9 @@
 
   /* ----------------------------- 데이터 로드 ----------------------------- */
   async function load() {
-    ALL = await Store.listWorks({ exhibited: true });
+    // 공개 동의를 끈 작품은 갤러리에서도 제외(예전 작품은 동의한 것으로 본다).
+    // 학생 본인은 작업 노트·포트폴리오에서 자기 작품을 그대로 볼 수 있다.
+    ALL = (await Store.listWorks({ exhibited: true })).filter(w => w.consent !== false);
     document.getElementById('empty').classList.toggle('hide', ALL.length > 0);
     document.getElementById('stage-wrap').classList.toggle('hide', ALL.length === 0);
     if (!ALL.length) return;

@@ -54,6 +54,7 @@
 
   async function coach() {
     if (!window.Coach) { toast('코치 모듈이 없습니다.'); return; }
+    if (window.Log) Log.push({ stage: 'judge', action: 'coach_ask', workId: Log.workId(), payload: { where: 'studio-color' } });
     const b = modal('🧭 감상 코치', '<span style="opacity:.7">질문을 준비하는 중…</span>');
     const res = await Coach.ask(window.ColorStudio.context());
     const tag = res.source.indexOf('api') === 0 ? '실제 모델' : '오프라인 코치';
@@ -110,11 +111,18 @@
         } else {
           srcImg = window.ColorStudio.sourceURL();
         }
+        // draftId: 전시 전에 쌓인 로그·버전을 이 작품과 이어 주는 자리표
+        const draftId = window.Log ? Log.workId() : null;
         const work = { userId: u.userId, by: u.display, klass: u.klass, kind: 'color', title, intent, evidence,
-          settings: window.ColorStudio.settings(), meta, thumb, srcImg, srcSample, exhibited: true };
+          settings: window.ColorStudio.settings(), meta, thumb, srcImg, srcSample, exhibited: true, consent: true, draftId };
         if (useVideo) work.video = recURL;   // 갤러리/뷰어가 <video> 로 재생(멈춤 없이 움직임 그대로)
         try {
-          await Store.saveWork(work);
+          const wid = await Store.saveWork(work);
+          if (window.Log) {
+            await Log.push({ stage: 'share', action: 'exhibit', workId: draftId, payload: { workRealId: wid } });
+            Log.newWork();   // 다음 작품은 새 자리표로 — 이전 작품의 버전·로그와 섞이지 않게
+            mountTrace.remount && mountTrace.remount();
+          }
           document.getElementById('glue-modal').style.display = 'none';
           toast(useVideo ? '🎉 인터랙티브 영상으로 전시했습니다!' : '🎉 갤러리에 전시했습니다!');
         } catch (e) {
@@ -148,5 +156,28 @@
     }, 700);
   }
 
-  document.addEventListener('DOMContentLoaded', () => { injectButtons(); checkIncomingImage(); });
+  /* ----------------------------- 판단의 흔적 위젯 ----------------------------- */
+  // 이 화면은 site.css/ui.js 를 쓰지 않으므로 위젯이 스스로 스타일을 넣는다(widget.js).
+  function mountTrace() {
+    if (window.Log) Log.view('make');
+    const ctx = () => (window.ColorStudio ? window.ColorStudio.context() : { kind: 'color' });
+    // 전시 뒤 새 작품으로 넘어가면 다시 부른다(비어 있는 버전 목록으로 갱신)
+    mountTrace.remount = function () {
+      if (window.Cards) Cards.mount(document.getElementById('dn-cards'), { ctx, workId: () => Log.workId() });
+      if (window.Versions) Versions.mount(document.getElementById('dn-versions'), {
+        workId: () => Log.workId(),
+        canvas: () => (window.ColorStudio && window.ColorStudio.canvas()) || null,
+        settings: () => (window.ColorStudio ? window.ColorStudio.settings() : {})
+      });
+    };
+    mountTrace.remount();
+    // 분석 실행도 판단의 출발점 — 버튼 클릭을 한 번만 기록한다.
+    const ba = document.getElementById('btn-analyze');
+    if (ba && window.Log) ba.addEventListener('click', () => {
+      const c = window.ColorStudio ? window.ColorStudio.context() : {};
+      Log.push({ stage: 'sense', action: 'analyze', workId: Log.workId(), payload: { K: c.K, N: c.N, space: c.space } });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => { injectButtons(); checkIncomingImage(); mountTrace(); });
 })();

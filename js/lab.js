@@ -33,6 +33,7 @@
 
   function runAll() {
     if (!src) return;
+    if (window.Log) Log.push({ stage: 'sense', action: 'analyze', workId: Log.workId(), payload: { K: state.K, space: state.space } });
     setBusy(true);
     requestAnimationFrame(() => setTimeout(() => {
       try {
@@ -131,6 +132,7 @@
     if (!u) { UI.toast('저장하려면 로그인하세요.'); setTimeout(() => location.href = 'index.html?next=lab.html', 900); return; }
     await Store.saveNote({ userId: u.userId, by: u.display, kind: 'lab', title: '분석실 해석 메모',
       memos: getMemos(), palette: lastPalette.map(hex), composition: lastComp ? lastComp.centroid : null });
+    if (window.Log) Log.push({ stage: 'judge', action: 'note_save', workId: Log.workId(), payload: { where: 'lab' } });
     UI.toast('작업노트에 저장했습니다.');
   }
 

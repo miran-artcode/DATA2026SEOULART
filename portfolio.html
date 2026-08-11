@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>내 포트폴리오 · 데이터의 눈</title>
+<link rel="stylesheet" href="css/site.css" />
+<style>
+  .pf-paper { background: #fff; color: #16181f; border: 1px solid var(--line); border-radius: 14px;
+    padding: 26px 30px; max-width: 800px; margin: 0 auto; }
+  .pf-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px;
+    border-bottom: 2px solid #16181f; padding-bottom: 10px; margin-bottom: 16px; }
+  .pf-head h1 { font-size: 23px; margin: 0; color: #16181f; }
+  .pf-klass { font-size: 13px; font-weight: 500; color: #667; margin-left: 10px; }
+  .pf-sub { font-size: 12px; color: #667; margin: 3px 0 0; }
+  .pf-code { font-family: ui-monospace, monospace; font-size: 11px; color: #99a; margin-left: 6px; }
+  .pf-when { font-size: 11px; color: #99a; white-space: nowrap; }
+  .pf-sec { margin-bottom: 15px; }
+  .pf-sec h2 { font-size: 13px; margin: 0 0 7px; color: #2F6BE0; letter-spacing: -.01em;
+    border-left: 3px solid #2F6BE0; padding-left: 8px; }
+  .pf-stages { display: flex; flex-wrap: wrap; gap: 5px; }
+  .pf-stage { font-size: 11.5px; padding: 3px 10px; border-radius: 999px; border: 1px solid #dde; color: #aab; }
+  .pf-stage.on { border-color: #2F6BE0; background: #eef4ff; color: #2F6BE0; font-weight: 700; }
+  .pf-metrics { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  @media (max-width: 620px) { .pf-metrics { grid-template-columns: repeat(4, 1fr); } }
+  .pf-metrics div { text-align: center; border: 1px solid #e6e8f0; border-radius: 9px; padding: 7px 3px; }
+  .pf-metrics b { display: block; font-size: 18px; color: #16181f; }
+  .pf-metrics span { font-size: 10.5px; color: #778; }
+  .pf-work { display: flex; gap: 12px; margin-bottom: 10px; page-break-inside: avoid; }
+  .pf-work img { width: 132px; height: 99px; object-fit: cover; border-radius: 8px; border: 1px solid #e6e8f0; flex: none; }
+  .pf-noimg { width: 132px; height: 99px; border: 1px dashed #dde; border-radius: 8px; flex: none;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; color: #aab; }
+  .pf-work p { font-size: 12.3px; line-height: 1.6; margin: 4px 0 0; }
+  .pf-lab { display: inline-block; font-size: 10px; font-weight: 700; color: #fff; background: #6E84B8;
+    border-radius: 4px; padding: 1px 6px; margin-right: 6px; vertical-align: 1px; }
+  .pf-statement { background: #f6f8fd; border-radius: 8px; padding: 7px 9px; }
+  .pf-list { margin: 0; padding-left: 17px; font-size: 12.3px; line-height: 1.75; }
+  .pf-list li { margin-bottom: 3px; page-break-inside: avoid; }
+  .pf-dim { color: #99a; font-size: 11px; }
+  .pf-note { font-size: 11px; color: #889; margin: 6px 0 0; }
+  .pf-foot { border-top: 1px solid #e6e8f0; margin-top: 14px; padding-top: 8px; font-size: 10.5px; color: #99a; text-align: center; }
+  @media print {
+    @page { size: A4; margin: 12mm; }
+    body { background: #fff; }
+    .site-header, #site-footer, .no-print, .page-head { display: none !important; }
+    .wrap { padding: 0 !important; max-width: none !important; }
+    .pf-paper { border: 0; border-radius: 0; padding: 0; max-width: none; }
+  }
+</style>
+</head>
+<body>
+<div id="app-header"></div>
+<div class="wrap">
+  <div class="page-head">
+    <span class="eyebrow">포트폴리오</span>
+    <h1>내가 무엇을 보고, 의심하고, 골랐는가</h1>
+    <p>작품만이 아니라 <b>판단의 과정</b>이 한 장으로 정리됩니다. 인쇄하면 A4 크기에 맞춰 나와요.</p>
+  </div>
+  <div class="no-print" style="max-width:800px;margin:0 auto 12px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="pf-print" class="btn primary">🖨 인쇄 · PDF로 저장</button>
+    <a class="btn" href="literacy.html">AI 리터러시 7장</a>
+    <a class="btn ghost" href="notes.html">작업 노트</a>
+  </div>
+  <div class="pf-paper"><div id="pf-root"><div class="spinner"></div> 만드는 중…</div></div>
+</div>
+
+<script src="js/explain.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/auth.js"></script>
+<script src="config/cloud-config.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/log.js"></script>
+<script src="js/metrics.js"></script>
+<script src="js/portfolio.js"></script>
+</body>
+</html>

@@ -22,6 +22,11 @@
   <script src="js/store.js" defer></script>
   <script src="js/ratelimit.js" defer></script>
   <script src="js/coach.js" defer></script>
+  <!-- 학습 로그 + 판단의 흔적 위젯(site.css/ui.js 없이도 동작하도록 자체 스타일) -->
+  <script src="js/log.js" defer></script>
+  <script src="js/widget.js" defer></script>
+  <script src="js/cards.js" defer></script>
+  <script src="js/version.js" defer></script>
   <script src="js/studio-color-glue.js" defer></script>
 </head>
 <body>
@@ -412,6 +417,15 @@
           <div class="row"><label>제작자(학생)</label><input id="in-student" type="text" placeholder="이름/학번" /></div>
           <div class="row"><label>관람 경험 목표(의도, 한 문장)</label><input id="in-intent" type="text" placeholder="예: 소리로 그림을 '연주'하는 경험" /></div>
           <p class="hint warn">⚠ 마이크 음성은 저장되지 않고 실시간 분석값만 사용합니다. 색 분석·요약은 K-means(알고리즘)이며, 의도와 규칙 설계는 학생의 몫입니다.</p>
+        </div>
+      </details>
+
+      <!-- 판단의 흔적 — 질문 카드 4종 · 버전 스냅샷(전 스튜디오 공통 위젯) -->
+      <details open>
+        <summary>9 · 판단의 흔적 (평가 근거)</summary>
+        <div class="sect">
+          <div id="dn-cards"></div>
+          <div id="dn-versions"></div>
         </div>
       </details>
 

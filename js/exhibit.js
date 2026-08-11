@@ -51,6 +51,7 @@
           <div class="eyebrow2">데이터의 눈 · 학생 전시</div>
           <h1>${esc(w.title || '제목 없음')}</h1>
           <div class="artist">${esc(w.by || '익명')} <span class="badge">${KIND[w.kind] || w.kind}</span></div>
+          ${w.statement ? `<div class="statement">${esc(w.statement)}</div>` : ''}
           ${w.intent ? `<div class="statement"><b>작가노트</b> — ${esc(w.intent)}</div>` : ''}
           ${w.evidence ? `<div class="statement muted">근거 · ${esc(w.evidence)}</div>` : ''}
           ${st ? `<div class="meta">${esc(st)}</div>` : ''}
@@ -101,7 +102,8 @@
   }
 
   async function init() {
-    allWorks = await Store.listWorks({ exhibited: true });
+    // 공개 동의를 끈 작품은 키오스크 전시에서 자동 제외(예전 작품은 동의한 것으로 본다)
+    allWorks = (await Store.listWorks({ exhibited: true })).filter(w => w.consent !== false);
     if (!allWorks.length) {
       $('#kroot').innerHTML = `<div class="empty">${UI.callout('아직 전시된 작품이 없어요. 스튜디오에서 ‘전시하기’로 작품을 올리면 여기 키오스크에 자동으로 나타납니다.', 'info')}</div>`;
       return;

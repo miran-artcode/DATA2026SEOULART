@@ -22,34 +22,85 @@
   <!-- 전역 검색·필터: 아래 활성 표(학생·작품·성찰)에 함께 적용 -->
   <div class="card" style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center">
     <span class="muted" style="font-size:12.5px; font-weight:700">🔎 검색·필터</span>
-    <input id="q" type="text" placeholder="이름·반·제목 검색" style="width:auto; flex:1; min-width:180px">
+    <input id="q" type="text" placeholder="별명·반·제목 검색" style="width:auto; flex:1; min-width:180px">
     <select id="f-kind" style="width:auto"><option value="">전체 유형</option><option value="color">색 군집</option><option value="data">데이터 점</option></select>
     <span class="muted" style="font-size:11.5px">아래 표 전체에 적용돼요</span>
   </div>
 
   <div class="dn-tabwrap" style="margin-top:16px">
     <div class="dn-tabs" role="tablist" aria-label="교사 대시보드">
-      <button class="dn-tab active" data-tab="students">👥 학습 현황</button>
+      <button class="dn-tab active" data-tab="process">📊 과정 지표</button>
+      <button class="dn-tab" data-tab="timeline">🧭 학생 타임라인</button>
+      <button class="dn-tab" data-tab="similar">🔬 학급 유사도</button>
+      <button class="dn-tab" data-tab="students">👥 학습 현황</button>
       <button class="dn-tab" data-tab="works">🎨 작품</button>
       <button class="dn-tab" data-tab="notes">📝 성찰·메모</button>
       <button class="dn-tab" data-tab="settings">⚙️ 데이터 · AI 설정</button>
     </div>
 
+    <!-- D-1 · D-2 과정 지표 -->
+    <div class="dn-tabpanel" data-tabpanel="process">
+      <div class="card">
+        <h3 class="with-info">D-1 · 학급 진행 현황 — 7단계 도달</h3>
+        <p class="muted" style="font-size:12.5px;margin:0 0 12px">어느 단계에서 멈춰 있는지 한눈에. <b>막대를 누르면</b> 그 단계에 도달한 학생이 보여요(개별 지도용).</p>
+        <div id="stage-bars"></div>
+        <div id="stage-who" class="muted" style="font-size:12px;margin-top:10px"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>D-2 · 판단 활동 지표</h3>
+        <p class="muted" style="font-size:12.5px;margin:0 0 12px">‘얼마나 만들었나’가 아니라 <b>‘얼마나 견주고 고쳤나’</b>를 봅니다. 성적이 아니라 지도의 실마리예요.</p>
+        <div class="grid c3" id="judge-cards"></div>
+        <div style="overflow-x:auto;margin-top:14px"><table class="data" id="tbl-judge">
+          <thead><tr><th>별명</th><th>반</th><th>도달 단계</th><th>비교</th><th>수정</th><th>근거</th><th>코치 답</th><th>비평</th><th>성찰</th><th>최근</th></tr></thead>
+          <tbody></tbody></table></div>
+        <p class="muted" style="font-size:11.5px;margin:8px 0 0">비교=A/B 전환 횟수 · 수정=버전 스냅샷−1 · 근거=근거를 적은 작품 수 · 코치 답=질문 카드에 답한 횟수</p>
+      </div>
+    </div>
+
+    <!-- D-3 학생별 타임라인 -->
+    <div class="dn-tabpanel" data-tabpanel="timeline" hidden>
+      <div class="card">
+        <h3>D-3 · 학생별 판단의 흔적</h3>
+        <p class="muted" style="font-size:12.5px;margin:0 0 10px">의도 → 첫 결과 → 판별 한 줄 → 수정 → 최종 → 성찰. 그대로 <b>과정중심평가의 근거</b>가 됩니다.</p>
+        <select id="tl-pick" style="width:auto;min-width:220px"></select>
+        <button id="tl-print" class="btn sm" style="margin-left:8px">🖨 이 학생 포트폴리오</button>
+        <div id="tl-body" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <!-- D-4 학급 유사도 지수 -->
+    <div class="dn-tabpanel" data-tabpanel="similar" hidden>
+      <div class="card">
+        <h3 class="with-info">D-4 · 학급 유사도 지수</h3>
+        <p class="muted" style="font-size:12.5px;margin:0 0 12px">학급 작품의 <b>색 분포</b>와 <b>매핑 규칙</b>을 견주어 서로 얼마나 닮았는지 잽니다.
+          지수가 높으면 자동 추천을 그대로 쓴 학생이 많다는 뜻 — 수업 진단의 신호예요.</p>
+        <div id="sim-head"></div>
+        <div class="grid c2" style="margin-top:14px">
+          <div><canvas id="sim-scatter" width="560" height="380" style="width:100%;border:1px solid var(--line);border-radius:12px;background:var(--bg2)"></canvas>
+            <p class="muted" style="font-size:11.5px;margin:6px 0 0">가까이 있을수록 색 구성이 닮은 작품이에요(주성분 2축). 붉은 테두리 = 비전형 작품.</p></div>
+          <div id="sim-outliers"></div>
+        </div>
+        <div id="sim-lesson" style="margin-top:14px"></div>
+      </div>
+    </div>
+
     <!-- 학습 현황 -->
-    <div class="dn-tabpanel" data-tabpanel="students">
-      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-students"><thead><tr><th>이름</th><th>반</th><th>작품</th><th>전시</th><th>노트</th><th>피드백</th><th>근거기록</th><th>수준</th></tr></thead><tbody></tbody></table></div>
+    <div class="dn-tabpanel" data-tabpanel="students" hidden>
+      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-students"><thead><tr><th>별명</th><th>반</th><th>작품</th><th>전시</th><th>노트</th><th>피드백</th><th>근거기록</th><th>수준</th></tr></thead><tbody></tbody></table></div>
       <p class="muted" style="font-size:11.5px;margin:6px 0 0">수준은 활동량(작품·전시·노트·피드백·근거 기록)에 따른 <b>자동 추정</b>이며, 성적 평가가 아니라 지도 참고용입니다.</p>
     </div>
 
     <!-- 작품 -->
     <div class="dn-tabpanel" data-tabpanel="works" hidden>
-      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-works"><thead><tr><th>제목</th><th>이름</th><th>반</th><th>유형</th><th>전시</th><th>순서</th><th>테마</th><th>의도</th><th>피드백</th><th>시각</th></tr></thead><tbody></tbody></table>
-      <p class="muted" style="font-size:11.5px;margin:6px 0 0">큐레이션: ‘순서’와 ‘테마’를 입력하면 키오스크 전시 순서·묶음에 반영됩니다(자동 저장).</p></div>
+      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-works"><thead><tr><th>제목</th><th>별명</th><th>반</th><th>유형</th><th>공개동의</th><th>전시</th><th>순서</th><th>테마</th><th>의도</th><th>피드백</th><th>시각</th></tr></thead><tbody></tbody></table>
+      <p class="muted" style="font-size:11.5px;margin:6px 0 0">큐레이션: ‘순서’와 ‘테마’를 입력하면 키오스크 전시 순서·묶음에 반영됩니다(자동 저장).<br>
+        <b>공개동의</b>를 끄면 그 작품은 전시(키오스크)·포트폴리오 인쇄에서 자동 제외됩니다.</p></div>
     </div>
 
     <!-- 성찰·메모 -->
     <div class="dn-tabpanel" data-tabpanel="notes" hidden>
-      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-notes"><thead><tr><th>이름</th><th>유형</th><th>제목</th><th>내용 요약</th><th>시각</th></tr></thead><tbody></tbody></table></div>
+      <div class="card" style="overflow-x:auto"><table class="data" id="tbl-notes"><thead><tr><th>별명</th><th>유형</th><th>제목</th><th>내용 요약</th><th>시각</th></tr></thead><tbody></tbody></table></div>
     </div>
 
     <!-- 데이터 · AI 설정 -->
@@ -61,7 +112,35 @@
           <button id="btn-import" class="btn">⬆ 학생 JSON 취합(병합)</button>
           <input id="imp" type="file" accept="application/json,.json" multiple hidden />
         </div>
-        <p class="muted" style="font-size:12px;margin:10px 0 0">취합: 학생이 ‘설정/노트’를 내보낸 JSON을 받아 여기서 병합하면 한 화면에서 학급 전체를 봅니다(실시간 클라우드 미설정 시).</p>
+        <p class="muted" style="font-size:12px;margin:10px 0 0">취합: 학생이 ‘설정/노트’를 내보낸 JSON을 받아 여기서 병합하면 한 화면에서 학급 전체를 봅니다(실시간 클라우드 미설정 시).<br>
+          내보낸 JSON에는 작품·노트·피드백과 함께 <b>학습 로그·버전 스냅샷</b>이 들어갑니다(실명·학번 없이 가명 코드로).</p>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>D-5 · 지표 내보내기 · 보관</h3>
+        <p class="muted" style="font-size:12.5px;margin:0 0 10px">심사 원자료 보관(발표일까지 · 입상 시 1년)을 기능으로 해결합니다.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+          <button id="btn-csv-metrics" class="btn">📊 학급 지표 CSV</button>
+          <button id="btn-csv-logs" class="btn">🧾 학습 로그 CSV</button>
+          <button id="btn-csv-sim" class="btn">🔬 유사도 CSV</button>
+          <a class="btn accent2" href="portfolio.html" target="_blank">🖨 학생 포트폴리오(A4)</a>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>🔒 개인정보 · 데이터 정리</h3>
+        <ul class="muted" style="font-size:12.5px;line-height:1.9;margin:0 0 10px;padding-left:18px">
+          <li>로그인은 <b>학번 + 별명</b>으로 합니다 — 사이트 어디에도 <b>실명을 받지 않습니다</b>.
+            작품·갤러리·전시에 표시되는 이름은 언제나 별명입니다.</li>
+          <li>학습 로그에는 <b>학번도 별명도 저장하지 않습니다</b> — 반 + 가명 코드(예: 2-3·k7f2)만 남습니다.
+            (코드는 학번+별명의 단방향 해시이지만 짧으므로, <b>학급 명단을 가진 교사만</b> 대조할 수 있는 ‘가명처리’ 수준입니다.)</li>
+          <li>음성·영상·사진 원본은 브라우저 안에서만 처리하며, 마이크 소리는 저장·전송되지 않습니다.</li>
+          <li>공개동의를 끈 작품은 키오스크 전시·포트폴리오 인쇄에서 자동 제외됩니다.</li>
+        </ul>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+          <button id="btn-clear-logs" class="btn ghost">🧹 단원 종료 후 학습 로그 정리</button>
+          <span class="muted" style="font-size:11.5px">작품·노트는 지우지 않고 <b>행동 로그만</b> 지웁니다. 지우기 전에 반드시 내보내기를 먼저 하세요.</span>
+        </div>
       </div>
 
       <div class="card" style="margin-top:16px">
@@ -95,7 +174,7 @@
     </div>
   </div>
 
-  <p class="footer-note">미성년자 정보 보호 · 표시 이름 정책과 학교 방침을 준수하세요</p>
+  <p class="footer-note">미성년자 정보 보호 · 로그인은 학번+별명(실명 없음), 학습 로그는 가명 코드 · 학교 개인정보 방침을 준수하세요</p>
 </div>
 
 <script src="js/explain.js"></script>
@@ -106,21 +185,34 @@
 <script src="js/ui.js"></script>
 <script src="js/ratelimit.js"></script>
 <script src="js/coach.js"></script>
+<script src="js/log.js"></script>
+<script src="js/metrics.js"></script>
 <script>
   document.getElementById('mode-label').textContent = Store.mode === 'cloud' ? '클라우드(실시간)' : '로컬(이 기기)';
   (function(){ const ae = document.getElementById('admin-email'); if (ae && window.AdminGate) ae.textContent = '· ' + AdminGate.email; })();
   if (Store.mode !== 'cloud') document.getElementById('cloud-note').innerHTML =
     UI.callout('<b>실시간 클라우드 미설정</b> · 지금은 이 기기에 저장된 데이터만 보여요. <code>config/cloud-config.js</code>를 설정하면 한 링크에서 학급 전체가 실시간 공유됩니다(README 참고). 그 전엔 학생 JSON을 ‘취합’해 모으세요.', 'warn');
 
-  let works = [], notes = [], feedback = {}, allFb = [];
-  const KIND = { color: '색 군집', data: '데이터 점', lab: '분석실', reflection: '성찰', project: '프로젝트' };
+  let works = [], notes = [], feedback = {}, allFb = [], logs = [], versions = [], judge = null;
+  const KIND = { color: '색 군집', data: '데이터 점', lab: '분석실', reflection: '성찰', project: '프로젝트', card: '질문 카드', revision: '수정 근거', society: '사회 분석' };
 
   async function load() {
     works = await Store.listWorks();
     notes = await Store.listNotes();
     feedback = {}; allFb = [];
     for (const w of works) { const items = await Store.listFeedback(w.id); feedback[w.id] = items.length; allFb.push(...items); }
+    // 기존 표(작품·성찰·취합)를 먼저 그린다 — 새 지표 계산이 실패해도 대시보드의 나머지는 살아 있도록.
     stats(); renderStudents(); renderWorks(); renderNotes();
+    try {
+      logs = await Store.listLogs();
+      versions = await Store.listVersions();
+      judge = Metrics.judgementMetrics({ works, notes, logs, versions, feedback: allFb });
+      renderStages(); renderJudge(); renderTimelinePicker();
+    } catch (e) {
+      console.warn('[admin] 과정 지표 계산 실패', e);
+      document.getElementById('stage-bars').innerHTML =
+        UI.callout('<b>과정 지표를 계산하지 못했습니다.</b> 학습 로그를 읽는 중 문제가 생겼어요(' + UI.escapeHTML(e.message) + '). 작품·성찰 탭은 정상 동작합니다.', 'warn');
+    }
   }
 
   function studentLevel(s) {
@@ -157,12 +249,14 @@
   function renderWorks() {
     const rows = filt(works, w => `${w.title} ${w.by} ${w.klass||''} ${w.theme||''}`).map(w => `<tr>
       <td>${UI.escapeHTML(w.title||'')}</td><td>${UI.escapeHTML(w.by||'')}</td><td>${UI.escapeHTML(w.klass||'')}</td>
-      <td>${KIND[w.kind]||w.kind}</td><td>${w.exhibited?'✅':''}</td>
+      <td>${KIND[w.kind]||w.kind}</td>
+      <td><input class="cur-consent" data-id="${w.id}" type="checkbox" ${w.consent !== false ? 'checked' : ''} title="공개 동의(끄면 전시·인쇄에서 제외)"></td>
+      <td>${w.exhibited?'✅':''}</td>
       <td><input class="cur-order" data-id="${w.id}" type="number" value="${w.exhibitOrder!=null?w.exhibitOrder:''}" style="width:52px" placeholder="-"></td>
       <td><input class="cur-theme" data-id="${w.id}" type="text" value="${UI.escapeHTML(w.theme||'')}" style="width:90px" placeholder="테마"></td>
       <td style="max-width:240px">${UI.escapeHTML((w.intent||'').slice(0,80))}</td>
       <td>${feedback[w.id]||0}</td><td>${new Date(w.updatedAt).toLocaleString('ko-KR')}</td></tr>`).join('');
-    document.querySelector('#tbl-works tbody').innerHTML = rows || '<tr><td colspan="10" class="muted">데이터 없음</td></tr>';
+    document.querySelector('#tbl-works tbody').innerHTML = rows || '<tr><td colspan="11" class="muted">데이터 없음</td></tr>';
   }
   function renderNotes() {
     const rows = filt(notes, n => `${n.by} ${n.title}`).map(n => {
@@ -191,14 +285,210 @@
     const w = works.find(x => x.id === idv); if (!w) return;
     if (t.classList.contains('cur-order')) w.exhibitOrder = t.value === '' ? null : +t.value;
     else if (t.classList.contains('cur-theme')) w.theme = t.value.trim();
+    else if (t.classList.contains('cur-consent')) w.consent = t.checked;
     else return;
     await Store.saveWork(w); UI.toast('큐레이션 저장됨');
   });
-  document.getElementById('q').addEventListener('input', () => { renderStudents(); renderWorks(); renderNotes(); });
+  document.getElementById('q').addEventListener('input', () => { renderStudents(); renderWorks(); renderNotes(); if (judge) renderJudge(); });
   document.getElementById('f-kind').addEventListener('change', () => { renderWorks(); renderNotes(); });
 
   if (!Auth.isTeacher()) UI.toast('교사 계정으로 로그인하면 관리 기능이 모두 열려요(현재는 열람만).');
   load();
+
+  /* ============================ D-1 학급 진행 현황 ============================ */
+  function renderStages() {
+    const st = Metrics.stageProgress(logs, works, notes);
+    const max = Math.max(1, ...st.map(s => s.n));
+    document.getElementById('stage-bars').innerHTML = st.map((s, i) => `
+      <div class="stage-bar" data-stage="${s.key}" style="display:grid;grid-template-columns:104px 1fr 46px;gap:10px;align-items:center;margin-bottom:7px;cursor:pointer">
+        <div style="font-size:12.5px"><b>${i + 1}. ${s.label}</b></div>
+        <div style="height:22px;background:rgba(127,140,180,.14);border-radius:6px;overflow:hidden">
+          <div style="height:100%;width:${Math.round(s.n / max * 100)}%;background:var(--accent);border-radius:6px;transition:.3s"></div></div>
+        <div style="font-size:12.5px;text-align:right">${s.n}명</div>
+      </div>`).join('') +
+      `<p class="muted" style="font-size:11.5px;margin:8px 0 0">막대가 뒤로 갈수록 짧아지는 것이 정상이에요. <b>급격히 끊기는 자리</b>가 이번 수업에서 손을 대야 할 곳입니다.</p>`;
+    document.querySelectorAll('.stage-bar').forEach(el => el.addEventListener('click', () => {
+      const s = st.find(x => x.key === el.dataset.stage);
+      const names = s.uids.map(u => Metrics.who(judge.map, u));
+      document.getElementById('stage-who').innerHTML = names.length
+        ? `<b>${s.label}</b> 도달(${names.length}명) · ${names.map(UI.escapeHTML).join(', ')}`
+        : `<b>${s.label}</b> 에 도달한 학생이 아직 없어요 — ${UI.escapeHTML(s.desc)}`;
+    }));
+  }
+
+  /* ============================ D-2 판단 활동 지표 ============================ */
+  function renderJudge() {
+    const s = judge.summary;
+    const cards = [
+      ['비교 횟수', s.compare, '학생당 A/B 전환', '규칙을 견주어 봤는가'],
+      ['수정 횟수', s.revise, '학생당 버전−1', '첫 결과에 머물지 않았는가'],
+      ['근거 작성률', s.evidenceRate + '%', '근거를 적은 작품 비율', '이유를 말할 수 있는가'],
+      ['코치 응답률', s.answerRate + '%', '질문 카드에 답한 비율', '질문에 답했는가'],
+      ['비평 수', s.critique, '작성·수신 합계', '공유가 돌았는가'],
+      ['성찰 제출률', s.reflectRate + '%', '성찰을 남긴 학생 비율', '마무리했는가']
+    ];
+    document.getElementById('judge-cards').innerHTML = cards.map(([k, v, sub, read]) =>
+      `<div class="card" style="text-align:center;padding:14px 12px">
+        <div style="font-size:26px;font-weight:800;color:var(--accent)">${v}</div>
+        <div style="font-size:12.5px;font-weight:700;margin-top:2px">${k}</div>
+        <div class="muted" style="font-size:11px">${sub}</div>
+        <div class="muted" style="font-size:11px;margin-top:6px;opacity:.8">“${read}”</div>
+      </div>`).join('');
+
+    const q = document.getElementById('q').value.trim().toLowerCase();
+    const rows = judge.rows.filter(r => !q || (r.name || '').toLowerCase().includes(q)).map(r => {
+      const st = r.stage >= 0 ? `${r.stage + 1}. ${Log.STAGES[r.stage].label}` : '—';
+      return `<tr><td>${UI.escapeHTML(r.name)}</td><td>${UI.escapeHTML(r.klass)}</td><td>${st}</td>
+        <td>${r.compare}</td><td>${r.revise}</td><td>${r.evidence}</td><td>${r.answer}/${r.ask}</td>
+        <td>${r.critique}</td><td>${r.reflect ? '✅' : ''}</td>
+        <td>${r.last ? new Date(r.last).toLocaleDateString('ko-KR') : '—'}</td></tr>`;
+    }).join('');
+    document.querySelector('#tbl-judge tbody').innerHTML = rows || '<tr><td colspan="10" class="muted">아직 기록이 없어요. 학생이 스튜디오에서 활동하면 채워집니다.</td></tr>';
+  }
+
+  /* ============================ D-3 학생별 타임라인 ============================ */
+  function renderTimelinePicker() {
+    const sel = document.getElementById('tl-pick');
+    sel.innerHTML = '<option value="">— 학생을 고르세요 —</option>' +
+      judge.rows.map(r => `<option value="${r.uid}">${UI.escapeHTML(r.name)}${r.klass ? ' · ' + UI.escapeHTML(r.klass) : ''}</option>`).join('');
+    sel.onchange = () => renderTimeline(sel.value);
+    document.getElementById('tl-print').onclick = () => {
+      if (!sel.value) { UI.toast('학생을 먼저 고르세요.'); return; }
+      window.open('portfolio.html?uid=' + encodeURIComponent(sel.value), '_blank');
+    };
+  }
+  function renderTimeline(uid) {
+    const host = document.getElementById('tl-body');
+    if (!uid) { host.innerHTML = ''; return; }
+    const items = Metrics.timeline(uid, { works, notes, logs, versions });
+    if (!items.length) { host.innerHTML = UI.callout('이 학생의 기록이 아직 없어요.', 'info'); return; }
+    host.innerHTML = items.map(it => `
+      <div style="display:grid;grid-template-columns:78px 26px 1fr;gap:10px;align-items:start;padding:7px 0;border-bottom:1px solid var(--line)">
+        <div class="muted" style="font-size:11px">${new Date(it.t).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+        <div title="${UI.escapeHTML(Log.stageLabel(it.stage))}" style="font-size:15px;text-align:center">${it.icon}</div>
+        <div style="font-size:13px">
+          <span class="badge">${UI.escapeHTML(Log.stageLabel(it.stage))}</span>
+          ${UI.escapeHTML(it.text)}
+          ${it.thumb ? `<br><img src="${it.thumb}" style="margin-top:5px;height:52px;border-radius:6px;border:1px solid var(--line)">` : ''}
+        </div></div>`).join('');
+  }
+
+  /* ============================ D-4 학급 유사도 지수 ============================ */
+  let simResult = null;
+  async function renderSimilarity() {
+    const head = document.getElementById('sim-head');
+    head.innerHTML = '<div class="spinner"></div> 작품의 색 분포를 계산하는 중…';
+    const r = await Metrics.similarity(works);
+    simResult = r;
+    if (r.index == null) {
+      head.innerHTML = UI.callout('비교하려면 <b>썸네일이 있는 작품이 2점 이상</b> 필요해요. 학생들이 전시를 시작하면 지수가 나타납니다.', 'info');
+      document.getElementById('sim-outliers').innerHTML = ''; document.getElementById('sim-lesson').innerHTML = '';
+      return;
+    }
+    const tone = r.index >= 70 ? ['warn', '매우 닮음', '자동 추천을 그대로 쓴 학생이 많습니다. <b>기본값 되묻기</b> 카드를 함께 해 보세요.']
+      : r.index >= 50 ? ['', '어느 정도 닮음', '무리 지어 닮은 작품이 보입니다. 비전형 작품을 함께 감상하며 무엇이 달랐는지 말해 보세요.']
+      : ['info', '서로 다름', '학급의 선택이 고르게 갈렸습니다. 각자의 근거를 나누기 좋은 상태예요.'];
+    head.innerHTML = `
+      <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+        <div style="text-align:center;min-width:120px">
+          <div style="font-size:42px;font-weight:800;color:var(--accent);line-height:1.1">${r.index}</div>
+          <div class="muted" style="font-size:12px">학급 유사도 지수 · ${tone[1]}</div>
+        </div>
+        <div style="flex:1;min-width:240px">${UI.callout(tone[2], tone[0])}</div>
+      </div>
+      <p class="muted" style="font-size:11.5px;margin:8px 0 0">작품 ${r.n}점 · 비교 ${r.pairs}쌍 ${r.skipped ? `· 썸네일을 읽지 못한 ${r.skipped}점 제외` : ''} ·
+        색 분포 65% + 매핑 규칙 35%로 계산 · 교사 화면은 <b>미동의 작품까지 포함</b>해 학급 전체를 진단합니다(학생 화면은 동의한 작품만).</p>`;
+
+    document.getElementById('sim-outliers').innerHTML = `<h4 style="margin:0 0 8px">가장 닮지 않은 작품 3점 — 비전형</h4>
+      <p class="muted" style="font-size:12px;margin:0 0 10px">평균에서 멀다는 건 틀렸다는 뜻이 아니에요. <b>다른 답</b>이 어떻게 가능했는지 물어볼 자리입니다.</p>` +
+      r.outliers.map(o => `<div class="card" style="display:flex;gap:10px;margin-bottom:8px;padding:10px">
+        ${o.work.thumb ? `<img src="${o.work.thumb}" style="width:74px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">` : ''}
+        <div><b style="font-size:13px">${UI.escapeHTML(o.work.title || '작품')}</b>
+        <div class="muted" style="font-size:11.5px">${UI.escapeHTML(o.work.by || '')} · 평균 유사도 ${Math.round(o.avg * 100)}</div>
+        ${o.work.intent ? `<div style="font-size:12px;margin-top:3px">의도: ${UI.escapeHTML(o.work.intent)}</div>` : ''}</div></div>`).join('');
+
+    document.getElementById('sim-lesson').innerHTML = UI.callout(
+      '<b>수업으로 쓰기</b> · 이 지수는 리터러시 4장 「그럴듯함의 함정」의 실습 재료입니다. ' +
+      '생성형 AI는 개인의 창의성은 올리지만 집단의 참신성은 떨어뜨린다는 실험 결과(Doshi &amp; Hauser, 2024)를 ' +
+      '<b>우리 반 데이터로</b> 확인해 보세요 — “우리는 서로 얼마나 닮았나?” ' +
+      '<a href="literacy.html#ch4">→ 리터러시 4장 열기</a>', 'info');
+
+    drawScatter(r);
+  }
+  function drawScatter(r) {
+    const cv = document.getElementById('sim-scatter'), ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height, pad = 26;
+    ctx.clearRect(0, 0, W, H);
+    const xs = r.points.map(p => p.x), ys = r.points.map(p => p.y);
+    const nx = (v) => pad + (v - Math.min(...xs)) / ((Math.max(...xs) - Math.min(...xs)) || 1) * (W - pad * 2);
+    const ny = (v) => pad + (v - Math.min(...ys)) / ((Math.max(...ys) - Math.min(...ys)) || 1) * (H - pad * 2);
+    const out = new Set(r.outliers.map(o => o.work.id));
+    ctx.strokeStyle = 'rgba(150,150,170,.25)';
+    ctx.beginPath(); ctx.moveTo(pad, H / 2); ctx.lineTo(W - pad, H / 2); ctx.moveTo(W / 2, pad); ctx.lineTo(W / 2, H - pad); ctx.stroke();
+    r.points.forEach(p => {
+      const x = nx(p.x), y = ny(p.y), rad = 7 + p.avg * 9;      // 닮을수록 큰 점
+      ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(47,107,224,.55)'; ctx.fill();
+      if (out.has(p.work.id)) { ctx.lineWidth = 2.5; ctx.strokeStyle = '#ff5a3c'; ctx.stroke(); }
+      ctx.fillStyle = 'rgba(140,150,180,.95)'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText((p.work.by || '').slice(0, 6), x, y + rad + 11);
+    });
+  }
+  // 유사도는 무거우므로 탭을 열 때 한 번만 계산
+  document.addEventListener('dn:tab', (e) => { if (e.detail.key === 'similar' && !simResult) renderSimilarity(); });
+  // admin.html#similar 처럼 탭으로 바로 들어오기(리터러시 4장·수업 중 링크용)
+  window.addEventListener('DOMContentLoaded', () => {
+    const key = (location.hash || '').slice(1);
+    const tab = key && document.querySelector(`.dn-tab[data-tab="${key}"]`);
+    if (tab) tab.click();
+  });
+
+  /* ============================ D-5 내보내기 · 정리 ============================ */
+  document.getElementById('btn-csv-metrics').addEventListener('click', () => {
+    Metrics.download('class_metrics_' + new Date().toISOString().slice(0, 10) + '.csv',
+      Metrics.toCSV(judge.rows, [
+        { label: '별명', key: 'name' }, { label: '반', key: 'klass' }, { label: '가명코드', key: 'uid' },
+        { label: '도달단계', get: r => r.stage >= 0 ? (r.stage + 1) + '.' + Log.STAGES[r.stage].label : '' },
+        { label: '비교횟수', key: 'compare' }, { label: '수정횟수', key: 'revise' },
+        { label: '작품수', key: 'works' }, { label: '근거작성', key: 'evidence' },
+        { label: '코치질문', key: 'ask' }, { label: '코치응답', key: 'answer' },
+        { label: '비평', key: 'critique' }, { label: '성찰', get: r => r.reflect ? 'O' : '' },
+        { label: '최근활동', get: r => r.last ? new Date(r.last).toLocaleString('ko-KR') : '' }
+      ]));
+    UI.toast('학급 지표 CSV를 저장했습니다.');
+  });
+  document.getElementById('btn-csv-logs').addEventListener('click', () => {
+    Metrics.download('class_logs_' + new Date().toISOString().slice(0, 10) + '.csv',
+      Metrics.toCSV(logs, [
+        { label: '시각', get: l => new Date(l.ts).toLocaleString('ko-KR') },
+        { label: '가명코드', key: 'uid' }, { label: '반', key: 'klass' },
+        { label: '화면', key: 'page' },
+        { label: '단계', get: l => Log.stageLabel(l.stage) },
+        { label: '행동', get: l => Log.ACTIONS[l.action] || l.action },
+        { label: '작품', key: 'workId' },
+        { label: '부가값', get: l => JSON.stringify(l.payload || {}) }
+      ]));
+    UI.toast('학습 로그 CSV를 저장했습니다(실명·학번 없음 · 가명 코드).');
+  });
+  document.getElementById('btn-csv-sim').addEventListener('click', async () => {
+    if (!simResult) { UI.toast('유사도를 계산하는 중…'); await renderSimilarity(); }
+    if (!simResult || simResult.index == null) { UI.toast('비교할 작품이 부족합니다.'); return; }
+    Metrics.download('class_similarity_' + new Date().toISOString().slice(0, 10) + '.csv',
+      Metrics.toCSV(simResult.items, [
+        { label: '제목', get: i => i.work.title || '' }, { label: '별명', get: i => i.work.by || '' },
+        { label: '반', get: i => i.work.klass || '' },
+        { label: '평균유사도(0~100)', get: i => Math.round(i.avg * 100) },
+        { label: '비전형', get: i => simResult.outliers.some(o => o.work.id === i.work.id) ? 'O' : '' },
+        { label: 'x', get: i => i.x.toFixed(4) }, { label: 'y', get: i => i.y.toFixed(4) }
+      ]) + '\n\n학급 유사도 지수,' + simResult.index);
+    UI.toast('유사도 CSV를 저장했습니다.');
+  });
+  document.getElementById('btn-clear-logs').addEventListener('click', async () => {
+    const ok = prompt('단원이 끝나 학습 로그를 지웁니다(작품·노트는 그대로).\n되돌릴 수 없어요. 지우려면 아래에 "정리" 라고 입력하세요.');
+    if (ok !== '정리') { UI.toast('취소했습니다.'); return; }
+    await Store.clearLogs();
+    UI.toast('학습 로그를 정리했습니다.'); load();
+  });
 
   /* ----------------------------- 실시간 클라우드 연결 점검 ----------------------------- */
   (async function probeCloud() {

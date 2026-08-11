@@ -240,6 +240,7 @@
     <div class="grid c3">
       <a class="card hover tool" href="lab.html"><span class="ti">🔬</span><span class="badge core">분석 도구</span><h3>알고리즘 분석실</h3><p>한 그림을 7가지 알고리즘으로 — 차트 + 재창조 + 한계 + 해석 메모.</p></a>
       <a class="card hover tool" href="studio-object.html"><span class="ti">🤖</span><span class="badge adv">AI 렌즈</span><h3>객체 감지 · AI의 눈</h3><p>브라우저 AI가 사진 속 사물을 점·데이터로. AI가 ‘못 보는 것’까지.</p></a>
+      <a class="card hover tool" href="literacy.html"><span class="ti">🧠</span><span class="badge core">리터러시</span><h3>AI 리터러시 7장</h3><p>이미지가 숫자가 되는 원리부터 ‘그럴듯함의 함정’·저작권·창작의 책임까지 — 읽고 직접 해 보며.</p></a>
       <a class="card hover tool" href="critique.html"><span class="ti">🔍</span><span class="badge">비평</span><h3>데이터 비평 읽기</h3><p>차트의 ‘수사’를 폭로하고 질문 3층위(사실→해석→가치)로 비평.</p></a>
       <a class="card hover tool" href="gallery.html"><span class="ti">🖼</span><span class="badge">나누기</span><h3>전시 갤러리</h3><p>친구들 작품을 감상하고 구조화된 또래 피드백을 남겨요.</p></a>
       <a class="card hover tool" href="exhibit.html"><span class="ti">📺</span><span class="badge">전시</span><h3>키오스크 전시 · QR</h3><p>큰 화면 슬라이드쇼 + 작품별 QR로 관람객이 감상·비평.</p></a>
@@ -249,6 +250,7 @@
       <a class="btn" href="learn.html">📚 알고리즘 배움터</a>
       <a class="btn" href="journey.html">🗺 학습 여정 지도</a>
       <a class="btn" href="notes.html">📝 작업 노트</a>
+      <a class="btn" href="portfolio.html">🖨 내 포트폴리오</a>
     </div>
   </section>
 
@@ -280,7 +282,7 @@
       <div class="start-pitch">
         <span class="eyebrow">Get started</span>
         <h2>지금 바로 시작하기</h2>
-        <p>처음이면 이름·반/번호·PIN을 정하면 계정이 만들어져요. 설치도, 설정도 필요 없어요. <b>로그인 없이 둘러보기</b>도 가능하지만, 작품 <b>저장·전시</b>는 로그인이 필요해요.</p>
+        <p>처음이면 <b>학번·별명·PIN</b>을 정하면 계정이 만들어져요. 설치도, 설정도 필요 없어요. <b>로그인 없이 둘러보기</b>도 가능하지만, 작품 <b>저장·전시</b>는 로그인이 필요해요.</p>
         <div class="can-do" aria-label="이 수업에서 하는 것">
           <span>🎨 색 군집</span><span>🔬 7가지 분석 렌즈</span><span>🤖 객체 감지</span><span>🎤 소리·🧑 사진</span><span>🖼 전시·🔍 비평</span><span>🧭 AI 감상 코치</span>
         </div>
@@ -289,17 +291,16 @@
 
       <div class="card login-card">
         <h3 style="margin:0 0 3px">시작하기</h3>
-        <p class="muted" style="font-size:12.5px; margin:0 0 12px">처음이면 이름·반/번호·PIN을 정하면 계정이 만들어져요.</p>
+        <p class="muted" style="font-size:12.5px; margin:0 0 12px">처음이면 학번·별명·PIN을 정하면 계정이 만들어져요. <b>실명은 쓰지 않습니다.</b></p>
         <div class="grid c2">
-          <div><label class="field" style="margin-top:0">이름</label><input id="f-name" type="text" placeholder="실명 또는 별명" autocomplete="off" /></div>
-          <div><label class="field" style="margin-top:0">반-번호 (선택)</label><input id="f-klass" type="text" placeholder="예: 2-7" autocomplete="off" /></div>
+          <div><label class="field" style="margin-top:0">학번</label><input id="f-sid" type="text" inputmode="numeric" maxlength="6" placeholder="예: 20307" autocomplete="off" /></div>
+          <div><label class="field" style="margin-top:0">별명</label><input id="f-nick" type="text" maxlength="12" placeholder="예: 파랑새" autocomplete="off" /></div>
         </div>
         <div class="grid c2">
           <div><label class="field">PIN (숫자 4자리)</label><input id="f-pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" /></div>
-          <div><label class="field">표시 이름 (선택)</label><input id="f-display" type="text" placeholder="비우면 이름 사용" autocomplete="off" /></div>
+          <div><label class="field">역할</label><select id="f-role"><option value="student">학생</option><option value="teacher">교사</option></select></div>
         </div>
-        <label class="field">역할</label>
-        <select id="f-role"><option value="student">학생</option><option value="teacher">교사</option></select>
+        <p class="muted" id="sid-hint" style="font-size:11.5px; margin:8px 0 0; min-height:16px"></p>
         <button id="btn-login" class="btn primary wide" style="margin-top:16px">시작하기 →</button>
         <p class="muted" style="font-size:12px; margin-top:10px; text-align:center">로그인 없이 <a href="hub.html">둘러보기</a>도 가능해요 (저장·전시는 로그인 필요).</p>
       </div>
@@ -316,7 +317,9 @@
 <script>
 /* ── 개인정보 안내 ───────────────────────────────────── */
 document.getElementById('privacy-note').innerHTML = UI.callout(
-  '<b>개인정보 안내</b> · PIN 4자리는 ‘실수 방지 잠금’ 수준이에요(진짜 보안 아님). 미성년자 정보이니 <b>학교 개인정보 방침</b>을 먼저 확인하고, 필요하면 표시 이름을 별명/코드로 바꾸세요.', 'warn');
+  '<b>개인정보 안내</b> · 이 사이트는 <b>실명을 받지 않습니다</b>. 화면·작품·전시에 보이는 이름은 언제나 <b>별명</b>이고, ' +
+  '학습 기록에는 학번도 별명도 아닌 <b>가명 코드</b>(예: 2-3·k7f2)만 남습니다. ' +
+  'PIN 4자리는 ‘실수 방지 잠금’ 수준이에요(진짜 보안 아님). 미성년자 정보이니 <b>학교 개인정보 방침</b>을 먼저 확인하세요.', 'warn');
 
 /* ── 로그인 ──────────────────────────────────────────── */
 const qs = new URLSearchParams(location.search);
@@ -324,10 +327,9 @@ const next = qs.get('next') || 'hub.html';
 function doLogin() {
   try {
     Auth.login({
-      name: document.getElementById('f-name').value,
-      klass: document.getElementById('f-klass').value,
+      sid: document.getElementById('f-sid').value,
+      nick: document.getElementById('f-nick').value,
       pin: document.getElementById('f-pin').value,
-      display: document.getElementById('f-display').value,
       role: document.getElementById('f-role').value
     });
     location.href = next;
@@ -335,6 +337,15 @@ function doLogin() {
 }
 document.getElementById('btn-login').addEventListener('click', doLogin);
 document.getElementById('f-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+/* 학번을 적으면 반을 읽어 보여 주고, 이미 만든 계정이 있으면 그 별명을 알려 준다 */
+document.getElementById('f-sid').addEventListener('input', e => {
+  const sid = e.target.value, hint = document.getElementById('sid-hint');
+  const klass = Auth.klassOf(sid), prev = Auth.nickOf(sid);
+  if (prev) hint.innerHTML = `이 학번은 별명 <b>${UI.escapeHTML(prev)}</b>(으)로 등록되어 있어요.`;
+  else if (klass) hint.innerHTML = `<b>${klass}</b> 반으로 읽었어요. 지표는 반 단위로 모입니다.`;
+  else hint.textContent = '';
+});
 
 /* 이미 로그인 → 이어서 하기 배너 + 시작 버튼을 허브로 */
 (function () {
