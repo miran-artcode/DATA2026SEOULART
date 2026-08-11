@@ -206,7 +206,7 @@
     if (Store.mode !== 'cloud') return; // 강제 로컬 등은 기존 메시지 유지
     try {
       await window.DN_CLOUD.listWorks();        // 읽기 성공 → 규칙 게시됨
-      note.innerHTML = UI.callout('<b>실시간 공유 연결됨</b> · 같은 링크를 연 학생들의 작품·피드백이 실시간으로 모입니다(project <code>data-art-2026</code>).', 'info');
+      note.innerHTML = UI.callout('<b>실시간 공유 연결됨</b> · 같은 링크를 연 학생들의 작품·피드백이 실시간으로 모입니다(project <code>data-art-canvas</code>).', 'info');
     } catch (e) {
       note.innerHTML = UI.callout('<b>클라우드 연결됨 · 규칙 게시 필요</b> · Firestore가 아직 ‘잠금’이라 읽기/쓰기가 거부됩니다(현재는 로컬 폴백). Firebase 콘솔 → Firestore → 규칙에 <code>config/firestore.rules</code>를 붙여넣고 게시하면 실시간 공유가 켜집니다.', 'warn');
     }

@@ -107,11 +107,11 @@ python3 -m http.server 8000   # → http://localhost:8000
 
 ## 실시간 클라우드 공유 — 한 링크에서 학급 전체 [연동됨]
 
-`config/cloud-config.js`가 Firebase 프로젝트 **`data-art-2026`**(Firestore)에 연결되어 있어,
+`config/cloud-config.js`가 Firebase 프로젝트 **`data-art-canvas`**(Firestore)에 연결되어 있어,
 모든 페이지가 자동으로 실시간 공유 모드로 동작합니다. 설정 전/네트워크 불가 시에는 **로컬 저장으로 자동 폴백**합니다.
 
 **남은 1회 설정(교사) — Firestore 보안 규칙 게시:**
-1. [Firebase 콘솔](https://console.firebase.google.com) → `data-art-2026` → **Firestore Database → 규칙(Rules)** 탭.
+1. [Firebase 콘솔](https://console.firebase.google.com) → `data-art-canvas` → **Firestore Database → 규칙(Rules)** 탭.
 2. `config/firestore.rules` 내용을 붙여넣고 **게시(Publish)**.
    - (현재 데이터베이스는 ‘잠금’ 상태라 게시 전에는 읽기/쓰기가 거부됩니다 → 자동으로 로컬 폴백.)
 3. 끝! 같은 링크를 연 학생들의 작품·피드백·노트가 실시간으로 공유됩니다.
