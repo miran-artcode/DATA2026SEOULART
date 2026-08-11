@@ -387,7 +387,7 @@ table.data tr:hover td { background: var(--panel2); }
 .ws-meter i { display: block; height: 100%; width: 0; border-radius: 999px; transition: width .25s;
   background: linear-gradient(90deg, var(--accent), var(--teal)); }
 
-/* 차례: 차시 번호가 곧 순서다 */
+/* 학습지 차례 */
 .ws-toc { display: grid; gap: 6px; }
 .ws-toc-item { display: grid; grid-template-columns: 56px 1fr auto; gap: 10px; align-items: center;
   padding: 9px 11px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: inherit;

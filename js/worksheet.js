@@ -663,7 +663,7 @@
     el.innerHTML =
       '<div class="dn-cluster-head"><div><span class="eyebrow">Plan</span><h3>' +
       (opts.title || '한 차시가 한 묶음: 배우기 → 만들기 → 나누기') + '</h3>' +
-      '<p>차시 번호가 곧 순서예요. 매 차시 <b>학습지 한 장</b>이 함께 가고, 쓴 내용은 자동 저장되어 ' +
+      '<p>매 차시 <b>학습지 한 장</b>이 함께 가고, 쓴 내용은 자동 저장되어 ' +
       '선생님 화면과 내 포트폴리오로 이어집니다.' + (user ? '' : ' 로그인하면 진행률이 표시돼요.') + '</p></div>' +
       '<a class="more" href="worksheet.html">학습지 열기 →</a></div>' +
       '<div class="jr">' + rows.map(r => {
