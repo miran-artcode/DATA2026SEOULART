@@ -354,6 +354,18 @@ document.getElementById('f-sid').addEventListener('input', e => {
   const who = UI.escapeHTML(u.display || u.name);
   const r = document.getElementById('resume');
   r.style.display = 'block';
+  // 로그인 방식이 '이름+반'에서 '학번+별명'으로 바뀌었다. 옛 계정으로 접속 중이면
+  // 새로 만드는 계정과 작품이 이어지지 않는다는 걸 미리 알려 준다(수업 중 “내 작품 어디 갔어요” 방지).
+  if (!/^\d+#/.test(u.userId || '')) {
+    r.innerHTML = UI.callout(
+      '<b>로그인 방식이 바뀌었어요</b> · 이제 <b>학번 + 별명</b>으로 로그인합니다(실명을 받지 않기 위해서예요). ' +
+      '지금은 예전 계정 <b>' + who + '</b>(으)로 접속 중이라 하던 작업을 그대로 이어서 할 수 있어요. ' +
+      '<b>새 계정을 만들면 예전 작품은 따라오지 않고</b> 예전 계정에 그대로 남습니다 — 옮길 것이 있으면 선생님께 말씀하세요. ' +
+      '<a href="' + next + '" style="font-weight:700">이어서 하기 →</a>', 'warn');
+    const cta0 = document.getElementById('cta-start');
+    if (cta0) { cta0.setAttribute('href', next); cta0.textContent = '이어서 하기 →'; }
+    return;
+  }
   r.innerHTML = UI.callout(
     '<b>다시 오셨네요, ' + who + '님</b> · 로그인되어 있어요. 하던 작업을 이어서 할 수 있어요. ' +
     '<a href="' + next + '" style="font-weight:700">' + (next === 'hub.html' ? '학생 허브로 →' : '이어서 하기 →') + '</a>', 'info');
