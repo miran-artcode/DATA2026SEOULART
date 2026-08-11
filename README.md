@@ -220,6 +220,35 @@ worksheets/               내용 꾸러미: 내용(JSON)과 표시(렌더러)를
 > 차시마다 배우기·만들기·나누기 화면 묶음이 정해져 있어 허브·여정 지도·학습지 머리에 함께 뜹니다.
 > 배치를 바꾸려면 `js/worksheet.js` 의 `COURSE` 표 한 곳만 고치면 됩니다.
 
+### 4-d) 우수 사례 학급(가상): 빈 화면이 아니라 채워진 화면으로 보여 주기
+
+수업을 처음 여는 자리에서는 저장소가 비어 있어 갤러리도 대시보드도 빈 화면입니다.
+그래서 **여덟 명이 8차시를 마친 가상 기록** 한 벌을 함께 둡니다. 실제 학생의 기록이 아니고
+실명·학교 정보도 없습니다.
+
+```
+data/showcase-class.json     불러오기용 자료 한 벌 (전체 내보내기와 같은 모양)
+tools/make-showcase.mjs      만드는 쪽. node tools/make-showcase.mjs
+tools/showcase/personas.mjs    여덟 명이 쓴 말(학습지 163칸·작가노트·비평의 원본)
+tools/showcase/png.mjs         썸네일·원본 그림을 브라우저 없이 굽는 팔레트 PNG 인코더
+tools/check-showcase.mjs     검사. node tools/check-showcase.mjs
+```
+
+- **여는 법**: 교사 대시보드 → **데이터 · AI 설정** 탭 → `🎓 우수 사례 불러오기`.
+  같은 자리의 `🧹 우수 사례만 지우기` 로 언제든 되돌립니다(모든 항목에 `demo` 표시가 붙어 있어
+  실제 학생 기록은 건드리지 않습니다). 학생 화면을 보여 줄 수 있도록 별명 계정(PIN `0000`)도 함께 만듭니다.
+  단, 허브·여정의 **차시 진행률**은 기기에 따로 두는 요약(`dn_ws_prog`)을 읽으므로 그 계정으로 학습지를
+  한 번 열어야 맞춰집니다(답은 처음부터 다 들어 있고, 포트폴리오·교사 화면은 저장소를 직접 읽어 바로 보입니다).
+- **들어 있는 것**: 작품 48점(색 군집·데이터 점·낱말 구름·사회 분석) · 학습지 72장(163칸을 모두 채운) ·
+  작업노트·성찰·진술문 96건 · 또래 비평 16건 · 학습 로그 360건 · 버전 스냅샷 62건 · 분석 퀴즈 4문항.
+  갤러리·키오스크·작품 페이지·포트폴리오·D-1~D-6 지표가 전부 채워집니다.
+- **한 사람이 한 질문을 8차시 내내 끕니다**: 아빠의 한 달 코골이(30밤) · 신체측정 252명의 평균 밖 ·
+  지진 규모의 로그 눈금 · 챗봇에게 물은 것 · 밝기로 잰 기쁨 · 퍼센트가 지운 사람 수 등.
+- **다시 만들 때**: `node tools/make-showcase.mjs` → `node tools/check-showcase.mjs`.
+  난수와 시각이 고정되어 있어 **다시 실행해도 파일이 바이트까지 같습니다**(무엇이 바뀌었는지 보이도록).
+  검사는 JSON 이 열리는지가 아니라 *화면에서 제대로 보이는지*를 봅니다 — 학습지 칸 경로,
+  차시 완료 기준(60%), 노트 id 모양, 로그 action·stage, 매핑이 가리키는 열의 존재, 범주 색 누락, 중복 id.
+
 #### 개인정보·윤리 (기능으로 구현)
 | 항목 | 처리 |
 |---|---|
@@ -333,6 +362,11 @@ js/   ui.js explain.js guide.js          ← 공용 셸·설명(ⓘ)·안내(�
       lab.js studio-data.js studio-color-glue.js
       kmeans.js analysis.js particles.js audio.js app.js  ← 색 군집 엔진
 config/ cloud-config.example.js          ← Firebase 연동 템플릿
+data/   *.csv *.xlsx sdg-meta.json       ← 스튜디오가 쓰는 공개 자료
+        showcase-class.json              ← 우수 사례 학급(가상) 한 벌 → 4-d
+tools/  check-spine.mjs                  ← 차시 척추 검사(앵커·경로가 실제로 닿는지)
+        make-showcase.mjs showcase/      ← 우수 사례 만들기(내용·PNG 인코더)
+        check-showcase.mjs               ← 우수 사례가 화면에서 성립하는지 검사
 vendor/ p5.min.js                        ← 동봉(오프라인)
 ```
 
