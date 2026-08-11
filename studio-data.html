@@ -62,7 +62,7 @@
   <div class="page-head">
     <span class="eyebrow">데이터 점 스튜디오 · 1단계 기초</span>
     <h1>데이터가 춤추는 점</h1>
-    <p>우리 데이터(여러 열)를 점의 <b>크기·속도·방향·밀도·투명도·형태·색</b>으로 번역해 움직이는 작품으로. <b>어떤 열을 어떻게</b> 매핑할지 직접 설계하세요 — 매핑은 ‘효과’가 아니라 <b>해석</b>이에요.</p>
+    <p>우리 데이터(여러 열)를 점의 <b>크기·속도·방향·밀도·투명도·형태·색</b>으로 번역해 움직이는 작품을 만듭니다. <b>어떤 열을 어떻게</b> 매핑할지 직접 설계하세요.</p>
   </div>
   <div id="idea"></div>
 
@@ -119,7 +119,7 @@
       </details>
 
       <details open>
-        <summary>2 · 매핑 설정 — 무엇을 어떻게</summary>
+        <summary>2 · 매핑 설정: 무엇을 어떻게</summary>
         <div class="sect">
           <p class="muted" style="font-size:12px;margin:0 0 8px">데이터의 <b>어떤 열</b>을 점의 <b>어떤 특성</b>으로 바꿀지 골라요. (크기·속도·방향·밀도·투명도는 수치 열)</p>
           <div class="map-grid">
@@ -160,7 +160,7 @@
           <label class="field">진동 <output id="o-vib">1</output></label><input id="r-vib" type="range" min="0" max="4" step="0.1" value="1">
           <label class="field">잔상(트레일) <output id="o-trail">200</output></label><input id="r-trail" type="range" min="20" max="255" step="5" value="200">
           <label class="field">점 크기 배율 <output id="o-pscale">1</output></label><input id="r-pscale" type="range" min="0.3" max="3" step="0.1" value="1" title="모든 점의 크기를 한꺼번에 키우거나 줄여요(매핑된 크기에 곱해져요).">
-          <label class="field">응집력(제자리로) <output id="o-coh">1</output></label><input id="r-coh" type="range" min="0.2" max="2.5" step="0.1" value="1" title="점이 제 자리(배치)로 돌아가려는 힘 — 크면 단단히 모이고, 작으면 느슨히 흩어져 떠돌아요.">
+          <label class="field">응집력(제자리로) <output id="o-coh">1</output></label><input id="r-coh" type="range" min="0.2" max="2.5" step="0.1" value="1" title="점이 제 자리(배치)로 돌아가려는 힘입니다. 크면 단단히 모이고, 작으면 느슨히 흩어져 떠돌아요.">
           <label class="field">배치(어디에) <span class="info-ic" data-info="data-layout">ⓘ</span></label>
           <select id="sel-layout">
             <option value="timeline">시간축 (가로 흐름)</option>
@@ -176,7 +176,7 @@
             <option value="burst">분출 (방향대로 흐름)</option>
           </select>
           <label class="field">배경</label>
-          <select id="sel-data-bg" title="작품이 놓이는 '공기' — 어두운 배경은 점이 또렷, 밝은 배경(종이·흰색)은 전시·인쇄 느낌.">
+          <select id="sel-data-bg" title="작품이 놓이는 '공기'를 정합니다. 어두운 배경은 점이 또렷, 밝은 배경(종이·흰색)은 전시·인쇄 느낌.">
             <option value="night">갤러리 남색(기본)</option>
             <option value="black">순흑</option>
             <option value="ink">잉크 보라</option>
@@ -184,7 +184,7 @@
             <option value="paper">따뜻한 종이</option>
             <option value="white">전시 흰색</option>
           </select>
-          <p class="muted" style="font-size:11.5px;margin-top:8px">속도·방향은 ‘변화량(데이터가 얼마나 변했나)’으로 움직여요. <b>배치</b>=점이 어디에 살지, <b>움직임 방식</b>=어떤 식으로 움직일지, <b>응집력</b>=얼마나 단단히 모일지 — 데이터의 특성이 곧 움직임이 됩니다.</p>
+          <p class="muted" style="font-size:11.5px;margin-top:8px">속도·방향은 ‘변화량(데이터가 얼마나 변했나)’으로 움직여요. <b>배치</b>=점이 어디에 살지, <b>움직임 방식</b>=어떤 식으로 움직일지, <b>응집력</b>=얼마나 단단히 모일지를 정해요. 데이터의 특성이 곧 움직임이 됩니다.</p>
         </div>
       </details>
 
@@ -192,7 +192,7 @@
         <summary>4 · 데이터 선택 기록 (제작 문서) <span class="info-ic" data-info="data-humanism">ⓘ</span></summary>
         <div class="sect">
           <p class="muted" style="font-size:12px;margin:0 0 8px">‘객관적 데이터’ 뒤의 <b>나의 선택</b>을 적어요. 무엇을 세고 무엇을 뺐는지가 곧 창작이에요(프롬프트=작가노트처럼).</p>
-          <label class="field">① 감각 먼저 — 데이터가 되기 전, 이 주제를 몸으로 어떻게 느꼈나요?</label>
+          <label class="field">① 감각 먼저: 데이터가 되기 전, 이 주제를 몸으로 어떻게 느꼈나요?</label>
           <textarea id="rec-sense" rows="2" placeholder="예: 시험 주간 일주일, 쉬는 시간마다 한숨이 늘었다"></textarea>
           <label class="field">② 무엇을 ‘셌’나요? (셈의 단위·기준)</label>
           <input id="rec-count" type="text" placeholder="예: 1시간마다 감정온도를 1~5로 기록">

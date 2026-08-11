@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "data-eye",
-  "title": "데이터의 눈",
+  "title": "오늘의 시선",
   "subtitle": "감각을 번역하는 예술 · 학습 꾸러미",
   "grade": "고등학교 미술 · 정보 융합",
   "sessions": 8,
@@ -58,7 +58,7 @@
     "wordBank": "빈칸 + 보기 낱말 제시",
     "blanks": "빈칸만 제시",
     "starter": "문장 첫머리만 제시",
-    "blank": "백지 — 한 문장 스스로 짓기",
+    "blank": "백지: 한 문장 스스로 짓기",
     "topics": "백지 여러 칸 + 주제어만 제시"
   },
 

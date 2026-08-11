@@ -16,7 +16,7 @@
    * index.html·hub.html 두 시작 화면에 같은 값을 심는다.
    */
   const REPORT = {
-    title: '데이터의 눈으로 그림 읽기 — 분석에서 창작까지',
+    title: '오늘의 시선: 시대 문제를 데이터로 읽고 예술로 번역하는 교육용 소프트웨어',
     grade: '고등학교 1학년',
     school: '서울미술고등학교'
   };
@@ -90,7 +90,7 @@
 
     host.outerHTML = `
       <header class="site-header">
-        <a class="site-brand" href="hub.html"><span class="logo">◎</span> 데이터의 눈</a>
+        <a class="site-brand" href="hub.html"><span class="logo">◎</span> 오늘의 시선</a>
         <button class="nav-burger" id="nav-burger" aria-label="메뉴" aria-expanded="false">☰</button>
         <nav class="site-nav">${navHTML}</nav>
         <div class="site-user" id="site-user"></div>
@@ -178,11 +178,11 @@
     if (!e) { UI.toast('설명 준비 중: ' + key); return; }
     const badge = e.badge === 'adv' ? '<span class="badge adv">심화</span>' : '<span class="badge core">핵심</span>';
     let body = '';
-    if (e.easy) body += section('easy', '🟡 쉽게 — 한눈에', e.easy);
-    if (e.deep) body += section('deep', '🔵 더 깊이 — 원리', e.deep);
+    if (e.easy) body += section('easy', '🟡 쉽게: 한눈에', e.easy);
+    if (e.deep) body += section('deep', '🔵 더 깊이: 원리', e.deep);
     if (e.limit) body += section('limit', '🔴 이 분석이 놓친 것 (한계)', e.limit);
     if (e.ideas && e.ideas.length) {
-      body += section('idea', '🟢 이렇게 해보면 — 아이디어',
+      body += section('idea', '🟢 이렇게 해보면: 아이디어',
         '<ul>' + e.ideas.map(i => `<li>${i}</li>`).join('') + '</ul>');
     }
     UI.modal(escapeHTML(e.title) + ' ' + badge, body, 'ⓘ 설명은 쉬운 버전 → 깊은 버전 → 한계 → 아이디어 순서예요.');
@@ -237,7 +237,7 @@
     const f = document.createElement('footer');
     f.id = 'site-footer';
     f.innerHTML = '<div class="ft-inner">'
-      + '<a class="ft-brand" href="hub.html"><span class="ft-logo">◎</span> 데이터의 눈</a>'
+      + '<a class="ft-brand" href="hub.html"><span class="ft-logo">◎</span> 오늘의 시선</a>'
       + '<nav class="ft-nav"><a href="hub.html">HUB</a><a href="lab.html">ANALYSIS</a><a href="studio-color.html">STUDIO</a><a href="gallery.html">GALLERY</a></nav>'
       + '<p class="ft-credit">© 2025 <b>Miran Hwang</b> · Seoul Arts High School · Art Teacher</p>'
       + '</div>';
@@ -248,15 +248,15 @@
   // 단순 뜻을 넘어 '무엇을 기준으로/어떤 알고리즘인지/무엇으로 변환되는지'까지 짧게 가르친다.
   const GLOSS = {
     'K-means': '그림의 수많은 색을 비슷한 것끼리 K개 무리로 묶고, 무리마다 ‘가운데 색’ 하나로 대신하는 색 요약 알고리즘. K가 클수록 자세해요.',
-    '대표색': 'K-means가 묶은 무리의 색. 개수(K)는 작으면(5~8) 단순·추상, 크면(20~50) 사진처럼 자세 — 이미지의 실제 색 수·성능에 맞춰 자동 조정돼요. 정답은 없고, 바꿔 비교하는 게 공부예요.',
+    '대표색': 'K-means가 묶은 무리의 색. 개수(K)는 작으면(5~8) 단순·추상, 크면(20~50) 사진처럼 자세해져요. 이미지의 실제 색 수·성능에 맞춰 자동 조정돼요. 정답은 없고, 바꿔 비교하는 게 공부예요.',
     '알고리즘': '컴퓨터가 따르는, 차례가 정해진 방법(라면 끓이는 순서처럼). 이 사이트의 분석·요약·움직임이 모두 알고리즘이에요.',
     '군집': '비슷한 것끼리 모은 한 덩어리(무리). 색을 모으면 ‘색 군집’.',
-    '매핑': '데이터의 한 값을 점의 한 특성에 이어 주는 것 — 예: 큰 값→큰 점, 높은 값→위쪽, 종류→색, 변화→떨림. 무엇을 어디에 잇느냐가 곧 해석이에요.',
+    '매핑': '데이터의 한 값을 점의 한 특성에 이어 주는 것. 예를 들어 큰 값→큰 점, 높은 값→위쪽, 종류→색, 변화→떨림. 무엇을 어디에 잇느냐가 곧 해석이에요.',
     '정규화': '크기가 제각각인 숫자를 0~1로 맞춰 공평히 비교하는 것(키 cm와 몸무게 kg을 같은 잣대로).',
     '샘플링': '모든 픽셀 대신 일부만 골라 점으로 쓰는 것. 어디서 더 고를지(밝은 곳·윤곽)가 표현 선택이 돼요.',
-    '헤르츠': '소리가 1초에 떨리는 횟수(Hz). 적으면 낮은 소리(둥둥), 많으면 높은 소리(삐-) — 소리의 ‘높낮이’예요.',
-    'Hz': '헤르츠 — 소리가 1초에 떨리는 횟수. 음높이(피치)의 단위로, 가장 강한 주파수를 골라 구해요.',
-    '음높이': '소리에서 가장 강한 주파수(Hz). 낮으면 저음, 높으면 고음 — 소리를 색·높이로 바꿀 때 쓰는 핵심 값.',
+    '헤르츠': '소리가 1초에 떨리는 횟수(Hz). 적으면 낮은 소리(둥둥), 많으면 높은 소리(삐-). 소리의 ‘높낮이’예요.',
+    'Hz': '헤르츠. 소리가 1초에 떨리는 횟수. 음높이(피치)의 단위로, 가장 강한 주파수를 골라 구해요.',
+    '음높이': '소리에서 가장 강한 주파수(Hz). 낮으면 저음, 높으면 고음. 소리를 색·높이로 바꿀 때 쓰는 핵심 값.',
     '주파수': '소리의 떨림이 빠른 정도. 낮은 주파수=저음, 높은 주파수=고음. 저·중·고로 나눠 에너지를 재요.',
     '날카로움': '소리 에너지가 높은 주파수에 쏠린 정도(스펙트럼 무게중심). 높을수록 쉭·치 하는 밝고 날카로운 소리.'
   };

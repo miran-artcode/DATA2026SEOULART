@@ -139,14 +139,14 @@
       if (l.action === 'revise' && !(l.payload && l.payload.reason)) return;
       items.push({
         t: l.ts, type: 'log', stage: l.stage, icon: '·',
-        text: (Log.ACTIONS[l.action] || l.action) + (l.payload && l.payload.reason ? ` — “${l.payload.reason}”` :
+        text: (Log.ACTIONS[l.action] || l.action) + (l.payload && l.payload.reason ? `: “${l.payload.reason}”` :
           l.payload && l.payload.card ? ` (${l.payload.card})` : '')
       });
     });
     works.forEach(w => {
       if (Log.anonOf({ userId: w.userId, klass: w.klass }) !== anon) return;
       items.push({ t: w.updatedAt, type: 'work', stage: w.exhibited ? 'share' : 'make', icon: '🎨',
-        text: `${w.exhibited ? '전시' : '작품'} · ${w.title || ''}${w.intent ? ' — 의도: ' + w.intent : ''}`, thumb: w.thumb });
+        text: `${w.exhibited ? '전시' : '작품'} · ${w.title || ''}${w.intent ? ' · 의도: ' + w.intent : ''}`, thumb: w.thumb });
     });
     notes.forEach(n => {
       const w = works.find(x => x.userId === n.userId);
@@ -154,11 +154,11 @@
       if (n.kind === 'worksheet') {                 // 학습지는 '몇 칸을 채웠나'가 곧 과정의 흔적이다
         const pct = n.total ? Math.round((n.filled || 0) * 100 / n.total) : 0;
         items.push({ t: n.updatedAt, type: 'note', stage: n.procStage || 'make', icon: '📄',
-          text: `학습지 ${n.title || ''} — ${n.filled || 0} / ${n.total || 0}칸 (${pct}%)` });
+          text: `학습지 ${n.title || ''} · ${n.filled || 0} / ${n.total || 0}칸 (${pct}%)` });
         return;
       }
       items.push({ t: n.updatedAt, type: 'note', stage: n.kind === 'reflection' ? 'own' : 'judge', icon: '📝',
-        text: `${n.title || '메모'}${n.line ? ' — ' + n.line : ''}` });
+        text: `${n.title || '메모'}${n.line ? ': ' + n.line : ''}` });
     });
     versions.filter(v => v.uid === anon).forEach(v => items.push({
       t: v.createdAt, type: 'version', stage: 'revise', icon: '📸', text: '버전 저장', thumb: v.thumb }));

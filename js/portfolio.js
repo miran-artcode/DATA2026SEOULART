@@ -72,7 +72,7 @@
     $('#pf-root').innerHTML = `
       <header class="pf-head">
         <div><h1>${esc(person.name)}<span class="pf-klass">${esc(person.klass)}</span></h1>
-          <p class="pf-sub">데이터의 눈 · 창작 과정 포트폴리오 <span class="pf-code">${esc(uid)}</span></p></div>
+          <p class="pf-sub">오늘의 시선 · 창작 과정 포트폴리오 <span class="pf-code">${esc(uid)}</span></p></div>
         <div class="pf-when">${fmt(Date.now())} 출력</div>
       </header>
 
@@ -88,7 +88,7 @@
              ['질문 카드 답', me.answer], ['비평', me.critique], ['성찰', me.reflect ? 'O' : '—']]
             .map(([k, v]) => `<div><b>${v}</b><span>${k}</span></div>`).join('')}
         </div>
-        <p class="pf-note">숫자는 성적이 아니라 <b>과정의 흔적</b>입니다 — 얼마나 견주었고, 얼마나 고쳤는가.</p>
+        <p class="pf-note">숫자는 성적이 아니라 <b>과정의 흔적</b>입니다. 얼마나 견주었고 얼마나 고쳤는지를 보여 줘요.</p>
       </section>
 
       ${shown.length ? `<section class="pf-sec">
@@ -105,30 +105,30 @@
       </section>` : ''}
 
       ${sheets.length ? `<section class="pf-sec">
-        <h2>학습지 — 차시별 기록</h2>
+        <h2>학습지: 차시별 기록</h2>
         <div class="pf-stages">${sheets.map(n => {
           const pct = n.total ? Math.round((n.filled || 0) * 100 / n.total) : 0;
           return `<span class="pf-stage ${pct >= 60 ? 'on' : ''}">${n.session}차시 ${pct}%</span>`;
         }).join('')}</div>
         <p class="pf-note">${sheets.length}장 가운데 <b>${sheetsDone}장</b>을 다 썼습니다(60% 이상).</p>
         ${carried.length ? `<ul class="pf-list">${carried.map(c =>
-          `<li><b>${c.session}차시 → 다음 시간으로 넘긴 한 줄</b> — ${esc(c.line)}</li>`).join('')}</ul>` : ''}
+          `<li><b>${c.session}차시 → 다음 시간으로 넘긴 한 줄</b>: ${esc(c.line)}</li>`).join('')}</ul>` : ''}
       </section>` : ''}
 
       ${revisions.length ? `<section class="pf-sec">
         <h2>무엇을 왜 바꿨는가</h2>
         <ul class="pf-list">${revisions.slice(-4).map(n =>
-          `<li><b>${esc(n.title || '수정')}</b> — ${esc(n.line || '')}${n.myDecision ? `<span class="pf-dim"> (${esc(n.myDecision)})</span>` : ''}</li>`).join('')}</ul>
+          `<li><b>${esc(n.title || '수정')}</b>: ${esc(n.line || '')}${n.myDecision ? `<span class="pf-dim"> (${esc(n.myDecision)})</span>` : ''}</li>`).join('')}</ul>
       </section>` : ''}
 
       ${cards.length ? `<section class="pf-sec">
-        <h2>판단의 한 줄 — 질문 카드</h2>
-        <ul class="pf-list">${cards.slice(-4).map(n => `<li><b>${esc((n.title || '').replace('질문 카드 · ', ''))}</b> — ${esc(n.line || '')}</li>`).join('')}</ul>
+        <h2>판단의 한 줄: 질문 카드</h2>
+        <ul class="pf-list">${cards.slice(-4).map(n => `<li><b>${esc((n.title || '').replace('질문 카드 · ', ''))}</b>: ${esc(n.line || '')}</li>`).join('')}</ul>
       </section>` : ''}
 
       ${literacy.length ? `<section class="pf-sec">
-        <h2>AI 리터러시 — 내가 남긴 답</h2>
-        <ul class="pf-list">${literacy.map(n => `<li><b>${esc((n.title || '').replace('리터러시 ', ''))}</b> — ${esc(n.line || '')}</li>`).join('')}</ul>
+        <h2>AI 리터러시: 내가 남긴 답</h2>
+        <ul class="pf-list">${literacy.map(n => `<li><b>${esc((n.title || '').replace('리터러시 ', ''))}</b>: ${esc(n.line || '')}</li>`).join('')}</ul>
       </section>` : ''}
 
       ${(reflections.length || statements.length) ? `<section class="pf-sec">
@@ -137,7 +137,7 @@
           `<li>${n.aiHelp ? `<b>🤖 AI가 도운 것</b> ${esc(n.aiHelp)}<br>` : ''}${n.myDecision ? `<b>🙋 내가 결정한 것</b> ${esc(n.myDecision)}<br>` : ''}${esc(n.line || '')}</li>`).join('')}</ul>
       </section>` : ''}
 
-      <footer class="pf-foot">데이터의 눈 · Seoul Arts High School — 학습 로그는 이름 없이 가명 코드로만 기록됩니다.</footer>`;
+      <footer class="pf-foot">오늘의 시선 · Seoul Arts High School · 학습 로그는 이름 없이 가명 코드로만 기록됩니다.</footer>`;
 
     if (global.Log && !params.get('uid')) Log.view('own');
   }

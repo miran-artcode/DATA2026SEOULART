@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>알고리즘 배움터 · 데이터의 눈</title>
+<title>알고리즘 배움터 · 오늘의 시선</title>
 <link rel="stylesheet" href="css/site.css" />
 </head>
 <body>
@@ -26,27 +26,27 @@
 
     <!-- 갈래 1 · 색·형태 알고리즘 -->
     <div class="dn-tabpanel" data-tabpanel="algo">
-      <p class="muted" style="font-size:13px; margin:0 0 6px">한 그림을 색·명암·형태로 읽는 도구들. <b>핵심</b> 넷을 먼저 익히고 <b>심화</b> 셋으로 넓혀요.</p>
+      <p class="muted" style="font-size:13px; margin:0 0 6px">한 그림을 색·명암·형태로 읽는 도구를 모았어요. <b>핵심</b> 넷을 먼저 익히고 <b>심화</b> 셋으로 넓힙니다.</p>
       <div id="algo-cards"></div>
     </div>
 
     <!-- 갈래 2 · 데이터 매핑 -->
     <div class="dn-tabpanel" data-tabpanel="map" hidden>
-      <p class="muted" style="font-size:13px; margin:0 0 6px">숫자를 점의 <b>크기·속도·방향·색</b>으로 바꾸는 매핑의 기본기 — 데이터 시각화·생성미술의 토대예요.</p>
+      <p class="muted" style="font-size:13px; margin:0 0 6px">숫자를 점의 <b>크기·속도·방향·색</b>으로 바꾸는 매핑의 기본기예요. 데이터 시각화와 생성미술의 토대이기도 합니다.</p>
       <div id="map-cards"></div>
     </div>
 
     <!-- 갈래 3 · 미술사 · 윤리 -->
     <div class="dn-tabpanel" data-tabpanel="bridge" hidden>
-      <p class="muted" style="font-size:13px; margin:0 0 14px">알고리즘적 사고가 미술사 어디에 닿는지, 그리고 AI를 쓸 때 무엇을 책임져야 하는지.</p>
+      <p class="muted" style="font-size:13px; margin:0 0 14px">알고리즘적 사고가 미술사 어디에 닿는지, AI를 쓸 때 무엇을 책임져야 하는지 살펴봅니다.</p>
       <div class="grid c2">
         <div class="card">
           <h3>미술사 속의 ‘색 군집화’</h3>
           <ul style="line-height:1.85; font-size:13.7px">
-            <li><b>쇠라의 점묘(Pointillism)</b> — 손으로 한 색의 분해·재조합. 멀리서 섞이는 ‘광학 혼합’.</li>
-            <li><b>로스코의 색면</b> — 거대한 색 덩어리로 감정을 전하는 ‘대표색’의 미학.</li>
-            <li><b>옵아트 · 모자이크</b> — 격자·반복·착시로 보는 공간 추상화.</li>
-            <li><b>제너러티브 아트(케이시 리스 등)</b> — 규칙(알고리즘)이 곧 작품이 되는 계보.</li>
+            <li><b>쇠라의 점묘(Pointillism)</b>: 손으로 한 색의 분해·재조합. 멀리서 섞이는 ‘광학 혼합’.</li>
+            <li><b>로스코의 색면</b>: 거대한 색 덩어리로 감정을 전하는 ‘대표색’의 미학.</li>
+            <li><b>옵아트 · 모자이크</b>: 격자·반복·착시로 보는 공간 추상화.</li>
+            <li><b>제너러티브 아트(케이시 리스 등)</b>: 규칙(알고리즘)이 곧 작품이 되는 계보.</li>
           </ul>
           <p class="muted" style="font-size:12.5px">→ 내 작업이 이 계보 어디에 서는지 한 문장으로 적어 보세요.</p>
         </div>
@@ -70,7 +70,7 @@
     return `<div class="card">
       <h3 class="with-info">${e.title} ${badge} <span class="info-ic" data-info="${key}">ⓘ</span></h3>
       <div style="font-size:13.7px; line-height:1.7">${e.easy}</div>
-      <details style="margin-top:8px"><summary style="cursor:pointer;color:var(--accent2);font-size:13px;font-weight:700">🔵 더 깊이 — 원리</summary>
+      <details style="margin-top:8px"><summary style="cursor:pointer;color:var(--accent2);font-size:13px;font-weight:700">🔵 더 깊이: 원리</summary>
         <div class="lvl-b" style="padding-left:0">${e.deep || ''}</div></details>
       <details><summary style="cursor:pointer;color:var(--danger);font-size:13px;font-weight:700">🔴 이 분석이 놓친 것</summary>
         <div class="lvl-b" style="padding-left:0">${e.limit || ''}</div></details>
@@ -86,12 +86,12 @@
     }).join('');
   }
   fillGroups('algo-cards', [
-    { label: '핵심 — 먼저 익히기', keys: ['kmeans', 'histogram', 'notan', 'edge'] },
-    { label: '심화 — 넓혀 가기', keys: ['mediancut', 'mosaic', 'composition'] }
+    { label: '핵심: 먼저 익히기', keys: ['kmeans', 'histogram', 'notan', 'edge'] },
+    { label: '심화: 넓혀 가기', keys: ['mediancut', 'mosaic', 'composition'] }
   ]);
   fillGroups('map-cards', [
-    { label: '시각 매핑 — 값을 점의 속성으로', keys: ['map-size', 'map-speed', 'map-direction', 'map-density', 'map-alpha', 'map-shape'] },
-    { label: '데이터 다루기 — 점으로 옮기기 전에', keys: ['data-clean'] }
+    { label: '시각 매핑: 값을 점의 속성으로', keys: ['map-size', 'map-speed', 'map-direction', 'map-density', 'map-alpha', 'map-shape'] },
+    { label: '데이터 다루기: 점으로 옮기기 전에', keys: ['data-clean'] }
   ]);
   document.getElementById('ethics-card').innerHTML = card('ethics-ai').replace('<div class="card">', '').replace(/<\/div>$/, '');
   UI.mountIdeaBar('idea', 'learn');

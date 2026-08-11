@@ -90,7 +90,7 @@
     if (!rows.length) { UI.toast('대화를 붙여넣어 주세요.'); return; }
     const mine = rows.filter(r => r.화자 === '나'), ai = rows.filter(r => r.화자 === 'AI');
     const q = mine.filter(r => r.물음표).length;
-    $('#chat-stats').textContent = `내 메시지 ${mine.length} · AI ${ai.length} · 내 질문 ${q}개 · 평균 길이 ${Math.round(rows.reduce((s, r) => s + r.글자수, 0) / rows.length)}자 — “나는 AI에게 무엇을 물었나?”`;
+    $('#chat-stats').textContent = `내 메시지 ${mine.length} · AI ${ai.length} · 내 질문 ${q}개 · 평균 길이 ${Math.round(rows.reduce((s, r) => s + r.글자수, 0) / rows.length)}자. “나는 AI에게 무엇을 물었나?”`;
     renderPreview('#chat-preview'); enable();
   }
 
@@ -107,7 +107,7 @@
   function send() {
     if (!rows.length) return;
     // stage: 데이터 점 스튜디오에서 만든 작품이 '몇 단계에서 온 것'인지 남긴다(허브의 진행 표시용).
-    const payload = { name: dataName, csv: toCSV(), intent: $('#life-intent').value.trim(), stage: 2, issue: '🧑 내 삶에서 온 데이터 — 무엇을 셀지 내가 정했어요' };
+    const payload = { name: dataName, csv: toCSV(), intent: $('#life-intent').value.trim(), stage: 2, issue: '🧑 내 삶에서 온 데이터: 무엇을 셀지 내가 정했어요' };
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
     UI.toast('데이터 점 스튜디오로 보냅니다…'); setTimeout(() => location.href = 'studio-data.html', 600);
   }

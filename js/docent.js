@@ -36,7 +36,7 @@
 
     if (w.intent) lines.push(`작가는 “${w.intent}”라는 의도를 담았습니다.`);
     if (w.evidence) lines.push(`그 근거로 ‘${w.evidence}’라고 밝혔습니다.`);
-    lines.push('관람 포인트 — 데이터의 선택과 규칙이 의도를 어떻게 받쳐 주는지, 그 과정에서 무엇이 강조되고 무엇이 사라졌는지 살펴보세요.');
+    lines.push('관람 포인트: 데이터의 선택과 규칙이 의도를 어떻게 받쳐 주는지, 그 과정에서 무엇이 강조되고 무엇이 사라졌는지 살펴보세요.');
     return lines.join(' ');
   }
   global.Docent = { commentary, mapSummary };

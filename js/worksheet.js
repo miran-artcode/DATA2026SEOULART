@@ -269,7 +269,7 @@
         say('저장됨 · ' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), 'ok');
         logOnce(rec.id + ':save', { stage: course.logStage || 'make', action: 'note_save', payload: { sheet: sheet.id, session: sheet.session } });
       } catch (e) {
-        say('⚠ 저장 실패 — 잠시 뒤 다시 시도해요', 'bad');
+        say('⚠ 저장 실패. 잠시 뒤 다시 시도해요', 'bad');
         console.warn('[worksheet] 저장 실패', e);
       }
       saving = false;
@@ -312,7 +312,7 @@
     document.addEventListener('visibilitychange', () => { if (document.hidden) bail(); });
 
     paint();
-    say(rec.updatedAt ? '마지막 저장 ' + new Date(rec.updatedAt).toLocaleString('ko-KR') : '아직 저장 전 — 쓰면 자동으로 저장돼요');
+    say(rec.updatedAt ? '마지막 저장 ' + new Date(rec.updatedAt).toLocaleString('ko-KR') : '아직 저장 전이에요. 쓰면 자동으로 저장됩니다');
     if (global.Log) Log.push({ stage: course.logStage || 'sense', action: 'view', payload: { sheet: sheet.id, session: sheet.session } });
   }
 
@@ -379,7 +379,7 @@
     const rec = notes[from.id];
     const line = rec && rec.answers && rec.answers[from.id + '.' + from.carryOver.id + '.text'];
     if (!line || !String(line).trim()) return;
-    el.innerHTML = UI.callout('<b>지난 ' + from.session + '차시에서 넘긴 한 줄</b> — “' + esc(line) + '”' +
+    el.innerHTML = UI.callout('<b>지난 ' + from.session + '차시에서 넘긴 한 줄</b>: “' + esc(line) + '”' +
       (from.carryOver.as ? ' <span class="muted">(' + esc(from.carryOver.as) + ')</span>' : ''), 'info');
   }
 
@@ -407,7 +407,7 @@
 
     const a = document.createElement('a');
     a.id = 'ws-launch'; a.className = 'ws-launch'; a.href = 'worksheet.html?s=' + pick.sheet;
-    a.setAttribute('aria-label', ses + ' 학습지 열기 — ' + (pct ? pct + '% 채움' : '아직 시작 전'));
+    a.setAttribute('aria-label', ses + ' 학습지 열기: ' + (pct ? pct + '% 채움' : '아직 시작 전'));
     a.innerHTML = '<span class="ic" aria-hidden="true">📄</span><span class="tx"><b>' + ses + ' 학습지</b>' +
       '<small>' + (pct ? pct + '% 채움 · 이어서 쓰기' : '이 화면에서 쓰는 학습지') + '</small></span>';
     document.body.appendChild(a);
@@ -426,7 +426,7 @@
     const rows = plan.rows.filter(r => r.course.sheet !== 'cover');
 
     el.innerHTML =
-      '<div class="dn-cluster-head"><div><span class="eyebrow">Worksheet</span><h3>학습지 — 차시대로 한 장씩</h3>' +
+      '<div class="dn-cluster-head"><div><span class="eyebrow">Worksheet</span><h3>학습지: 차시대로 한 장씩</h3>' +
       '<p>수업 시간마다 한 장씩 채웁니다. 쓴 내용은 <b>자동 저장</b>되어 선생님 화면과 내 포트폴리오로 이어져요.' +
       (user ? '' : ' 로그인하면 진행률이 표시돼요.') + '</p></div>' +
       '<a class="more" href="worksheet.html">학습지 열기 →</a></div>' +
@@ -440,7 +440,7 @@
       '<p class="muted" style="font-size:12px;margin:10px 0 0">차시 번호가 곧 순서예요. ' +
       '<b>' + (plan.next.session ? plan.next.session + '차시 「' + esc(plan.next.title) + '」' : '표지') + '</b> 차례입니다 · ' +
       '완료 ' + plan.doneCnt + ' / ' + rows.length + '장<br>' +
-      '단계 배지의 번호와 차시 번호는 한 곳에서 어긋나요 — <b>4차시(소리)가 5차시(내 사진)보다 앞섭니다.</b> ' +
+      '단계 배지의 번호와 차시 번호는 한 곳에서 어긋나요. <b>4차시(소리)가 5차시(내 사진)보다 앞섭니다.</b> ' +
       '학습지끼리 넘기는 한 줄이 그 순서로 이어지기 때문이에요.</p>';
   }
 

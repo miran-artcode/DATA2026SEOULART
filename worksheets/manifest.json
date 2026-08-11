@@ -5,7 +5,7 @@
     {
       "id": "data-eye",
       "dir": "unit-data-eye",
-      "title": "데이터의 눈",
+      "title": "오늘의 시선",
       "subtitle": "감각을 번역하는 예술 · 학습 꾸러미",
       "sessions": 8,
       "unitFile": "unit.json",
@@ -946,7 +946,7 @@
           "rubric": false,
           "scaffold": null,
           "logAction": "map_apply",
-          "label": "크기 / A안 — 무엇과 연결했나"
+          "label": "크기 / A안: 무엇과 연결했나"
         },
         {
           "path": "s3.rules_ab.size.plan_b",
@@ -957,7 +957,7 @@
           "rubric": false,
           "scaffold": null,
           "logAction": "map_apply",
-          "label": "크기 / B안 — 무엇과 연결했나"
+          "label": "크기 / B안: 무엇과 연결했나"
         },
         {
           "path": "s3.rules_ab.color.plan_a",
@@ -968,7 +968,7 @@
           "rubric": false,
           "scaffold": null,
           "logAction": "map_apply",
-          "label": "색 / A안 — 무엇과 연결했나"
+          "label": "색 / A안: 무엇과 연결했나"
         },
         {
           "path": "s3.rules_ab.color.plan_b",
@@ -979,7 +979,7 @@
           "rubric": false,
           "scaffold": null,
           "logAction": "map_apply",
-          "label": "색 / B안 — 무엇과 연결했나"
+          "label": "색 / B안: 무엇과 연결했나"
         },
         {
           "path": "s3.rules_ab.speed.plan_a",
@@ -990,7 +990,7 @@
           "rubric": false,
           "scaffold": null,
           "logAction": "map_apply",
-          "label": "속도·떨림 / A안 — 무엇과 연결했나"
+          "label": "속도·떨림 / A안: 무엇과 연결했나"
         },
         {
           "path": "s3.rules_ab.speed.plan_b",
@@ -1001,7 +1001,7 @@
           "rubric": false,
           "scaffold": null,
           "logAction": "map_apply",
-          "label": "속도·떨림 / B안 — 무엇과 연결했나"
+          "label": "속도·떨림 / B안: 무엇과 연결했나"
         },
         {
           "path": "s3.rules_ab.shape.plan_a",
@@ -1012,7 +1012,7 @@
           "rubric": false,
           "scaffold": null,
           "logAction": "map_apply",
-          "label": "형태·배치 / A안 — 무엇과 연결했나"
+          "label": "형태·배치 / A안: 무엇과 연결했나"
         },
         {
           "path": "s3.rules_ab.shape.plan_b",
@@ -1023,7 +1023,7 @@
           "rubric": false,
           "scaffold": null,
           "logAction": "map_apply",
-          "label": "형태·배치 / B안 — 무엇과 연결했나"
+          "label": "형태·배치 / B안: 무엇과 연결했나"
         },
         {
           "path": "s3.choose_discard.chosen_plan_why",

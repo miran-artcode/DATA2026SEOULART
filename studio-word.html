@@ -71,8 +71,8 @@
 <div class="wrap" style="max-width:1280px">
   <div class="page-head">
     <span class="eyebrow">낱말 구름 스튜디오 · 자연어 분석</span>
-    <h1>작가의 말을 그림으로 — 낱말 구름 · 굿즈</h1>
-    <p>작가 감상문·작가 정보를 <b>자연어 분석</b>해 낱말의 <b>빈도→크기</b>로, 글자 색은 그림의 <b>대표색(K)·비율 순</b>으로, 낱말을 <b>내가 정한 모양 틀</b>에 채워 넣고 — 그대로 <b>엽서·카드·책갈피</b> 같은 실생활 굿즈로 디자인하세요.</p>
+    <h1>작가의 말을 그림으로: 낱말 구름과 굿즈</h1>
+    <p>작가 감상문과 작가 정보를 <b>자연어 분석</b>해 낱말의 <b>빈도를 크기로</b> 바꿔요. 글자 색은 그림의 <b>대표색(K)·비율 순</b>으로 정하고, 낱말을 <b>내가 정한 모양 틀</b>에 채워 넣습니다. 그대로 <b>엽서·카드·책갈피</b> 같은 실생활 굿즈로 디자인하세요.</p>
   </div>
   <div id="idea"></div>
 
@@ -89,7 +89,7 @@
           <button data-side="back">뒷면</button>
         </div>
         <span class="grow"></span>
-        <button id="btn-shuffle" class="btn sm" title="같은 설정에서 배치만 다시 — 자리(시드)를 바꿔요">🎲 다시 배치</button>
+        <button id="btn-shuffle" class="btn sm" title="같은 설정에서 배치만 다시 합니다. 자리(시드)를 바꿔요">🎲 다시 배치</button>
         <button id="btn-generate" class="btn sm accent2" title="텍스트·색·모양 설정으로 낱말 구름을 다시 만들어요">✦ 생성</button>
       </div>
       <div id="wstage">
@@ -102,7 +102,7 @@
     <!-- 설정 패널 -->
     <aside class="wpanel">
       <details open>
-        <summary>1 · 글 — 작가의 말 <span class="info-ic" data-info="word-nlp">ⓘ</span></summary>
+        <summary>1 · 글: 작가의 말 <span class="info-ic" data-info="word-nlp">ⓘ</span></summary>
         <div class="sect">
           <label class="field">작가 글 예시 (감상문·작가 소개)</label>
           <select id="sel-artist"></select>
@@ -134,7 +134,7 @@
       </details>
 
       <details open>
-        <summary>2 · 그림 색 — 대표색(K)·비율 <span class="info-ic" data-info="word-color">ⓘ</span></summary>
+        <summary>2 · 그림 색: 대표색(K)·비율 <span class="info-ic" data-info="word-color">ⓘ</span></summary>
         <div class="sect">
           <label class="field">그림 고르기 (퍼블릭 도메인 명화)</label>
           <select id="sel-painting"></select>
@@ -176,12 +176,12 @@
       </details>
 
       <details open>
-        <summary>4 · 모양 틀 — 낱말을 채울 형태 <span class="info-ic" data-info="word-shape">ⓘ</span></summary>
+        <summary>4 · 모양 틀: 낱말을 채울 형태 <span class="info-ic" data-info="word-shape">ⓘ</span></summary>
         <div class="sect">
-          <label class="field">틀 모양 — 종류별로 고르거나 직접 그려요</label>
+          <label class="field">틀 모양: 종류별로 고르거나 직접 그려요</label>
           <div id="shape-picker" class="shape-groups"></div>
           <div id="letter-row" style="display:none;margin-top:8px">
-            <label class="field" style="margin-top:0">틀로 쓸 글자(1~3자) — 작가 이니셜 등</label>
+            <label class="field" style="margin-top:0">틀로 쓸 글자(1~3자): 작가 이니셜 등</label>
             <input id="in-letter" type="text" maxlength="3" placeholder="예: DH / 호 / P">
           </div>
           <div id="upload-row" style="display:none;margin-top:8px">
@@ -190,7 +190,7 @@
             <p class="muted" style="font-size:11px;margin:6px 0 0">진한 부분(불투명/어두운 영역)을 틀로 인식해요. 단순한 실루엣이 잘 됩니다.</p>
           </div>
           <div id="draw-row" style="display:none;margin-top:8px">
-            <p class="muted" style="font-size:11px;margin:0 0 6px">마우스(또는 손가락)로 칠해 틀을 직접 만들어요 — <b>흰 부분</b>에 낱말이 채워져요.</p>
+            <p class="muted" style="font-size:11px;margin:0 0 6px">마우스(또는 손가락)로 칠해 틀을 직접 만들어요. <b>흰 부분</b>에 낱말이 채워집니다.</p>
             <canvas id="draw-pad"></canvas>
             <div class="row tight" style="margin-top:6px; align-items:center">
               <button id="btn-draw-undo" class="btn sm">↶ 되돌리기</button>
@@ -256,7 +256,7 @@
             </div>
           </div>
           <hr class="sep" style="margin:14px 0 10px">
-          <label class="chk-row"><input type="checkbox" id="chk-3d"> 입체(3D) — 글자에 두께·돌출 <span class="info-ic" data-info="word-3d">ⓘ</span></label>
+          <label class="chk-row"><input type="checkbox" id="chk-3d"> 입체(3D): 글자에 두께·돌출 <span class="info-ic" data-info="word-3d">ⓘ</span></label>
           <div id="d3-controls" style="display:none;margin-top:8px">
             <label class="field" style="margin-top:0">두께(깊이) <output id="o-depth">12</output></label>
             <input id="r-depth" type="range" min="2" max="30" step="1" value="12">
@@ -269,13 +269,13 @@
               <option value="225">↖ 왼쪽 위</option>
               <option value="0">→ 오른쪽</option>
             </select>
-            <p class="muted" style="font-size:11px;margin-top:6px">글자가 종이에서 솟아오른 듯한 입체감 — 엽서·포스터에 또렷하게 찍혀요. 두께가 클수록 인쇄 색이 진해 보일 수 있어요.</p>
+            <p class="muted" style="font-size:11px;margin-top:6px">글자가 종이에서 솟아오른 듯한 입체감을 줍니다. 엽서·포스터에 또렷하게 찍혀요. 두께가 클수록 인쇄 색이 진해 보일 수 있어요.</p>
           </div>
         </div>
       </details>
 
       <details open>
-        <summary>6 · 굿즈 디자인 — 실생활용품 <span class="info-ic" data-info="word-goods">ⓘ</span></summary>
+        <summary>6 · 굿즈 디자인: 실생활용품 <span class="info-ic" data-info="word-goods">ⓘ</span></summary>
         <div class="sect">
           <label class="field">제품</label>
           <select id="sel-product">
@@ -323,7 +323,7 @@
       </details>
     </aside>
   </div>
-  <p class="footer-note">자연어 분석은 ‘무엇을 자주 말했나’를 세는 일 — 빈도·불용어 선택이 곧 해석이에요 · 글의 출처를 밝히세요</p>
+  <p class="footer-note">자연어 분석은 ‘무엇을 자주 말했나’를 세는 일이에요 · 빈도와 불용어를 어떻게 정하느냐에 따라 결과가 달라집니다 · 글의 출처를 밝히세요</p>
 </div>
 
 <script src="js/explain.js"></script>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>교사 대시보드 · 데이터의 눈</title>
+<title>교사 대시보드 · 오늘의 시선</title>
 <link rel="stylesheet" href="css/site.css" />
 <script src="js/admin-gate.js"></script>
 </head>
@@ -42,7 +42,7 @@
     <!-- D-1 · D-2 과정 지표 -->
     <div class="dn-tabpanel" data-tabpanel="process">
       <div class="card">
-        <h3 class="with-info">D-1 · 학급 진행 현황 — 7단계 도달</h3>
+        <h3 class="with-info">D-1 · 학급 진행 현황: 7단계 도달</h3>
         <p class="muted" style="font-size:12.5px;margin:0 0 12px">어느 단계에서 멈춰 있는지 한눈에. <b>막대를 누르면</b> 그 단계에 도달한 학생이 보여요(개별 지도용).</p>
         <div id="stage-bars"></div>
         <div id="stage-who" class="muted" style="font-size:12px;margin-top:10px"></div>
@@ -50,7 +50,7 @@
 
       <div class="card" style="margin-top:16px">
         <h3>D-2 · 판단 활동 지표</h3>
-        <p class="muted" style="font-size:12.5px;margin:0 0 12px">‘얼마나 만들었나’가 아니라 <b>‘얼마나 견주고 고쳤나’</b>를 봅니다. 성적이 아니라 지도의 실마리예요.</p>
+        <p class="muted" style="font-size:12.5px;margin:0 0 12px">‘얼마나 만들었나’보다 <b>‘얼마나 견주고 고쳤나’</b>를 봅니다. 성적이 아니라 지도의 실마리예요.</p>
         <div class="grid c3" id="judge-cards"></div>
         <div style="overflow-x:auto;margin-top:14px"><table class="data" id="tbl-judge">
           <thead><tr><th>별명</th><th>반</th><th>도달 단계</th><th>비교</th><th>수정</th><th>근거</th><th>코치 답</th><th>비평</th><th>성찰</th><th>최근</th></tr></thead>
@@ -75,7 +75,7 @@
       <div class="card">
         <h3 class="with-info">D-4 · 학급 유사도 지수</h3>
         <p class="muted" style="font-size:12.5px;margin:0 0 12px">학급 작품의 <b>색 분포</b>와 <b>매핑 규칙</b>을 견주어 서로 얼마나 닮았는지 잽니다.
-          지수가 높으면 자동 추천을 그대로 쓴 학생이 많다는 뜻 — 수업 진단의 신호예요.</p>
+          지수가 높으면 자동 추천을 그대로 쓴 학생이 많다는 뜻이에요. 수업 진단의 신호로 씁니다.</p>
         <div id="sim-head"></div>
         <div class="grid c2" style="margin-top:14px">
           <div><canvas id="sim-scatter" width="560" height="380" style="width:100%;border:1px solid var(--line);border-radius:12px;background:var(--bg2)"></canvas>
@@ -167,9 +167,9 @@
       <div class="card" style="margin-top:16px">
         <h3>🔒 개인정보 · 데이터 정리</h3>
         <ul class="muted" style="font-size:12.5px;line-height:1.9;margin:0 0 10px;padding-left:18px">
-          <li>로그인은 <b>학번 + 별명</b>으로 합니다 — 사이트 어디에도 <b>실명을 받지 않습니다</b>.
+          <li>로그인은 <b>학번 + 별명</b>으로 합니다. 사이트 어디에도 <b>실명을 받지 않습니다</b>.
             작품·갤러리·전시에 표시되는 이름은 언제나 별명입니다.</li>
-          <li>학습 로그에는 <b>학번도 별명도 저장하지 않습니다</b> — 반 + 가명 코드(예: 2-3·k7f2)만 남습니다.
+          <li>학습 로그에는 <b>학번도 별명도 저장하지 않습니다</b>. 반 + 가명 코드(예: 2-3·k7f2)만 남습니다.
             (코드는 학번+별명의 단방향 해시이지만 짧으므로, <b>학급 명단을 가진 교사만</b> 대조할 수 있는 ‘가명처리’ 수준입니다.)</li>
           <li>음성·영상·사진 원본은 브라우저 안에서만 처리하며, 마이크 소리는 저장·전송되지 않습니다.</li>
           <li>공개동의를 끈 작품은 키오스크 전시·포트폴리오 인쇄에서 자동 제외됩니다.</li>
@@ -426,7 +426,7 @@
 
     if (wsPick.userId) {                                  // ① 한 학생의 한 장
       const n = list.find(x => x.userId === wsPick.userId && x.sheet === wsPick.sheet);
-      title.textContent = '답 보기 — ' + label + ' · ' + (n ? wsName(n) : '');
+      title.textContent = '답 보기: ' + label + ' · ' + (n ? wsName(n) : '');
       if (!n) { box.innerHTML = '<p class="muted">아직 쓰지 않았습니다.</p>'; return; }
       box.innerHTML = `<p class="muted" style="font-size:12px;margin:0 0 10px">완성도 ${wsPct(n)}% (${wsFilled(n)} / ${fields.length}칸) ·
         마지막 저장 ${new Date(n.updatedAt).toLocaleString('ko-KR')} · 가명코드 ${UI.escapeHTML(n.code || '')}
@@ -448,7 +448,7 @@
     wsPick.path = path;
     const f = fields.find(x => x.path === path) || {};
     const mine = list.filter(n => n.sheet === wsPick.sheet);
-    title.textContent = '답 보기 — ' + label;
+    title.textContent = '답 보기: ' + label;
     box.innerHTML =
       `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
         <label class="field" style="margin:0">칸 고르기</label>
@@ -570,7 +570,7 @@
       const names = s.uids.map(u => Metrics.who(judge.map, u));
       document.getElementById('stage-who').innerHTML = names.length
         ? `<b>${s.label}</b> 도달(${names.length}명) · ${names.map(UI.escapeHTML).join(', ')}`
-        : `<b>${s.label}</b> 에 도달한 학생이 아직 없어요 — ${UI.escapeHTML(s.desc)}`;
+        : `<b>${s.label}</b>에 도달한 학생이 아직 없어요: ${UI.escapeHTML(s.desc)}`;
     }));
   }
 
@@ -607,7 +607,7 @@
   /* ============================ D-3 학생별 타임라인 ============================ */
   function renderTimelinePicker() {
     const sel = document.getElementById('tl-pick');
-    sel.innerHTML = '<option value="">— 학생을 고르세요 —</option>' +
+    sel.innerHTML = '<option value="">학생을 고르세요</option>' +
       judge.rows.map(r => `<option value="${r.uid}">${UI.escapeHTML(r.name)}${r.klass ? ' · ' + UI.escapeHTML(r.klass) : ''}</option>`).join('');
     sel.onchange = () => renderTimeline(sel.value);
     document.getElementById('tl-print').onclick = () => {
@@ -657,7 +657,7 @@
       <p class="muted" style="font-size:11.5px;margin:8px 0 0">작품 ${r.n}점 · 비교 ${r.pairs}쌍 ${r.skipped ? `· 썸네일을 읽지 못한 ${r.skipped}점 제외` : ''} ·
         색 분포 65% + 매핑 규칙 35%로 계산 · 교사 화면은 <b>미동의 작품까지 포함</b>해 학급 전체를 진단합니다(학생 화면은 동의한 작품만).</p>`;
 
-    document.getElementById('sim-outliers').innerHTML = `<h4 style="margin:0 0 8px">가장 닮지 않은 작품 3점 — 비전형</h4>
+    document.getElementById('sim-outliers').innerHTML = `<h4 style="margin:0 0 8px">가장 닮지 않은 작품 3점: 비전형</h4>
       <p class="muted" style="font-size:12px;margin:0 0 10px">평균에서 멀다는 건 틀렸다는 뜻이 아니에요. <b>다른 답</b>이 어떻게 가능했는지 물어볼 자리입니다.</p>` +
       r.outliers.map(o => `<div class="card" style="display:flex;gap:10px;margin-bottom:8px;padding:10px">
         ${o.work.thumb ? `<img src="${o.work.thumb}" style="width:74px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">` : ''}
@@ -668,7 +668,7 @@
     document.getElementById('sim-lesson').innerHTML = UI.callout(
       '<b>수업으로 쓰기</b> · 이 지수는 리터러시 4장 「그럴듯함의 함정」의 실습 재료입니다. ' +
       '생성형 AI는 개인의 창의성은 올리지만 집단의 참신성은 떨어뜨린다는 실험 결과(Doshi &amp; Hauser, 2024)를 ' +
-      '<b>우리 반 데이터로</b> 확인해 보세요 — “우리는 서로 얼마나 닮았나?” ' +
+      '<b>우리 반 데이터로</b> 확인해 보세요. “우리는 서로 얼마나 닮았나?” ' +
       '<a href="literacy.html#ch4">→ 리터러시 4장 열기</a>', 'info');
 
     drawScatter(r);
@@ -780,7 +780,7 @@
     }
     function refreshStatus() {
       const s = Coach.status();
-      $('c-status').textContent = `남은 한도/분 — 요청 ${s.reqLeft} · 입력 ${s.inLeft} · 출력 ${s.outLeft}` + (s.queued ? ` · 대기 ${s.queued}` : '');
+      $('c-status').textContent = `남은 한도/분: 요청 ${s.reqLeft} · 입력 ${s.inLeft} · 출력 ${s.outLeft}` + (s.queued ? ` · 대기 ${s.queued}` : '');
     }
     setInterval(refreshStatus, 2000); refreshStatus();
 
@@ -789,7 +789,7 @@
       const c = { enabled: $('c-enabled').checked, mode: $('c-mode').value, model: $('c-model').value,
         apiKey: $('c-key').value.trim(), endpoint: $('c-endpoint').value.trim() };
       Coach.setConfig(c);
-      UI.toast(c.enabled ? 'AI 코치 설정 저장 (실제 모델 사용)' : '저장됨 — 오프라인 코치 사용');
+      UI.toast(c.enabled ? 'AI 코치 설정 저장 (실제 모델 사용)' : '저장됨: 오프라인 코치 사용');
     });
     $('c-clear').addEventListener('click', () => { Coach.clearConfig(); $('c-enabled').checked = false; $('c-key').value = ''; $('c-endpoint').value = ''; UI.toast('코치 설정을 초기화했습니다.'); });
     $('c-test').addEventListener('click', async () => {

@@ -6,7 +6,7 @@
   'use strict';
   const $ = s => document.querySelector(s);
   const esc = (s) => UI.escapeHTML(s);
-  const rubSel = id => '<select id="' + id + '"><option value="0">— 미평가 —</option><option value="3">상 ●●●</option><option value="2">중 ●●</option><option value="1">하 ●</option></select>';
+  const rubSel = id => '<select id="' + id + '"><option value="0">미평가</option><option value="3">상 ●●●</option><option value="2">중 ●●</option><option value="1">하 ●</option></select>';
   const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', lab: '분석', society: '사회 분석' };
   const COLORLBL = { value: '값 그라데이션', warm: '난색', cool: '한색' };
   const id = new URLSearchParams(location.search).get('id');
@@ -91,7 +91,7 @@
     const notes = (work.userId ? (await Store.listNotes(work.userId)) : []).filter(hasContent).slice(0, 8);
     const processHTML = notes.length ? `
       <div class="card" style="margin-top:16px">
-        <h3>🧭 작가의 과정·성찰 <span class="muted" style="font-size:12px">— 학습 과정도 작품의 일부예요</span></h3>
+        <h3>🧭 작가의 과정·성찰 <span class="muted" style="font-size:12px">· 학습 과정도 작품의 일부예요</span></h3>
         ${notes.map(noteHTML).join('')}
       </div>` : '';
     const liveMedia = work.video
@@ -133,10 +133,10 @@
 
         <details style="margin-top:10px">
           <summary style="cursor:pointer;color:var(--accent2);font-weight:700;font-size:13.5px">＋ 펠드먼 4단계로 자세히 비평하기</summary>
-          <label class="field">① 기술 — 무엇이 보이나(객관)</label><textarea id="c-describe" rows="2" placeholder="예: 파란색이 화면의 대부분, 중앙에 밝은 점들"></textarea>
-          <label class="field">② 분석 — 색·명도·구도·리듬이 어떻게</label><textarea id="c-analyze" rows="2" placeholder="예: 보색 대비가 시선을 중앙으로 모음"></textarea>
-          <label class="field">③ 해석 — 무엇을 말하나(의도·감정)</label><textarea id="c-interpret" rows="2" placeholder="예: 불안 속의 한 줄기 평온"></textarea>
-          <label class="field">④ 평가 — 근거 있는 판단</label><textarea id="c-judge" rows="2" placeholder="예: 데이터를 절제해 의도가 분명, 설득력 있음"></textarea>
+          <label class="field">① 기술: 무엇이 보이나(객관)</label><textarea id="c-describe" rows="2" placeholder="예: 파란색이 화면의 대부분, 중앙에 밝은 점들"></textarea>
+          <label class="field">② 분석: 색·명도·구도·리듬이 어떻게</label><textarea id="c-analyze" rows="2" placeholder="예: 보색 대비가 시선을 중앙으로 모음"></textarea>
+          <label class="field">③ 해석: 무엇을 말하나(의도·감정)</label><textarea id="c-interpret" rows="2" placeholder="예: 불안 속의 한 줄기 평온"></textarea>
+          <label class="field">④ 평가: 근거 있는 판단</label><textarea id="c-judge" rows="2" placeholder="예: 데이터를 절제해 의도가 분명, 설득력 있음"></textarea>
         </details>
         <details style="margin-top:6px">
           <summary style="cursor:pointer;color:var(--good);font-weight:700;font-size:13.5px">＋ 4영역 평가(자기·동료) <span class="info-ic" data-info="rubric">ⓘ</span></summary>

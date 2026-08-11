@@ -125,7 +125,7 @@
     const sum = $('#od-summary'); if (!sum) return;
     ObjArt.refresh();
     if (!detections.length) {
-      sum.innerHTML = '<b>감지 0개.</b> AI는 ‘사진’으로 배웠어요 — 명화·추상화·단순한 그림 앞에서는 <b>거의 못 보거나 엉뚱하게</b> 봅니다. 이게 바로 ‘AI의 눈’의 한계예요.';
+      sum.innerHTML = '<b>감지 0개.</b> AI는 ‘사진’으로 배웠어요. 명화·추상화·단순한 그림 앞에서는 <b>거의 못 보거나 엉뚱하게</b> 봅니다. 이게 바로 ‘AI의 눈’의 한계예요.';
       $('#btn-od-csv').disabled = true; $('#btn-od-send').disabled = true; return;
     }
     const c = {}; detections.forEach(d => c[ko(d.class)] = (c[ko(d.class)] || 0) + 1);
@@ -179,7 +179,7 @@
         const secs = Math.max.apply(null, logRows.map(r => r.초));
         stat.innerHTML = `📊 <b>${logRows.length.toLocaleString()}행</b> 기록 · ${logFrame}회차 · 사물 ${types}종 · ${secs.toFixed(0)}초` + (logging ? ' · <span class="od-warn">⏺ 기록 중</span>' : ' · ⏸ 멈춤');
       } else {
-        stat.innerHTML = logging ? '⏺ 기록 중 — 감지되는 사물이 표로 쌓입니다…'
+        stat.innerHTML = logging ? '⏺ 기록 중: 감지되는 사물이 표로 쌓입니다…'
           : '자동 기록을 켜면 감지 결과(시간·사물·위치·크기·종횡비·신뢰도·장면 개수 등)가 표처럼 계속 쌓여 <b>데이터</b>가 됩니다. 📹 실시간 카메라와 함께 쓰면 자동으로 기록돼요.';
       }
     }
@@ -210,7 +210,7 @@
     if (logging) return;
     logging = true; lastLogAt = 0; lastObsAt = 0;
     if (!logRows.length) { logStartT = (window.performance && performance.now) ? performance.now() : Date.now(); logFrame = 0; }
-    if (!silent) setStatus('⏺ 자동 기록을 시작했어요 — 감지되는 사물이 데이터로 쌓입니다.');
+    if (!silent) setStatus('⏺ 자동 기록을 시작했어요. 감지되는 사물이 데이터로 쌓입니다.');
     if (detections.length) logSnapshot(live ? '카메라' : curSource, true);   // 이미 떠 있는 화면이면 즉시 한 줄
     updateLogUI();
   }
@@ -225,7 +225,7 @@
   function sendLogToData() {
     if (!logRows.length) return;
     const payload = { name: '사물 감지 자동기록', csv: logCSV(), intent: ($('#od-intent') ? $('#od-intent').value.trim() : ''), omit: ($('#od-omit') ? $('#od-omit').value.trim() : '') };
-    try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(기록이 커요 — CSV로 내보낸 뒤 불러오세요).'); return; }
+    try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(기록이 커요. CSV로 내보낸 뒤 불러오세요).'); return; }
     UI.toast('자동 기록 데이터를 데이터 점 스튜디오로 보냈어요!');
     setTimeout(() => location.href = 'studio-data.html', 500);
   }
@@ -317,7 +317,7 @@
     const b = $('#btn-od-mic');
     if (micOn) { if (window.AudioInput) AudioInput.stop(); micOn = false; if (b) { b.textContent = '🎤 소리도 관찰'; b.classList.remove('rec'); } stopObs(); updateObsUI(); setStatus('소리 관찰을 껐어요.'); return; }
     if (!window.AudioInput) { UI.toast('오디오 모듈이 없어요.'); return; }
-    try { await AudioInput.start(); micOn = true; if (b) { b.textContent = '🔇 소리 끄기'; b.classList.add('rec'); } startObs(); updateObsUI(); setStatus('🎤 소리 관찰 중 — 소리 크기·높은 소리가 그래프에 더해져요(소리는 저장되지 않아요).'); }
+    try { await AudioInput.start(); micOn = true; if (b) { b.textContent = '🔇 소리 끄기'; b.classList.add('rec'); } startObs(); updateObsUI(); setStatus('🎤 소리 관찰 중: 소리 크기·높은 소리가 그래프에 더해져요(소리는 저장되지 않아요).'); }
     catch (e) { UI.toast('마이크를 켤 수 없어요(권한/지원을 확인하세요).'); }
   }
   function obsCSV() { return OBSCOLS.join(',') + '\n' + obsRows.map(o => OBSCOLS.map(c => o[c]).join(',')).join('\n'); }
@@ -327,7 +327,7 @@
     set('#btn-od-obs-csv', !has); set('#btn-od-obs-send', !has);
     const stat = $('#od-obs-stat');
     if (stat) stat.innerHTML = has ? `📈 관찰 <b>${obsRows.length.toLocaleString()}행</b> 기록됨` + (logging ? ' · <span class="od-warn">⏺ 기록 중</span>' : '')
-      : (obsActive() ? '실시간 관찰 중 — ⏺ 자동 기록을 켜면 시간에 따라 데이터로 쌓여요.' : '카메라나 소리를 켜고 자동 기록을 누르면 시간에 따른 변화가 데이터로 쌓여요.');
+      : (obsActive() ? '실시간 관찰 중입니다. ⏺ 자동 기록을 켜면 시간에 따라 데이터로 쌓여요.' : '카메라나 소리를 켜고 자동 기록을 누르면 시간에 따른 변화가 데이터로 쌓여요.');
   }
   function exportObsCSV() {
     if (!obsRows.length) return;
@@ -338,7 +338,7 @@
   function sendObsToData() {
     if (!obsRows.length) return;
     const payload = { name: '실시간 관찰 기록', csv: obsCSV(), intent: ($('#od-intent') ? $('#od-intent').value.trim() : ''), omit: ($('#od-omit') ? $('#od-omit').value.trim() : '') };
-    try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(기록이 커요 — CSV로 내보내세요).'); return; }
+    try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(기록이 커요. CSV로 내보내세요).'); return; }
     UI.toast('관찰 기록을 데이터 점 스튜디오로 보냈어요!');
     setTimeout(() => location.href = 'studio-data.html', 500);
   }
@@ -347,9 +347,9 @@
     const W = 960, H = 560, ex = document.createElement('canvas'); ex.width = W; ex.height = H; const x = ex.getContext('2d');
     x.fillStyle = '#0c0e16'; x.fillRect(0, 0, W, H);
     x.fillStyle = '#e8ecf6'; x.font = 'bold 22px sans-serif'; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
-    x.fillText('실시간 관찰 — 시간에 따른 변화', 28, 40);
+    x.fillText('실시간 관찰: 시간에 따른 변화', 28, 40);
     x.fillStyle = '#9aa3bd'; x.font = '13px sans-serif';
-    x.fillText('데이터의 눈 · 객체 감지 렌즈 · ' + new Date().toLocaleString('ko-KR'), 28, 62);
+    x.fillText('오늘의 시선 · 객체 감지 렌즈 · ' + new Date().toLocaleString('ko-KR'), 28, 62);
     const gx = 28, gy = 84, gw = W - 56, gh = 360;
     x.fillStyle = '#07080d'; x.fillRect(gx, gy, gw, gh);
     x.strokeStyle = 'rgba(255,255,255,0.08)'; x.lineWidth = 1;
@@ -402,12 +402,12 @@
       const b = $('#btn-od-cam'); if (b) { b.textContent = '■ 카메라 끄기'; b.classList.add('rec'); }
       if (!logging) { startLog(true); logByCam = true; }   // 실시간 감지는 자동으로 기록 시작(화면 감지=자동 데이터화)
       startObs();                                           // 실시간 관찰 그래프(밝기·색·움직임…) 시작
-      setStatus('📹 실시간 감지 + ⏺ 자동 기록 중 — 카메라를 사물(사람·컵·휴대폰·의자…)에 향해 보세요. 감지 결과가 데이터로 쌓이고, 옆 그래프에 시간 변화가 그려져요(영상은 저장 안 됨).');
+      setStatus('📹 실시간 감지 + ⏺ 자동 기록 중입니다. 카메라를 사물(사람·컵·휴대폰·의자…)에 향해 보세요. 감지 결과가 데이터로 쌓이고, 옆 그래프에 시간 변화가 그려져요(영상은 저장 안 됨).');
       requestAnimationFrame(liveStep);
     } catch (e) {
       live = false;
       if (e && (e.name === 'NotAllowedError' || e.name === 'NotFoundError' || e.name === 'NotReadableError'))
-        setStatus('카메라를 쓸 수 없어요 — 권한 거부/카메라 없음일 수 있어요. 주소창의 카메라 허용을 확인해 주세요(휴대폰도 HTTPS면 가능).', 'warn');
+        setStatus('카메라를 쓸 수 없어요. 권한 거부나 카메라 없음일 수 있어요. 주소창의 카메라 허용을 확인해 주세요(휴대폰도 HTTPS면 가능).', 'warn');
       else
         setStatus('카메라/모델을 켜지 못했어요(모델 CDN 차단일 수 있어요). 잠시 후 다시 시도하거나 다른 네트워크에서 열어 보세요.', 'warn');
     }
@@ -447,7 +447,7 @@
     try {
       const m = await ensureModel();
       const dets = await m.detect(srcCanvas, 40);
-      applyDetections(dets, dets.length ? 'AI 감지 완료 · ' + dets.length + '개' : 'AI가 아무것도 찾지 못했어요 — 이게 결과이자 ‘비평거리’예요.', '사진');
+      applyDetections(dets, dets.length ? 'AI 감지 완료 · ' + dets.length + '개' : 'AI가 아무것도 찾지 못했어요. 이게 결과이자 ‘비평거리’예요.', '사진');
     } catch (e) {
       setStatus('AI 모델을 불러오지 못했어요(네트워크 차단/오프라인일 수 있어요). 아래 ‘오프라인 예시’로 객체 감지가 무엇인지 체험해 보세요.', 'warn');
     } finally { busy = false; if (btn) { btn.disabled = false; btn.textContent = '🤖 AI로 사물 감지'; } }
@@ -461,7 +461,7 @@
     cv.width = Math.min(maxDim, img.width); cv.height = Math.round(cv.width / ar);
     cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
     srcCanvas = cv; detections = []; render(); summarize();
-    if (title) setStatus('‘' + title + '’ 불러옴 — ‘AI로 사물 감지’를 눌러 보세요.');
+    if (title) setStatus('‘' + title + '’을 불러왔어요. ‘AI로 사물 감지’를 눌러 보세요.');
     if (autoDetect) detectReal();
   }
   function loadFile(file) {
@@ -477,13 +477,13 @@
     setStatus('명화 불러오는 중…');
     ImageAnalysis.loadPainting(name, (cv, title, isFallback) => {
       srcCanvas = cv; detections = []; render(); summarize();
-      setStatus('‘' + (title || '명화') + '’' + (isFallback ? ' (오프라인 대체)' : '') + ' — ‘AI로 사물 감지’를 누르면, AI가 ‘사진으로 배운 눈’으로 명화를 얼마나 못 보는지 확인할 수 있어요.');
+      setStatus('‘' + (title || '명화') + '’' + (isFallback ? ' (오프라인 대체)' : '') + '. ‘AI로 사물 감지’를 누르면, AI가 ‘사진으로 배운 눈’으로 명화를 얼마나 못 보는지 확인할 수 있어요.');
     });
   }
   function loadStreetDemo() {
     stopLive();
     const { cv, baked } = drawStreet(720, 480);
-    srcCanvas = cv; applyDetections(baked, '오프라인 예시 장면 · baked 감지(네트워크 없이도 작동) — 실제 AI 감지는 사진을 업로드해 보세요.', '예시');
+    srcCanvas = cv; applyDetections(baked, '오프라인 예시 장면 · baked 감지(네트워크 없이도 작동). 실제 AI 감지는 사진을 업로드해 보세요.', '예시');
   }
 
   /* ----------------------------- 춤추는 점(감지 → 미디어아트) ----------------------------- */

@@ -2,11 +2,11 @@
 
 > **붙이는 계획서가 아니라, 붙어 있는 상태의 설명서입니다.**
 > (원본 계획서는 `art-ai-education-lab/content/worksheets/INTEGRATION.md` 에 그대로 있습니다.)
-> `firestore.rules` 와 `cloud-config.js` 는 손대지 않았습니다 — 아래 A 참고.
+> `firestore.rules` 와 `cloud-config.js` 는 손대지 않았습니다. 아래 A 참고.
 
 ---
 
-## A. 저장 — 학습지 한 장 = 작업노트 한 건
+## A. 저장: 학습지 한 장 = 작업노트 한 건
 
 `config/firestore.rules` 의 마지막 줄이 **모르는 컬렉션을 전부 막습니다.**
 
@@ -45,10 +45,10 @@ match /{document=**} { allow read, write: if false; }
 클라우드 모드의 `listNotes` 는 **notes 컬렉션을 통째로 읽습니다**(`where` 절이 없습니다).
 학습지 단추가 14개 화면에 뜨므로, 단추가 저장소를 읽으면 한 시간 수업에 학급 전체 노트를 수백 번 읽게 됩니다.
 
-- **읽어도 되는 곳** — `worksheet.html`(답이 필요하다) · `admin.html`(교사가 한 번 본다)
-- **읽으면 안 되는 곳** — 스튜디오 단추(`mountLauncher`) · 허브 묶음(`mountHub`)
+- **읽어도 되는 곳**: `worksheet.html`(답이 필요하다) · `admin.html`(교사가 한 번 본다)
+- **읽으면 안 되는 곳**: 스튜디오 단추(`mountLauncher`) · 허브 묶음(`mountHub`)
 
-두 곳은 대신 **이 기기의 진행률 요약**(`localStorage['dn_ws_prog']` — `{userId, sheets:{s1:{filled,total,pct}}}`)만
+두 곳은 대신 **이 기기의 진행률 요약**(`localStorage['dn_ws_prog']`, `{userId, sheets:{s1:{filled,total,pct}}}`)만
 읽습니다. 요약은 학습지를 저장할 때마다 갱신되고, 학습지 화면을 열면 저장소 원본으로 다시 맞춰집니다.
 다른 기기에서 쓴 진행률은 그 기기에서 학습지를 한 번 열기 전까지 표시되지 않습니다(표시만 그렇고, 답은 언제나 안전합니다).
 
@@ -64,12 +64,12 @@ match /{document=**} { allow read, write: if false; }
 
 | 파일 | 하는 일 |
 |---|---|
-| `worksheet.html` | 학습지 화면 — 왼쪽 단원 차례 · 오른쪽 학습지 한 장 · 인쇄는 학습지만 |
+| `worksheet.html` | 학습지 화면. 왼쪽 단원 차례 · 오른쪽 학습지 한 장 · 인쇄는 학습지만 |
 | `js/worksheet.js` | `COURSE`(차시↔단계↔화면) · 자동 저장 · 순차 진행 · 이월 한 줄 · 스튜디오 단추 · 허브 묶음 |
 | `js/ui.js` | 상단 **배우기 → 학습지** 한 줄 |
 | `hub.html` · `journey.html` | `WS.mountHub()` 차시 묶음, 4단계 노드에 `WS.tagStageNodes()` 꼬리표 |
-| 스튜디오·도구 14개 화면 | 끝에 `js/worksheet.js`(defer) + `WS.mountLauncher()` — 오른쪽 아래 `📄 N차시 학습지` |
-| `admin.html` | **D-6 학습지 탭** — 차시별 제출률 · 학생×차시 격자 · 칸별 답 · CSV 2종 |
+| 스튜디오·도구 14개 화면 | 끝에 `js/worksheet.js`(defer) + `WS.mountLauncher()`. 오른쪽 아래 `📄 N차시 학습지` |
+| `admin.html` | **D-6 학습지 탭**: 차시별 제출률 · 학생×차시 격자 · 칸별 답 · CSV 2종 |
 | `js/metrics.js` | 학습지 노트를 D-1(7단계 진행)·D-3(타임라인)에 반영. 노트가 가진 `klass` 로 가명 코드를 맞춘다 |
 | `js/portfolio.js` | A4 포트폴리오에 차시별 완성도 + **차시마다 넘긴 한 줄** |
 | `js/studio-data.js` · `data/bodyfat.csv` | 6차시 자료를 샘플 목록에 등록(‘숫자가 사람을 말할 수 있을까’) |
@@ -89,7 +89,7 @@ match /{document=**} { allow read, write: if false; }
 
 이 폴더는 `art-ai-education-lab/content/worksheets` 의 사본입니다. 붙이면서 **내용 한 곳**을 고쳤습니다.
 
-- `unit-data-eye/07-words-in-color.json` — 7차시 ‘낱말 구름 스튜디오’ 화면이 **생겼습니다**
+- `unit-data-eye/07-words-in-color.json`: 7차시 ‘낱말 구름 스튜디오’ 화면이 **생겼습니다**
   (`studio-word.html`). `screens[0]` 을 `page: 'studio-word.html', exists: true` 로 바꾸고 `gap`·`gaps` 를 지웠습니다.
   → **원본 꾸러미에도 같은 수정을 넣어 두면** 두 곳이 어긋나지 않습니다.
 - `preview.html` · `roster/` · `instances/` 는 가져오지 않았습니다(작업용·학생 자료).

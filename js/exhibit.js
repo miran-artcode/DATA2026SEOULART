@@ -48,14 +48,14 @@
       <div class="stage">
         <div class="art">${artMedia}</div>
         <div class="info">
-          <div class="eyebrow2">데이터의 눈 · 학생 전시</div>
+          <div class="eyebrow2">오늘의 시선 · 학생 전시</div>
           <h1>${esc(w.title || '제목 없음')}</h1>
           <div class="artist">${esc(w.by || '익명')} <span class="badge">${KIND[w.kind] || w.kind}</span></div>
           ${w.statement ? `<div class="statement">${esc(w.statement)}</div>` : ''}
-          ${w.intent ? `<div class="statement"><b>작가노트</b> — ${esc(w.intent)}</div>` : ''}
+          ${w.intent ? `<div class="statement"><b>작가노트</b>: ${esc(w.intent)}</div>` : ''}
           ${w.evidence ? `<div class="statement muted">근거 · ${esc(w.evidence)}</div>` : ''}
           ${st ? `<div class="meta">${esc(st)}</div>` : ''}
-          ${procCount ? `<div class="meta">🧭 과정·성찰 ${procCount}편 — QR을 스캔해 학습 과정도 함께 보세요</div>` : ''}
+          ${procCount ? `<div class="meta">🧭 과정·성찰 ${procCount}편 · QR을 스캔해 학습 과정도 함께 보세요</div>` : ''}
           ${window.Docent ? `<details class="meta"><summary style="cursor:pointer;color:var(--accent2)">🎙 도슨트 해설</summary><div style="margin-top:6px;line-height:1.7">${esc(Docent.commentary(w))}</div></details>` : ''}
           <div class="qr-box">
             <canvas id="qr"></canvas>

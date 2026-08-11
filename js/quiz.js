@@ -91,7 +91,7 @@
   function renderOptionsEdit() {
     const host = $('#q-options-edit'); host.innerHTML = '';
     if (qGen.free) {
-      host.innerHTML = '<label class="field">정답 (여러 표현 허용: 쉼표로 구분)</label><input id="q-free-answer" type="text" placeholder="예: 빨강, 빨간색, red"><p class="muted" style="font-size:11px;margin-top:4px">문제는 위 칸에 자유롭게 — 점 개수·매핑·느낌 무엇이든 물어보세요!</p>';
+      host.innerHTML = '<label class="field">정답 (여러 표현 허용: 쉼표로 구분)</label><input id="q-free-answer" type="text" placeholder="예: 빨강, 빨간색, red"><p class="muted" style="font-size:11px;margin-top:4px">문제는 위 칸에 자유롭게 쓰세요. 점 개수·매핑·느낌 무엇이든 물어봐도 좋아요.</p>';
       return;
     }
     if (qGen.custom) {

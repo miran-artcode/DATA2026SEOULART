@@ -1,4 +1,4 @@
-# 이전 가이드 — 새 GitHub · 새 Firebase로 옮기기
+# 이전 가이드: 새 GitHub · 새 Firebase로 옮기기
 
 이 폴더 전체가 사이트입니다(설치·서버 불필요, 정적 사이트). 새 **GitHub 계정**과 새 **Firebase 계정**으로 옮기는 순서를 정리했어요.
 
@@ -19,7 +19,7 @@
      git push -u origin main
      ```
 
-3. **GitHub Pages 켜기** — 두 방법 중 하나
+3. **GitHub Pages 켜기**: 두 방법 중 하나
    - **(자동, 권장)** 이 프로젝트엔 `.github/workflows/pages.yml`이 들어 있어, `main`에 푸시하면 자동 배포됩니다. 저장소 `Settings → Pages → Build and deployment → Source = GitHub Actions` 로 두면 끝.
    - **(수동)** `Settings → Pages → Source = Deploy from a branch → main / (root)` 선택.
 
@@ -30,7 +30,7 @@
 
 ---
 
-## B. 새 Firebase 계정에 연결(실시간 공유 — 선택)
+## B. 새 Firebase 계정에 연결(실시간 공유, 선택)
 
 실시간 공유(여러 학생 작품이 한 갤러리에 모임)를 쓰려면 Firebase가 필요합니다. **안 써도** 사이트는 ‘로컬 저장’으로 그대로 동작합니다(작품이 그 기기에만 저장).
 
@@ -70,7 +70,7 @@
 2. **새 사이트**의 `admin.html` → **‘불러오기/가져오기’**로 그 JSON을 넣으면 병합됩니다.
    - 또는 Firebase 콘솔에서 Firestore를 직접 export/import 해도 됩니다.
 
-⚠ **미성년자 정보**입니다 — 학교 개인정보 방침을 먼저 확인하고, 단원이 끝나면 옛 프로젝트의 데이터는 정리/삭제하세요.
+⚠ **미성년자 정보**입니다. 학교 개인정보 방침을 먼저 확인하고, 단원이 끝나면 옛 프로젝트의 데이터는 정리/삭제하세요.
 
 ---
 

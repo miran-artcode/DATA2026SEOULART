@@ -754,7 +754,7 @@
   /* ===================== UI 채우기 ===================== */
   function fillSelects() {
     const sa = $('#sel-artist');
-    sa.innerHTML = '<option value="">— 직접 입력 —</option>' + Object.keys(ARTISTS).map(k => `<option value="${k}">${esc(ARTISTS[k].name)} · ${esc(ARTISTS[k].caption.split('(')[0].trim())}</option>`).join('');
+    sa.innerHTML = '<option value="">직접 입력</option>' + Object.keys(ARTISTS).map(k => `<option value="${k}">${esc(ARTISTS[k].name)} · ${esc(ARTISTS[k].caption.split('(')[0].trim())}</option>`).join('');
     const sp = $('#sel-painting');
     const P = ImageAnalysis.PAINTINGS || {};
     sp.innerHTML = Object.keys(P).map(k => `<option value="${k}">${esc(P[k].title)}</option>`).join('');
@@ -850,7 +850,7 @@
     $('#ta-text').value = a.text;
     $('#in-name').value = a.name; state.name = a.name;
     $('#in-caption').value = a.caption.split('(')[0].trim(); state.caption = $('#in-caption').value;
-    if (!$('#in-title').value) $('#in-title').value = a.name + ' — 감상으로 만든 낱말 구름';
+    if (!$('#in-title').value) $('#in-title').value = a.name + ' 감상으로 만든 낱말 구름';
     analyzeText();
     if (loadPaint && a.painting) { const sp = $('#sel-painting'); if (sp) sp.value = a.painting; loadPaintingByKey(a.painting); }
   }

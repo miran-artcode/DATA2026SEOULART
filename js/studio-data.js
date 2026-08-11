@@ -19,31 +19,31 @@
   const SAMPLES = {
     spotify: { name: '음악 감정 지도(Spotify)', file: 'spotify', bundleRows: 5000, fullRows: 32833, source: 'https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset',
       map: { size: '에너지', colorMode: 'gradient', colorField: '긍정도', gradLow: '#2740c8', gradHigh: '#ffd23c', layout: 'flowField', motionStyle: 'wave', vib: 0.8 },
-      issue: '🎵 음악 감정 — 긍정도(valence)와 에너지는 함께 가지 않아요. 색=긍정도(파랑↔노랑), 크기=에너지. 수천 곡의 ‘감정 지도’. (Spotify 오디오 특징)' },
+      issue: '🎵 음악 감정: 긍정도(valence)와 에너지는 함께 가지 않아요. 색=긍정도(파랑↔노랑), 크기=에너지. 수천 곡의 ‘감정 지도’. (Spotify 오디오 특징)' },
     pokemon: { name: '강함의 모양(Pokémon)', file: 'pokemon', bundleRows: 1215, fullRows: 1215, source: 'https://www.kaggle.com/datasets/abcsds/pokemon',
       map: { size: '총합', colorMode: 'category', colorField: '타입', layout: 'flowField', motionStyle: 'orbit', vib: 0.6 },
-      issue: '⚡ 강함의 모양 — 타입=색, 총합=크기. 전국도감 1,215마리의 ‘강함의 별자리’. 어떤 타입이 센가? 분포는 공평한가?' },
+      issue: '⚡ 강함의 모양: 타입=색, 총합=크기. 전국도감 1,215마리의 ‘강함의 별자리’. 어떤 타입이 센가? 분포는 공평한가?' },
     ufo: { name: '목격의 사회학(UFO)', file: 'ufo', bundleRows: 5000, fullRows: 97714, source: 'https://www.kaggle.com/datasets/mysarahmadbhat/ufo-sightings',
       map: { size: '지속초', shape: '모양', colorMode: 'category', colorField: '모양', layout: 'flowField', motionStyle: 'wave', vib: 0.7 },
-      issue: '👽 목격의 사회학 — 모양=형태·색, 지속시간=크기. 목격은 영화·미디어와 함께 출렁여요 — 데이터는 ‘외계인’이 아니라 ‘사회’를 말해요(미디어 리터러시). (NUFORC)' },
+      issue: '👽 목격의 사회학: 모양=형태·색, 지속시간=크기. 목격은 영화·미디어와 함께 출렁여요. 데이터는 ‘외계인’이 아니라 ‘사회’를 말해요(미디어 리터러시). (NUFORC)' },
     meteorite: { name: '하늘에서 온 것들(운석)', file: 'meteorites', bundleRows: 5000, fullRows: 45716, source: 'https://www.kaggle.com/datasets/nasa/meteorite-landings',
       map: { size: '질량g', colorMode: 'category', colorField: '낙하', layout: 'flowField', motionStyle: 'burst', vib: 0.5 },
-      issue: '🌑 하늘에서 온 것들 — 질량=크기(몇 g~수십 톤!). 거대 운석 몇 개가 화면을 지배해요 — 왜 로그 스케일이 필요할까? 색=목격/발견(관측 편향). (NASA)' },
+      issue: '🌑 하늘에서 온 것들: 질량=크기(몇 g~수십 톤!). 거대 운석 몇 개가 화면을 지배해요. 왜 로그 스케일이 필요할까? 색=목격/발견(관측 편향). (NASA)' },
     earthquake: { name: '떨림의 데이터(지진)', file: 'earthquakes', bundleRows: 8265, fullRows: null, source: 'https://www.kaggle.com/datasets/usgs/earthquake-database',
       map: { size: '규모', colorMode: 'gradient', colorField: '깊이km', gradLow: '#2740c8', gradHigh: '#ff5a3c', layout: 'flowField', motionStyle: 'vibrate', vib: 1.8 },
-      issue: '🌋 떨림의 데이터 — 규모=크기·떨림, 깊이=색. 1965~2024년 규모 6 이상 지진 8,265건. 지구는 쉬지 않고 떨려요(불의 고리·로그 규모). (USGS)' },
+      issue: '🌋 떨림의 데이터: 규모=크기·떨림, 깊이=색. 1965~2024년 규모 6 이상 지진 8,265건. 지구는 쉬지 않고 떨려요(불의 고리·로그 규모). (USGS)' },
     chocolate: { name: '맛을 숫자로(초콜릿)', file: 'chocolate', bundleRows: 2530, fullRows: 2530, source: 'https://www.kaggle.com/datasets/rtatman/chocolate-bar-ratings',
       map: { size: '평점', colorMode: 'category', colorField: '원산지', layout: 'flowField', motionStyle: 'orbit', vib: 0.5 },
-      issue: '🍫 맛을 숫자로 — 평점=크기, 원산지=색. 코코아%가 높다고 평점이 높진 않아요. 맛을 숫자로 옮길 때 잃는 것은?(데이터 휴머니즘) 2,530개 바.' },
+      issue: '🍫 맛을 숫자로: 평점=크기, 원산지=색. 코코아%가 높다고 평점이 높진 않아요. 맛을 숫자로 옮길 때 잃는 것은?(데이터 휴머니즘) 2,530개 바.' },
     // 6차시 학습지가 쓰는 자료. 열 이름을 원본(영문) 그대로 두었다 — 단위가 파운드·인치·센티미터로
     // 섞여 있는 것까지가 '번역'이라는 단원 개념의 재료다. 열 설명은 worksheets/unit-data-eye/data/bodyfat.meta.json 에 있다.
     bodyfat: { name: '숫자가 사람을 말할 수 있을까(신체측정 252명)', file: 'bodyfat', bundleRows: 252, fullRows: 252, xlsx: false,
       map: { size: 'BodyFat', colorMode: 'gradient', colorField: 'Age', gradLow: '#2740c8', gradHigh: '#ffd23c', layout: 'flowField', motionStyle: 'vibrate', vib: 0.6 },
-      issue: '📏 숫자가 사람을 말할 수 있을까 — 체지방률(BodyFat)=크기, 나이(Age)=색. 252명이 <b>전원 남성</b>이고, 키 29.5인치·체지방률 0%처럼 있을 수 없는 값이 섞여 있어요. 화면은 그 점도 아무 말 없이 그립니다 — 6차시 학습지와 함께 쓰세요.' },
+      issue: '📏 숫자가 사람을 말할 수 있을까: 체지방률(BodyFat)=크기, 나이(Age)=색. 252명이 <b>전원 남성</b>이고, 키 29.5인치·체지방률 0%처럼 있을 수 없는 값이 섞여 있어요. 화면은 그 점도 아무 말 없이 그립니다. 6차시 학습지와 함께 쓰세요.' },
     student: { name: '잠과 화면의 줄다리기(학생)', map: { size: 'SNS시간', speed: '스트레스', colorMode: 'gradient', colorField: '수면시간', gradLow: '#ff5a3c', gradHigh: '#2740c8', layout: 'flowField', motionStyle: 'vibrate', vib: 1.6 },
-      issue: '😴 잠과 화면의 줄다리기 — 우리 반 친구들의 하루를 직접 입력해 만들어요(데이터 휴머니즘). SNS=크기, 수면=색(빨강=부족), 스트레스=떨림.',
+      issue: '😴 잠과 화면의 줄다리기: 우리 반 친구들의 하루를 직접 입력해 만들어요(데이터 휴머니즘). SNS=크기, 수면=색(빨강=부족), 스트레스=떨림.',
       csv: '학생,수면시간,공부시간,SNS시간,스트레스,성적\nA,7,3,2,3,82\nB,5,4,5,7,75\nC,8,2,1,2,70\nD,4,5,6,9,68\nE,6,3,4,6,80\nF,7,4,3,4,88\nG,5,2,7,8,60\nH,6,5,2,5,90\nI,4,1,8,9,55\nJ,8,3,2,3,84\nK,5,4,5,7,72\nL,6,2,6,8,64' },
-    emotion: { name: '(개인) 우리 반 하루 감정', issue: '🙂 내 삶의 데이터 — 숫자로는 평온해 보여도 사실은? (데이터 휴머니즘)', csv: '시간,감정온도,활동\n9시,3,수업\n10시,4,발표\n11시,3,토론\n12시,2,점심\n13시,2,휴식\n14시,1,체육\n15시,2,실습\n16시,4,정리\n17시,5,하교' }
+    emotion: { name: '(개인) 우리 반 하루 감정', issue: '🙂 내 삶의 데이터: 숫자로는 평온해 보여도 사실은? (데이터 휴머니즘)', csv: '시간,감정온도,활동\n9시,3,수업\n10시,4,발표\n11시,3,토론\n12시,2,점심\n13시,2,휴식\n14시,1,체육\n15시,2,실습\n16시,4,정리\n17시,5,하교' }
   };
   const STUDIO_MAX = 1800;   // 부드러운 작품을 위한 렌더용 표본 상한(받은 파일엔 전체가 들어 있음)
 
@@ -176,7 +176,7 @@
       m.catColors = {}; m.catShapes = {}; assignCatColors();
       state.layout = 'timeline';                              // 시간(회차) 순서가 가로축
       state.motionStyle = 'wave';
-      return '🔎 객체 감지 자동기록을 자동 매핑했어요 — 가로축=시간 순서, 점 크기=사물 크기, 색=사물 종류, 투명도=신뢰도, 밀도=장면 속 개수. 매핑은 자유롭게 바꿀 수 있어요.';
+      return '🔎 객체 감지 자동기록을 자동 매핑했어요. 가로축=시간 순서, 점 크기=사물 크기, 색=사물 종류, 투명도=신뢰도, 밀도=장면 속 개수. 매핑은 자유롭게 바꿀 수 있어요.';
     }
     if (has('밝기') && has('움직임')) {                       // ← 실시간 관찰 기록 형태
       m.size = has('소리') ? '소리' : '밝기';                  // 소리(또는 밝기)가 클수록 큰 점
@@ -188,7 +188,7 @@
       m.colorMode = 'gradient'; m.colorField = '밝기'; m.gradLow = '#0E0A2E'; m.gradHigh = '#E6F5A6';  // 어두움→밝음
       m.catColors = {}; m.catShapes = {};
       state.layout = 'timeline'; state.motionStyle = 'wave';
-      return '🔎 실시간 관찰 기록을 자동 매핑했어요 — 가로축=시간, 점 크기=소리/밝기, 색=밝기(어두움→밝음), 속도=움직임, 투명도=채도. 매핑은 자유롭게 바꿀 수 있어요.';
+      return '🔎 실시간 관찰 기록을 자동 매핑했어요. 가로축=시간, 점 크기=소리/밝기, 색=밝기(어두움→밝음), 속도=움직임, 투명도=채도. 매핑은 자유롭게 바꿀 수 있어요.';
     }
     return null;
   }
@@ -197,7 +197,7 @@
   function fieldOptions(sel, kind, includeNone, selected) {
     if (!sel) return;
     const fields = kind === 'num' ? numFields() : state.dataset.fields;
-    let html = includeNone ? '<option value="">— 없음 —</option>' : '';
+    let html = includeNone ? '<option value="">없음</option>' : '';
     fields.forEach(f => { html += '<option value="' + esc(f.name) + '"' + (f.name === selected ? ' selected' : '') + '>' + esc(f.name) + (f.type === 'cat' ? '(범주)' : '') + '</option>'; });
     sel.innerHTML = html;
   }
@@ -323,7 +323,7 @@
   function numRead(s) {
     const p = [];
     if (s.n > 2 && Math.abs(s.slope) > s.std * 0.6) p.push(s.slope > 0 ? '값이 갈수록 커져요(상승)' : '값이 갈수록 작아져요(하락)');
-    if (ineqOK(s) && s.cv > 0.6) p.push('편차가 매우 커요 — 쏠림·불평등');
+    if (ineqOK(s) && s.cv > 0.6) p.push('편차가 매우 커요(쏠림·불평등)');
     else if (s.cv < 0.15) p.push('대체로 고른 편');
     if (s.maxZ > 2.2) p.push('평균에서 크게 벗어난 값(이상치)');
     return p.length ? p.join(' · ') : '완만한 분포';
@@ -343,9 +343,9 @@
   }
   function diagText(pr) {
     const s = pr.s, nm = pr.name;
-    if (pr.kind === 'inequality') return '‘' + nm + '’의 최댓값 ' + fmtNum(s.max) + '이(가) 중앙값 ' + fmtNum(s.median) + '의 약 ' + (s.ratio).toFixed(1) + '배 — 쏠림·불평등이 큽니다.';
-    if (pr.kind === 'trend') return '‘' + nm + '’이(가) ' + (s.slope > 0 ? '꾸준히 상승' : '꾸준히 하락') + '(' + fmtNum(s.first) + '→' + fmtNum(s.last) + ') — 흐름이 만든 변화예요.';
-    return '‘' + nm + '’에 평균에서 크게 벗어난 값(이상치)이 있어요 — 그 점이 곧 메시지일 수 있어요.';
+    if (pr.kind === 'inequality') return '‘' + nm + '’의 최댓값 ' + fmtNum(s.max) + '이(가) 중앙값 ' + fmtNum(s.median) + '의 약 ' + (s.ratio).toFixed(1) + '배입니다. 쏠림·불평등이 커요.';
+    if (pr.kind === 'trend') return '‘' + nm + '’이(가) ' + (s.slope > 0 ? '꾸준히 상승' : '꾸준히 하락') + '(' + fmtNum(s.first) + '→' + fmtNum(s.last) + '). 흐름이 만든 변화예요.';
+    return '‘' + nm + '’에 평균에서 크게 벗어난 값(이상치)이 있어요. 그 점이 곧 메시지일 수 있어요.';
   }
   function spark(vals) {
     const w = 132, h = 26, n = vals.length; if (n < 2) return '';
@@ -379,8 +379,8 @@
     syncMotion(); populateFieldSelects(); renderColorUI(); build();
     const diag = $('#analysis-diag');
     if (diag) diag.innerHTML = '<b>⚠ 문제 신호</b> · ' + esc(diagText(pr)) +
-      '<br><span class="muted" style="font-size:11px">→ 큰 값일수록 크고 뜨겁게, 세로로 벌어지게, 변화는 떨림으로 — 데이터의 문제점을 작품으로 드러냈어요.</span>';
-    UI.toast('문제 강조 적용 — ‘' + pr.name + '’의 ' + ({ inequality: '불평등', trend: '추세', outlier: '이상치' }[pr.kind]) + '을 시각화합니다.');
+      '<br><span class="muted" style="font-size:11px">→ 큰 값일수록 크고 뜨겁게, 세로로 벌어지게, 변화는 떨림으로 표현했어요. 데이터의 문제점이 작품으로 드러납니다.</span>';
+    UI.toast('문제 강조 적용: ‘' + pr.name + '’의 ' + ({ inequality: '불평등', trend: '추세', outlier: '이상치' }[pr.kind]) + '을 시각화합니다.');
   }
   // 샘플의 '추천 매핑'을 적용(autoMapping을 덮어써 의미 있는 첫 작품을 보여준다)
   function applyRecommended(map) {
@@ -408,7 +408,7 @@
     const el = $('#dataset-download'); if (!el) return;
     if (!s || !s.file) { el.innerHTML = ''; return; }
     const fmt = n => n ? n.toLocaleString() : '';
-    el.innerHTML = '📥 <b>전체 데이터 받기</b> — '
+    el.innerHTML = '📥 <b>전체 데이터 받기</b>: '
       + (s.xlsx === false ? '' : '<a class="dl" href="data/' + s.file + '.xlsx" download>엑셀(.xlsx)</a> · ')
       + '<a class="dl" href="data/' + s.file + '.csv" download>CSV</a>'
       + (s.source ? ' · <a class="dl" href="' + s.source + '" target="_blank" rel="noopener">원본(캐글' + (s.fullRows ? ' ' + fmt(s.fullRows) + '행' : '') + ')</a>' : '')
@@ -425,7 +425,7 @@
       let csv;
       try { const r = await fetch('data/' + s.file + '.csv'); if (!r.ok) throw new Error(r.status); csv = await r.text(); }
       catch (e) { if (di) di.textContent = '데이터를 불러오지 못했어요(' + e.message + ').'; UI.toast('데이터 로드 실패'); return; }
-      $('#ta-data').value = '(' + s.name + ' · 원본 데이터에서 불러옴 — 아래에서 전체 받기)';
+      $('#ta-data').value = '(' + s.name + ' · 원본 데이터에서 불러옴, 아래에서 전체 받기)';
       applyDataset(parseData(csv), s.name);
     } else {
       $('#ta-data').value = s.csv;
@@ -442,7 +442,7 @@
     ds.rows.slice(0, 5).forEach(r => { html += '<tr>' + cols.map(c => '<td>' + esc(r[c] == null ? '' : r[c]) + '</td>').join('') + '</tr>'; });
     html += '</tbody></table></div><p class="muted" style="font-size:11px;margin:4px 0 8px">총 ' + ds.n + '행 · 열 ' + ds.fields.length + '개 (앞 5행)</p>';
     html += '<div id="analysis-diag" class="adiag"></div>';
-    html += '<button id="btn-problem" class="btn wide accent2" style="margin:2px 0 12px">⚠ 문제 강조 — 데이터의 문제점을 작품으로</button>';
+    html += '<button id="btn-problem" class="btn wide accent2" style="margin:2px 0 12px">⚠ 문제 강조: 데이터의 문제점을 작품으로</button>';
     ds.fields.forEach(f => {
       if (f.type === 'num') {
         const s = numStats(f.name); if (!s) return;
@@ -496,7 +496,7 @@
     applyDataset(ds, d.name || '가져온 데이터');
     const smart = smartMapIncoming();
     if (smart) { syncMotion(); populateFieldSelects(); renderColorUI(); build(); }
-    const di = $('#data-issue'); if (di) di.textContent = d.issue || smart || '🔗 다른 스튜디오에서 온 데이터예요 — 어떤 열을 점의 무엇으로 바꿀지 설계해 보세요.';
+    const di = $('#data-issue'); if (di) di.textContent = d.issue || smart || '🔗 다른 스튜디오에서 온 데이터예요. 어떤 열을 점의 무엇으로 바꿀지 설계해 보세요.';
     if (window.UI) UI.toast('다른 스튜디오에서 온 데이터를 불러왔어요.');
     return true;
   }
@@ -579,7 +579,7 @@
     const s = [];
     if (ruleA) s.push('<b style="color:var(--good)">A</b> = ' + esc(describeRule(ruleA)));
     if (ruleB) s.push('<b style="color:var(--accent2)">B</b> = ' + esc(describeRule(ruleB)));
-    if (ruleA && ruleB) s.push('<b style="color:var(--accent)">차이</b>: ' + (esc(diffRules(ruleA, ruleB)) || '없음') + ' — ‘A/B 전환’으로 비교해 보세요.');
+    if (ruleA && ruleB) s.push('<b style="color:var(--accent)">차이</b>: ' + (esc(diffRules(ruleA, ruleB)) || '없음') + '. ‘A/B 전환’으로 비교해 보세요.');
     el.innerHTML = s.join('<br>');
   }
 
@@ -587,7 +587,7 @@
   function rulesText() { return describeRule({ mapping: state.mapping }); }
   function mdToHtml(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/_(.+?)_/g, '<i>$1</i>').replace(/\n/g, '<br>'); }
   async function coach() {
-    UI.modal('🧭 감상 코치', '<div class="spinner"></div> 질문을 준비하는 중…', '답이 아니라 질문이에요');
+    UI.modal('🧭 감상 코치', '<div class="spinner"></div> 질문을 준비하는 중…', '여기서는 질문만 드려요');
     if (window.Log) Log.push({ stage: 'judge', action: 'coach_ask', workId: Log.workId(), payload: { where: 'studio-data' } });
     const res = await Coach.ask({ kind: 'data', intent: $('#in-intent').value, dataName: $('#in-dataname').value || state.dataName, rules: rulesText() });
     const note = res.source.indexOf('api') === 0 ? '실제 모델' : '오프라인 코치';
@@ -664,21 +664,21 @@
     // 요소별 안내(마우스 오버) — 학생이 무엇을 할지/왜 흥미로운지
     (function () {
       const tips = [
-        '먼저 데이터를 골라요 — 사회문제 샘플 또는 직접 입력/CSV·엑셀. 작성 양식도 받을 수 있어요.',
-        '올린 데이터를 자동 분석해요 — 열별 분포를 보고 한 번에 매핑하거나 ‘문제 강조’로 문제점을 드러내요.',
+        '먼저 데이터를 골라요. 사회문제 샘플 또는 직접 입력/CSV·엑셀. 작성 양식도 받을 수 있어요.',
+        '올린 데이터를 자동 분석해요. 열별 분포를 보고 한 번에 매핑하거나 ‘문제 강조’로 문제점을 드러내요.',
         '어떤 열을 점의 어떤 특성(크기·속도·방향·밀도·색·형태)으로 바꿀지 직접 설계해요.',
         '기본 속도·진동·잔상으로 움직임의 결을 정해요.',
-        '‘객관적 데이터’ 뒤의 내 선택을 적어요 — 무엇을 셌고 무엇을 일부러 뺐는지.',
+        '‘객관적 데이터’ 뒤의 내 선택을 적어요. 무엇을 셌고 무엇을 일부러 뺐는지.',
         '저장·전시 전에 의도 한 문장 + 근거 1개를 채워요(근거가 먼저).',
         '코치에게 질문받고, 이미지·작업노트·전시로 내보내요.'
       ];
       document.querySelectorAll('.dpanel > details > summary').forEach((s, i) => { if (tips[i]) s.title = tips[i]; });
       const tip = (sel, t) => { const el = $(sel); if (el) el.title = t; };
-      tip('#r-speed', '전체 속도 — 작으면 잔잔, 크면 활발해요.');
-      tip('#r-vib', '떨림 — 0이면 고요, 크면 들썩여요.');
+      tip('#r-speed', '전체 속도: 작으면 잔잔, 크면 활발해요.');
+      tip('#r-vib', '떨림: 0이면 고요, 크면 들썩여요.');
       tip('#r-trail', '낮출수록 자취(궤적)가 남아 ‘흐름’이 보여요.');
-      tip('#map-colormode', '수치는 그라데이션, 범주는 라벨별 색 — 색상환에서 직접 골라요.');
-      tip('#sel-sample', '사회문제와 연결된 예시 — 의미 있는 시각화로.');
+      tip('#map-colormode', '수치는 그라데이션, 범주는 라벨별 색이에요. 색상환에서 직접 골라요.');
+      tip('#sel-sample', '사회문제와 연결된 예시예요.');
     })();
 
     $('#sel-sample').addEventListener('change', e => loadSample(e.target.value));
@@ -725,8 +725,8 @@
     $('#sel-motionstyle').addEventListener('change', e => { state.motionStyle = e.target.value; });
     $('#sel-data-bg').addEventListener('change', e => { state.bg = e.target.value; });
 
-    $('#btn-ruleA').addEventListener('click', () => { ruleA = snapRule(); renderAB(); UI.toast('규칙 A 저장됨 — 매핑을 바꿔 규칙 B도 저장해 비교하세요.'); });
-    $('#btn-ruleB').addEventListener('click', () => { ruleB = snapRule(); renderAB(); UI.toast('규칙 B 저장됨 — ‘A/B 전환’으로 비교하세요.'); });
+    $('#btn-ruleA').addEventListener('click', () => { ruleA = snapRule(); renderAB(); UI.toast('규칙 A 저장됨. 매핑을 바꿔 규칙 B도 저장해 비교하세요.'); });
+    $('#btn-ruleB').addEventListener('click', () => { ruleB = snapRule(); renderAB(); UI.toast('규칙 B 저장됨. ‘A/B 전환’으로 비교하세요.'); });
     $('#btn-ab').addEventListener('click', () => {
       if (!ruleA || !ruleB) { UI.toast('먼저 규칙 A·B를 저장하세요.'); return; }
       abFlag = !abFlag; applyRule(abFlag ? ruleB : ruleA); renderAB();

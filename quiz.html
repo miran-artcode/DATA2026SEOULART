@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>분석 퀴즈 · 데이터의 눈</title>
+<title>분석 퀴즈 · 오늘의 시선</title>
 <link rel="stylesheet" href="css/site.css" />
 <style>
   .qopt { display: block; width: 100%; text-align: left; margin: 7px 0; padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel2); color: var(--text); cursor: pointer; font: inherit; font-size: 14px; transition: .12s; }
@@ -25,8 +25,8 @@
 <div class="wrap">
   <div class="page-head">
     <span class="eyebrow">분석 퀴즈</span>
-    <h1>그림을 읽고, 맞히고, 겨루기</h1>
-    <p>친구가 올린 그림·색분석 차트를 보고 <b>지배색·색채 조화·구도</b>를 맞혀 보세요. 직접 <b>출제</b>해 친구들에게 도전장을!</p>
+    <h1>출제하고 맞히는 그림 분석 퀴즈</h1>
+    <p>친구가 올린 그림·색분석 차트를 보고 <b>지배색·색채 조화·구도</b>를 맞혀 보세요. 직접 <b>출제</b>해 친구들에게 낼 수도 있어요.</p>
   </div>
   <div id="idea"></div>
 
@@ -72,7 +72,7 @@
               <option value="harmony">색채 조화 맞히기</option>
               <option value="temp">색 온도(난색/한색)</option>
               <option value="composition">구도(무게중심)</option>
-              <option value="free">주관식 — 직접 답 입력(게임형)</option>
+              <option value="free">주관식: 직접 답 입력(게임형)</option>
               <option value="custom">직접 만들기(서술형 보기)</option>
             </select>
             <label class="field">함께 보여줄 차트</label>
@@ -85,9 +85,9 @@
             <div id="q-options-edit" style="margin-top:8px"></div>
             <label class="field">해설 · 선택 이유 <span class="muted" style="font-size:11px">(정답 공개 후 표시)</span></label>
             <textarea id="q-explain" rows="2" placeholder="왜 그렇게 분석했는지 근거를 적어요"></textarea>
-            <label class="field">💡 힌트 (선택) — 푸는 사람에게 줄 단서</label>
+            <label class="field">💡 힌트 (선택): 푸는 사람에게 줄 단서</label>
             <input id="q-hint" type="text" placeholder="예: 가장 넓은 조각을 보세요">
-            <label class="field">🧑 내 이야기 (선택) — 내 일상/사진이면 들려주세요</label>
+            <label class="field">🧑 내 이야기 (선택): 내 일상/사진이면 들려주세요</label>
             <input id="q-story" type="text" placeholder="예: 어제 우리 동네 노을을 직접 찍었어요">
           </div>
         </div>

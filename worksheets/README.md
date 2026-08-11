@@ -1,4 +1,4 @@
-# 학습지 꾸러미 — 내용 패키지
+# 학습지 꾸러미: 내용 패키지
 
 > 학습지를 **내용(JSON)** 과 **표시(렌더러)** 로 나눠 둔 폴더입니다.
 > 지금 하시는 다른 작업과 파일이 겹치지 않습니다. 이 폴더만 통째로 옮기면 어느 사이트에서든 그대로 씁니다.
@@ -25,7 +25,7 @@ content/worksheets/
 ├─ render/
 │  ├─ worksheet.js        ← 렌더러 (의존성 0 · 어느 사이트에나 붙음)
 │  └─ worksheet.css       ← 화면 + A4 인쇄 한 벌
-├─ roster/                ← (선택) 학급 명부 CSV — 코드만, 이름 금지
+├─ roster/                ← (선택) 학급 명부 CSV(코드만, 이름 금지)
 ├─ instances/             ← (자동) 학생별 빈 사본. git 에 올리지 않음
 └─ unit-data-eye/
    ├─ unit.json           ← 단원 메타: 개념·본질적 질문·일반화·루브릭·자기점검
@@ -83,7 +83,7 @@ cd content/worksheets && npx serve .     # 또는 python -m http.server 8000
 | `freewrite` | 큰 칸 한 개 (`maxChars` 가능) | `s7.artist_statement.text` |
 | `static` | 입력 없음(표지의 개념·질문·차례) | — |
 
-블록에 붙는 교육적 속성 — 이 값들 덕분에 나중에 자동 정리가 됩니다.
+블록에 붙는 교육적 속성입니다. 이 값들 덕분에 나중에 자동 정리가 됩니다.
 
 - `evidence`: `product` · `process` · `understanding` (증거 세 층)
 - `rubric`: `true` 면 루브릭 4수준으로 채점하는 칸
@@ -115,6 +115,6 @@ cd content/worksheets && npx serve .     # 또는 python -m http.server 8000
 - 단원 1개(`data-eye`) · 학습지 9장(표지 + 8차시) · 저장 칸 163개 · 루브릭 대상 68개
 - 6차시 자료: `unit-data-eye/data/bodyfat.csv` (성인 남성 252명 · 15열) + `bodyfat.meta.json`(열 이름·단위·특이점).
   사이트에도 `data/bodyfat.csv` 로 등록되어 데이터 점 스튜디오 샘플 목록에서 바로 열립니다.
-- 알려진 공백 없음 — 7차시 ‘낱말 구름 스튜디오’는 `studio-word.html` 로 연결되었습니다.
+- 알려진 공백 없음. 7차시 ‘낱말 구름 스튜디오’는 `studio-word.html` 로 연결되었습니다.
 - **이 사이트에 붙어 있습니다.** 어떻게 붙었는지·무엇이 원본과 다른지는 `INTEGRATION.md`.
   내용을 고친 뒤에는 반드시 `node worksheets/build.mjs` 를 돌려야 진행률·교사 화면에 반영됩니다.

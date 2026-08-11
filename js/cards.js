@@ -65,7 +65,7 @@
       ph: '예: 값→크기 대신 값→속도를 골랐다. 크기는 한눈에 보이지만, 속도는 “쉬지 못한다”는 느낌을 몸으로 전하기 때문이다',
       q(ctx) {
         const qs = ['지금 확정하려는 규칙을 <b>한 문장</b>으로 적어 보세요. 그리고 <b>고려했지만 버린 다른 규칙</b> 하나와, 버린 이유를 적어 보세요.'];
-        if (ctx.rules) qs.push(`현재 규칙: <i>${DNW.esc(String(ctx.rules))}</i> — 이 규칙이 의도를 <b>받쳐 주나요</b>, 아니면 그저 <b>재미있나요</b>?`);
+        if (ctx.rules) qs.push(`현재 규칙: <i>${DNW.esc(String(ctx.rules))}</i>. 이 규칙이 의도를 <b>받쳐 주나요</b>, 아니면 그저 <b>재미있나요</b>?`);
         qs.push('이 선택을 친구가 “왜 그렇게 했어?”라고 물으면, 취향 말고 <b>작품의 의도</b>로 답할 수 있나요?');
         return qs;
       }
@@ -96,7 +96,7 @@
       function render() {
         const done = read()[widOf()] || {};
         host.innerHTML = `<div class="dnw-panel">
-          <h4>🃏 질문 카드 — 답이 아니라 질문이에요</h4>
+          <h4>🃏 질문 카드: 여기서는 질문만 드려요</h4>
           <p class="dnw-sub">지금 화면을 읽고 되묻습니다. 여기에 남긴 한 줄이 <b>판단의 흔적</b>으로 기록돼요.</p>
           <div class="dnw-cards">${CARDS.map(c => `
             <button class="dnw-card ${done[c.key] ? 'done' : ''}" data-card="${c.key}">

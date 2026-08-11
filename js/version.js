@@ -54,7 +54,7 @@
       opts = opts || {};
       const esc = DNW.esc;
       host.innerHTML = `<div class="dnw-panel">
-        <h4>📸 버전 기록 — 첫 결과에 머물지 않기</h4>
+        <h4>📸 버전 기록: 첫 결과에 머물지 않기</h4>
         <p class="dnw-sub">설정을 바꿀 때마다 <b>버전을 저장</b>해 두면, 두 버전을 나란히 놓고
           “무엇을 왜 바꿨는가”를 말할 수 있어요. 이 기록이 그대로 <b>수정의 근거</b>가 됩니다.</p>
         <div class="dnw-vlist" id="dnw-vlist"><span class="dnw-sub">아직 저장한 버전이 없어요.</span></div>

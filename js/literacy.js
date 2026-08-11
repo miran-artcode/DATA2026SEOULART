@@ -26,7 +26,7 @@
       lead: '그림은 이미 데이터다',
       read: `화면의 그림은 아주 작은 사각형(<b>픽셀</b>) 수십만 개로 되어 있고, 픽셀 하나는
         <b>빨강·초록·파랑</b>의 세기를 각각 0~255로 적은 <b>숫자 세 개</b>일 뿐이다.
-        그러니 “미술을 데이터로 바꾼다”는 말은 정확하지 않다 — 디지털 그림은 <b>처음부터 데이터였다</b>.
+        그러니 “미술을 데이터로 바꾼다”는 말은 정확하지 않다. 디지털 그림은 <b>처음부터 데이터였다</b>.
         우리가 하는 일은 그 숫자를 <b>어떻게 읽고 무엇으로 되돌릴지</b> 정하는 것이다.`,
       task: '그림 위에 마우스를 올려 보세요(휴대전화는 손가락으로 문지르세요). 그 점의 숫자가 그대로 보입니다.',
       ask: '숫자로 적히지 <b>않는</b> 것은 무엇인가요? (예: 붓의 힘, 그날의 마음)'
@@ -46,7 +46,7 @@
       title: '생성형 AI는 무엇을 잘하는가',
       lead: '학습 데이터의 평균에 가까운 결과',
       read: `생성형 AI는 “무엇이 아름다운가”를 아는 게 아니라, <b>많이 본 것과 닮은 것</b>을 확률적으로 만든다.
-        그래서 같은 조건을 여러 번 주면 <b>서로 닮은 결과</b>가 나온다 — 무작위처럼 보여도 <b>평균 쪽으로 끌린다</b>.
+        그래서 같은 조건을 여러 번 주면 <b>서로 닮은 결과</b>가 나온다. 무작위처럼 보여도 <b>평균 쪽으로 끌린다</b>.
         이것이 생성형 AI의 힘이자 한계다. 빠르게 그럴듯한 것을 주지만, 그 그럴듯함은 <b>이미 많은 사람이 본 것</b>이다.`,
       task: '같은 조건으로 5번 만들어 보세요. 다섯 결과가 서로 얼마나 닮았는지 숫자로 잽니다.',
       ask: '다섯 개가 닮았다면, 그중 <b>내 것</b>이라 할 수 있는 부분은 어디인가요?',
@@ -87,7 +87,7 @@
       id: 'ch7', n: 7, stage: 'own', action: 'reflect_submit',
       title: '창작의 책임',
       lead: '왜 이것이 나에게 의미가 있는가',
-      read: `도구는 의도를 <b>대체</b>하지 않고 <b>뒤따른다</b>. 마지막에 남는 질문은 늘 같다 —
+      read: `도구는 의도를 <b>대체</b>하지 않고 <b>뒤따른다</b>. 마지막에 남는 질문은 늘 같다.
         “왜 <b>내가</b> 이것을 만들었고, 왜 이것이 <b>작품</b>인가?” 이 답을 쓸 수 있을 때, 도구는 비로소 내 것이 된다.`,
       task: '150자 창작 진술문을 씁니다. 전시·포트폴리오·평가에 함께 붙습니다.',
       ask: '이 작품을 한 사람에게만 보여 줄 수 있다면, <b>누구에게</b> 보여 주고 싶나요?'
@@ -138,7 +138,7 @@
           <tr><td>초록 G</td><td><b>${p[1]}</b> / 255</td></tr>
           <tr><td>파랑 B</td><td><b>${p[2]}</b> / 255</td></tr>
           <tr><td>밝기</td><td>${L} <span class="muted">(0.299R+0.587G+0.114B)</span></td></tr></table>
-        <p class="muted" style="font-size:11.5px;margin:8px 0 4px">이 점 둘레 5×5 픽셀 — 눈에는 한 색이지만 숫자는 제각각이에요</p>
+        <p class="muted" style="font-size:11.5px;margin:8px 0 4px">이 점 둘레 5×5 픽셀입니다. 눈에는 한 색이지만 숫자는 제각각이에요</p>
         <div class="lit-grid">${grid}</div>`;
       if (!logged && global.Log) { logged = true; Log.push({ stage: 'sense', action: 'analyze', payload: { ch: 1, demo: sel.value } }); }
     }
@@ -190,7 +190,7 @@
       $('#w2-msg', host).innerHTML = `원본에는 서로 다른 색이 <b>약 ${uniq.toLocaleString()}가지</b> 있었어요.
         지금은 <b>${K}가지</b>로 말하고 있으니, <b>${lost.toLocaleString()}가지</b>를 버린 셈입니다
         (${Math.round(K / uniq * 1000) / 10}%만 남김).<br>
-        <span class="muted">K를 1까지 내려 보세요 — 그림은 사라지고 ‘평균색’ 한 장만 남습니다. 그것도 하나의 해석이에요.</span>`;
+        <span class="muted">K를 1까지 내려 보세요. 그림은 사라지고 ‘평균색’ 한 장만 남습니다. 그것도 하나의 해석이에요.</span>`;
       if (!logged && global.Log) { logged = true; Log.push({ stage: 'sense', action: 'analyze', payload: { ch: 2, K } }); }
     }
     sel.addEventListener('change', loadSrc);
@@ -254,7 +254,7 @@
       $('#w3-msg', host).innerHTML = `다섯 결과의 서로 닮음 정도: <b style="font-size:18px;color:var(--accent)">${idx}</b> / 100<br>
         ${idx >= 85 ? '거의 같은 그림이라 해도 될 만큼 닮았어요. <b>무작위였는데도</b> 결과는 평균 근처에 모입니다.'
           : idx >= 65 ? '조금씩 다르지만 한 식구처럼 보이죠. 확률적 생성의 <b>중력</b>이 평균 쪽으로 작용합니다.'
-          : '개성(온도)을 높이니 흩어졌어요. 대신 “조건에 맞는가”는 점점 흔들립니다 — <b>맞바꿈</b>이에요.'}<br>
+          : '개성(온도)을 높이니 흩어졌어요. 대신 “조건에 맞는가”는 점점 흔들립니다. <b>맞바꿈</b>이에요.'}<br>
         <span class="muted">개성(온도)을 올렸다 내렸다 하며 다시 만들어 보세요.</span>`;
       if (global.Log) Log.push({ stage: 'judge', action: 'analyze', payload: { ch: 3, temp, index: idx } });
     });
@@ -310,7 +310,7 @@
       const fields = [...host.querySelectorAll('[data-f]')].filter(c => c.checked).map(c => c.dataset.f);
       const tol = +$('#w5-tol', host).value; $('#w5-tolv', host).textContent = tol;
       const out = $('#w5-out', host);
-      if (!fields.length) { out.innerHTML = '<b>아무것도 세지 않기로 했어요.</b> 그러면 기준도 없습니다 — 무엇을 셀지 고르는 일이 곧 첫 번째 선택이에요.'; return; }
+      if (!fields.length) { out.innerHTML = '<b>아무것도 세지 않기로 했어요.</b> 그러면 기준도 없습니다. 무엇을 셀지 고르는 일이 곧 첫 번째 선택이에요.'; return; }
       let people = PEOPLE.slice();
       if ($('#w5-trim', host).checked) {
         const by = fields[0];
@@ -362,7 +362,7 @@
       const n = [...host.querySelectorAll('[data-v]')].filter(x => x.checked).length;
       $('#w6-msg', host).innerHTML = n === 3
         ? '<b>세 가지를 모두 확인했어요.</b> 확인하는 습관이 곧 창작자의 태도입니다.'
-        : `확인 ${n}/3 — 남은 항목은 서비스의 <b>이용약관·개인정보 처리방침</b>에서 찾을 수 있어요.`;
+        : `확인 ${n}/3. 남은 항목은 서비스의 <b>이용약관·개인정보 처리방침</b>에서 찾을 수 있어요.`;
       if (n === 3 && !logged && global.Log) { logged = true; Log.push({ stage: 'own', action: 'note_save', payload: { ch: 6, checked: 3 } }); }
     }));
   };
@@ -371,7 +371,7 @@
   W.ch7 = function (host) {
     host.innerHTML = `<div class="lit-widget">
       <label class="field">어느 작품의 진술문인가요?</label>
-      <select id="w7-work" style="width:auto;min-width:240px"><option value="">— 작품을 고르세요 —</option></select>
+      <select id="w7-work" style="width:auto;min-width:240px"><option value="">작품을 고르세요</option></select>
       <label class="field" style="margin-top:10px">창작 진술문 (150자)</label>
       <textarea id="w7-txt" rows="4" maxlength="150" placeholder="예: 나는 아빠의 코골이 소리를 데이터로 삼았다. 소음이 아니라 곁에 있다는 증거로 들리게 하려고, 큰 소리일수록 점을 크고 느리게 만들었다. 가족을 다시 듣는 일이 나에게는 그림이었다."></textarea>
       <div class="lit-row"><span class="muted" id="w7-cnt" style="font-size:11.5px">0 / 150자</span>
@@ -383,7 +383,7 @@
       const u = global.Auth && Auth.current();
       if (!u) { $('#w7-msg', host).innerHTML = '<span class="muted">로그인하면 내 작품에 진술문을 붙일 수 있어요.</span>'; return; }
       works = (await Store.listWorks({ userId: u.userId })) || [];
-      sel.innerHTML = '<option value="">— 작품을 고르세요 —</option>' +
+      sel.innerHTML = '<option value="">작품을 고르세요</option>' +
         works.map(w => `<option value="${w.id}">${esc(w.title || '작품')}</option>`).join('');
       sel.addEventListener('change', () => {
         const w = works.find(x => x.id === sel.value);
@@ -394,7 +394,7 @@
     ta.addEventListener('input', count);
     $('#w7-go', host).addEventListener('click', async () => {
       const txt = ta.value.trim();
-      if (txt.length < 30) { UI.toast('30자 이상 적어 주세요 — 진술문은 작품의 목소리예요.'); return; }
+      if (txt.length < 30) { UI.toast('30자 이상 적어 주세요. 진술문은 작품의 목소리예요.'); return; }
       const u = global.Auth && Auth.current();
       if (!u) { UI.toast('로그인이 필요합니다.'); return; }
       const w = works.find(x => x.id === sel.value);
@@ -421,7 +421,7 @@
         <div class="lit-tasklabel">🖐 해 보기 · ${c.task}</div>
         <div class="lit-host" id="host-${c.id}"></div>
         <div class="lit-answer">
-          <label class="field">✍ 한 줄 답하기 — ${c.ask}</label>
+          <label class="field">✍ 한 줄 답하기: ${c.ask}</label>
           <div class="lit-row"><input type="text" id="ans-${c.id}" value="${esc(saved[c.id] || '')}" placeholder="한 문장으로">
             <button class="btn sm" data-save="${c.id}">기록</button></div>
         </div>

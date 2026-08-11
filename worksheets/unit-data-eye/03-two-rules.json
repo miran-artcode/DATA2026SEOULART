@@ -40,8 +40,8 @@
       "logAction": "map_apply",
       "columns": [
         { "id": "trait", "label": "점의 특성", "fixed": true },
-        { "id": "plan_a", "label": "A안 — 무엇과 연결했나" },
-        { "id": "plan_b", "label": "B안 — 무엇과 연결했나" }
+        { "id": "plan_a", "label": "A안: 무엇과 연결했나" },
+        { "id": "plan_b", "label": "B안: 무엇과 연결했나" }
       ],
       "rows": [
         { "id": "size", "trait": "크기" },

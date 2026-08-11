@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>알고리즘 분석실 · 데이터의 눈</title>
+<title>알고리즘 분석실 · 오늘의 시선</title>
 <link rel="stylesheet" href="css/site.css" />
 </head>
 <body>
@@ -12,14 +12,14 @@
 <div class="wrap">
   <div class="page-head">
     <span class="eyebrow">분석실</span>
-    <h1>한 그림, 일곱 개의 눈</h1>
+    <h1>한 그림, 일곱 가지 알고리즘</h1>
     <p>같은 그림을 7가지 알고리즘으로 분석합니다. 각 카드의 <b>ⓘ</b>로 쉬운→깊은 설명을, 결과 아래 <b>해석 메모</b>에 근거를 적으면 리포트로 모입니다.</p>
   </div>
   <div id="idea"></div>
 
   <!-- 작업대: 이미지 + 조작 설정 (모든 탭에 공통으로 작용) -->
   <div class="dn-cluster">
-    <div class="dn-cluster-head"><div><span class="eyebrow">Workbench</span><h3>작업대 — 이미지와 조작 설정</h3><p>그림을 고르고 설정을 바꾸면 아래 모든 분석이 다시 계산돼요.</p></div></div>
+    <div class="dn-cluster-head"><div><span class="eyebrow">Workbench</span><h3>작업대: 이미지와 조작 설정</h3><p>그림을 고르고 설정을 바꾸면 아래 모든 분석이 다시 계산돼요.</p></div></div>
 
     <!-- 입력 -->
     <div class="card">
@@ -92,7 +92,7 @@
         <div class="card"><h3 class="with-info">② 색 히스토그램 <span class="badge core">핵심</span> <span data-info="histogram" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">포스터화</span><canvas id="rc-poster"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">놓친 것: 색을 다 섞어 ‘센’ 것이라 <b>공간·형태</b>가 사라집니다.</p><div class="memo"><textarea data-memo="histogram" placeholder="해석 메모"></textarea></div></div>
         <div class="card"><h3 class="with-info">③ 명도·노탄 <span class="badge core">핵심</span> <span data-info="notan" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">흑백 명암지도</span><canvas id="rc-notan"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">놓친 것: 색의 <b>의미·온도</b>가 사라집니다(임계값도 주관적).</p><div class="memo"><textarea data-memo="notan" placeholder="해석 메모"></textarea></div></div>
         <div class="card"><h3 class="with-info">④ 에지 검출(Sobel) <span class="badge core">핵심</span> <span data-info="edge" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">선 드로잉</span><canvas id="rc-edge"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">놓친 것: 그림자 경계와 진짜 윤곽을 <b>구분 못</b> 합니다.</p><div class="memo"><textarea data-memo="edge" placeholder="해석 메모"></textarea></div></div>
-        <div class="card"><h3 class="with-info">⑤ 중앙값 분할 <span class="badge adv">심화</span> <span data-info="mediancut" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">또 다른 색 요약</span><canvas id="rc-median"></canvas></div><div class="swatches" id="pal-median" style="margin:8px 0 0"></div><p class="muted" style="font-size:12px;margin:8px 0 0">K-means와 비교 — ‘색을 요약하는 두 가지 길’.</p><div class="memo"><textarea data-memo="mediancut" placeholder="해석 메모: K-means와 무엇이 다른가?"></textarea></div></div>
+        <div class="card"><h3 class="with-info">⑤ 중앙값 분할 <span class="badge adv">심화</span> <span data-info="mediancut" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">또 다른 색 요약</span><canvas id="rc-median"></canvas></div><div class="swatches" id="pal-median" style="margin:8px 0 0"></div><p class="muted" style="font-size:12px;margin:8px 0 0">K-means와 비교해 보세요. ‘색을 요약하는 두 가지 길’입니다.</p><div class="memo"><textarea data-memo="mediancut" placeholder="해석 메모: K-means와 무엇이 다른가?"></textarea></div></div>
         <div class="card"><h3 class="with-info">⑥ 격자 평균·모자이크 <span class="badge adv">심화</span> <span data-info="mosaic" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">픽셀아트</span><canvas id="rc-mosaic"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0">놓친 것: 형태와 무관하게 <b>기계적으로</b> 자릅니다.</p><div class="memo"><textarea data-memo="mosaic" placeholder="해석 메모"></textarea></div></div>
         <div class="card"><h3 class="with-info">⑦ 구도 분석 <span class="badge adv">심화</span> <span data-info="composition" class="info-ic">ⓘ</span></h3><div class="recreate"><span class="rc-tag">무게중심·삼분할</span><canvas id="rc-comp"></canvas></div><p class="muted" style="font-size:12px;margin:8px 0 0" id="comp-info">밝기 무게중심과 삼분할선.</p><div class="memo"><textarea data-memo="composition" placeholder="해석 메모: 안정인가 긴장인가?"></textarea></div></div>
         <div class="card" style="display:flex;flex-direction:column;justify-content:center;background:linear-gradient(160deg,rgba(78,195,255,.06),transparent)">

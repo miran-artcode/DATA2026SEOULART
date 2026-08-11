@@ -15,19 +15,19 @@
 
   // 로컬(직접 편집) 시나리오 — 교실·동네 단위
   const LOCAL = {
-    village: { sdg: 'SDG 11 · 지속가능한 도시', title: '우리 동네', tag: '관점·관계·맥락 — 우리가 사는 세계를 데이터로 비평합니다.',
+    village: { sdg: 'SDG 11 · 지속가능한 도시', title: '우리 동네', tag: '동네의 주체와 관계를 데이터로 봅니다.',
       subjects: ['이웃', '학교', '상점', '청소년', '노인', '환경', '시청'],
       ties: [['청소년', '학교', '공감', .7], ['노인', '환경', '공감', .6], ['이웃', '환경', '공감', .6], ['학교', '시청', '공감', .5], ['상점', '시청', '대립', .5], ['청소년', '노인', '대립', .4], ['상점', '이웃', '대립', .45]],
       perspectives: [['주민 생활', 31], ['환경·녹지', 22], ['청소년', 17], ['상권·경제', 12], ['행정', 10], ['노인 복지', 8]],
       lenses: { 공감: .70, 대립: .50, 형평: .62, 참여: .55, 책임: .80, 연대: .58, 지속가능: .66 },
       issues: [['놀이터 이전', 55], ['야간 소음 규제', 30], ['벽화 사업', 70]] },
-    climate: { sdg: 'SDG 13 · 기후행동', title: '우리 학교의 탄소', tag: '편리함과 지구 사이 — 학교 일상을 기후의 눈으로.',
+    climate: { sdg: 'SDG 13 · 기후행동', title: '우리 학교의 탄소', tag: '학교 일상을 기후의 눈으로 봅니다.',
       subjects: ['학생', '급식실', '교실', '통학', '매점', '선생님', '지구'],
       ties: [['급식실', '지구', '대립', .6], ['통학', '지구', '대립', .55], ['학생', '선생님', '공감', .5], ['교실', '지구', '대립', .45], ['학생', '지구', '공감', .5], ['매점', '학생', '공감', .4], ['선생님', '지구', '공감', .5]],
       perspectives: [['에너지·냉난방', 28], ['급식·잔반', 24], ['통학·이동', 18], ['소비·매점', 14], ['인식·교육', 10], ['기타', 6]],
       lenses: { 공감: .55, 대립: .62, 형평: .50, 참여: .60, 책임: .78, 연대: .52, 지속가능: .84 },
       issues: [['일회용품 금지', 62], ['교실 적정온도', 45], ['채식 급식의 날', 58]] },
-    digital: { sdg: 'SDG 16 · 디지털 시민', title: '스마트폰과 우리', tag: '연결과 외로움 사이 — 화면 너머의 관계.',
+    digital: { sdg: 'SDG 16 · 디지털 시민', title: '스마트폰과 우리', tag: '화면 너머의 관계를 데이터로 봅니다.',
       subjects: ['나', '친구', 'SNS', '게임', '부모', '학교', '잠'],
       ties: [['SNS', '잠', '대립', .6], ['게임', '잠', '대립', .55], ['나', '친구', '공감', .6], ['SNS', '친구', '공감', .45], ['부모', '나', '대립', .5], ['학교', '나', '공감', .4], ['SNS', '나', '대립', .4]],
       perspectives: [['관계·소속', 27], ['수면·건강', 23], ['집중·학습', 18], ['비교·불안', 15], ['표현·창작', 11], ['기타', 6]],
@@ -76,7 +76,7 @@
   }
   async function renderSDG(key) {
     const d = SDG[key];
-    setHead(d.sdg + ' · ' + d.title, '세계 데이터 · ' + d.label, '실제 데이터로 세계를 읽어요 — ' + d.rows + '개국 (' + d.latestYear + ').');
+    setHead(d.sdg + ' · ' + d.title, '세계 데이터 · ' + d.label, '실제 데이터로 세계를 읽어요. ' + d.rows + '개국 자료 (' + d.latestYear + ').');
     show('sdg');
     const chg = d.changePct == null ? '–' : ((d.changePct > 0 ? '+' : '') + d.changePct + '%');
     const dirWord = d.dir === 'good' ? '높을수록 좋음' : '높을수록 심각';
@@ -95,7 +95,7 @@
     const thr = $('#sdg-thr');
     thr.min = mn; thr.max = mxv; thr.step = ((mxv - mn) / 100) || 1; thr.value = (mn + mxv) / 2;
     renderThr(key);
-    $('#sdg-source').innerHTML = '📥 <b>실제 데이터 받기</b> — <a class="dl" href="data/' + d.file + '.xlsx" download>엑셀</a> · <a class="dl" href="data/' + d.file + '.csv" download>CSV</a> · <a class="dl" href="' + d.source + '" target="_blank" rel="noopener">원본 전체(OWID)</a><br><span class="muted" style="font-size:10.5px">' + d.rows + '개국 · 색=대륙, 크기=값으로 매핑하면 ‘세계 격차’가 작품이 돼요.</span>';
+    $('#sdg-source').innerHTML = '📥 <b>실제 데이터 받기</b>: <a class="dl" href="data/' + d.file + '.xlsx" download>엑셀</a> · <a class="dl" href="data/' + d.file + '.csv" download>CSV</a> · <a class="dl" href="' + d.source + '" target="_blank" rel="noopener">원본 전체(OWID)</a><br><span class="muted" style="font-size:10.5px">' + d.rows + '개국 · 색=대륙, 크기=값으로 매핑하면 ‘세계 격차’가 작품이 돼요.</span>';
   }
   function renderThr(key) {
     const d = SDG[key], snap = snapCache[key]; if (!snap) return;
@@ -103,7 +103,7 @@
     $('#sdg-thr-o').textContent = fmt(t) + (d.unit || '');
     const above = snap.vals.filter(v => v >= t).length;
     const word = d.dir === 'good' ? '기준 이상(양호)' : '기준 이상(심각)';
-    $('#sdg-thr-status').innerHTML = '기준선을 움직여 보세요 — 현재 <b>' + above + ' / ' + snap.vals.length + '</b>개국이 ‘' + word + '’. 어디에 선을 그을지가 곧 ‘문제’의 정의예요.';
+    $('#sdg-thr-status').innerHTML = '기준선을 움직여 보세요. 현재 <b>' + above + ' / ' + snap.vals.length + '</b>개국이 ‘' + word + '’. 어디에 선을 그을지가 곧 ‘문제’의 정의예요.';
   }
 
   /* ============ ② 우리 이야기(편집·관계망) ============ */
@@ -200,7 +200,7 @@
     // 관계(엣지) 편집
     const ee = $('#edit-edges');
     if (ee) {
-      ee.innerHTML = s.ties.length ? s.ties.map((t, i) => '<span class="eedge"><span class="tag ' + (t[2] === '공감' ? 'on' : 'mid') + '">' + t[2] + '</span> ' + esc(t[0]) + ' — ' + esc(t[1]) + ' <button class="ex" data-del="' + i + '" title="삭제">✕</button></span>').join('') : '<span class="muted" style="font-size:11px">연결이 없어요. 아래에서 추가하세요.</span>';
+      ee.innerHTML = s.ties.length ? s.ties.map((t, i) => '<span class="eedge"><span class="tag ' + (t[2] === '공감' ? 'on' : 'mid') + '">' + t[2] + '</span> ' + esc(t[0]) + ' ↔ ' + esc(t[1]) + ' <button class="ex" data-del="' + i + '" title="삭제">✕</button></span>').join('') : '<span class="muted" style="font-size:11px">연결이 없어요. 아래에서 추가하세요.</span>';
       const opts = s.subjects.map(x => '<option>' + esc(x) + '</option>').join('');
       $('#edit-addedge').innerHTML = '<select id="ae-a">' + opts + '</select><select id="ae-t"><option>공감</option><option>대립</option></select><select id="ae-b">' + opts + '</select><button id="ae-add" class="btn sm">연결 추가</button>';
       ee.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => delEdge(+b.dataset.del)));
@@ -215,7 +215,7 @@
     s.ties = s.ties.filter(t => list.includes(t[0]) && list.includes(t[1]));
     if (!s.ties.length) for (let i = 0; i < list.length - 1; i++) s.ties.push([list[i], list[i + 1], i % 2 ? '대립' : '공감', .5]);
     buildNetPos(); netHi = null; renderLocal();
-    UI.toast('주체를 반영했어요 — 점을 끌어 관계를 배치해 보세요.');
+    UI.toast('주체를 반영했어요. 점을 끌어 관계를 배치해 보세요.');
   }
   function renderLocal() { renderLocalHead(); show('local'); buildNetPos(); netHi = null; drawNetwork(); renderStats(); renderPersp(); renderLenses(); renderIssues(); renderAdopt(); renderEdit(); }
 
@@ -225,13 +225,13 @@
     if (type === 'sdg') {
       const d = SDG[current], snap = snapCache[current];
       if (!snap) { UI.toast('데이터 준비 중이에요. 잠시 후 다시.'); return; }
-      payload = { name: '세계 데이터 · ' + d.title, issue: '🌍 ' + d.sdg + ' ' + d.label + ' — ' + d.rows + '개국 (' + d.latestYear + '). 색=대륙·크기=값으로 세계 격차를 작품으로.', csv: snap.csv, intent: '', omit: '' };
+      payload = { name: '세계 데이터 · ' + d.title, issue: '🌍 ' + d.sdg + ' ' + d.label + ' · ' + d.rows + '개국 (' + d.latestYear + '). 색=대륙·크기=값으로 세계 격차를 작품으로.', csv: snap.csv, intent: '', omit: '' };
     } else {
       const s = L(), rows = [['항목', '분류', '값']];
       LENS.forEach(k => rows.push([k, '렌즈', Math.round(s.lenses[k] * 100)]));
       s.issues.forEach(([t, v]) => rows.push([String(t).replace(/,/g, ' '), '쟁점', v]));
       s.perspectives.forEach(([t, v]) => rows.push([String(t).replace(/,/g, ' '), '관점', v]));
-      payload = { name: '사회 분석 · ' + s.title, issue: '🏙 ' + s.sdg + ' — ' + s.tag + ' (색=분류·크기=값으로 매핑)', csv: rows.map(r => r.join(',')).join('\n'), intent: '', omit: '' };
+      payload = { name: '사회 분석 · ' + s.title, issue: '🏙 ' + s.sdg + ' · ' + s.tag + ' (색=분류·크기=값으로 매핑)', csv: rows.map(r => r.join(',')).join('\n'), intent: '', omit: '' };
     }
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
     UI.toast('데이터 점 스튜디오로 보냅니다…');
@@ -251,7 +251,7 @@
   function scenarioState() { const s = L(); return { subjects: s.subjects, ties: s.ties, perspectives: s.perspectives, lenses: s.lenses, issues: s.issues, title: s.title, sdg: s.sdg, tag: s.tag }; }
   function applyState(st) { const c = LOCAL.custom; ['subjects', 'ties', 'perspectives', 'lenses', 'issues', 'title', 'sdg', 'tag'].forEach(k => { if (st[k]) c[k] = st[k]; }); }
   function curUser() { return (window.Auth && Auth.current) ? Auth.current() : null; }
-  function setSaveInfo() { const u = curUser(), el = $('#soc-save-info'); if (el) el.textContent = u ? ('로그인: ' + (u.display || u.userId) + ' — 계정에 보관돼요') : '비로그인 — 이 기기에만 저장(로그인하면 계정에)'; }
+  function setSaveInfo() { const u = curUser(), el = $('#soc-save-info'); if (el) el.textContent = u ? ('로그인: ' + (u.display || u.userId) + ' · 계정에 보관돼요') : '비로그인 · 이 기기에만 저장(로그인하면 계정에)'; }
   function localSaves() { try { return JSON.parse(localStorage.getItem('dn_society_saves') || '[]'); } catch (e) { return []; } }
   async function saveAnalysis() {
     const st = scenarioState();
@@ -264,7 +264,7 @@
     const u = curUser();
     if (u && window.Store) {
       try { await Store.saveNote({ userId: u.userId, by: u.display || u.userId, kind: 'society', title: '사회분석 · ' + st.title, intent: st.tag, settings: st }); UI.toast('계정+기기에 저장했어요.'); }
-      catch (e) { UI.toast('계정 저장 실패 — 이 기기에만 저장됨.'); }
+      catch (e) { UI.toast('계정 저장 실패. 이 기기에만 저장됐어요.'); }
     } else UI.toast('이 기기에 저장했어요. (로그인하면 계정에도 보관)');
     setSaveInfo();
   }
@@ -363,7 +363,7 @@
       });
     }
     x.fillStyle = 'rgba(255,255,255,0.5)'; x.textAlign = 'right'; x.font = '500 ' + Math.round(H * 0.022) + 'px ' + F;
-    x.fillText('데이터의 눈 · 사회 분석', W - W * 0.04, H - H * 0.035);
+    x.fillText('오늘의 시선 · 사회 분석', W - W * 0.04, H - H * 0.035);
     return cv;
   }
   function downloadImage(poster) {

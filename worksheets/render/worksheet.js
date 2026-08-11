@@ -96,7 +96,7 @@
       const src = b.source || '';
       if (src === 'unit.transferGoal') return h('p', { class: 'ws-quote', text: `"${ctx.unit.transferGoal}"` });
       if (src === 'unit.concept') return h('p', { class: 'ws-lead' },
-        h('strong', { text: ctx.unit.concept.name }), ' — ', ctx.unit.concept.statement);
+        h('strong', { text: ctx.unit.concept.name }), ': ', ctx.unit.concept.statement);
       if (src === 'unit.essentialQuestions') return h('ol', { class: 'ws-eq' },
         ctx.unit.essentialQuestions.map(q => h('li', { text: q.text })));
       if (src === 'auto.toc') {

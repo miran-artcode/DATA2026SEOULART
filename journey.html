@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>학습 여정 지도 · 데이터의 눈</title>
+<title>학습 여정 지도 · 오늘의 시선</title>
 <link rel="stylesheet" href="css/site.css" />
 <style>
   .stage-row { display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: stretch; margin-bottom: 12px; }
@@ -39,13 +39,13 @@
 <div class="wrap">
   <div class="page-head">
     <span class="eyebrow">학습 여정 지도</span>
-    <h1>데이터는 숫자 표가 아니라, 세상의 무엇이든 될 수 있다</h1>
-    <p>두 축이 맞물려 한 학기가 됩니다 — <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회), <b>학생의 주체성이 깊어져요</b>(교사 데이터→내 삶→내가 정한 사회문제).</p>
+    <h1>한 학기 4단계와 평가 4영역</h1>
+    <p>한 학기는 두 축으로 나아갑니다. <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회) <b>학생의 주체성이 깊어져요</b>(교사 데이터→내 삶→내가 정한 사회문제).</p>
   </div>
   <!-- 창작 과정 7단계 — 아래 4단계 지도와 '다른 축'이다.
        4단계 = 무엇을 데이터로 삼는가(한 학기의 지도) · 7단계 = 한 작품을 만드는 동안 거치는 과정. -->
   <div class="card" style="margin-bottom:18px">
-    <h2 style="margin:0 0 2px;font-size:17px">창작 과정 7단계 — 지금 나는 어디에</h2>
+    <h2 style="margin:0 0 2px;font-size:17px">창작 과정 7단계: 지금 내 위치</h2>
     <p class="muted" style="font-size:12.5px;margin:2px 0 0">아래 <b>4단계 지도</b>가 “무엇을 데이터로 삼는가”라면, 이 7단계는 <b>한 작품을 만드는 동안</b> 거치는 과정이에요.
       스튜디오·리터러시·노트에 남긴 기록을 읽어 자동으로 채워집니다.</p>
     <div class="proc" id="proc"></div>
@@ -64,7 +64,7 @@
     <a class="card stage-card hover" href="studio-color.html">
       <h3>그림을 데이터로</h3>
       <div class="chips"><span class="b src">출처: 교사가 준 그림(픽셀)</span><span class="b agency">주체성: 매핑을 내가</span><span class="b">새 개념: K-means·대표색</span></div>
-      <p class="muted" style="font-size:13.3px;margin:0">명화를 픽셀로 읽으면 색·밝기·위치가 전부 숫자. 데이터를 점으로 재구성하며 <b>그림↔데이터의 순환</b>을 체험 — 미술과 데이터가 원래 한 몸임을 깨닫는 출발점.</p>
+      <p class="muted" style="font-size:13.3px;margin:0">명화를 픽셀로 읽으면 색·밝기·위치가 모두 숫자가 됩니다. 그 숫자를 다시 점으로 재구성하며 <b>그림과 데이터를 오가는 과정</b>을 처음 겪는 단계예요.</p>
     </a>
   </div>
   <div class="stage-row">
@@ -72,7 +72,7 @@
     <a class="card stage-card hover" href="studio-life.html">
       <h3>내 사진을 데이터로</h3>
       <div class="chips"><span class="b src">출처: 내가 찍은 사진</span><span class="b agency">주체성: 무엇을 셀지 내가</span><span class="b">새 개념: 거의 없음(1단계 재사용)</span></div>
-      <p class="muted" style="font-size:13.3px;margin:0">‘오늘 가장 즐거운 순간’ 사진의 밝기·생생함·북적임을 재요. 분석 방법은 1단계와 같아서 <b>새로 배울 것이 거의 없고</b>, 그 대신 <b>무엇을 데이터로 삼을지 내가 정하는 일</b>에만 집중할 수 있어요. 고르는 순간부터 이미 해석입니다.</p>
+      <p class="muted" style="font-size:13.3px;margin:0">‘오늘 가장 즐거운 순간’ 사진의 밝기·생생함·북적임을 재요. 분석 방법은 1단계와 같아서 <b>새로 배울 것이 거의 없고</b>, 그 대신 <b>무엇을 데이터로 삼을지 내가 정하는 일</b>에만 집중할 수 있어요.</p>
     </a>
   </div>
   <div class="stage-row">
@@ -80,7 +80,7 @@
     <a class="card stage-card hover" href="studio-sound.html">
       <h3>내 소리를 데이터로</h3>
       <div class="chips"><span class="b src">출처: 내가 녹음한 소리(시간)</span><span class="b agency">주체성: 무엇을 남길지 내가</span><span class="b">새 개념: 음량·주파수·변화량 등</span></div>
-      <p class="muted" style="font-size:13.3px;margin:0">소리는 시간에 따라 흐르는 데이터라 다룰 개념이 한 번에 늘어납니다. 그래서 앞의 두 단계 뒤에 옵니다. 숫자 뒤의 <b>정서</b>를 점의 움직임으로 옮기는 단계 <span style="opacity:.75">(학생 작품 예시: 「아빠의 한 달 코골이」)</span>.</p>
+      <p class="muted" style="font-size:13.3px;margin:0">소리는 시간에 따라 흐르는 데이터라 다룰 개념이 한 번에 늘어납니다. 그래서 앞의 두 단계를 지난 뒤에 와요. 숫자 뒤의 <b>정서</b>를 점의 움직임으로 옮깁니다. <span style="opacity:.75">(학생 작품 예시: 「아빠의 한 달 코골이」)</span></p>
     </a>
   </div>
   <div class="stage-row">
@@ -88,28 +88,28 @@
     <a class="card stage-card hover" href="project.html">
       <h3>사회 문제 프로젝트</h3>
       <div class="chips"><span class="b src">출처: 공공데이터</span><span class="b agency">주체성: 내가 정한 사회문제</span></div>
-      <p class="muted" style="font-size:13.3px;margin:0">관심 있는 사회 문제를 스스로 정해 공공데이터로 작품을. 미술이 개인 표현을 넘어 <b>사회적 발언</b>이 되는 가장 높은 단계 — “이 문제를 세상에 어떻게 보여줄 것인가”.</p>
+      <p class="muted" style="font-size:13.3px;margin:0">관심 있는 사회 문제를 스스로 정해 공공데이터로 작품을 만듭니다. 미술이 <b>사회적 발언</b>이 되는 단계로, “이 문제를 세상에 어떻게 보여줄 것인가”를 묻습니다.</p>
     </a>
   </div>
 
   <!-- 학습지 — '차시' 축. 위의 4단계(무엇을 데이터로 삼는가)와 다른 축이라 관계를 밝혀 둔다. -->
   <div class="dn-cluster" id="ws-hub" style="margin:18px 0"></div>
   <p class="muted" style="font-size:12.5px;margin:-6px 0 18px">
-    ⚠ <b>선생님께</b> — 순차 진행의 기준은 <b>차시 번호</b>입니다. 학습지끼리 <b>‘다음 시간으로 넘기는 한 줄’</b>이
+    ⚠ <b>선생님께</b>: 순차 진행의 기준은 <b>차시 번호</b>입니다. 학습지끼리 <b>‘다음 시간으로 넘기는 한 줄’</b>이
     1→2→3→4→5→6→8차시(7차시는 8차시로)로 이어져 있어, 단계 순서대로 배치하면 아직 쓰지 않은 학습지의 한 줄을 앞 차시가 요구하게 됩니다.
     배치를 바꾸려면 <code>js/worksheet.js</code>의 <code>COURSE</code> 표 한 곳만 고치면 됩니다.</p>
 
   <div class="spine">
     <h3 style="margin:0">🦴 단계가 올라가도 변하지 않는 척추</h3>
-    <p class="muted" style="font-size:12.5px;margin:4px 0 0">데이터 출처(그림·소리·삶·사회)는 바뀌어도, 미술 교육의 본질은 같습니다.</p>
+    <p class="muted" style="font-size:12.5px;margin:4px 0 0">데이터 출처(그림·소리·삶·사회)는 바뀌어도 아래 세 가지는 모든 단계에서 같습니다.</p>
     <div class="three">
-      <div class="card"><b>① 감각을 먼저</b><p class="muted" style="font-size:12.5px;margin:6px 0 0">데이터가 되기 전, 그 경험을 몸으로 먼저 느껴 둔다. 데이터가 경험을 식민화하지 않게.</p></div>
-      <div class="card"><b>② 매핑은 학생이 결정</b><p class="muted" style="font-size:12.5px;margin:6px 0 0">무엇을 크기·색·움직임으로 옮길지는 학생의 선택. 그 선택이 곧 창작.</p></div>
-      <div class="card"><b>③ 도구는 의도를 뒤따른다</b><p class="muted" style="font-size:12.5px;margin:6px 0 0">알고리즘·AI는 의도를 ‘대체’하지 않고 ‘뒤따른다’. 도구의 매끈함 속에 내 판단을 새겨 넣는다.</p></div>
+      <div class="card"><b>① 감각을 먼저</b><p class="muted" style="font-size:12.5px;margin:6px 0 0">데이터가 되기 전에 그 경험을 몸으로 먼저 느껴 둡니다. 데이터가 경험을 식민화하지 않게 하는 순서예요.</p></div>
+      <div class="card"><b>② 매핑은 학생이 결정</b><p class="muted" style="font-size:12.5px;margin:6px 0 0">무엇을 크기·색·움직임으로 옮길지는 학생이 정합니다.</p></div>
+      <div class="card"><b>③ 도구는 의도를 뒤따른다</b><p class="muted" style="font-size:12.5px;margin:6px 0 0">도구가 먼저 결과를 내놓더라도 무엇을 남길지는 학생이 정합니다. 그 판단의 근거를 기록으로 남겨요.</p></div>
     </div>
   </div>
 
-  <h2 style="margin:26px 0 10px">평가 — 4영역 <span class="info-ic" data-info="rubric">ⓘ</span></h2>
+  <h2 style="margin:26px 0 10px">평가 4영역 <span class="info-ic" data-info="rubric">ⓘ</span></h2>
   <p class="muted" style="font-size:13px;margin:0 0 12px">점수가 아니라 ‘무엇을 보았는지’의 언어예요. 자기·동료 평가의 기준으로 씁니다.</p>
   <div class="rubric-grid">
     <div class="card"><b style="color:var(--accent)">① 매핑의 의도성</b><p class="muted" style="font-size:13px;margin:6px 0 0">데이터를 시각으로 옮긴 선택에 <b>해석적 의도</b>가 담겼는가? (감각·비평의 언어)</p></div>
@@ -157,7 +157,7 @@
     msg.innerHTML = !u
       ? '로그인하면 <b>내가 어디까지 왔는지</b>가 여기에 표시돼요.'
       : nextIdx < 0 ? '<b>일곱 단계를 모두 지났어요.</b> <a href="portfolio.html">→ 포트폴리오에서 내 과정 보기</a>'
-      : `다음은 <b>${Log.STAGES[nextIdx].label}</b> — ${Log.STAGES[nextIdx].desc}.`;
+      : `다음은 <b>${Log.STAGES[nextIdx].label}</b>: ${Log.STAGES[nextIdx].desc}.`;
   })();
 </script>
 </body>
