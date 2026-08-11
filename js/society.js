@@ -235,7 +235,7 @@
     }
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
     UI.toast('데이터 점 스튜디오로 보냅니다…');
-    setTimeout(() => location.href = 'studio-data.html', 600);
+    WS.goTo('studio-data.html', 600);
   }
 
   /* ============ 관계(엣지) 편집 ============ */
@@ -396,7 +396,7 @@
     try {
       await Store.saveWork({ userId: u.userId, by: u.display || u.userId, klass: u.klass, kind: 'society', title, intent, evidence, dataName: title, settings, thumb: thumbDataURL(), exhibited: true });
       UI.toast('🎉 갤러리에 전시했어요!');
-      setTimeout(() => location.href = 'gallery.html', 1000);
+      WS.goTo('gallery.html', 1000);
     } catch (e) { UI.toast('전시 실패: ' + (e && e.message ? e.message : e)); }
   }
 

@@ -164,7 +164,7 @@
     const payload = { name: '사물 감지 데이터', csv: toCSV(), intent: ($('#od-intent') ? $('#od-intent').value.trim() : ''), omit: ($('#od-omit') ? $('#od-omit').value.trim() : '') };
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
     UI.toast('데이터 점 스튜디오로 보냈어요!');
-    setTimeout(() => location.href = 'studio-data.html', 500);
+    WS.goTo('studio-data.html', 500);
   }
 
   /* ----------------------------- 자동 기록(로그) → 데이터 누적 ----------------------------- */
@@ -227,7 +227,7 @@
     const payload = { name: '사물 감지 자동기록', csv: logCSV(), intent: ($('#od-intent') ? $('#od-intent').value.trim() : ''), omit: ($('#od-omit') ? $('#od-omit').value.trim() : '') };
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(기록이 커요. CSV로 내보낸 뒤 불러오세요).'); return; }
     UI.toast('자동 기록 데이터를 데이터 점 스튜디오로 보냈어요!');
-    setTimeout(() => location.href = 'studio-data.html', 500);
+    WS.goTo('studio-data.html', 500);
   }
   function clearLog() { logRows = []; logFrame = 0; logging = false; obsRows = []; chartBuf = []; prevLum = null; updateLogUI(); updateObsUI(); drawChart(); setStatus('기록을 비웠어요.'); }
 
@@ -340,7 +340,7 @@
     const payload = { name: '실시간 관찰 기록', csv: obsCSV(), intent: ($('#od-intent') ? $('#od-intent').value.trim() : ''), omit: ($('#od-omit') ? $('#od-omit').value.trim() : '') };
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(기록이 커요. CSV로 내보내세요).'); return; }
     UI.toast('관찰 기록을 데이터 점 스튜디오로 보냈어요!');
-    setTimeout(() => location.href = 'studio-data.html', 500);
+    WS.goTo('studio-data.html', 500);
   }
   // 현재 그래프를 제목·범례·현재값과 함께 JPG로 저장
   function exportObsJPG() {

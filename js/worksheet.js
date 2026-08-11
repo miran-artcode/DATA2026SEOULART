@@ -686,6 +686,21 @@
       '완료 ' + plan.doneCnt + ' / ' + rows.length + '장 · 결석했더라도 잠금은 안내일 뿐, 어느 차시든 열 수 있어요.</p>';
   }
 
+  /*
+   * 화면 안의 '보내기' 단추가 다음 화면으로 갈 때 지금 차시를 함께 싣는다.
+   * -----------------------------------------------------------------------------
+   * 이것이 없으면 수업에서 제일 많이 지나는 길이 끊긴다. 4차시 학생이 소리를 녹음하고
+   * '데이터 점 스튜디오로 보내기'를 누르면 맨 주소로 떨어지고, 그 화면은 3·4·5·6차시가
+   * 함께 쓰므로 방금 4차시에서 온 학생에게 "몇 차시인지 골라 주세요"라고 되묻게 된다.
+   * 보내는 화면은 자기 차시를 알고 있으니, 그것을 주소에 실어 보낸다.
+   */
+  function goTo(targetPage, ms) {
+    const c = resolveSession(forPage());
+    const url = targetPage + (c && c.sheet !== 'cover' ? '?s=' + c.sheet : '');
+    if (ms) setTimeout(() => { location.href = url; }, ms);
+    else location.href = url;
+  }
+
   /* 이 차시가 남기는 증거를 저장할 때 붙일 꼬리표.
      이게 없으면 비평·프로젝트·리터러시에 남긴 기록이 어느 차시 것인지 알 수 없어
      교사 화면의 차시별 진행에 한 칸도 들어가지 않는다. */
@@ -698,7 +713,7 @@
 
   global.WS = {
     BASE, UNIT, UNIT_ID: UNIT, COURSE, STAGE_NAME, SLOT, DONE_PCT, OPEN_PCT,
-    load, loadManifest, loadUnit, entryOf, indexOf, forPage, hrefOf, slotOf, resolveSession, stampOf,
+    load, loadManifest, loadUnit, entryOf, indexOf, forPage, hrefOf, slotOf, resolveSession, stampOf, goTo,
     noteIdOf, blankNote, myNotes,
     statOf, statsFromNotes, readProgress, planOf, mountPage, mountLauncher, mountContext,
     mountJourney, mountHub: mountJourney    // mountHub 는 옛 이름: 같은 통합 여정을 그린다

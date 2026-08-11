@@ -126,13 +126,20 @@ spinePages.forEach((p) => {
     fail(`${p} 는 COURSE 에 있는데 forPage() 가 빈 배열입니다 (신원 키가 어긋났습니다)`);
 });
 
-/* ---- 2-b) 척추 안의 링크는 어느 차시로 들어가는지(?s=)를 실어야 한다 ---- */
-allLinks.forEach((l) => {
-  const href = WS.hrefOf(l, l.sheet);
-  if (!href.includes('?s=' + l.sheet))
-    fail(`[${l.sheet}·${l.slot}] 링크가 차시를 싣지 않습니다: ${href} ("${l.label}")`);
-  if (l.hash && !href.endsWith('#' + l.hash))
-    fail(`[${l.sheet}·${l.slot}] 앵커가 주소 끝에 오지 않습니다: ${href}`);
+/* ---- 2-b) 화면 안에서 손으로 적은 이동이 차시를 흘리지 않는가 ----
+ * COURSE 가 만드는 링크는 hrefOf() 가 ?s= 를 붙여 준다. 문제는 화면 코드 안에 손으로 적힌
+ * 이동('데이터 점 스튜디오로 보내기' 같은 것)이다. 그쪽이 맨 주소로 보내면, 방금 4차시에서 온
+ * 학생에게 공용 화면이 "몇 차시인지 골라 주세요"라고 되묻는다. 수업에서 제일 많이 지나는 길이다.
+ */
+const multiSession = new Set(spinePages.filter((p) => WS.forPage(p).length > 1));
+readdirSync(join(ROOT, 'js')).filter((f) => f.endsWith('.js')).forEach((f) => {
+  const src = rd(join('js', f));
+  [...src.matchAll(/location\.href\s*=\s*'([\w-]+\.html)'/g)].forEach((m) => {
+    const target = m[1];
+    if (!multiSession.has(target)) return;               // 차시가 하나뿐인 화면은 물을 일이 없다
+    fail(`js/${f}: ${target} 로 곧장 보냅니다. 그 화면은 여러 차시가 쓰므로 차시를 잃습니다 ` +
+      `(WS.goTo('${target}') 를 쓰세요)`);
+  });
 });
 
 /* ---- 2-c) 여러 차시가 쓰는 공용 화면은 '고르게 하는' 분기가 있어야 한다 ---- */

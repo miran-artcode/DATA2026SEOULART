@@ -272,7 +272,7 @@
     const payload = { name: datasetName, issue: datasetIssue, csv: toCSV(), intent: $('#snd-intent').value.trim(), omit: $('#snd-omit').value.trim(), stage: 2 };
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
     UI.toast('데이터 점 스튜디오로 보냅니다…');
-    setTimeout(() => location.href = 'studio-data.html', 600);
+    WS.goTo('studio-data.html', 600);
   }
 
   /* ----------------------------- 춤추는 점(미디어아트) ----------------------------- */

@@ -109,7 +109,7 @@
     // stage: 데이터 점 스튜디오에서 만든 작품이 '몇 단계에서 온 것'인지 남긴다(허브의 진행 표시용).
     const payload = { name: dataName, csv: toCSV(), intent: $('#life-intent').value.trim(), stage: 3, issue: '🧑 내 삶에서 온 데이터: 무엇을 셀지 내가 정했어요' };
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
-    UI.toast('데이터 점 스튜디오로 보냅니다…'); setTimeout(() => location.href = 'studio-data.html', 600);
+    UI.toast('데이터 점 스튜디오로 보냅니다…'); WS.goTo('studio-data.html', 600);
   }
 
   document.addEventListener('DOMContentLoaded', () => {

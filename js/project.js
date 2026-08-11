@@ -14,7 +14,7 @@
     const payload = { name: topic() + ' 프로젝트', csv, intent: $('#pj-statement').value.trim() || $('#pj-why').value.trim(), stage: 4,
       issue: '📣 사회문제 프로젝트 · ' + topic() + ': 이 문제를 어떻게 보여줄까?' };
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
-    UI.toast('데이터 점 스튜디오로 보냅니다…'); setTimeout(() => location.href = 'studio-data.html', 600);
+    UI.toast('데이터 점 스튜디오로 보냅니다…'); WS.goTo('studio-data.html', 600);
   }
   async function save() {
     const u = Auth.current();
