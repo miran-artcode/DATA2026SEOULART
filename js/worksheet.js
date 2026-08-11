@@ -131,6 +131,18 @@
     return unitPromise;
   }
 
+  // 학습지 한 장만: 도구 옆 서랍이 쓴다. 아홉 장을 다 받을 이유가 없다.
+  const sheetCache = {};
+  function loadSheet(sheetId) {
+    if (!sheetCache[sheetId]) sheetCache[sheetId] = loadManifest().then(ix => {
+      const meta = (ix.sheets || []).find(s => s.id === sheetId);
+      if (!meta) throw new Error('없는 학습지: ' + sheetId);
+      return fetch(BASE + '/' + ix.dir + '/' + meta.file, { cache: 'no-cache' })
+        .then(r => { if (!r.ok) throw new Error('sheet ' + r.status); return r.json(); });
+    });
+    return sheetCache[sheetId];
+  }
+
   const entryOf = (sheetId) => COURSE.find(c => c.sheet === sheetId) || null;
   const indexOf = (sheetId) => COURSE.findIndex(c => c.sheet === sheetId);
   const forPage = (p) => COURSE.filter(c => c.pages.indexOf(p || page()) >= 0);
@@ -161,15 +173,28 @@
     };
   }
 
-  // 내 학습지 노트만 (sheet id → 노트)
-  // ⚠ 클라우드 모드에서 Store.listNotes 는 notes 컬렉션을 통째로 읽는다(where 절이 없다).
-  //    그래서 이 함수는 '학습지 화면'에서만 부른다. 스튜디오 단추·허브는 아래 진행률 요약을 읽는다.
+  /*
+   * 내 학습지 노트만 (sheet id → 노트)
+   * ⚠ 클라우드 모드에서 Store.listNotes 는 notes 컬렉션을 통째로 읽는다(where 절이 없다).
+   *   그래서 이 함수는 '학습지를 실제로 여는 순간'에만 부르고, 한 번 읽은 것은 이 페이지가
+   *   살아 있는 동안 다시 읽지 않는다(학습지 화면 · 도구 옆 서랍이 같은 약속을 나눠 쓴다).
+   *   화면 여기저기의 단추·진행 표시는 저장소가 아니라 아래의 진행률 요약을 본다.
+   *
+   * 한 장만 집어 오는 편법(getNote)을 쓰지 않는 이유: store.call() 은 클라우드에 없는
+   * 메서드를 조용히 로컬로 넘긴다. 클라우드 수업에서 빈 답을 받아 들고 첫 타자에 그것을
+   * 덮어쓰면 학생이 쓴 것이 사라진다. 통째로 읽더라도 한 번만 읽는 쪽이 안전하다.
+   */
+  let notesPromise = null, notesFor = null;
   async function myNotes(user) {
-    const map = {};
-    if (!user) return map;
-    const list = await Store.listNotes(user.userId);
-    list.forEach(n => { if (n.kind === 'worksheet' && n.unit === UNIT && n.sheet) map[n.sheet] = n; });
-    return map;
+    if (!user) return {};
+    if (notesPromise && notesFor === user.userId) return notesPromise;
+    notesFor = user.userId;
+    notesPromise = Store.listNotes(user.userId).then(list => {
+      const map = {};
+      list.forEach(n => { if (n.kind === 'worksheet' && n.unit === UNIT && n.sheet) map[n.sheet] = n; });
+      return map;
+    }).catch(e => { notesPromise = null; throw e; });
+    return notesPromise;
   }
 
   /* ------------------------- 진행률 요약(이 기기) -------------------------
@@ -286,40 +311,78 @@
     const sheet = pack.sheets.find(s => s.id === row.course.sheet) || pack.sheets[0];
     const course = entryOf(sheet.id) || {};
 
-    let rec = notes[sheet.id] || blankNote(user, sheet);
-    rec.answers = rec.answers || {};
+    const rec = notes[sheet.id] || blankNote(user, sheet);
 
     renderToc(plan, sheet.id, opts);
     renderHead(plan, row, sheet, course, opts);
     renderCarryIn(pack, notes, sheet, opts);
 
-    // 본문
-    host.setAttribute('data-theme', 'light');    // 꾸러미 CSS 가 OS 다크에 반응하지 않도록(사이트 학습 화면은 라이트 고정)
+    const statusEl = document.getElementById(opts.statusEl || 'ws-status');
+    const barEl = document.getElementById(opts.progressEl || 'ws-progress');
+    const eng = attachSheet(host, {
+      user, unit: pack.unit, sheet, course, rec, toc: pack.entry.toc,
+      paths: (pack.entry.fieldIndex || []).filter(f => f.sheet === sheet.id).map(f => f.path),
+      onStat(st) {
+        if (barEl) {
+          barEl.style.width = st.pct + '%';
+          barEl.parentElement && barEl.parentElement.setAttribute('aria-valuenow', String(st.pct));
+        }
+        const cnt = document.getElementById(opts.countEl || 'ws-count');
+        if (cnt) cnt.textContent = st.filled + ' / ' + st.total + '칸 (' + st.pct + '%)';
+      },
+      say(t, cls) { if (statusEl) { statusEl.textContent = t; statusEl.className = 'ws-save ' + (cls || ''); } }
+    });
+
+    /*
+     * 화면을 벗어날 때 아직 안 넘긴 입력을 흘리지 않는다.
+     * beforeunload 안에서는 클라우드 저장(setDoc)이 끝날 시간이 없다. 그래서 링크를 먼저 가로채
+     * 저장이 끝난 뒤에 옮겨 간다. beforeunload 는 뒤로가기·탭 닫기용 마지막 방책으로만 남긴다.
+     * (이 가로채기는 '학습지 한 장이 곧 화면 전부'인 여기서만 한다. 도구 화면에서 같은 짓을 하면
+     *  캔버스 위의 온갖 링크·단추를 문서 단계에서 가로채게 되어 도구가 이상하게 움직인다.)
+     */
+    document.addEventListener('click', async (e) => {
+      if (!eng.pending()) return;                           // 저장 대기 중일 때만 가로챈다
+      const a = e.target.closest && e.target.closest('a[href]');
+      if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+      const href = a.getAttribute('href') || '';
+      if (!href || href.charAt(0) === '#' || /^(mailto|tel|javascript):/i.test(href)) return;
+      e.preventDefault();
+      await eng.flush();
+      location.href = a.href;
+    }, true);
+
+    eng.say(rec.updatedAt ? '마지막 저장 ' + new Date(rec.updatedAt).toLocaleString('ko-KR') : '아직 저장 전이에요. 쓰면 자동으로 저장됩니다');
+    if (global.Log) Log.push({ stage: course.logStage || 'sense', action: 'view', payload: { sheet: sheet.id, session: sheet.session } });
+  }
+
+  /* --------------------- 한 장 쓰기 엔진(그리기 + 자동 저장) ---------------------
+   * 학습지 화면과 도구 옆 서랍이 이 하나를 나눠 쓴다. 같은 노트 id, 같은 저장 경로,
+   * 같은 진행률이라 어느 쪽에서 쓰든 한 장이다("두 군데에 따로 쓰는" 일이 생기지 않는다).
+   * 화면에 붙는 부분(진행 막대·저장 문구)은 부르는 쪽이 콜백으로 받아 자기 자리에 그린다.
+   */
+  function attachSheet(host, o) {
+    const { user, unit, sheet, course, rec, paths } = o;
+    rec.answers = rec.answers || {};
+
+    host.setAttribute('data-theme', 'light');   // 꾸러미 CSS 가 OS 다크에 반응하지 않도록(학습 화면은 라이트 고정)
     Worksheet.renderSheet(host, {
-      unit: pack.unit, sheet, toc: pack.entry.toc, answers: rec.answers,
+      unit, sheet, toc: o.toc || null, answers: rec.answers,
+      hideScreens: true,                        // 화면 목록은 COURSE 표에서 '누를 수 있는' 링크로 그린다
       onChange(path, value, all) { rec.answers = all; onEdit(path); }
     });
 
-    /* ---- 자동 저장 ---- */
-    const paths = (pack.entry.fieldIndex || []).filter(f => f.sheet === sheet.id).map(f => f.path);
-    const statusEl = document.getElementById(opts.statusEl || 'ws-status');
-    const barEl = document.getElementById(opts.progressEl || 'ws-progress');
     let timer = null, saving = false, again = false;
+    const say = (t, cls) => { o.say && o.say(t, cls); };
 
     function paint() {
       const st = statOf(rec.answers, paths);
-      if (barEl) {
-        barEl.style.width = st.pct + '%';
-        barEl.parentElement && barEl.parentElement.setAttribute('aria-valuenow', String(st.pct));
-      }
-      const cnt = document.getElementById(opts.countEl || 'ws-count');
-      if (cnt) cnt.textContent = st.filled + ' / ' + st.total + '칸 (' + st.pct + '%)';
+      o.onStat && o.onStat(st);
       return st;
     }
-    const say = (t, cls) => { if (statusEl) { statusEl.textContent = t; statusEl.className = 'ws-save ' + (cls || ''); } };
 
     async function flush() {
       if (saving) { again = true; return; }
+      clearTimeout(timer); timer = null;
       saving = true; say('저장 중…');
       try {
         const st = paint();
@@ -339,7 +402,7 @@
     function onEdit(path) {
       paint();
       say('입력 중…');
-      clearTimeout(timer); timer = setTimeout(flush, 1200);
+      clearTimeout(timer); timer = setTimeout(flush, o.delay || 1200);
       // 학습지 칸에 적힌 행동을 화면 기록으로도 남긴다(칸마다 한 번만).
       const blockId = String(path).split('.')[1];
       const block = (sheet.blocks || []).find(b => b.id === blockId);
@@ -351,29 +414,18 @@
       }
     }
 
-    /*
-     * 화면을 벗어날 때 아직 안 넘긴 입력을 흘리지 않는다.
-     * beforeunload 안에서는 클라우드 저장(setDoc)이 끝날 시간이 없다. 그래서 링크를 먼저 가로채
-     * 저장이 끝난 뒤에 옮겨 간다. beforeunload 는 뒤로가기·탭 닫기용 마지막 방책으로만 남긴다.
-     */
-    document.addEventListener('click', async (e) => {
-      if (!timer) return;                                   // 저장 대기 중일 때만 가로챈다
-      const a = e.target.closest && e.target.closest('a[href]');
-      if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
-      const href = a.getAttribute('href') || '';
-      if (!href || href.charAt(0) === '#' || /^(mailto|tel|javascript):/i.test(href)) return;
-      e.preventDefault();
-      clearTimeout(timer); timer = null;
-      await flush();
-      location.href = a.href;
-    }, true);
-    const bail = () => { if (timer) { clearTimeout(timer); timer = null; flush(); } };
+    const bail = () => { if (timer) flush(); };
+    const onHide = () => { if (document.hidden) bail(); };
     window.addEventListener('beforeunload', bail);
-    document.addEventListener('visibilitychange', () => { if (document.hidden) bail(); });
+    document.addEventListener('visibilitychange', onHide);
+    const detach = () => {
+      bail();
+      window.removeEventListener('beforeunload', bail);
+      document.removeEventListener('visibilitychange', onHide);
+    };
 
     paint();
-    say(rec.updatedAt ? '마지막 저장 ' + new Date(rec.updatedAt).toLocaleString('ko-KR') : '아직 저장 전이에요. 쓰면 자동으로 저장됩니다');
-    if (global.Log) Log.push({ stage: course.logStage || 'sense', action: 'view', payload: { sheet: sheet.id, session: sheet.session } });
+    return { flush, bail, detach, paint, say, pending: () => !!timer, rec };
   }
 
   /* ---- 차례(단원 전체) ---- */
@@ -492,6 +544,12 @@
       '.spine-strip.fixed a{color:#93a4e8}' +
       '.spine-strip .ss-sheet{margin-left:auto;border:1px solid rgba(128,140,170,.45);border-radius:9px;padding:4px 11px;font-size:12px}' +
       '.spine-strip .ss-pick{display:inline-flex;gap:6px;flex-wrap:wrap}' +
+      '.spine-strip .ss-steps{display:inline-flex;gap:5px;align-items:center;flex-wrap:wrap}' +
+      '.spine-strip .ss-step{border:1px solid rgba(128,140,170,.4);border-radius:999px;padding:1px 10px;' +
+      'font-size:11.5px;font-weight:600;color:inherit;opacity:.75}' +
+      '.spine-strip .ss-step:hover{opacity:1;text-decoration:none;border-color:#4c6ef5}' +
+      '.spine-strip .ss-step.on{opacity:1;font-weight:800;color:#fff;background:#4c6ef5;border-color:#4c6ef5}' +
+      '.spine-strip .ss-arrow{opacity:.4;font-size:11px}' +
       '@media print{.spine-strip{display:none!important}}';
     document.head.appendChild(st);
   }
@@ -555,6 +613,17 @@
         '가 함께 써요. 오늘 차시를 골라 주세요.</span>' +
         '<span class="ss-pick">' + list.map(c =>
           '<a href="' + me + '?s=' + c.sheet + '">' + sesName(c.sheet) + '</a>').join('') + '</span>';
+      /*
+       * 고르는 순간 화면을 새로 읽지 않는다. 이 화면(데이터 점 스튜디오)은 여러 차시가
+       * 함께 쓰는 자리이고, 학생은 이미 CSV 를 올리고 매핑을 만들어 두었을 수 있다.
+       * 차시를 고르려고 그것을 잃게 하면, 학습지 단추에서 없앤 문제를 여기로 옮겨 놓는 꼴이다.
+       * (서랍이 없는 화면이라면 href 가 그대로 살아 있어 예전처럼 주소로 이동한다.)
+       */
+      host.querySelectorAll('.ss-pick a').forEach((a, i) => a.addEventListener('click', (e) => {
+        if (!dock) return;
+        e.preventDefault();
+        pickSession(list[i].sheet);
+      }));
       return;
     }
     paintContext(host, course, me);
@@ -566,15 +635,36 @@
     const i = indexOf(course.sheet);
     const prev = i > 1 ? COURSE[i - 1] : null;      // 표지(0번)는 앞 차시로 치지 않는다
 
+    /* 이 차시의 세 걸음을 통째로 보여 준다. 학생이 지금 어디이고 다음이 무엇인지
+       한 줄로 읽힌다("다음: …" 한 마디만으로는 전체 길이 안 보였다). */
+    const steps = ['learn', 'make', 'share'].map(s => {
+      const items = course[s] || [];
+      if (!items.length) return '';
+      const here = s === k;
+      const x = (here && items.find(y => y.page === me)) || items[0];
+      return '<a class="ss-step' + (here ? ' on' : '') + '" href="' + hrefOf(x, course.sheet) + '"' +
+        ' title="' + esc(x.label) + '">' + SLOT[s] + (here ? ' · 지금' : '') + '</a>';
+    }).join('<span class="ss-arrow" aria-hidden="true">→</span>');
+
     host.innerHTML =
       '<span class="ss-now"><span class="ss-n">' + sesName(course.sheet) + '</span>' +
-        esc(course.badge) + (k ? ' <span class="ss-slot">' + SLOT[k] + '</span>' : '') + '</span>' +
+        esc(course.badge) + '</span>' +
       (prev ? '<span class="ss-seg">앞: <a href="worksheet.html?s=' + prev.sheet + '">' +
-        sesName(prev.sheet) + ' ' + esc(prev.badge) + '</a></span>' : '') +
-      (nx ? '<span class="ss-seg">다음: <a href="' + hrefOf(nx.item, course.sheet) + '">' +
-        SLOT[nx.slot] + ' · ' + esc(nx.item.label) + ' →</a></span>' : '') +
-      '<a class="ss-sheet" href="worksheet.html?s=' + course.sheet + '">📄 ' +
-        sesName(course.sheet) + ' 학습지<span id="ss-pct"></span></a>';
+        sesName(prev.sheet) + '</a></span>' : '') +
+      '<span class="ss-steps">' + steps + '</span>' +
+      (nx ? '<span class="ss-seg">다음 <a href="' + hrefOf(nx.item, course.sheet) + '">' +
+        esc(nx.item.label) + ' →</a></span>' : '') +
+      '<a class="ss-sheet" id="ss-sheet" href="worksheet.html?s=' + course.sheet + '">📄 ' +
+        sesName(course.sheet) + ' 학습지 여기서 쓰기<span id="ss-pct"></span></a>';
+
+    /* 학습지 단추는 화면을 떠나지 않는다: 이 자리에서 서랍으로 펼친다.
+       (서랍이 없는 화면이라면 href 가 그대로 살아 있어 예전처럼 학습지 화면으로 간다.) */
+    const sheetBtn = host.querySelector('#ss-sheet');
+    if (sheetBtn) sheetBtn.addEventListener('click', (e) => {
+      if (!dock) return;
+      e.preventDefault();
+      openDock(course.sheet);
+    });
 
     // 진행률은 로그인한 학생에게만, 이 기기의 요약에서(저장소를 다시 읽지 않는다)
     try {
@@ -596,35 +686,360 @@
     }).catch(() => { /* file:// 로 연 경우: 제목만 없고 나머지는 그대로 뜬다 */ });
   }
 
-  /* --------------------- 스튜디오 화면의 '학습지 열기' 단추 --------------------- */
-  /*
-   * 학습지를 따로 찾아 들어가게 하면 수업 중에 아무도 열지 않는다.
-   * 그래서 그 차시가 쓰는 화면 위에 작은 단추로 띄운다. 도구 옆에 종이가 놓여 있는 모양.
-   * (위치 스트립과 달리 진행률을 말하므로 로그인한 학생에게만 띄운다.)
+  /* ========================= 도구 옆에 붙는 학습지 서랍 =========================
+   * 교사의 다음 지적("학습지랑 만드는 사이트를 왔다갔다 해야 해서 불편하다")의 본체는
+   * 학습지가 '다른 화면'이라는 데 있었다. 예전 단추는 worksheet.html 로 데려갔고,
+   * 그 순간 만들던 것(불러온 그림·녹음·매핑 설정)은 화면과 함께 사라졌다. 그래서 학생은
+   * 도구에서 한참 만들다가 마지막에 몰아서 쓰거나, 아예 쓰지 않았다.
+   *
+   * 이제 학습지가 도구 쪽으로 온다. 같은 화면 오른쪽에서 열리고, 만들던 것은 그대로 있다.
+   *
+   * 지키는 것
+   *   · 한 장이다. worksheet.html 과 같은 노트 id·같은 저장 경로·같은 진행률을 쓴다
+   *     (attachSheet 하나를 나눠 쓴다). 어디서 쓰든 선생님 화면에는 한 줄로 모인다.
+   *   · 도구를 건드리지 않는다. 문서 단계에서 클릭을 가로채지 않고, 무거운 것(렌더러·꾸러미
+   *     CSS·학습지 JSON)은 학생이 실제로 열 때 받아 온다. 자기 마크업·자기 CSS 라서
+   *     site.css 를 쓰지 않는 색 군집 스튜디오에도 한 글자 안 고치고 붙는다.
+   *   · 차시를 넘겨짚지 않는다. 여러 차시가 함께 쓰는 화면(데이터 점 스튜디오·갤러리)에서는
+   *     쓰기 전에 물어본다. 이건 링크가 아니라 '쓰는' 자리여서, 넘겨짚으면 답이 남의 차시
+   *     칸에 저장된다.
+   *   · 열어 둔 채로 화면을 옮기면 다음 화면에서도 열려 있다. 왔다갔다가 사라지는 지점.
    */
-  function mountLauncher() {
+  const K_DOCK = 'dn_ws_dock';
+  let rendererP = null, paperCssP = null, dock = null;
+
+  function loadRenderer() {
+    if (global.Worksheet) return Promise.resolve();
+    if (!rendererP) rendererP = new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = BASE + '/render/worksheet.js';
+      s.onload = res;
+      s.onerror = () => { rendererP = null; rej(new Error('학습지 렌더러를 불러오지 못했어요')); };
+      document.head.appendChild(s);
+    });
+    return rendererP;
+  }
+
+  /* 꾸러미 CSS 는 <link> 로 붙이지 않는다. 그 파일 끝의 @page 규칙은 문서 전체의 인쇄 여백을
+     바꾸는데, 서랍을 한 번 열었다는 이유로 그 화면의 인쇄(포트폴리오 A4 등)가 달라지면 안 된다. */
+  function loadPaperCSS() {
+    if (paperCssP) return paperCssP;
+    if (document.getElementById('ws-paper-css')) return (paperCssP = Promise.resolve());
+    paperCssP = fetch(BASE + '/render/worksheet.css', { cache: 'no-cache' })
+      .then(r => { if (!r.ok) throw new Error('css ' + r.status); return r.text(); })
+      .then(css => {
+        const st = document.createElement('style');
+        st.id = 'ws-paper-css';
+        st.textContent = css.replace(/@page\s*\{[^}]*\}/g, '');
+        document.head.appendChild(st);
+      })
+      .catch(e => { paperCssP = null; throw e; });
+    return paperCssP;
+  }
+
+  function injectDockCSS() {
+    if (document.getElementById('ws-dock-css')) return;
+    const st = document.createElement('style');
+    st.id = 'ws-dock-css';
+    st.textContent =
+      '.wsdock-tab,.wsdock{font:400 13px/1.55 Pretendard,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;' +
+      'box-sizing:border-box}.wsdock *,.wsdock-tab *{box-sizing:border-box}' +
+      /* 층 순서: 서랍(78) 은 위치 스트립(70)·헤더 위, 모달(.modal-bg 80 · 색 스튜디오 210 ·
+         교사 잠금 120)과 토스트(90) 아래다. 모달은 "지금 이것만 보라"는 요구라 서랍보다 위여야 한다. */
+      '.wsdock-tab{position:fixed;right:16px;bottom:16px;z-index:74;display:flex;gap:9px;align-items:center;' +
+      'padding:9px 14px 9px 11px;border-radius:14px;border:1px solid #cdd6e4;background:#fff;color:#17202e;' +
+      'box-shadow:0 8px 24px rgba(10,14,24,.22);cursor:pointer;text-align:left;text-decoration:none}' +
+      '.wsdock-tab:hover{border-color:#2f6be0;transform:translateY(-1px)}' +
+      '.wsdock-tab .ic{font-size:17px}.wsdock-tab b{display:block;font-size:12.5px;font-weight:800}' +
+      '.wsdock-tab small{display:block;font-size:10.5px;color:#5a6678}' +
+      '.wsdock-tab[data-open="1"]{display:none}' +
+      '.wsdock-bd{position:fixed;inset:0;z-index:76;background:rgba(6,8,16,.45);border:0;display:none}' +
+      '.wsdock-bd.on{display:block}' +
+      '.wsdock{position:fixed;top:0;right:0;bottom:0;width:min(580px,100vw);z-index:78;display:flex;' +
+      'flex-direction:column;background:#fff;color:#17202e;color-scheme:light;border-left:1px solid #d7dee8;' +
+      'box-shadow:-18px 0 46px rgba(10,14,24,.3);visibility:hidden;transform:translateX(103%);' +
+      'transition:transform .22s ease,visibility 0s linear .22s}' +
+      '.wsdock.on{visibility:visible;transform:none;transition:transform .22s ease}' +
+      '.wsdock-hd{padding:11px 14px 9px;border-bottom:1px solid #e3e9f1;background:#f7f9fc}' +
+      '.wsdock-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}' +
+      '.wsdock-ses{background:#2f6be0;color:#fff;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800}' +
+      '.wsdock-title{font-weight:800;font-size:14px}' +
+      '.wsdock-hd .sp{margin-left:auto;display:flex;gap:6px}' +
+      '.wsdock-ic{border:1px solid #cdd6e4;background:#fff;color:#3b475c;border-radius:9px;padding:3px 9px;' +
+      'font-size:12px;cursor:pointer;text-decoration:none;line-height:1.5}' +
+      '.wsdock-ic:hover{border-color:#2f6be0;color:#2f6be0}' +
+      '.wsdock-steps{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0 0}' +
+      '.wsdock-step{display:inline-flex;gap:5px;align-items:baseline;border:1px solid #d7dee8;border-radius:999px;' +
+      'padding:3px 10px;font-size:11.5px;color:#3b475c;text-decoration:none;background:#fff}' +
+      '.wsdock-step i{font-style:normal;font-weight:800;color:#8a94a6;font-size:10.5px}' +
+      '.wsdock-step:hover{border-color:#2f6be0;color:#2f6be0}' +
+      '.wsdock-step.on{background:#eaf0fd;border-color:#2f6be0;color:#1c47a6;font-weight:800}' +
+      '.wsdock-step.on i{color:#2f6be0}' +
+      '.wsdock-meter{height:5px;border-radius:999px;background:#e3e9f1;overflow:hidden;margin:10px 0 5px}' +
+      '.wsdock-meter i{display:block;height:100%;width:0;background:#2f6be0;transition:width .2s}' +
+      '.wsdock-say{display:flex;gap:10px;align-items:baseline;font-size:11.5px;color:#5a6678}' +
+      '.wsdock-say .ok{color:#1c7a4a}.wsdock-say .bad{color:#c0392b}.wsdock-say .cnt{margin-left:auto}' +
+      '.wsdock-body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;background:#fff}' +
+      '.wsdock-msg{padding:22px 18px;font-size:13px;color:#3b475c}' +
+      '.wsdock-msg a{color:#2f6be0;font-weight:700}' +
+      '.wsdock-pick{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}' +
+      '.wsdock-pick button{border:1px solid #cdd6e4;background:#fff;border-radius:10px;padding:7px 13px;' +
+      'font-size:13px;font-weight:700;color:#17202e;cursor:pointer}' +
+      '.wsdock-pick button:hover{border-color:#2f6be0;color:#2f6be0}' +
+      '.wsdock-ft{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 14px;' +
+      'border-top:1px solid #e3e9f1;background:#f7f9fc;font-size:12px}' +
+      '.wsdock-ft a{color:#2f6be0;font-weight:700;text-decoration:none}' +
+      '.wsdock-ft a:hover{text-decoration:underline}.wsdock-ft .go{margin-left:auto}' +
+      /* 종이는 언제나 흰 종이다: 어두운 도구 화면의 테마 변수가 흘러들지 않게 여기서 못 박는다 */
+      '.wsdock .wsdock-paper .ws{--ws-fg:#17202e;--ws-bg:#fff;--ws-line:#c5cfdd;--ws-band:#f1f4f9;' +
+      '--ws-muted:#5a6678;--ws-ink:#2f6be0;max-width:none;margin:0;padding:14px 16px 44px}' +
+      '.wsdock .wsdock-paper .ws-in{border-bottom:1px solid #dbe2ec}' +
+      '.wsdock .wsdock-paper .ws-in:focus{border-bottom-color:transparent}' +
+      '@media (max-width:640px){.wsdock{width:100vw}.wsdock-tab{right:10px;bottom:10px}}' +
+      '@media print{.wsdock,.wsdock-tab,.wsdock-bd{display:none!important}}';
+    document.head.appendChild(st);
+  }
+
+  function mountDock() {
     const list = forPage();
-    if (!list.length || document.getElementById('ws-launch')) return;
-    const user = Auth.current();
-    if (!user) return;
+    if (!list.length || document.getElementById('ws-dock')) return;
+    injectDockCSS();
 
-    // 저장소를 읽지 않는다. 이 기기에 남은 진행률 요약만 본다(18개 화면에 뜨는 단추라서).
-    const prog = readProgress(user);
-    const pctOf = (id) => (prog[id] && prog[id].pct) || 0;
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'wsdock-tab';
+    tab.id = 'ws-dock-tab';
+    tab.setAttribute('aria-controls', 'ws-dock');
+    tab.setAttribute('aria-expanded', 'false');
 
-    // 주소가 차시를 알려 주면 그것을 따른다. 아니면 아직 덜 채운 앞 차시.
-    const pick = resolveSession(list) || list.slice().sort((a, b) =>
-      (pctOf(a.sheet) >= DONE_PCT) - (pctOf(b.sheet) >= DONE_PCT) || indexOf(a.sheet) - indexOf(b.sheet))[0];
+    const bd = document.createElement('div');
+    bd.className = 'wsdock-bd';
+    bd.id = 'ws-dock-bd';
 
-    const pct = pctOf(pick.sheet);
-    const ses = sesName(pick.sheet);
+    const panel = document.createElement('aside');
+    panel.className = 'wsdock';
+    panel.id = 'ws-dock';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-label', '학습지');
+    panel.innerHTML =
+      '<div class="wsdock-hd">' +
+        '<div class="wsdock-top">' +
+          '<span class="wsdock-ses" id="wsd-ses"></span>' +
+          '<span class="wsdock-title" id="wsd-title">학습지</span>' +
+          '<span class="sp">' +
+            '<button type="button" class="wsdock-ic" id="wsd-switch" hidden>차시 바꾸기</button>' +
+            '<a class="wsdock-ic" id="wsd-full" href="worksheet.html" title="전체 화면으로 보기 · 인쇄">전체·인쇄 ↗</a>' +
+            '<button type="button" class="wsdock-ic" id="wsd-close" aria-label="학습지 접기">✕</button>' +
+          '</span>' +
+        '</div>' +
+        '<div class="wsdock-steps" id="wsd-steps"></div>' +
+        '<div class="wsdock-meter"><i id="wsd-bar"></i></div>' +
+        '<div class="wsdock-say"><span id="wsd-say"></span><span class="cnt" id="wsd-cnt"></span></div>' +
+      '</div>' +
+      '<div class="wsdock-body"><div class="wsdock-paper" id="wsd-paper">' +
+        '<div class="wsdock-msg">학습지를 여는 중…</div></div></div>' +
+      '<div class="wsdock-ft" id="wsd-ft"></div>';
 
-    const a = document.createElement('a');
-    a.id = 'ws-launch'; a.className = 'ws-launch'; a.href = 'worksheet.html?s=' + pick.sheet;
-    a.setAttribute('aria-label', ses + ' 학습지 열기: ' + (pct ? pct + '% 채움' : '아직 시작 전'));
-    a.innerHTML = '<span class="ic" aria-hidden="true">📄</span><span class="tx"><b>' + ses + ' 학습지</b>' +
-      '<small>' + (pct ? pct + '% 채움 · 이어서 쓰기' : '이 화면에서 쓰는 학습지') + '</small></span>';
-    document.body.appendChild(a);
+    document.body.appendChild(tab);
+    document.body.appendChild(bd);
+    document.body.appendChild(panel);
+
+    dock = { tab, bd, panel, list, eng: null, sheetId: null, open: false, loading: false };
+    paintTab();
+
+    tab.addEventListener('click', () => openDock());
+    panel.querySelector('#wsd-close').addEventListener('click', () => closeDock());
+    bd.addEventListener('click', () => closeDock());
+    panel.querySelector('#wsd-switch').addEventListener('click', () => askSession());
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && dock.open) closeDock();
+    });
+
+    /*
+     * 서랍 안의 링크(다음 활동·앞 차시·전체 화면)로 나갈 때는 쓰던 것을 먼저 저장하고 옮긴다.
+     * 학습지 화면과 달리 여기서는 문서 전체가 아니라 이 서랍 안만 가로챈다.
+     * 도구의 캔버스·단추는 이 handler 를 스치지도 않는다.
+     */
+    panel.addEventListener('click', async (e) => {
+      const a = e.target.closest && e.target.closest('a[href]');
+      if (!a || !dock.eng || !dock.eng.pending()) return;
+      if (a.target === '_blank' || a.hasAttribute('download')) return;
+      const href = a.getAttribute('href') || '';
+      if (!href || href.charAt(0) === '#' || /^(mailto|tel|javascript):/i.test(href)) return;
+      e.preventDefault();
+      await dock.eng.flush();
+      location.href = a.href;
+    });
+
+    /* 열어 둔 채로 화면을 옮겼다면 다음 화면에서도 열어 준다.
+       좁은 화면에서는 서랍이 도구를 통째로 덮으므로 학생이 직접 열게 둔다. */
+    try {
+      if (localStorage.getItem(K_DOCK) === '1' && window.innerWidth >= 900) setTimeout(() => openDock(), 60);
+    } catch (e) { /* 저장소를 못 읽어도 단추는 있다 */ }
+  }
+
+  function paintTab() {
+    const user = (global.Auth && Auth.current && Auth.current()) || null;
+    const c = resolveSession(dock.list);
+    const pct = (user && c) ? ((readProgress(user)[c.sheet] || {}).pct || 0) : 0;
+    const name = c ? sesName(c.sheet) + ' 학습지' : '오늘 학습지';
+    const sub = !user ? '로그인하면 여기서 바로 써요'
+      : !c ? '차시를 고르고 여기서 바로 쓰기'
+      : pct ? pct + '% 채움 · 이어서 쓰기'
+      : '이 화면 옆에서 바로 쓰기';
+    dock.tab.innerHTML = '<span class="ic" aria-hidden="true">📄</span><span class="tx"><b>' +
+      esc(name) + '</b><small>' + esc(sub) + '</small></span>';
+    dock.tab.setAttribute('aria-label', name + ' 열기 · ' + sub);
+  }
+
+  function showDock(on) {
+    dock.open = on;
+    dock.tab.setAttribute('data-open', on ? '1' : '0');
+    dock.tab.setAttribute('aria-expanded', on ? 'true' : 'false');
+    // 좁은 화면에서만 뒷막: 넓은 화면에서는 서랍을 연 채로 도구를 계속 쓴다
+    dock.bd.classList.toggle('on', on && window.innerWidth < 900);
+    dock.panel.classList.toggle('on', on);
+    try { localStorage.setItem(K_DOCK, on ? '1' : '0'); } catch (e) { /* 기억은 덤이다 */ }
+  }
+
+  function closeDock() {
+    if (dock.eng && dock.eng.pending()) dock.eng.flush();
+    showDock(false);
+    paintTab();
+  }
+
+  const msg = (html) => { document.getElementById('wsd-paper').innerHTML = '<div class="wsdock-msg">' + html + '</div>'; };
+
+  /* 어느 차시로 쓸지 물어본다. 고르면 주소에 ?s= 를 새겨서 이 화면의 다른 부분
+     (위치 스트립·보내기 단추·기록 꼬리표)도 같은 차시를 말하게 한다. */
+  function askSession() {
+    showDock(true);
+    document.getElementById('wsd-ses').textContent = '차시';
+    document.getElementById('wsd-title').textContent = '오늘은 몇 차시인가요?';
+    document.getElementById('wsd-steps').innerHTML = '';
+    document.getElementById('wsd-ft').innerHTML = '';
+    msg('이 화면은 <b>' + dock.list.map(c => sesName(c.sheet)).join(' · ') +
+      '</b>가 함께 써요. 쓴 답이 그 차시 학습지에 저장되니, 오늘 차시를 골라 주세요.' +
+      '<div class="wsdock-pick">' + dock.list.map(c =>
+        '<button type="button" data-s="' + c.sheet + '">' + sesName(c.sheet) + ' · ' + esc(c.badge) + '</button>').join('') +
+      '</div>');
+    document.getElementById('wsd-paper').querySelectorAll('button[data-s]').forEach(b => {
+      b.addEventListener('click', () => pickSession(b.getAttribute('data-s'), true));
+    });
+  }
+
+  /* 오늘 차시를 정한다: 화면을 새로 읽지 않고 주소에만 새긴다.
+     ?s= 를 심어 두면 위치 스트립·보내기 단추(goTo)·기록 꼬리표(stampOf)가 모두 같은 차시를 말한다. */
+  function pickSession(sheetId, open) {
+    try {
+      const u = new URL(location.href);
+      u.searchParams.set('s', sheetId);
+      history.replaceState(null, '', u.pathname + u.search + u.hash);
+    } catch (e) { /* 주소를 못 고쳐도 아래에서 차시를 직접 넘긴다 */ }
+    const strip = document.getElementById('spine-strip-el');
+    if (strip) paintContext(strip, entryOf(sheetId), page());
+    paintTab();
+    if (open) openDock(sheetId);
+  }
+
+  async function openDock(forceSheet) {
+    showDock(true);
+    const user = (global.Auth && Auth.current && Auth.current()) || null;
+    if (!user) {
+      document.getElementById('wsd-title').textContent = '학습지';
+      msg('학습지는 <b>내 계정에 자동 저장</b>돼요. 먼저 로그인하면 이 화면 옆에서 바로 쓸 수 있어요.<br>' +
+        '<a href="index.html?next=' + encodeURIComponent(page() + location.search) + '">로그인하러 가기 →</a>');
+      return;
+    }
+
+    const c = (forceSheet && entryOf(forceSheet)) || resolveSession(dock.list);
+    if (!c) return askSession();
+    /*
+     * 두 번 펼치지 않는다. 저절로 열리는 타이머와 학생의 탭 클릭이 겹칠 수 있는데,
+     * 그때 아래를 두 번 지나면 엔진이 둘 붙고, 아직 저장된 적 없는 학습지라면 같은 id 를
+     * 가진 rec 두 개가 서로를 덮어쓴다. 그래서 '펼치는 중'도 이미 그 차시로 친다.
+     */
+    if (dock.sheetId === c.sheet && (dock.eng || dock.loading)) return;
+    if (dock.eng) { dock.eng.detach(); dock.eng = null; }  // 차시를 바꾼다: 앞 장을 저장하고 손을 뗀다
+
+    dock.sheetId = c.sheet;
+    dock.loading = true;
+    paintDockHead(c);
+    msg('학습지를 여는 중…');
+
+    try {
+      const [, , ix, unit, sheet, notes] =
+        await Promise.all([loadRenderer(), loadPaperCSS(), loadManifest(), loadUnit(), loadSheet(c.sheet), myNotes(user)]);
+
+      // 통째로 한 번 읽은 김에 진행률 요약도 맞춰 둔다(스트립·허브가 이것만 본다)
+      writeProgress(user, statsFromNotes(ix, notes));
+
+      const meta = (ix.sheets || []).find(s => s.id === c.sheet) || {};
+      const host = document.createElement('div');
+      const paper = document.getElementById('wsd-paper');
+      paper.innerHTML = '';
+      paper.appendChild(host);
+
+      const barEl = document.getElementById('wsd-bar');
+      const cntEl = document.getElementById('wsd-cnt');
+      const sayEl = document.getElementById('wsd-say');
+      const rec = notes[c.sheet] || blankNote(user, sheet);
+
+      dock.eng = attachSheet(host, {
+        user, unit, sheet, course: c, rec, toc: ix.toc,
+        paths: (ix.fieldIndex || []).filter(f => f.sheet === c.sheet).map(f => f.path),
+        /* 도구 화면에서는 문서 전체의 클릭을 가로채지 않는다(도구를 건드리지 않으려고).
+           대신 넘기는 간격을 줄여, 내비·스트립 링크로 훌쩍 나가도 잃는 입력이 적게 한다. */
+        delay: 500,
+        onStat(st) {
+          barEl.style.width = st.pct + '%';
+          cntEl.textContent = st.filled + ' / ' + st.total + '칸 (' + st.pct + '%)';
+          const t = dock.tab.querySelector('small');
+          if (t) t.textContent = st.pct + '% 채움 · 이어서 쓰기';
+        },
+        say(t, cls) { sayEl.textContent = t; sayEl.className = cls || ''; }
+      });
+      dock.eng.say(rec.updatedAt
+        ? '마지막 저장 ' + new Date(rec.updatedAt).toLocaleString('ko-KR')
+        : '쓰면 자동으로 저장돼요');
+      paintDockHead(c, meta.title);
+      dock.loading = false;
+      if (global.Log) Log.push({ stage: c.logStage || 'sense', action: 'view', payload: { sheet: c.sheet, session: meta.session } });
+    } catch (e) {
+      dock.sheetId = null;
+      dock.loading = false;
+      console.warn('[worksheet] 서랍 열기 실패', e);
+      msg('<b>학습지를 불러오지 못했어요.</b> 파일을 직접 열면(<code>file://</code>) 브라우저가 JSON 을 막습니다. ' +
+        '학교 주소(https://…)로 열거나, <a href="worksheet.html?s=' + c.sheet + '">학습지 화면</a>에서 써 주세요. ' +
+        '<span style="opacity:.7">(' + esc(e.message) + ')</span>');
+    }
+  }
+
+  /* 서랍 머리말: 이 차시의 배우기 → 만들기 → 나누기를 전부 보여 주고 지금 자리를 켠다.
+     "뭘 누르고 뭘 해야 할지 모르겠다"에 대한 답이 여기 있다: 오늘 할 일 세 개가 종이 위에 있다. */
+  function paintDockHead(c, title) {
+    const me = page();
+    document.getElementById('wsd-ses').textContent = sesName(c.sheet);
+    document.getElementById('wsd-title').textContent = title || c.badge || '';
+    document.getElementById('wsd-full').setAttribute('href', 'worksheet.html?s=' + c.sheet);
+    document.getElementById('wsd-switch').hidden = dock.list.length < 2;
+
+    document.getElementById('wsd-steps').innerHTML = ['learn', 'make', 'share'].map(k => {
+      const items = c[k] || [];
+      if (!items.length) return '';
+      const here = items.find(x => x.page === me);
+      const x = here || items[0];
+      return '<a class="wsdock-step' + (here ? ' on' : '') + '" href="' + hrefOf(x, c.sheet) + '">' +
+        '<i>' + SLOT[k] + '</i>' + esc(x.label) + (here ? ' · 지금' : '') + '</a>';
+    }).join('');
+
+    const nx = nextInSession(c, me);
+    const i = indexOf(c.sheet);
+    const prev = i > 1 ? COURSE[i - 1] : null;
+    document.getElementById('wsd-ft').innerHTML =
+      (prev ? '<a href="worksheet.html?s=' + prev.sheet + '">← ' + sesName(prev.sheet) + ' 학습지</a>' : '') +
+      (nx ? '<a class="go" href="' + hrefOf(nx.item, c.sheet) + '">다 썼으면 다음: ' +
+        SLOT[nx.slot] + ' · ' + esc(nx.item.label) + ' →</a>' : '');
   }
 
   /* --------------------- 통합 여정: 차시마다 배우기·만들기·나누기·학습지 한 묶음 --------------------- */
@@ -660,16 +1075,29 @@
         list.map(x => '<a href="' + hrefOf(x, sheetId) + '">' + esc(x.label) + '</a>').join('') + '</span></div>'
       : '<div class="jr-act off"><i>' + label + '</i><span class="muted">화면 속 ⓘ 설명으로</span></div>';
 
+    /*
+     * 한 줄의 주 단추가 어디를 가리키는가는 화면마다 다르다.
+     *   허브: '오늘 할 일' 자리다. 학습지만 따로 여는 단추를 주면, 바로 위의 「시작하기」와
+     *         서로 다른 곳을 가리켜 학생이 또 헤맨다. 그 차시의 첫 활동으로 보내고
+     *         학습지는 그 화면에서 옆에 펼쳐지게 한다(start:true).
+     *   여정 지도: 읽고 계획하는 화면이다. 학습지 전체를 여는 편이 맞다.
+     */
+    const start = !!opts.start;
     el.innerHTML =
       '<div class="dn-cluster-head"><div><span class="eyebrow">Plan</span><h3>' +
       (opts.title || '한 차시가 한 묶음: 배우기 → 만들기 → 나누기') + '</h3>' +
       '<p>매 차시 <b>학습지 한 장</b>이 함께 가고, 쓴 내용은 자동 저장되어 ' +
       '선생님 화면과 내 포트폴리오로 이어집니다.' + (user ? '' : ' 로그인하면 진행률이 표시돼요.') + '</p></div>' +
-      '<a class="more" href="worksheet.html">학습지 열기 →</a></div>' +
+      '<a class="more" href="worksheet.html">학습지 전체 보기 →</a></div>' +
       '<div class="jr">' + rows.map(r => {
         const c = r.course, m = metaOf(c.sheet);
         const q = (m.eq || []).map(id => eqText[id]).filter(Boolean)[0] || '';
         const isNext = plan.next && plan.next.course.sheet === c.sheet;
+        const first = c.learn[0] || c.make[0] || c.share[0];
+        const go = (start && first)
+          ? '<a class="btn sm" href="' + hrefOf(first, c.sheet) + '" data-open-sheet="1">' +
+            r.session + '차시 시작하기 →</a>'
+          : '<a class="btn sm" href="worksheet.html?s=' + c.sheet + '">📄 학습지 쓰기</a>';
         return '<div class="jr-row ' + r.state + (isNext ? ' now' : '') + '">' +
           '<div class="jr-n"><b>' + r.session + '차시</b><span class="jr-stage">' + esc(c.badge) + '</span>' +
             '<span class="jr-state ' + r.state + '">' + MARK[r.state] + (r.stat.pct ? ' · ' + r.stat.pct + '%' : '') + '</span></div>' +
@@ -678,13 +1106,18 @@
             (q ? '<p class="jr-q">' + esc(q) + '</p>' : '') +
             '<div class="jr-acts">' + actHTML('배우기', c.learn, c.sheet) + actHTML('만들기', c.make, c.sheet) +
               actHTML('나누기', c.share, c.sheet) + '</div>' +
-            '<div class="jr-foot"><a class="btn sm" href="worksheet.html?s=' + c.sheet + '">📄 학습지 쓰기</a>' +
+            '<div class="jr-foot">' + go +
               (r.yield ? '<span class="jr-yield">결과물 · ' + esc(r.yield) + '</span>' : '') + '</div>' +
           '</div></div>';
       }).join('') + '</div>' +
       '<p class="muted" style="font-size:12px;margin:10px 0 0"><b>' +
       (plan.next.session ? plan.next.session + '차시 「' + esc(plan.next.title) + '」' : '표지') + '</b> 차례입니다 · ' +
       '완료 ' + plan.doneCnt + ' / ' + rows.length + '장 · 결석했더라도 잠금은 안내일 뿐, 어느 차시든 열 수 있어요.</p>';
+
+    // 「시작하기」로 나가면 도착한 화면에서 학습지가 옆에 펼쳐진 채로 시작한다
+    el.querySelectorAll('[data-open-sheet]').forEach(a => a.addEventListener('click', () => {
+      try { localStorage.setItem(K_DOCK, '1'); } catch (e) { /* 안 열려도 📄 단추는 있다 */ }
+    }));
   }
 
   /*
@@ -714,9 +1147,13 @@
 
   global.WS = {
     BASE, UNIT, UNIT_ID: UNIT, COURSE, STAGE_NAME, SLOT, DONE_PCT, OPEN_PCT,
-    load, loadManifest, loadUnit, entryOf, indexOf, forPage, hrefOf, slotOf, resolveSession, stampOf, goTo,
-    noteIdOf, blankNote, myNotes,
-    statOf, statsFromNotes, readProgress, planOf, mountPage, mountLauncher, mountContext,
+    load, loadSheet, loadManifest, loadUnit, entryOf, indexOf, forPage, hrefOf, slotOf, resolveSession, stampOf, goTo,
+    noteIdOf, blankNote, myNotes, attachSheet,
+    statOf, statsFromNotes, readProgress, planOf, mountPage, mountContext, mountDock,
+    openDock, closeDock,
+    // mountLauncher 는 옛 이름이다. 18개 화면이 이 이름으로 부르고 있어 그대로 살려 둔다
+    // (이제 학습지 화면으로 '데려가는' 단추가 아니라 그 자리에서 펼치는 서랍이다).
+    mountLauncher: mountDock,
     mountJourney, mountHub: mountJourney    // mountHub 는 옛 이름: 같은 통합 여정을 그린다
   };
 })(window);

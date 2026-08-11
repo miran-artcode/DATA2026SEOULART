@@ -451,13 +451,6 @@ table.data tr:hover td { background: var(--panel2); }
 .jr-foot { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 9px; }
 .jr-yield { font-size: 11.5px; color: var(--muted); }
 
-/* 스튜디오 위에 뜨는 '학습지 열기': 도구 옆에 종이가 놓인 모양 */
-.ws-launch { position: fixed; right: 18px; bottom: 18px; z-index: 60; display: flex; gap: 9px; align-items: center;
-  padding: 9px 13px 9px 11px; border-radius: 14px; text-decoration: none; color: var(--text);
-  background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); transition: .15s; }
-.ws-launch:hover { border-color: var(--accent); transform: translateY(-1px); }
-.ws-launch .ic { font-size: 17px; }
-.ws-launch .tx b { display: block; font-size: 12.5px; }
-.ws-launch .tx small { display: block; font-size: 10.5px; color: var(--muted); }
-@media (max-width: 560px) { .ws-launch { right: 10px; bottom: 10px; padding: 8px 11px; } }
-@media print { .ws-launch, .ws-toc, .ws-bar, .ws-meter { display: none !important; } }
+/* 도구 화면 옆에 펼쳐지는 학습지 서랍(.wsdock)은 자기 CSS 를 스스로 넣는다: site.css 를
+   쓰지 않는 색 군집 스튜디오에도 똑같이 붙어야 하기 때문이다(js/worksheet.js 의 injectDockCSS). */
+@media print { .ws-toc, .ws-bar, .ws-meter { display: none !important; } }

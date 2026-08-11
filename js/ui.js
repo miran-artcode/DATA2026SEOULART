@@ -30,7 +30,7 @@
     { href: 'learn.html', t: '알고리즘 배움터', s: '개념을 쉬운 말에서 깊은 원리로' }
   ];
   const NAV_MINE = [
-    { href: 'worksheet.html', t: '학습지', s: '차시마다 한 장 · 쓰면 자동 저장' },
+    { href: 'worksheet.html', t: '학습지 전체 보기', s: '도구 화면에서는 오른쪽 아래 📄로 옆에 펼쳐져요' },
     { href: 'notes.html', t: '작업 노트', s: '과정·버전·성찰 기록' },
     { href: 'portfolio.html', t: '내 포트폴리오', s: '판단의 과정을 A4 한 장으로' },
     { href: 'gallery.html', t: '전시 갤러리', s: '내 작품과 친구 작품 감상·비평' }

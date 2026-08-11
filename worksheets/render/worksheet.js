@@ -192,11 +192,17 @@
     root.innerHTML = '';
     root.classList.add('ws');
 
+    /*
+     * 사용 화면 줄: 이 학습지가 어느 화면에서 쓰이는지.
+     * 붙이는 쪽이 자기 표에서 같은 목록을 '누를 수 있는' 링크로 그린다면(사이트 통합처럼)
+     * 여기서 또 그리면 같은 말이 두 번, 그것도 한 번은 못 누르는 회색 글씨로 나온다.
+     * 그래서 hideScreens 로 끌 수 있게 두었다. 단독으로 쓸 때의 기본값은 그대로다.
+     */
     root.append(h('header', { class: 'ws-head' },
       h('div', { class: 'ws-badge', text: s.kind === 'session' ? `${s.session} 차시` : (s.title || '') }),
       h('div', {},
         h('h2', { class: 'ws-title', text: s.title }),
-        (s.screens || []).length ? h('p', { class: 'ws-screens' },
+        (!opts.hideScreens && (s.screens || []).length) ? h('p', { class: 'ws-screens' },
           '사용 화면: ' + s.screens.map(x => x.label + (x.exists === false ? ' (준비 중)' : '')).join(' · ')) : null)));
 
     if (s.todayQuestion) root.append(h('section', { class: 'ws-today' },
