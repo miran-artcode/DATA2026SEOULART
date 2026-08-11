@@ -1,5 +1,5 @@
 /*
- * studio-word.js — 「작가의 말을 그림으로」 · 자연어 분석 → 낱말 구름 → 굿즈
+ * studio-word.js: 「작가의 말을 그림으로」 · 자연어 분석 → 낱말 구름 → 굿즈
  * -----------------------------------------------------------------------------
  * 수업 파이프라인을 코드로:
  *   글(감상문·작가 정보) → 토큰화/불용어/조사 다듬기 → 낱말 빈도(자연어 분석)
@@ -44,7 +44,7 @@
   /* ===================== 불용어 · 조사 ===================== */
   const STOP_KO = new Set(('그리고 그러나 하지만 그래서 그런데 또한 또 즉 및 등 의 가 이 은 는 을 를 에 와 과 도 만 로 으로 에서 에게 까지 부터 한 그 저 이런 그런 저런 것 수 때 더 매우 아주 너무 정말 가장 잘 못 안 좀 또는 처럼 보다 위해 통해 대한 대해 위한 듯 채 뿐 만큼 같이 같은 어떤 무슨 모든 여러 우리 그것 이것 저것 있다 없다 된다 같다 이다 보인다 한다 그저').split(/\s+/));
   const STOP_EN = new Set('the a an and or but of to in on at for with is are was were be been being it its this that these those as by from he she his her they them their you your i we our not no yes do does did has have had will would can could should may might must so if then than too very just about into out up down over under more most some any all each its it\'s'.split(/\s+/));
-  // 한국어 조사·어미 어림 제거(형태소 분석기 없이) — 끝에서 '긴 것부터' 떼어 본다.
+  // 한국어 조사·어미 어림 제거(형태소 분석기 없이): 끝에서 '긴 것부터' 떼어 본다.
   // 1글자 조사(이·가·은·는…)는 '고양이→고양'처럼 명사를 망가뜨릴 위험이 커, 아래 토큰화에서
   // '근거가 있을 때만'(같은 어간이 따로 등장하거나 여러 형태로 변할 때) 떼어 낸다.
   const PARTICLES = ['으로써', '으로서', '이라는', '이라고', '에서는', '에서도', '에게서', '라는', '라고', '으로', '로서', '로써', '에서', '에게', '한테', '까지', '부터', '마다', '조차', '처럼', '보다', '이다', '에는', '에도', '이나', '거나', '은', '는', '이', '가', '을', '를', '에', '의', '도', '만', '로', '와', '과', '요', '고'];
@@ -83,7 +83,7 @@
   };
 
   /* ===================== 토큰화 · 빈도(자연어 분석) ===================== */
-  // 한 낱말의 '어간 후보' — 끝에서 가장 긴 조사 하나를 떼어 본다. p=뗀 조사(없으면 null).
+  // 한 낱말의 '어간 후보': 끝에서 가장 긴 조사 하나를 떼어 본다. p=뗀 조사(없으면 null).
   function candidateStem(tok) {
     if (!state.particle || !/[가-힣]/.test(tok)) return { stem: tok, p: null };
     for (const p of PARTICLES) {
@@ -95,7 +95,7 @@
     const extra = new Set(state.extraStop);
     const toks = (text || '').toLowerCase().split(/[^0-9a-zÀ-ɏ가-힣]+/i).filter(Boolean);
 
-    // 1패스 — '어림 형태소 정규화'의 근거 모으기.
+    // 1패스: '어림 형태소 정규화'의 근거 모으기.
     //   2글자 이상 조사(으로·에서·처럼…)는 명사와 겹칠 위험이 낮아 그대로 떼고,
     //   1글자 조사(이·가·은…)는 어간이 '믿을 만할 때만' 떼어 명사 훼손(고양이→고양)을 막는다.
     //   믿을 만함 = 어간이 그 자체로도 등장(빛 ↔ 빛이) 또는 두 가지 이상 형태로 변함(빛이·빛을·빛은).
@@ -104,7 +104,7 @@
     toks.forEach(t => { const { stem, p } = candidateStem(t); if (p) { if (!stemForms.has(stem)) stemForms.set(stem, new Set()); stemForms.get(stem).add(t); } });
     const trusted = stem => rawSet.has(stem) || ((stemForms.get(stem) || new Set()).size >= 2);
 
-    // 2패스 — 정규화 후 빈도 세기
+    // 2패스: 정규화 후 빈도 세기
     const counts = new Map();
     for (const t of toks) {
       const { stem, p } = candidateStem(t);
@@ -205,7 +205,7 @@
   }
   function hexToRgb(h) { h = String(h || '#888').replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); const n = parseInt(h, 16) || 0; return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }; }
 
-  /* ===================== 모양 틀(마스크) — 종류별 도형 + 직접 그리기 ===================== */
+  /* ===================== 모양 틀(마스크): 종류별 도형 + 직접 그리기 ===================== */
   // 그리기 도우미: 모두 '흰색으로 채워진 실루엣'을 그린다(검정 배경 위).
   function circ(ctx, cx, cy, r) { ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill(); }
   function ell(ctx, cx, cy, rx, ry) { ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 7); ctx.fill(); }
@@ -322,7 +322,7 @@
     }
     ctx.putImageData(id, 0, 0);
   }
-  // 직접 그린 획(0~1 정규좌표)을 W×H 마스크로 — 비율이 바뀌어도 그대로 다시 그려진다.
+  // 직접 그린 획(0~1 정규좌표)을 W×H 마스크로: 비율이 바뀌어도 그대로 다시 그려진다.
   function strokeOnto(ctx, W, H) {
     ctx.strokeStyle = '#fff'; ctx.fillStyle = '#fff'; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     const base = Math.min(W, H);
@@ -400,7 +400,7 @@
   /* ===================== 배치(나선 + 격자 충돌) ===================== */
   let _tmp = document.createElement('canvas');
   let _tctx = _tmp.getContext('2d', { willReadFrequently: true });
-  let _srcCanvas = null;                            // 마지막으로 색을 분석한 그림(명화·업로드) — K 변경 시 재분석
+  let _srcCanvas = null;                            // 마지막으로 색을 분석한 그림(명화·업로드): K 변경 시 재분석
   function fontStr(size) { const f = (FONTS[state.font] || FONTS.sans).family; return (state.italic ? 'italic ' : '') + state.weight + ' ' + size + 'px ' + f; }
 
   // 한 낱말의 스프라이트(차지하는 격자 셀, 패딩 팽창 포함)

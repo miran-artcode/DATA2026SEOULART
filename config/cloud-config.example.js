@@ -1,5 +1,5 @@
 /*
- * cloud-config.example.js — 실시간 클라우드(Firebase) 연동 템플릿
+ * cloud-config.example.js: 실시간 클라우드(Firebase) 연동 템플릿
  * =============================================================================
  * 켜는 방법 (교사용, 1회 설정):
  *   1) https://console.firebase.google.com 에서 무료 프로젝트 생성 →
@@ -43,10 +43,10 @@
     const fs = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
     const app = appMod.initializeApp(firebaseConfig);
     const db = fs.getFirestore(app);
-    // Storage(사진 원본 보관)는 선택 기능 — Firebase 콘솔에서 Storage 사용 설정 + storage.rules 게시 필요.
+    // Storage(사진 원본 보관)는 선택 기능: Firebase 콘솔에서 Storage 사용 설정 + storage.rules 게시 필요.
     let st = null, storage = null;
     try { st = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js'); storage = st.getStorage(app); }
-    catch (e) { console.warn('[cloud] Storage 미사용 — 사진은 인라인 폴백', e && e.message); }
+    catch (e) { console.warn('[cloud] Storage 미사용: 사진은 인라인 폴백', e && e.message); }
     return { fs, db, st, storage };
   })().catch(e => { console.warn('[cloud] 초기화 실패 → 로컬 사용', e); return null; });
 

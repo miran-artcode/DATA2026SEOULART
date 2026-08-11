@@ -1,5 +1,5 @@
 /*
- * analysis.js — 이미지 "여러 방법으로" 분석하기
+ * analysis.js: 이미지 "여러 방법으로" 분석하기
  * -----------------------------------------------------------------------------
  * 수업의 파이프라인을 그대로 코드로 옮긴 모듈:
  *   이미지 → (전처리: 리사이즈/색공간) → 픽셀 색 데이터 추출
@@ -55,7 +55,7 @@
     return { canvas: cv, ctx, w, h };
   }
 
-  // Sobel 윤곽(에지) 세기 맵 — 명암이 급변하는 곳(윤곽선)에서 값이 커진다.
+  // Sobel 윤곽(에지) 세기 맵: 명암이 급변하는 곳(윤곽선)에서 값이 커진다.
   function edgeMap(gray, w, h) {
     const out = new Float32Array(w * h);
     let max = 1e-6;
@@ -110,7 +110,7 @@
     const space = opts.space === 'lab' ? 'lab' : 'rgb';
     const sampling = opts.sampling || 'uniform';
     const reqN = Math.max(100, Math.min(opts.N || 4000, 50000));   // 사용자가 정한 점 개수(클램프 전 기준)
-    // K가 매우 크면 더 많은 픽셀이 필요(색 수 확보) — 입력 K에 맞춰 분석 해상도를 키운다.
+    // K가 매우 크면 더 많은 픽셀이 필요(색 수 확보): 입력 K에 맞춰 분석 해상도를 키운다.
     const maxDim = opts.maxDim || (reqK > 6000 ? 1200 : reqK > 1500 ? 960 : 768);
     const seed = opts.seed != null ? opts.seed : 12345;
     const rng = KMeans.makeRNG(seed);
@@ -203,7 +203,7 @@
       const r = px[i * 4], g = px[i * 4 + 1], b = px[i * 4 + 2];
       orr[k] = r; ogg[k] = g; obb[k] = b;
       brArr[k] = bright[i];
-      edArr[k] = emap[i];          // 점이 놓인 곳의 윤곽(에지) 세기 0~1 — '에지 렌즈'용
+      edArr[k] = emap[i];          // 점이 놓인 곳의 윤곽(에지) 세기 0~1: '에지 렌즈'용
       // 가장 가까운 대표색(군집)에 배정 = "대표색 점으로 치환"
       const v = toSpace(r, g, b, space);
       let best = 0, bestD = Infinity;
@@ -302,7 +302,7 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* 실제 명화(퍼블릭 도메인 · 위키미디어 공용) — 공교육용. 오프라인이면 절차적 데모로 대체. */
+  /* 실제 명화(퍼블릭 도메인 · 위키미디어 공용): 공교육용. 오프라인이면 절차적 데모로 대체. */
   /* ------------------------------------------------------------------ */
   const UP = 'https://upload.wikimedia.org/wikipedia/commons/thumb/';
   const PAINTINGS = {

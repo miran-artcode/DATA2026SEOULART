@@ -1,5 +1,5 @@
 /*
- * qr.js — QR 코드를 캔버스에 그리는 얇은 헬퍼 (vendor/qrcode.min.js 사용)
+ * qr.js: QR 코드를 캔버스에 그리는 얇은 헬퍼 (vendor/qrcode.min.js 사용)
  * QR.draw(canvas, text, {size, margin, dark, light, ecc})
  */
 (function (global) {

@@ -1,5 +1,5 @@
 /*
- * literacy.js — 생성형 AI 리터러시 7챕터 (읽기 → 해 보기 → 한 줄 답하기)
+ * literacy.js: 생성형 AI 리터러시 7챕터 (읽기 → 해 보기 → 한 줄 답하기)
  * -----------------------------------------------------------------------------
  * 읽기만 하는 페이지는 약하다. 챕터마다 '직접 해 보는 위젯 1개'와 '한 줄 답'을 붙였다.
  * 그 한 줄이 학습 로그(log.js)와 포트폴리오(portfolio.html)로 그대로 이어진다.
@@ -217,12 +217,12 @@
       ocean: { base: [[40, 92, 150], [72, 152, 186], [16, 44, 88], [206, 226, 232]], name: '바다' },
       forest: { base: [[36, 78, 52], [92, 132, 62], [22, 44, 34], [186, 176, 118]], name: '숲' }
     };
-    // 시드 난수(재현 가능) — '같은 조건, 다른 시드'가 곧 생성 모델의 무작위성 자리
+    // 시드 난수(재현 가능): '같은 조건, 다른 시드'가 곧 생성 모델의 무작위성 자리
     function rngOf(seed) { let s = seed >>> 0 || 1; return () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
     function generate(kind, seed, temp) {
       const cv = document.createElement('canvas'); cv.width = 200; cv.height = 150;
       const ctx = cv.getContext('2d'), rnd = rngOf(seed), P = PROMPT[kind].base;
-      // temp(온도)만큼 '학습된 평균 팔레트'에서 흔들린다 — 온도가 낮으면 결과가 서로 닮는다
+      // temp(온도)만큼 '학습된 평균 팔레트'에서 흔들린다. 온도가 낮으면 결과가 서로 닮는다
       const jit = (c) => c.map(v => Math.max(0, Math.min(255, Math.round(v + (rnd() - 0.5) * 255 * temp))));
       const pal = P.map(jit);
       const g = ctx.createLinearGradient(0, 0, cv.width * (0.4 + rnd() * 0.6), cv.height);
@@ -288,7 +288,7 @@
 
   /* --- 5장 · 무엇을 셀 것인가(신체측정) --- */
   W.ch5 = function (host) {
-    // 예시 데이터(가상): 이름 대신 번호만 — 데이터에도 익명을 적용한다는 것을 보여 주는 장치
+    // 예시 데이터(가상): 이름 대신 번호만: 데이터에도 익명을 적용한다는 것을 보여 주는 장치
     const PEOPLE = [
       { id: 1, h: 158, arm: 68, sit: 84, foot: 235 }, { id: 2, h: 172, arm: 75, sit: 90, foot: 262 },
       { id: 3, h: 165, arm: 71, sit: 87, foot: 245 }, { id: 4, h: 181, arm: 80, sit: 95, foot: 275 },

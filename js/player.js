@@ -1,5 +1,5 @@
 /*
- * player.js — 전시 작품을 '다시 살아 움직이게' 재생 (의존성 없음, 캔버스 + rAF)
+ * player.js: 전시 작품을 '다시 살아 움직이게' 재생 (의존성 없음, 캔버스 + rAF)
  * -----------------------------------------------------------------------------
  * 저장된 work(설정)로 애니메이션을 재구성한다.
  *   - data: settings.fields/rows/mapping 으로 '춤추는 점' 그대로 재생
@@ -79,7 +79,7 @@
     const gy = -g[i - w - 1] - 2 * g[i - w] - g[i - w + 1] + g[i + w - 1] + 2 * g[i + w] + g[i + w + 1];
     return Math.min(1, Math.hypot(gx, gy));
   }
-  // 구도 렌즈 오버레이(삼분할 격자 + 파워포인트 + 시선 무게중심) — 스튜디오와 동일
+  // 구도 렌즈 오버레이(삼분할 격자 + 파워포인트 + 시선 무게중심): 스튜디오와 동일
   function drawCompositionP(ctx, b, cx, cy) {
     const x1 = b.ox + b.w / 3, x2 = b.ox + b.w * 2 / 3, y1 = b.oy + b.h / 3, y2 = b.oy + b.h * 2 / 3;
     ctx.save();

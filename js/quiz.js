@@ -1,5 +1,5 @@
 /*
- * quiz.js — 분석 퀴즈 대시보드 (출제 · 풀기 · 순위)
+ * quiz.js: 분석 퀴즈 대시보드 (출제 · 풀기 · 순위)
  * -----------------------------------------------------------------------------
  * 학생이 그림을 분석해 '지배색/색채 조화/색 온도/구도' 문제를 자동 출제하거나
  * 직접 만든다. 다른 학생이 풀어 점수를 얻고 순위를 겨룬다. 미술 감상·분석을 게임으로.
@@ -242,7 +242,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     UI.mountIdeaBar('idea', 'gallery');
     renderTags();
-    // 탭이 바뀌면 해당 패널을 지연 렌더 — 풀기 목록·순위표 새로고침, 출제 차트 다시 그리기
+    // 탭이 바뀌면 해당 패널을 지연 렌더: 풀기 목록·순위표 새로고침, 출제 차트 다시 그리기
     document.addEventListener('dn:tab', e => {
       const k = e.detail && e.detail.key;
       if (k === 'play') renderPlay();

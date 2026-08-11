@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&display=swap');
 /* =============================================================================
-   그림이 분해되어 다시 연주되다 — 스타일 (HANDOFF 다크 · 작업실은 항상 다크)
+   그림을 점으로 분해해 다시 연주하기: 스타일 (HANDOFF 다크 · 작업실은 항상 다크)
    ============================================================================= */
 :root {
   --bg: #04050b;
@@ -272,9 +272,9 @@ input[type="range"]::-moz-range-thumb {
 .km-level .km-ol li, .km-level .km-ul li { margin: 5px 0; }
 .km-level code { background: var(--panel2); padding: 1px 6px; border-radius: 5px; }
 
-/* 작업실은 항상 다크(라이트 오버라이드 제거 — HANDOFF 컨셉 분리) */
+/* 작업실은 항상 다크(라이트 오버라이드 제거: HANDOFF 컨셉 분리) */
 
-/* 학습지 열기 — 색 스튜디오는 site.css 를 쓰지 않으므로 같은 모양을 여기에도 둔다
+/* 학습지 열기: 색 스튜디오는 site.css 를 쓰지 않으므로 같은 모양을 여기에도 둔다
    (site.css 쪽과 값이 같아야 한다: .ws-launch) */
 .ws-launch { position: fixed; right: 18px; bottom: 18px; z-index: 60; display: flex; gap: 9px; align-items: center;
   padding: 9px 13px 9px 11px; border-radius: 14px; text-decoration: none; color: var(--text);

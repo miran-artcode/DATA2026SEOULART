@@ -1,10 +1,10 @@
 /*
- * widget.js — 스튜디오 공통 위젯의 최소 UI 토대(모달·토스트·스타일 주입)
+ * widget.js: 스튜디오 공통 위젯의 최소 UI 토대(모달·토스트·스타일 주입)
  * -----------------------------------------------------------------------------
  * 왜 따로 두나?
  *   색 스튜디오(studio-color.html)는 컨셉상 site.css/ui.js 를 쓰지 않는다. 그래서
  *   판단 기록 위젯(cards.js·version.js)이 UI 에 의존하면 그 화면에서만 깨진다.
- *   이 파일은 UI 가 있으면 UI 를 쓰고, 없으면 스스로 그린다 — 어느 화면에서나 동작.
+ *   이 파일은 UI 가 있으면 UI 를 쓰고, 없으면 스스로 그린다. 어느 화면에서나 동작.
  */
 (function (global) {
   'use strict';
@@ -93,7 +93,7 @@
   }
   function close() { const bg = document.getElementById('dnw-modal'); if (bg) bg.style.display = 'none'; }
 
-  // 마크다운 아주 일부(**굵게**·줄바꿈)만 — 코치 답변 표시용
+  // 마크다운 아주 일부(**굵게**·줄바꿈)만: 코치 답변 표시용
   function md(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/_(.+?)_/g, '<i>$1</i>').replace(/\n/g, '<br>'); }
 
   // 캔버스를 아주 작은 썸네일 dataURL 로(버전 스냅샷용 · 용량 최소화)

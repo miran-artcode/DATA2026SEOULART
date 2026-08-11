@@ -1,5 +1,5 @@
 /*
- * exhibit.js — 키오스크 전시 슬라이드쇼 (QR + 작가노트 + 자동 넘김)
+ * exhibit.js: 키오스크 전시 슬라이드쇼 (QR + 작가노트 + 자동 넘김)
  */
 (function () {
   'use strict';
@@ -22,7 +22,7 @@
   function story(w) {
     const s = w.settings || {}, parts = [];
     if (w.kind === 'data') {
-      parts.push('데이터: ' + (w.dataName || '—'));
+      parts.push('데이터: ' + (w.dataName || '-'));
       const m = (window.Docent && Docent.mapSummary) ? Docent.mapSummary(s.mapping) : [];
       if (m.length) parts.push('매핑: ' + m.join(' · '));
       const cm = s.mapping && s.mapping.colorMode;

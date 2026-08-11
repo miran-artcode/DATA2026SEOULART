@@ -13,7 +13,7 @@
   .ws-side { position: sticky; top: 78px; }
   @media (max-width: 900px) { .ws-side { position: static; } }
   .ws-paper { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 8px 10px; }
-  /* 인쇄는 학습지 한 장만 — 사이트 껍데기(내비·차례·푸터)는 종이에 남지 않는다 */
+  /* 인쇄는 학습지 한 장만: 사이트 껍데기(내비·차례·푸터)는 종이에 남지 않는다 */
   @media print {
     .site-header, #site-footer, .page-head, .ws-side, #idea, .footer-note { display: none !important; }
     .wrap { max-width: none; padding: 0; margin: 0; }

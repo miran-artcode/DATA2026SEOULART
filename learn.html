@@ -77,7 +77,7 @@
       ${ideas ? `<details><summary style="cursor:pointer;color:var(--good);font-size:13px;font-weight:700">🟢 아이디어</summary><ul class="lvl-b" style="padding-left:18px">${ideas}</ul></details>` : ''}
     </div>`;
   }
-  // 한 갈래 안을 의미 있는 하위그룹으로 — 평면 나열 대신 핵심→심화 위계
+  // 한 갈래 안을 의미 있는 하위그룹으로: 평면 나열 대신 핵심→심화 위계
   function fillGroups(id, groups) {
     document.getElementById(id).innerHTML = groups.map(g => {
       const cards = g.keys.filter(k => EXPLAIN[k]).map(card).join('');

@@ -1,5 +1,5 @@
 /*
- * version.js — 버전 스냅샷과 A/B 비교 (수정의 근거를 남기는 장치)
+ * version.js: 버전 스냅샷과 A/B 비교 (수정의 근거를 남기는 장치)
  * -----------------------------------------------------------------------------
  * 저장할 때마다 '설정(JSON) + 작은 썸네일'을 한 벌씩 쌓고, 두 버전을 좌우로 비교한다.
  * 학생은 "1차 → 2차에서 무엇을 왜 바꿨는가"를 한 줄로 적는다. 그 한 줄이 곧 수정의 근거.
@@ -42,7 +42,7 @@
   function diff(a, b) {
     const fa = flatten(a), fb = flatten(b), keys = new Set([...Object.keys(fa), ...Object.keys(fb)]);
     const rows = [];
-    keys.forEach(k => { if (fa[k] !== fb[k]) rows.push({ key: k, from: fa[k] == null ? '—' : fa[k], to: fb[k] == null ? '—' : fb[k] }); });
+    keys.forEach(k => { if (fa[k] !== fb[k]) rows.push({ key: k, from: fa[k] == null ? '-' : fa[k], to: fb[k] == null ? '-' : fb[k] }); });
     return rows;
   }
 

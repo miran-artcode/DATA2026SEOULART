@@ -1,5 +1,5 @@
 /*
- * cloud-config.js — 실시간 클라우드(Firebase) 연동 [활성]
+ * cloud-config.js: 실시간 클라우드(Firebase) 연동 [활성]
  * =============================================================================
  * 프로젝트: data-art-canvas (Firestore)
  * 이 파일이 js/store.js "앞"에서 로드되면 학급 전체가 한 링크에서 실시간 공유됩니다.
@@ -15,7 +15,7 @@
 
   // 강제 로컬 모드(테스트/오프라인/점검용)
   if (location.search.indexOf('local=1') >= 0 || (global.localStorage && localStorage.getItem('dn_cloud_off') === '1')) {
-    console.info('[cloud] 강제 로컬 모드 — 클라우드 비활성'); return;
+    console.info('[cloud] 강제 로컬 모드: 클라우드 비활성'); return;
   }
 
   const firebaseConfig = {
@@ -33,10 +33,10 @@
     const fs = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
     const app = appMod.initializeApp(firebaseConfig);
     const db = fs.getFirestore(app);
-    // Storage(사진 원본 보관)는 선택 기능 — 모듈/버킷이 없어도 Firestore 는 그대로 동작.
+    // Storage(사진 원본 보관)는 선택 기능: 모듈/버킷이 없어도 Firestore 는 그대로 동작.
     let st = null, storage = null;
     try { st = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js'); storage = st.getStorage(app); }
-    catch (e) { console.warn('[cloud] Storage 미사용 — 사진은 인라인 폴백', e && e.message); }
+    catch (e) { console.warn('[cloud] Storage 미사용: 사진은 인라인 폴백', e && e.message); }
     console.info('[cloud] 실시간 공유 활성화됨 · project', firebaseConfig.projectId);
     return { fs, db, st, storage };
   })().catch(e => { console.warn('[cloud] 초기화 실패 → 로컬 폴백', e); return null; });
@@ -83,7 +83,7 @@
     async listQuizAnswers(quizId) { return (await all('quizAnswers')).filter(a => !quizId || a.quizId === quizId); },
 
     /* ---- 학습 로그(log.js) ----
-     * 이름은 올라가지 않는다 — 반 + 익명 코드(uid)만 담긴다. 이 컬렉션이 없으면
+     * 이름은 올라가지 않는다. 반 + 익명 코드(uid)만 담긴다. 이 컬렉션이 없으면
      * store.js 가 로컬로 폴백해서, 작품은 클라우드·로그는 각자 브라우저에 흩어진다. */
     async addLog(l) { l.ts = l.ts || Date.now(); return add('logs', l, l.id); },
     async listLogs() { return (await all('logs')).sort((a, b) => a.ts - b.ts); },
@@ -94,7 +94,7 @@
     },
 
     // ---- 버전 스냅샷(version.js) ----
-    // 작품 하나당 최근 8개만 남긴다(로컬 저장과 같은 상한 — 썸네일이 무한정 쌓이지 않도록).
+    // 작품 하나당 최근 8개만 남긴다(로컬 저장과 같은 상한: 썸네일이 무한정 쌓이지 않도록).
     async saveVersion(v) {
       v.createdAt = v.createdAt || Date.now();
       const id = await add('versions', v, v.id);

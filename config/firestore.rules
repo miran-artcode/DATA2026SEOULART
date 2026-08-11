@@ -1,6 +1,6 @@
 rules_version = '2';
 // =============================================================================
-// Firestore 보안 규칙 — 수업용 (프로젝트: data-art-canvas)
+// Firestore 보안 규칙: 수업용 (프로젝트: data-art-canvas)
 // -----------------------------------------------------------------------------
 // 적용: Firebase 콘솔 → Firestore Database → "규칙" 탭에 붙여넣고 "게시".
 //
@@ -47,7 +47,7 @@ service cloud.firestore {
       allow update, delete: if false;   // 답안은 수정·삭제 불가(기록 보존)
     }
 
-    // 학습 로그 — 이름 없이 익명 코드(uid)만 담긴다. 수정은 막고(기록 보존),
+    // 학습 로그: 이름 없이 익명 코드(uid)만 담긴다. 수정은 막고(기록 보존),
     // 삭제는 교사의 '단원 종료 후 데이터 정리'를 위해 연다.
     match /logs/{id} {
       allow read: if true;
@@ -55,7 +55,7 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if true;
     }
-    // 버전 스냅샷 — 작은 썸네일 + 설정. 이름 없이 익명 코드만.
+    // 버전 스냅샷: 작은 썸네일 + 설정. 이름 없이 익명 코드만.
     match /versions/{id} {
       allow read: if true;
       allow create: if notTooBig() && request.resource.data.keys().hasAll(['workId']);

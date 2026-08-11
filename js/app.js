@@ -1,5 +1,5 @@
 /*
- * app.js — 화면 구성·상태·이벤트 연결 (메인)
+ * app.js: 화면 구성·상태·이벤트 연결 (메인)
  * -----------------------------------------------------------------------------
  * p5.js로 캔버스를 그리고, 오른쪽 패널의 조작 설정(상태)을 입자 시스템에 전달한다.
  * 분석은 ImageAnalysis, 소리는 AudioInput, 입자는 Particles 모듈이 담당.
@@ -132,7 +132,7 @@
       + '점을 더 촘촘/듬성하게는 아래 <b>N(점 개수)</b>으로 따로 조절하고, 점이 작으면 <b>점 크기</b>를 키워 보세요.';
   }
 
-  // 팔레트(대표색 + 비율) 표시 — 너비를 비율대로(비례 띠), 클릭하면 군집 켜기/끄기
+  // 팔레트(대표색 + 비율) 표시: 너비를 비율대로(비례 띠), 클릭하면 군집 켜기/끄기
   function renderPalette() {
     const box = $('#palette'); box.className = 'palette prop'; box.innerHTML = '';
     const pal = analysis.palette;
@@ -192,7 +192,7 @@
     s = s || 1; return { r: Math.round(r / s), g: Math.round(g / s), b: Math.round(b / s) };
   }
 
-  // 팔레트를 여러 차트로 표현 — 같은 데이터도 다른 ‘틀’로 보면 다르게 읽혀요.
+  // 팔레트를 여러 차트로 표현: 같은 데이터도 다른 ‘틀’로 보면 다르게 읽혀요.
   //   도넛 / 가로막대 / 세로막대 / 트리맵(면적) / 색상환(색상·밝기) / 거품(채도·밝기) / 히트맵
   function drawPalChart(type) {
     const cv = $('#pal-canvas'); if (!cv || !analysis) return;
@@ -201,7 +201,7 @@
     const w = cv.clientWidth || cv.parentElement.clientWidth || 280;
     const pal = analysis.palette;
     const scatter = (type === 'wheel' || type === 'bubble' || type === 'rose');
-    // K가 클 때 ‘기타 회색 덩어리’가 커 보이는 문제 완화 — 차트별로 실제 색을 넉넉히 보여준다.
+    // K가 클 때 ‘기타 회색 덩어리’가 커 보이는 문제 완화: 차트별로 실제 색을 넉넉히 보여준다.
     const MAX = scatter ? 120 : (type === 'treemap' ? 160 : (type === 'donut' ? 28 : 40));
     let items = pal;
     if (pal.length > MAX) {
@@ -256,7 +256,7 @@
         ctx.fillStyle = css(p); ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.arc(x, y, sz, 0, Math.PI * 2); ctx.fill();
       });
       ctx.globalAlpha = 1; ctx.fillStyle = '#7f879c'; ctx.textAlign = 'center'; ctx.fillText('가로=색상 · 세로=선명함(채도) · 크기=비율', w / 2, h - 4);
-    } else if (type === 'rose') {                       // 방사형 막대 — 각 색=막대, 길이=비율(중심→바깥)
+    } else if (type === 'rose') {                       // 방사형 막대: 각 색=막대, 길이=비율(중심→바깥)
       const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.45;
       // 색상(hue)으로 정렬 → 비슷한 색이 이웃해 원형 색띠처럼. 무채색(채도 낮음)은 모아 밝기순.
       const arr = items.map(p => { const hsl = rgb2hsl(p.r, p.g, p.b); return { p, h: hsl[0], s: hsl[1], l: hsl[2] }; })
@@ -464,7 +464,7 @@
       () => toast('복사 실패(브라우저 권한 확인).'));
   }
   function exportSettings() {
-    const data = { app: '그림이 분해되어 다시 연주되다', version: 1, savedAt: new Date().toISOString(), state };
+    const data = { app: '그림을 점으로 분해해 다시 연주하기', version: 1, savedAt: new Date().toISOString(), state };
     download('settings_' + Date.now() + '.json', JSON.stringify(data, null, 2), 'application/json');
     toast('설정(JSON)을 저장했습니다.');
   }
@@ -501,7 +501,7 @@
     const bgName = { night: '갤러리 남색', black: '순흑', ink: '잉크 보라', slate: '슬레이트', paper: '따뜻한 종이', white: '전시 흰색' }[state.bg] || state.bg;
 
     const md = `# 분석 리포트 & 인터랙션 설계서
-## 「그림이 분해되어 다시 연주되다」
+## 「그림을 점으로 분해해 다시 연주하기」
 
 ### A) 알고리즘 분석 리포트
 - 작품명/작가: **${m.title || '(미기재)'}** / ${m.artist || '(미기재)'}
@@ -615,7 +615,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
       state.K = v; setOut('#out-k', fmt(v));
       if (rngK) rngK.value = Math.min(v, +rngK.max);
       if (numK && document.activeElement !== numK) numK.value = v;
-      // K를 점 개수에 연결 — 대표색 K개를 다 보여주도록 점도 K에 맞춰요(직관: "K = 점 개수").
+      // K를 점 개수에 연결: 대표색 K개를 다 보여주도록 점도 K에 맞춰요(직관: "K = 점 개수").
       // 슬라이더 범위(300~20000) 안에서 N을 K로 맞추고, 더 큰 K는 분석이 그대로 점을 확보해요.
       const np = Math.max(300, Math.min(v, 20000));
       state.N = np; setVal('#rng-n', np); setOut('#out-n', fmt(np));
@@ -758,7 +758,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
     }));
   }
 
-  // 각 옵션 ⓘ 설명(샘플링·색공간 등) — 한 개의 공용 모달로
+  // 각 옵션 ⓘ 설명(샘플링·색공간 등): 한 개의 공용 모달로
   const OPTHELP = {
     space: ['색공간 (RGB / LAB)', 'K-means가 색의 ‘거리’를 재는 좌표계예요. <b>RGB</b>는 화면 신호 그대로(빨강·초록·파랑). <b>LAB</b>는 사람 눈의 지각에 가까워(밝기 L + 색축 a·b) 비슷해 보이는 색을 더 자연스럽게 묶어요. 같은 K라도 군집 결과가 달라지니 둘을 비교해 보세요.'],
     sampling: ['샘플링 (점을 어디서 뽑을까)', '그림의 모든 픽셀 대신 N개를 ‘골라’ 점으로 만들어요. <b>무작위</b>=고르게, <b>밝은영역</b>=밝은 곳에 점이 더, <b>어두운영역</b>=그림자에 더, <b>윤곽(에지)</b>=경계선에 더 모여요. 어디를 강조하느냐가 곧 해석이에요.'],
@@ -878,7 +878,7 @@ _생성: ${new Date().toLocaleString('ko-KR')}_
       space: state.space, rules: describeRules(), intent: (state.meta && state.meta.intent) || '' }),
     meta: () => state.meta,
     settings: () => JSON.parse(JSON.stringify(state)),
-    // 방금 녹화한 인터랙티브 영상(webm dataURL) — 없으면 ''
+    // 방금 녹화한 인터랙티브 영상(webm dataURL): 없으면 ''
     lastVideoURL: () => lastVideoURL,
     // 전시 재생용: 원본 이미지를 작게 dataURL 로 (작품을 다시 점으로 살려내기)
     sourceURL: (maxDim) => {

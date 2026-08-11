@@ -1,5 +1,5 @@
 /*
- * ui.js — 공용 셸: 내비게이션 · 설명 팝업(ⓘ) · 토스트 · 안내 콜아웃
+ * ui.js: 공용 셸: 내비게이션 · 설명 팝업(ⓘ) · 토스트 · 안내 콜아웃
  * -----------------------------------------------------------------------------
  * 모든 페이지가 이 파일을 불러오고, <div id="app-header"></div> 한 줄만 두면
  * 상단 내비가 자동으로 채워진다. 설명 아이콘은 [data-info="key"] 만 달면 동작한다.
@@ -9,17 +9,6 @@
 
   // 저장된 테마를 가능한 한 일찍 적용(깜빡임 최소화)
   /* 테마는 페이지별로 <html data-theme>로 고정(HANDOFF: 한 화면=한 컨셉). 전역 토글 없음. */
-
-  /*
-   * 시작 화면 표기(연구보고서 제목·대상 학년).
-   * 요강이 소프트웨어 시작 화면에 명시하도록 요구하는 항목이라, 한 곳에서 관리하고
-   * index.html·hub.html 두 시작 화면에 같은 값을 심는다.
-   */
-  const REPORT = {
-    title: '오늘의 시선: 시대 문제를 데이터로 읽고 예술로 번역하는 교육용 소프트웨어',
-    grade: '고등학교 1학년',
-    school: '서울미술고등학교'
-  };
 
   const NAV = [
     { label: '사용 안내', href: 'start.html' },
@@ -52,25 +41,7 @@
   ];
 
   const UI = {};
-  UI.REPORT = REPORT;
   const cur = () => location.pathname.split('/').pop() || 'index.html';
-
-  /*
-   * 시작 화면 머리에 '연구보고서 제목 + 대상 학년'을 올린다.
-   * 심사 요강의 표기 의무를 화면으로 해결하는 자리이므로, 장식이 아니라 정보로 읽히게
-   * 라벨(연구보고서 / 대상)을 함께 적는다.
-   */
-  UI.mountReportHeader = function (hostId) {
-    const host = document.getElementById(hostId || 'report-head');
-    if (!host || !REPORT.title) return;
-    host.innerHTML =
-      '<div class="report-head">' +
-        '<p class="rh-title"><span class="rh-k">연구보고서</span> ' + escapeHTML(REPORT.title) + '</p>' +
-        '<p class="rh-meta"><span class="rh-k">대상</span> ' + escapeHTML(REPORT.grade) +
-        (REPORT.school ? ' <span class="rh-sep" aria-hidden="true">·</span> ' + escapeHTML(REPORT.school) : '') +
-        '</p>' +
-      '</div>';
-  };
 
   UI.mountHeader = function (activeOverride) {
     const host = document.getElementById('app-header');
@@ -230,8 +201,8 @@
   function escapeHTML(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
   UI.escapeHTML = escapeHTML;
 
-  // 사이트 공통 푸터(저작권) — 모든 페이지 맨 아래
-  // 사이트 공통 풋터 — HANDOFF 다크 크레딧(모든 페이지 동일, 항상 다크 #0A0E26).
+  // 사이트 공통 푸터(저작권): 모든 페이지 맨 아래
+  // 사이트 공통 풋터: HANDOFF 다크 크레딧(모든 페이지 동일, 항상 다크 #0A0E26).
   UI.mountFooter = function () {
     if (document.getElementById('site-footer')) return;
     const f = document.createElement('footer');
@@ -299,7 +270,7 @@
           }
         });
       });
-    } catch (e) { /* 용어 툴팁은 보조 기능 — 실패해도 페이지는 그대로 동작 */ }
+    } catch (e) { /* 용어 툴팁은 보조 기능: 실패해도 페이지는 그대로 동작 */ }
   };
 
   /* ----------------------------- 탭(dn-tabwrap) 자동 연결 ----------------------------- */
@@ -314,7 +285,7 @@
         tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === key));
         panels.forEach(p => { p.hidden = (p.dataset.tabpanel !== key); });
         try { window.dispatchEvent(new Event('resize')); } catch (e) {}
-        // 탭이 바뀔 때마다 알림 — 숨김 패널의 지연 렌더(목록/순위/차트 등)에 쓰라고.
+        // 탭이 바뀔 때마다 알림: 숨김 패널의 지연 렌더(목록/순위/차트 등)에 쓰라고.
         try { wrap.dispatchEvent(new CustomEvent('dn:tab', { detail: { key, wrap }, bubbles: true })); } catch (e) {}
       }
       tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));

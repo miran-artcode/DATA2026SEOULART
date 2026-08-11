@@ -1,5 +1,5 @@
 /*
- * studio-sound.js — 내 소리를 데이터로 (학습 3단계)
+ * studio-sound.js: 내 소리를 데이터로 (학습 3단계)
  * -----------------------------------------------------------------------------
  * 마이크 녹음(5~20초) 또는 오디오 파일에서 약 0.15초 프레임마다
  * 음량(RMS)·저/중/고 주파수 에너지를 추출 → 시계열 데이터(CSV) → 데이터 점 스튜디오로.
@@ -40,7 +40,7 @@
     // 날카로움 = 스펙트럼 무게중심(에너지가 높은 주파수에 쏠릴수록 ↑)
     let ws = 0, es = 0; for (let i = 0; i < N; i++) { ws += i * fd[i]; es += fd[i]; }
     const centroid = es ? (ws / es) / N : 0;
-    // 변화 = 직전 프레임 대비 스펙트럼 증가량(spectral flux) — 리듬·요동
+    // 변화 = 직전 프레임 대비 스펙트럼 증가량(spectral flux): 리듬·요동
     let flux = 0; if (prevSpectrum) { for (let i = 0; i < N; i++) { const d = fd[i] - prevSpectrum[i]; if (d > 0) flux += d; } flux = Math.min(1, flux / (N * 48)); }
     prevSpectrum = fd.slice();
     // 음높이(Hz) = 에너지가 가장 큰 주파수 빈 → 헤르츠(bin × 표본율 / fftSize). 무음이면 0.
@@ -62,7 +62,7 @@
     $('#btn-rec').textContent = '🎤 녹음 시작'; $('#btn-rec').classList.remove('rec'); recording = false;
   }
 
-  /* --------- 오프라인 FFT(라딕스-2) — 파일 정밀 분석(재생·압축 없음) --------- */
+  /* --------- 오프라인 FFT(라딕스-2): 파일 정밀 분석(재생·압축 없음) --------- */
   // 디코드된 PCM 전체를 창(window)으로 직접 훑어 스펙트럼을 계산한다.
   // 기존 '빠른 재생 압축'의 시간 왜곡·디테일 손실을 없애고 주파수 해상도를 4×로 높인다.
   function fftRadix2(re, im) {
@@ -187,7 +187,7 @@
         const mins = buf.duration >= 60 ? (buf.duration / 60).toFixed(1) + '분' : buf.duration.toFixed(1) + '초';
         $('#rec-status').textContent = '정밀 분석 중… (' + mins + ' · 압축 없이 전체 해상도)';
         await new Promise(res => setTimeout(res, 20));          // 상태가 먼저 그려지도록 한 틱 양보
-        rows = analyzeBufferOffline(buf);                       // 오프라인 FFT — 시간왜곡·압축 없음
+        rows = analyzeBufferOffline(buf);                       // 오프라인 FFT: 시간왜곡·압축 없음
         renderViz();
         $('#frame-info').textContent = rows.length + ' 프레임 · ' + mins + ' (압축 없는 고해상도 분석)';
         finalize('파일 분석 완료 · ' + rows.length + '프레임');
@@ -200,7 +200,7 @@
   }
 
   /* ----------------------------- 샘플: 아빠의 한 달 코골이(이야기) ----------------------------- */
-  // 같은 코골이도 그날의 '상황'에 따라 달라진다 — 한 달(30밤)의 리듬을 이야기로 인코딩.
+  // 같은 코골이도 그날의 '상황'에 따라 달라진다. 한 달(30밤)의 리듬을 이야기로 인코딩.
   function snoringSample() {
     const ctxByDay = (n) => {
       if (n === 10 || n === 25) return '월급날';                  // 급여일(가정)
@@ -380,7 +380,7 @@
           x = pad + p.sx * IW + Math.cos(T * 1.1 + p.ph) * orb;
           y = pad + p.sy * IH + Math.sin(T * 1.3 + p.ph) * orb;
           r = base * (0.82 + 0.18 * Math.sin(T * 1.6 + p.ph)); a = 0.34 + p.vol * 0.5;
-        } else {                                      // wave — 이퀄라이저
+        } else {                                      // wave: 이퀄라이저
           x = pad + prog * IW;
           const osc = Math.sin(T * 2.2 + i * 0.5);
           y = pad + IH * 0.5 + osc * (8 + p.flux * 60) * danceMul * (0.4 + p.yv * 0.8);

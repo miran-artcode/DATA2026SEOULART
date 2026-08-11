@@ -1,5 +1,5 @@
 /*
- * studio-object.js — 객체 감지 렌즈: 브라우저 AI(TF.js COCO-SSD)로 '무엇이 있나'를 데이터로
+ * studio-object.js: 객체 감지 렌즈: 브라우저 AI(TF.js COCO-SSD)로 '무엇이 있나'를 데이터로
  * -----------------------------------------------------------------------------
  *  사진 → AI가 사물(사람·자동차·개… 80범주)을 감지 → 네모(박스)+라벨 → 점·데이터로.
  *  · 모델은 필요할 때만 CDN에서 지연 로드(자족적 사이트 유지). 8명이 동시에 써도
@@ -11,7 +11,7 @@
 (function () {
   'use strict';
   const $ = s => document.querySelector(s);
-  // 모델 스크립트는 외부 CDN에서 받아온다 — 한 곳이 막히면 다음 곳으로 폴백(학교망 대비).
+  // 모델 스크립트는 외부 CDN에서 받아온다. 한 곳이 막히면 다음 곳으로 폴백(학교망 대비).
   const TF = ['https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js', 'https://unpkg.com/@tensorflow/tfjs@4.22.0/dist/tf.min.js'];
   const SSD = ['https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js', 'https://unpkg.com/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js'];
   const COLS = ['사물', '중심x', '중심y', '크기', '신뢰도'];
@@ -283,7 +283,7 @@
       for (let i = 0; i < n; i++) { const x = pad + (W - pad * 2) * (i / (n - 1)), y = pad + (H - pad * 2) * (1 - disp(m.k, chartBuf[i][m.k]) / 100); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
       ctx.stroke();
     });
-    if (obsRows.length) {   // 전 구간 표시 — 기록한 만큼(약 N초) 계속 늘어남
+    if (obsRows.length) {   // 전 구간 표시: 기록한 만큼(약 N초) 계속 늘어남
       ctx.fillStyle = '#5b6480'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
       ctx.fillText('전 구간 · 기록 ' + obsRows.length.toLocaleString() + '초', W - pad - 2, H - 3);
     }
@@ -299,7 +299,7 @@
   function obsTick() {   // 차트 버퍼에 한 점 + 미터/차트 갱신 + (기록 중이면) 한 줄
     const m = currentMetrics();
     chartBuf.push(m);
-    // 20초 창이 아니라 '전 구간'을 계속 보여 준다 — 너무 길어지면 오래된 점을 버리지 않고
+    // 20초 창이 아니라 '전 구간'을 계속 보여 준다. 너무 길어지면 오래된 점을 버리지 않고
     // 해상도만 절반으로 줄여(짝수 인덱스만 유지) 끝없이 이어 그린다.
     if (chartBuf.length > CHART_CAP) chartBuf = chartBuf.filter((_, i) => i % 2 === 0);
     drawMeters(m); drawChart(); recordObs(m);
@@ -377,7 +377,7 @@
 
   /* ----------------------------- 모델 로드 + 감지 ----------------------------- */
   function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('load fail')); document.head.appendChild(s); }); }
-  // 여러 CDN을 순서대로 시도 — 하나가 막혀도 다음에서 받는다(학교망/차단 대비).
+  // 여러 CDN을 순서대로 시도: 하나가 막혀도 다음에서 받는다(학교망/차단 대비).
   async function loadFirst(urls) { let err; for (const u of urls) { try { await loadScript(u); return; } catch (e) { err = e; } } throw (err || new Error('all CDNs failed')); }
   async function ensureModel() {
     if (model) return model;

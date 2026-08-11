@@ -1,6 +1,6 @@
 [
   {
-    "comment": "선택 사항 — 전시 재생(player.js)이 교차출처 Storage 원본에서 직접 색을 읽어 '살아있는 점'을 만들도록 허용. 앱은 같은 출처 작은 샘플(srcSample)로 이미 동작하므로 없어도 됩니다. 적용: gcloud storage buckets update gs://data-art-canvas.firebasestorage.app --cors-file=config/cors.json",
+    "comment": "선택 사항: 전시 재생(player.js)이 교차출처 Storage 원본에서 직접 색을 읽어 '살아있는 점'을 만들도록 허용. 앱은 같은 출처 작은 샘플(srcSample)로 이미 동작하므로 없어도 됩니다. 적용: gcloud storage buckets update gs://data-art-canvas.firebasestorage.app --cors-file=config/cors.json",
     "origin": ["*"],
     "method": ["GET", "HEAD"],
     "responseHeader": ["Content-Type"],

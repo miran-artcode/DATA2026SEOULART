@@ -6,12 +6,12 @@
 <title>학생 허브 · 오늘의 시선</title>
 <link rel="stylesheet" href="css/site.css" />
 <style>
-  /* 여정 노드의 진행 상태 — 학습 로그·작품에서 읽어 표시(교수·학습 진행 효율) */
+  /* 여정 노드의 진행 상태: 학습 로그·작품에서 읽어 표시(교수·학습 진행 효율) */
   .dn-node .state { display: block; font-size: 10.5px; font-weight: 800; margin-top: 6px; letter-spacing: .02em; }
   .dn-node .state.done { color: var(--good); }
   .dn-node .state.doing { color: var(--accent); }
   .dn-node .state.todo { color: var(--muted2); }
-  /* 카드 안 메타 칩 — 뜻(출처·방법·산출물)을 텍스트로도 읽히게 라벨을 붙인다 */
+  /* 카드 안 메타 칩: 뜻(출처·방법·산출물)을 텍스트로도 읽히게 라벨을 붙인다 */
   .meta-rows { display: flex; flex-direction: column; gap: 3px; margin: 6px 0 0; }
   .meta-rows span { font-size: 10.5px; color: var(--muted); background: var(--panel2); border: 1px solid var(--line);
     border-radius: 8px; padding: 3px 9px; display: flex; gap: 6px; }
@@ -27,10 +27,7 @@
 <div id="app-header"></div>
 
 <div class="wrap">
-  <!-- 시작 화면 표기(연구보고서 제목·대상 학년) — ui.js 의 UI.REPORT 한 곳에서 관리 -->
-  <div id="report-head"></div>
-
-  <!-- 무대(Stage) — 이 페이지가 무엇을 위한 곳인지 1초에 -->
+  <!-- 무대(Stage): 이 페이지가 무엇을 위한 곳인지 1초에 -->
   <div class="page-head" style="text-align:center; max-width:700px; margin:8px auto 18px">
     <span class="eyebrow">학생 허브</span>
     <h1>오늘 할 작업과 4단계 여정</h1>
@@ -42,7 +39,7 @@
   </div>
   <div id="idea"></div>
 
-  <!-- 주연(Lead) — 지금 할 한 가지 -->
+  <!-- 주연(Lead): 지금 할 한 가지 -->
   <div class="dn-feature">
     <div>
       <div class="badge-row">
@@ -58,7 +55,7 @@
     <div class="dn-feature-vis" aria-hidden="true"><small>미리보기 · 춤추는 점</small></div>
   </div>
 
-  <!-- 탐구 문제 — 활동 '앞'에 둔다. 목표를 세우는 질문은 뒤에 있으면 읽히지 않는다. -->
+  <!-- 탐구 문제: 활동 '앞'에 둔다. 목표를 세우는 질문은 뒤에 있으면 읽히지 않는다. -->
   <div class="dn-cluster">
     <div class="card">
       <h3 class="with-info" style="margin:0">만들기 전에 품고 갈 질문 <span data-info="kmeans" class="info-ic">ⓘ</span></h3>
@@ -73,7 +70,7 @@
     </div>
   </div>
 
-  <!-- 판별·의심 — 첫 결과가 나온 '직후'에 놓는다. 창작을 다 마친 뒤가 아니라. -->
+  <!-- 판별·의심: 첫 결과가 나온 '직후'에 놓는다. 창작을 다 마친 뒤가 아니라. -->
   <div class="dn-cluster">
     <div class="dn-cluster-head">
       <div><span class="eyebrow">Check</span><h3>첫 결과가 나온 뒤 의심하는 법</h3>
@@ -90,7 +87,7 @@
     </div>
   </div>
 
-  <!-- 여정 — 4단계, 진행 상태 표시 -->
+  <!-- 여정: 4단계, 진행 상태 표시 -->
   <div class="dn-cluster">
     <div class="dn-cluster-head">
       <div><span class="eyebrow">Journey</span><h3>4단계 창작 여정</h3>
@@ -115,10 +112,10 @@
       기록(의도·근거·버전·성찰)은 각 스튜디오 안에서 그때그때 남으니, 마지막에 몰아 쓸 필요가 없어요.</p>
   </div>
 
-  <!-- 학습지 — 차시대로 한 장씩. 여정(무엇을 데이터로 삼는가)과 짝을 이루는 '수업의 순서'. -->
+  <!-- 학습지: 차시대로 한 장씩. 여정(무엇을 데이터로 삼는가)과 짝을 이루는 '수업의 순서'. -->
   <div class="dn-cluster" id="ws-hub"></div>
 
-  <!-- 최근 내 작업 — 저장 작업이 있을 때만 노출 -->
+  <!-- 최근 내 작업: 저장 작업이 있을 때만 노출 -->
   <div class="dn-cluster" id="recent" style="display:none">
     <div class="dn-cluster-head">
       <div><span class="eyebrow">Recent</span><h3>최근 내 작업</h3><p>갤러리에서 감상·비평으로 이어가거나, 같은 도구로 새로 만들어요.</p></div>
@@ -133,7 +130,7 @@
     <cite>학습의 척추 · 감각 → 질문 → 비평 → 연결 → 창작</cite>
   </div>
 
-  <!-- 도구 — 단계가 아니라, 모든 단계에서 꺼내 쓰는 것 -->
+  <!-- 도구: 단계가 아니라, 모든 단계에서 꺼내 쓰는 것 -->
   <div class="dn-cluster">
     <div class="dn-cluster-head">
       <div><span class="eyebrow">Toolkit</span><h3>단계와 상관없이 꺼내 쓰는 도구</h3>
@@ -163,7 +160,7 @@
     </div>
   </div>
 
-  <!-- 교사 진입점 — 다른 교사가 이 사이트를 처음 열었을 때의 첫 관문 -->
+  <!-- 교사 진입점: 다른 교사가 이 사이트를 처음 열었을 때의 첫 관문 -->
   <div class="dn-cluster">
     <div class="card">
       <h3 style="margin:0 0 4px"><span aria-hidden="true">👩‍🏫</span> 선생님이신가요?</h3>
@@ -195,17 +192,16 @@
 <script src="js/worksheet.js"></script>
 <script>
   UI.mountIdeaBar('idea', 'hub');
-  UI.mountReportHeader('report-head');
 
-  /* 학습지 — 차시 목록과 진행률. 여정 노드에는 '이 단계에서 쓰는 차시' 꼬리표를 단다. */
+  /* 학습지: 차시 목록과 진행률. 여정 노드에는 '이 단계에서 쓰는 차시' 꼬리표를 단다. */
   WS.mountHub('ws-hub');
   WS.tagStageNodes('#spine');
 
   /*
-   * 진행 상태 — 학생이 어디까지 왔는지 허브에서 바로 보여 준다.
+   * 진행 상태: 학생이 어디까지 왔는지 허브에서 바로 보여 준다.
    *   작품 있음(완료) : 1단계는 kind='color', 2~4단계는 보낸 쪽이 남긴 work.stage 로 구분
    *   열어 봄(진행 중): 그 스튜디오 화면의 학습 로그(view 등)
-   * 데이터가 없으면 '아직 시작 전' 그대로 — 로그인 전에도 화면이 깨지지 않는다.
+   * 데이터가 없으면 '아직 시작 전' 그대로: 로그인 전에도 화면이 깨지지 않는다.
    */
   const STAGE_PAGE = { 1: 'studio-color.html', 2: 'studio-life.html', 3: 'studio-sound.html', 4: 'project.html' };
   const STAGE_NAME = { 1: '그림을 데이터로', 2: '내 사진을 데이터로', 3: '내 소리를 데이터로', 4: '사회 문제를 데이터로' };
@@ -219,7 +215,7 @@
         const uid = window.Log && Log.uid();
         if (uid) logs = (await Log.list({ uid })) || [];
       }
-    } catch (e) { /* 보조 기능 — 실패해도 허브는 그대로 동작 */ }
+    } catch (e) { /* 보조 기능: 실패해도 허브는 그대로 동작 */ }
 
     // 단계별 상태 계산
     const done = {}, seen = {};

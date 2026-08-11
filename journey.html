@@ -20,7 +20,7 @@
   .axis-note { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 6px 0 16px; }
   .rubric-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
   @media (max-width: 700px) { .rubric-grid { grid-template-columns: 1fr; } }
-  /* 7단계 창작 과정 진행 바 — 학습 로그에서 내 위치를 읽어 표시 */
+  /* 7단계 창작 과정 진행 바: 학습 로그에서 내 위치를 읽어 표시 */
   .proc { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 10px 0 6px; }
   @media (max-width: 760px) { .proc { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 460px) { .proc { grid-template-columns: repeat(2, 1fr); } }
@@ -42,7 +42,7 @@
     <h1>한 학기 4단계와 평가 4영역</h1>
     <p>한 학기는 두 축으로 나아갑니다. <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회) <b>학생의 주체성이 깊어져요</b>(교사 데이터→내 삶→내가 정한 사회문제).</p>
   </div>
-  <!-- 창작 과정 7단계 — 아래 4단계 지도와 '다른 축'이다.
+  <!-- 창작 과정 7단계: 아래 4단계 지도와 '다른 축'이다.
        4단계 = 무엇을 데이터로 삼는가(한 학기의 지도) · 7단계 = 한 작품을 만드는 동안 거치는 과정. -->
   <div class="card" style="margin-bottom:18px">
     <h2 style="margin:0 0 2px;font-size:17px">창작 과정 7단계: 지금 내 위치</h2>
@@ -92,7 +92,7 @@
     </a>
   </div>
 
-  <!-- 학습지 — '차시' 축. 위의 4단계(무엇을 데이터로 삼는가)와 다른 축이라 관계를 밝혀 둔다. -->
+  <!-- 학습지: '차시' 축. 위의 4단계(무엇을 데이터로 삼는가)와 다른 축이라 관계를 밝혀 둔다. -->
   <div class="dn-cluster" id="ws-hub" style="margin:18px 0"></div>
   <p class="muted" style="font-size:12.5px;margin:-6px 0 18px">
     ⚠ <b>선생님께</b>: 순차 진행의 기준은 <b>차시 번호</b>입니다. 학습지끼리 <b>‘다음 시간으로 넘기는 한 줄’</b>이
@@ -132,7 +132,7 @@
   UI.mountIdeaBar && UI.mountIdeaBar('idea', 'general');
   WS.mountHub('ws-hub');
 
-  /* 창작 과정 7단계 — 내 학습 로그·작품·노트를 읽어 도달 여부를 표시 */
+  /* 창작 과정 7단계: 내 학습 로그·작품·노트를 읽어 도달 여부를 표시 */
   (async function renderProcess() {
     const host = document.getElementById('proc'), msg = document.getElementById('proc-msg');
     const u = Auth.current();

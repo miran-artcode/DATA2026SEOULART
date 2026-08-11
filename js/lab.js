@@ -1,5 +1,5 @@
 /*
- * lab.js — 알고리즘 분석실 로직
+ * lab.js: 알고리즘 분석실 로직
  */
 (function () {
   'use strict';

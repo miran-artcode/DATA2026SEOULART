@@ -1,5 +1,5 @@
 /*
- * particles.js — 점(입자) 시스템: 움직임 규칙 + 렌더링
+ * particles.js: 점(입자) 시스템: 움직임 규칙 + 렌더링
  * -----------------------------------------------------------------------------
  * 분석 결과(점 리스트)를 받아 "살아 있는" 입자로 만든다.
  * 학생이 설계하는 규칙(수업 3.5)을 코드로 구현한 부분:
@@ -15,7 +15,7 @@
 
   const TAU = Math.PI * 2;
 
-  // 점 색의 색상(hue) 0~360 (무채색은 -1) — '색 기반 방향' 힘에 사용
+  // 점 색의 색상(hue) 0~360 (무채색은 -1): '색 기반 방향' 힘에 사용
   function hueOf(r, g, b) {
     const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
     if (d < 16) return -1;
@@ -49,7 +49,7 @@
     this.ed = analysis.ed;                 // 점별 윤곽(에지) 세기 0~1 (있으면)
     this.lens = this.opts.lens || 'none';  // 구조 렌즈: none / edge / composition
 
-    // 점별 색상(hue) 미리 계산 — '색 기반 방향(색 나침반)' 힘에 사용
+    // 점별 색상(hue) 미리 계산: '색 기반 방향(색 나침반)' 힘에 사용
     this.hue = new Float32Array(n);
     for (let i = 0; i < n; i++) this.hue[i] = hueOf(analysis.or[i], analysis.og[i], analysis.ob[i]);
 
@@ -80,7 +80,7 @@
     this.colorMode = mode;
   };
 
-  // 3D 깊이(z축)로 세울 '점별 값'(0~1) 계산 — 무엇을 입체로 세울지 선택.
+  // 3D 깊이(z축)로 세울 '점별 값'(0~1) 계산: 무엇을 입체로 세울지 선택.
   //   bright(밝기) / sat(채도) / hue(색상) / edge(윤곽) / cluster(군집 순서)
   System.prototype.setDepthField = function (field) {
     const a = this.a, n = this.n;
@@ -169,7 +169,7 @@
     if (axis === 'x') this.angleX += rs;
     else if (axis === 'xy') { this.angle += rs; this.angleX += rs * 0.6; }
     else this.angle += rs;
-    if (m.dim4) this.angleW += 0.006 + rs * 0.4;   // 4D(초입체) 모핑 — 4D 켜면 늘 천천히 회전
+    if (m.dim4) this.angleW += 0.006 + rs * 0.4;   // 4D(초입체) 모핑: 4D 켜면 늘 천천히 회전
 
     const free = !!m.free, wander = m.wander || 0;
     const pull = (m.pull != null ? m.pull : 0.004), swirl = (m.swirl || 0) * 0.012;
@@ -307,16 +307,16 @@
         const ox = this.px[i] - this.hx[i], oy = this.py[i] - this.hy[i]; // 2D 모션(마우스·자유) 오프셋
         const u = A.nx[i], v = A.ny[i];
         let X, Y, Z;
-        if (solid === 'sphere') {                 // 구 — 이미지를 공에 감싸 ‘원형 보존’
+        if (solid === 'sphere') {                 // 구: 이미지를 공에 감싸 ‘원형 보존’
           const lon = u * TAU, lat = (v - 0.5) * Math.PI, r = R3 + zf * depth * 0.5, cl = Math.cos(lat);
           X = r * cl * Math.cos(lon); Y = r * Math.sin(lat); Z = r * cl * Math.sin(lon);
-        } else if (solid === 'cylinder') {        // 원기둥 — 가로를 둥글게 말기
+        } else if (solid === 'cylinder') {        // 원기둥: 가로를 둥글게 말기
           const ang = u * TAU, r = R3 * 0.78 + zf * depth * 0.5;
           X = r * Math.cos(ang); Y = (v - 0.5) * rh; Z = r * Math.sin(ang);
-        } else if (solid === 'helix') {           // 나선 — 빙글 감겨 올라가는 띠
+        } else if (solid === 'helix') {           // 나선: 빙글 감겨 올라가는 띠
           const ang = u * TAU * 2.5, r = R3 * 0.7 + zf * depth * 0.4;
           X = r * Math.cos(ang); Y = (u - 0.5) * rh * 1.05 + (v - 0.5) * 22; Z = r * Math.sin(ang);
-        } else {                                  // relief(기본) — 평면 부조(밝기/특징으로 돌출)
+        } else {                                  // relief(기본): 평면 부조(밝기/특징으로 돌출)
           X = (u - 0.5) * rw; Y = (v - 0.5) * rh; Z = zf * depth;
         }
         X += ox; Y += oy;

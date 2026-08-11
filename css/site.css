@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&display=swap');
 /* =============================================================================
-   site.css — 멀티페이지 공용 디자인 시스템
+   site.css: 멀티페이지 공용 디자인 시스템
    「오늘의 시선」 · HANDOFF 디자인 시스템(쿨톤 · 라이트/다크 페이지별 고정).
    ============================================================================= */
 :root {
-  /* HANDOFF 다크(앱 몰입) — 쿨톤. UI 크롬은 무채·블루, 색은 작품/데이터에서만. */
+  /* HANDOFF 다크(앱 몰입): 쿨톤. UI 크롬은 무채·블루, 색은 작품/데이터에서만. */
   --bg: #04050b; --bg2: #080a16;
   --panel: #0f111a; --panel2: #151823; --panel3: #1c2030;
   --line: #232734; --text: #E7ECF7; --title: #ffffff;
@@ -23,7 +23,7 @@
   /* 데이터 시각 램프(쿨, 가변비율 전용) */
   --data-1: #0E0A2E; --data-2: #182F49; --data-3: #3A4F7A; --data-4: #6E84B8; --data-5: #8FC0B5; --data-6: #E6F5A6; --data-7: #CFE0D6;
 }
-/* ☀ 라이트(진입·학습·관리) — 가독성 우선 */
+/* ☀ 라이트(진입·학습·관리): 가독성 우선 */
 :root[data-theme="light"] {
   --bg: #fdfdff; --bg2: #f4f4fb;
   --panel: #ffffff; --panel2: #f3f7fc; --panel3: #e9eff6;
@@ -93,7 +93,7 @@ a:hover { text-decoration: underline; }
 .site-user .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px var(--good); }
 .site-user .dot.off { background: var(--muted2); box-shadow: none; }
 
-/* 모바일 햄버거 — 좁은 화면에서 알약 내비가 넘치지 않게 패널로 접기 */
+/* 모바일 햄버거: 좁은 화면에서 알약 내비가 넘치지 않게 패널로 접기 */
 .nav-burger { display: none; }
 @media (max-width: 820px) {
   .nav-burger { display: grid; place-items: center; width: 38px; height: 38px; flex: none;
@@ -251,17 +251,6 @@ table.data tr:hover td { background: var(--panel2); }
 @keyframes spin { to { transform: rotate(360deg); } }
 .footer-note { text-align: center; color: var(--muted2); font-size: 12px; padding: 30px 0 10px; }
 
-/* 시작 화면 표기 — 연구보고서 제목·대상 학년(심사 요강 표기 의무) */
-.report-head { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px;
-  padding: 10px 14px; margin: 14px 0 0; background: var(--panel2); }
-.report-head p { margin: 0; line-height: 1.6; }
-.report-head .rh-title { font-size: 13.5px; font-weight: 700; color: var(--text); }
-.report-head .rh-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.report-head .rh-k { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: .06em;
-  color: var(--accent); background: rgba(var(--accent-rgb),.12); border-radius: 5px; padding: 2px 7px; margin-right: 6px;
-  vertical-align: 1px; }
-.report-head .rh-sep { color: var(--muted2); }
-
 /* ----------------------------- 공통 다크 크레딧 풋터(항상 다크) ----------------------------- */
 #site-footer { position: relative; overflow: hidden; margin-top: 44px; padding: 38px 18px 40px; background: var(--footer); border-top: 1px solid rgba(255,255,255,.06); }
 #site-footer::before { content: ""; position: absolute; left: 14%; top: -50%; width: 60%; height: 140%; background: radial-gradient(closest-side, rgba(72,102,228,.30), transparent 70%); pointer-events: none; }
@@ -276,12 +265,12 @@ table.data tr:hover td { background: var(--panel2); }
 .ft-credit b { color: #cdd6ea; }
 
 /* =============================================================================
-   구조화 컴포넌트 층 (dn-) — '나열식' 탈피용 재사용 부품
+   구조화 컴포넌트 층 (dn-): '나열식' 탈피용 재사용 부품
    위계(featured) · 묶음(cluster) · 여정(spine) · 서랍(list) · 인용(quote) · 레일(rail) · 다음(next)
    어떤 페이지든 같은 문법으로 구조화하도록 공용화. (페이지 로컬 .spine 등과 충돌 없게 dn- 네임스페이스)
    ============================================================================= */
 
-/* 주력 카드(featured) — 한 묶음의 '주연' 하나를 크게 */
+/* 주력 카드(featured): 한 묶음의 '주연' 하나를 크게 */
 .dn-feature { display: grid; gap: 18px; background: linear-gradient(135deg, rgba(var(--accent-rgb),.10), var(--panel) 62%);
   border: 1px solid var(--accent-card-line); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
 @media (min-width: 780px) { .dn-feature { grid-template-columns: 1.35fr .95fr; align-items: center; } }
@@ -296,14 +285,14 @@ table.data tr:hover td { background: var(--panel2); }
 .dn-progress i { width: 22px; height: 6px; border-radius: 3px; background: var(--line); display: inline-block; }
 .dn-progress i.on { background: var(--accent); }
 
-/* 묶음(cluster) — 키커+제목+리드로 섹션에 '정체성'을 부여(제목만 있는 구분선 탈피) */
+/* 묶음(cluster): 키커+제목+리드로 섹션에 '정체성'을 부여(제목만 있는 구분선 탈피) */
 .dn-cluster { margin-top: 34px; }
 .dn-cluster-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
 .dn-cluster-head h3 { font-size: 19px; margin: 4px 0 2px; letter-spacing: -.2px; }
 .dn-cluster-head p { margin: 0; color: var(--muted); font-size: 13px; max-width: 580px; }
 .dn-cluster-head .more { font-size: 12.5px; color: var(--accent); font-weight: 700; white-space: nowrap; }
 
-/* 여정 스파인(spine) — 단계 흐름, 현재 단계 강조 */
+/* 여정 스파인(spine): 단계 흐름, 현재 단계 강조 */
 .dn-spine { display: grid; gap: 12px; }
 @media (min-width: 820px) { .dn-spine { grid-template-columns: repeat(4,1fr); } }
 .dn-node { position: relative; display: block; border: 1px solid var(--line); border-radius: 16px; padding: 16px; background: var(--panel);
@@ -316,7 +305,7 @@ table.data tr:hover td { background: var(--panel2); }
 .dn-node p { margin: 0; font-size: 12px; color: var(--muted); }
 .dn-node .tag { position: absolute; top: -9px; right: 12px; font-size: 10px; font-weight: 800; background: var(--accent); color: #fff; padding: 2px 8px; border-radius: 999px; }
 
-/* 서랍 리스트(list) — 보조 항목을 조용히 묶기(동급 나열 대신 한 줄 행) */
+/* 서랍 리스트(list): 보조 항목을 조용히 묶기(동급 나열 대신 한 줄 행) */
 .dn-list { display: grid; gap: 10px; }
 .dn-row { display: flex; align-items: center; gap: 13px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 13px 16px; text-decoration: none; color: inherit; transition: transform .15s, border-color .15s; }
 .dn-row:hover { border-color: var(--accent); transform: translateX(2px); text-decoration: none; }
@@ -327,14 +316,14 @@ table.data tr:hover td { background: var(--panel2); }
 .dn-row .tx span { font-size: 12px; color: var(--muted); }
 .dn-row .arr { margin-left: auto; color: var(--muted2); font-weight: 800; }
 
-/* 철학 인용 밴드(quote) — 밀도에 리듬을(항상 다크) */
+/* 철학 인용 밴드(quote): 밀도에 리듬을(항상 다크) */
 .dn-quote { text-align: center; margin: 34px 0; padding: 40px 24px; border-radius: 22px; position: relative; overflow: hidden; background: var(--footer); }
 .dn-quote::before { content: ""; position: absolute; left: 18%; top: -50%; width: 64%; height: 150%; background: radial-gradient(closest-side, rgba(47,107,224,.26), transparent 70%); pointer-events: none; }
 .dn-quote blockquote { position: relative; margin: 0 auto; max-width: 640px; color: #eaf0fb; font-size: clamp(18px,2.6vw,25px); font-weight: 700; line-height: 1.5; letter-spacing: -.3px; }
 .dn-quote blockquote b { color: #93A4E8; }
 .dn-quote cite { position: relative; display: block; margin-top: 14px; color: #9fb0d0; font-size: 12.5px; font-style: normal; letter-spacing: .04em; }
 
-/* 가로 레일(rail) — 동급 다수 항목은 가로 스크롤로(평면 그리드 탈피) */
+/* 가로 레일(rail): 동급 다수 항목은 가로 스크롤로(평면 그리드 탈피) */
 .dn-rail { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
 .dn-rail > * { flex: 0 0 auto; scroll-snap-align: start; }
 .dn-thumb { width: 200px; text-decoration: none; color: inherit; display: block; }
@@ -342,13 +331,13 @@ table.data tr:hover td { background: var(--panel2); }
 .dn-thumb b { font-size: 13px; display: block; margin-top: 7px; }
 .dn-thumb span { font-size: 11.5px; color: var(--muted); }
 
-/* 다음으로(next) — 페이지 끝에서 여정을 잇기 */
+/* 다음으로(next): 페이지 끝에서 여정을 잇기 */
 .dn-next { margin-top: 34px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
   background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px dashed var(--accent); border-radius: 16px; padding: 16px 20px; }
 .dn-next .t { font-size: 14px; }
 .dn-next .t b { color: var(--text); }
 
-/* 탭(tabs) — '한 화면에 전부 펼침'을 '한 번에 한 묶음'으로 (UI.initTabs 가 자동 연결) */
+/* 탭(tabs): '한 화면에 전부 펼침'을 '한 번에 한 묶음'으로 (UI.initTabs 가 자동 연결) */
 .dn-tabwrap { margin-top: 22px; }
 .dn-tabs { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px; margin-bottom: 16px;
   background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
@@ -361,7 +350,7 @@ table.data tr:hover td { background: var(--panel2); }
 .dn-tab:not(.active) .cnt { background: var(--panel3); color: var(--muted2); }
 .dn-tabpanel[hidden] { display: none !important; }
 
-/* 그룹 소제목 — 한 묶음 안에서 핵심/심화 등 위계를 나눌 때 */
+/* 그룹 소제목: 한 묶음 안에서 핵심/심화 등 위계를 나눌 때 */
 .dn-subhead { font-weight: 800; font-size: 13px; color: var(--text); letter-spacing: -.01em;
   margin: 24px 0 13px; display: flex; align-items: center; gap: 9px; }
 .dn-subhead:first-child { margin-top: 2px; }
@@ -370,7 +359,7 @@ table.data tr:hover td { background: var(--panel2); }
 .dn-subhead .cnt-mini { font-weight: 600; font-size: 11.5px; color: var(--muted2); }
 
 /* =============================================================================
-   학습지(worksheets/) — 사이트 쪽 껍데기.
+   학습지(worksheets/): 사이트 쪽 껍데기.
    학습지 본문의 표시는 worksheets/render/worksheet.css 가 맡는다(인쇄 한 벌 포함).
    여기 있는 것은 차례·진행률·이동 단추처럼 '사이트가 감싸는 부분'뿐이다.
    ============================================================================= */
@@ -383,7 +372,7 @@ table.data tr:hover td { background: var(--panel2); }
 .ws-meter i { display: block; height: 100%; width: 0; border-radius: 999px; transition: width .25s;
   background: linear-gradient(90deg, var(--accent), var(--teal)); }
 
-/* 차례 — 차시 번호가 곧 순서다 */
+/* 차례: 차시 번호가 곧 순서다 */
 .ws-toc { display: grid; gap: 6px; }
 .ws-toc-item { display: grid; grid-template-columns: 56px 1fr auto; gap: 10px; align-items: center;
   padding: 9px 11px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: inherit;
@@ -417,7 +406,7 @@ table.data tr:hover td { background: var(--panel2); }
 /* 여정 노드에 붙는 꼬리표 */
 .ws-tag { display: block; font-size: 10.5px; font-weight: 700; color: var(--muted2); margin-top: 5px; }
 
-/* 스튜디오 위에 뜨는 '학습지 열기' — 도구 옆에 종이가 놓인 모양 */
+/* 스튜디오 위에 뜨는 '학습지 열기': 도구 옆에 종이가 놓인 모양 */
 .ws-launch { position: fixed; right: 18px; bottom: 18px; z-index: 60; display: flex; gap: 9px; align-items: center;
   padding: 9px 13px 9px 11px; border-radius: 14px; text-decoration: none; color: var(--text);
   background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); transition: .15s; }

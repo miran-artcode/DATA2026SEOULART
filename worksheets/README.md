@@ -81,7 +81,7 @@ cd content/worksheets && npx serve .     # 또는 python -m http.server 8000
 | `conceptTable` | 개념어 / 본 장면 / 내 말로 | `s1.my_words.summary.reworded` |
 | `cloze` | 문장 완성. `template` 안 `{{slot}}` | `s1.one_sentence.visible` |
 | `freewrite` | 큰 칸 한 개 (`maxChars` 가능) | `s7.artist_statement.text` |
-| `static` | 입력 없음(표지의 개념·질문·차례) | — |
+| `static` | 입력 없음(표지의 개념·질문·차례) | - |
 
 블록에 붙는 교육적 속성입니다. 이 값들 덕분에 나중에 자동 정리가 됩니다.
 

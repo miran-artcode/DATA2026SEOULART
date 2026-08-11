@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * smoke.mjs — 렌더러 연기 시험 (브라우저 없이)
+ * smoke.mjs: 렌더러 연기 시험 (브라우저 없이)
  * ---------------------------------------------------------------------------
  *   node content/worksheets/smoke.mjs
  *
@@ -57,11 +57,11 @@ for (const entry of manifest.units) {
       seen.push(...paths);
       console.log(`  ✓ ${s.file.padEnd(28)} 입력칸 ${String(paths.length).padStart(3)}개`);
     } catch (e) {
-      console.error(`  ✕ ${s.file} — ${e.message}`);
+      console.error(`  ✕ ${s.file}: ${e.message}`);
       failed++;
     }
   }
-  /* 자기점검은 라디오라 data-path 대신 name 을 쓴다 — 비교에서 뺀다 */
+  /* 자기점검은 라디오라 data-path 대신 name 을 쓴다. 비교에서 뺀다 */
   const idx = entry.fieldIndex.filter(f => f.block !== 'selfcheck').map(f => f.path).sort();
   const dom = [...new Set(seen)].sort();
   const missing = idx.filter(p => !dom.includes(p));
@@ -71,5 +71,5 @@ for (const entry of manifest.units) {
   if (extra.length) { console.error('  manifest 에 없는 칸:', extra.slice(0, 10)); failed++; }
 }
 
-console.log(failed ? '\n실패' : '\n통과 — 모두 그려지고 저장 경로가 일치한다');
+console.log(failed ? '\n실패' : '\n통과: 모두 그려지고 저장 경로가 일치한다');
 process.exit(failed ? 1 : 0);

@@ -1,8 +1,8 @@
 /*
- * worksheet.js — 학습지 렌더러 (의존성 없음 · 화면과 인쇄를 한 벌로)
+ * worksheet.js: 학습지 렌더러 (의존성 없음 · 화면과 인쇄를 한 벌로)
  * ---------------------------------------------------------------------------
  * 내용(JSON)과 표시(이 파일)를 나눠 두었다. 이 파일은 어느 사이트에 붙여도
- * 그대로 동작한다 — 정적 사이트의 <script src>, 또는 번들러의 import 양쪽 다.
+ * 그대로 동작한다. 정적 사이트의 <script src>, 또는 번들러의 import 양쪽 다.
  *
  *   <link rel="stylesheet" href="render/worksheet.css">
  *   <script src="render/worksheet.js"></script>
@@ -14,7 +14,7 @@
  *   });
  *
  * 설계 약속
- *   · 저장 경로는 sheetId.blockId.fieldId — build.mjs 의 fieldIndex 와 같은 문자열.
+ *   · 저장 경로는 sheetId.blockId.fieldId: build.mjs 의 fieldIndex 와 같은 문자열.
  *   · 이름을 다루지 않는다. 학번 코드만 표지 칸으로 받는다.
  *   · 일반화(G1~G4) 원문은 학생 화면에 절대 그리지 않는다(8차시 ④에서 학생이 쓴다).
  */
@@ -35,7 +35,7 @@
 
   async function getJSON(url) {
     const r = await fetch(url, { cache: 'no-cache' });
-    if (!r.ok) throw new Error(`${url} — ${r.status}`);
+    if (!r.ok) throw new Error(`${url}: ${r.status}`);
     return r.json();
   }
 
@@ -55,7 +55,7 @@
     const el = h(opt.lines > 1 ? 'textarea' : 'input', {
       class: 'ws-in', 'data-path': path,
       rows: opt.lines > 1 ? opt.lines : null,
-      // 인쇄용 — worksheet.css 의 @media print 가 이 값으로 칸 높이를 잡는다.
+      // 인쇄용: worksheet.css 의 @media print 가 이 값으로 칸 높이를 잡는다.
       // rows 속성만으로는 인쇄에서 줄 수가 반영되지 않아 손글씨 공간이 다 같아진다.
       style: opt.lines > 1 ? `--rows:${opt.lines}` : null,
       maxlength: opt.maxChars || null,

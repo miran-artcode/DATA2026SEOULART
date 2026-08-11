@@ -1,13 +1,13 @@
 rules_version = '2';
 // =============================================================================
-// Firebase Storage 보안 규칙 — 수업용 (프로젝트: data-art-canvas)
+// Firebase Storage 보안 규칙: 수업용 (프로젝트: data-art-canvas)
 // -----------------------------------------------------------------------------
 // 무엇: 학생이 올린 '사진 원본'을 Firestore(문서 1MB 한계) 대신 Storage 에 보관하기
 //       위한 규칙. 문서에는 다운로드 URL만 저장되고 실제 이미지는 여기에 들어온다.
 //
 // 적용(교사용, 1회):
 //   1) Firebase 콘솔 → Build → Storage → "시작하기"로 Storage 사용 설정.
-//      (새 프로젝트는 종량제(Blaze) 요금제가 필요할 수 있음 — 사용량은 매우 적음)
+//      (새 프로젝트는 종량제(Blaze) 요금제가 필요할 수 있음. 사용량은 매우 적음)
 //   2) Storage → "Rules" 탭에 아래 내용을 붙여넣고 "게시".
 //   3) (선택) 전시 재생의 '살아있는 점' 효과까지 교차출처에서 켜려면 버킷 CORS 허용:
 //        gcloud storage buckets update gs://data-art-canvas.firebasestorage.app \

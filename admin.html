@@ -86,7 +86,7 @@
       </div>
     </div>
 
-    <!-- D-6 학습지 — 차시별 제출과 칸별 답 -->
+    <!-- D-6 학습지: 차시별 제출과 칸별 답 -->
     <div class="dn-tabpanel" data-tabpanel="worksheet" hidden>
       <div class="card">
         <h3>D-6 · 학습지 제출 현황</h3>
@@ -239,7 +239,7 @@
     notes = await Store.listNotes();
     feedback = {}; allFb = [];
     for (const w of works) { const items = await Store.listFeedback(w.id); feedback[w.id] = items.length; allFb.push(...items); }
-    // 기존 표(작품·성찰·취합)를 먼저 그린다 — 새 지표 계산이 실패해도 대시보드의 나머지는 살아 있도록.
+    // 기존 표(작품·성찰·취합)를 먼저 그린다. 새 지표 계산이 실패해도 대시보드의 나머지는 살아 있도록.
     stats(); renderStudents(); renderWorks(); renderNotes();
     renderWorksheets().catch(e => console.warn('[admin] 학습지 표 실패', e));
     try {
@@ -356,7 +356,7 @@
       const meta = wsMeta(c.sheet), mine = list.filter(n => n.sheet === c.sheet);
       const pcts = mine.map(wsPct);
       const a = pcts.length ? Math.round(pcts.reduce((x, y) => x + y, 0) / pcts.length) : 0;
-      // 자기점검은 학생이 스스로 고른 값 — 차시마다 항목 수가 다르므로 '상·중·하' 분포로 센다.
+      // 자기점검은 학생이 스스로 고른 값: 차시마다 항목 수가 다르므로 '상·중·하' 분포로 센다.
       // 값 이름은 꾸러미의 두 척도를 그대로 쓴다(standard: good·mid·need / final: full·some·notyet).
       const sc = { hi: 0, mid: 0, lo: 0, etc: 0 };
       mine.forEach(n => Object.keys(n.answers || {}).forEach(p => {
@@ -383,7 +383,7 @@
     if (wsPick) renderWsDetail();
   }
 
-  /* 학생 × 차시 격자 — 누가 어느 차시에서 멈춰 있는지 한눈에 */
+  /* 학생 × 차시 격자: 누가 어느 차시에서 멈춰 있는지 한눈에 */
   function renderWsGrid(list) {
     const cols = WS.COURSE.filter(c => c.sheet !== 'cover');
     const byUser = new Map();
@@ -417,7 +417,7 @@
       `<table class="data"><thead>${head}</thead><tbody>${body}</tbody></table>`;
   }
 
-  /* 답 보기 — ① 한 학생의 한 차시 전체, ② 한 차시의 한 칸을 학급 전체로 */
+  /* 답 보기: ① 한 학생의 한 차시 전체, ② 한 차시의 한 칸을 학급 전체로 */
   function renderWsDetail() {
     const box = document.getElementById('ws-detail'), title = document.getElementById('ws-detail-title');
     const list = wsNotes(), meta = wsMeta(wsPick.sheet);
@@ -435,7 +435,7 @@
         fields.map(f => {
           const v = (n.answers || {})[f.path];
           return `<tr><td>${UI.escapeHTML(f.label || f.field)}${f.rubric ? ' <span class="badge core" title="루브릭으로 보는 칸">평가</span>' : ''}</td>
-            <td>${v ? UI.escapeHTML(String(v)) : '<span class="muted">—</span>'}</td>
+            <td>${v ? UI.escapeHTML(String(v)) : '<span class="muted">-</span>'}</td>
             <td class="muted" style="font-size:11.5px">${EVID[f.evidence] || ''}</td></tr>`;
         }).join('') + '</tbody></table>';
       const back = document.getElementById('ws-back');
@@ -443,7 +443,7 @@
       return;
     }
 
-    // ② 한 차시의 한 칸을 학급 전체로 — 같은 질문에 학급이 어떻게 답했는지 나란히 본다
+    // ② 한 차시의 한 칸을 학급 전체로: 같은 질문에 학급이 어떻게 답했는지 나란히 본다
     const path = wsPick.path || (fields.find(f => f.rubric) || fields[0] || {}).path;
     wsPick.path = path;
     const f = fields.find(x => x.path === path) || {};
@@ -455,13 +455,13 @@
         <select id="ws-field" style="width:auto;min-width:280px;max-width:100%">` +
           fields.map(x => `<option value="${x.path}"${x.path === path ? ' selected' : ''}>${UI.escapeHTML(x.label || x.field)}${x.rubric ? ' ★' : ''}</option>`).join('') +
         `</select>
-        <span class="muted" style="font-size:11.5px">★ = 루브릭으로 보는 칸 · 증거층 ${EVID[f.evidence] || '—'}</span>
+        <span class="muted" style="font-size:11.5px">★ = 루브릭으로 보는 칸 · 증거층 ${EVID[f.evidence] || '-'}</span>
       </div>` +
       (mine.length ? `<table class="data"><thead><tr><th style="width:130px">별명</th><th style="width:60px">반</th><th>답</th></tr></thead><tbody>` +
         mine.sort((a, b) => (a.klass || '').localeCompare(b.klass || '') || wsName(a).localeCompare(wsName(b))).map(n => {
           const v = (n.answers || {})[path];
           return `<tr><td>${UI.escapeHTML(wsName(n))}</td><td>${UI.escapeHTML(n.klass || '')}</td>
-            <td>${v ? UI.escapeHTML(String(v)) : '<span class="muted">—</span>'}</td></tr>`;
+            <td>${v ? UI.escapeHTML(String(v)) : '<span class="muted">-</span>'}</td></tr>`;
         }).join('') + '</tbody></table>'
         : '<p class="muted" style="font-size:12.5px;margin:0">이 차시를 쓴 학생이 아직 없습니다.</p>');
     const sel = document.getElementById('ws-field');
@@ -595,11 +595,11 @@
 
     const q = document.getElementById('q').value.trim().toLowerCase();
     const rows = judge.rows.filter(r => !q || (r.name || '').toLowerCase().includes(q)).map(r => {
-      const st = r.stage >= 0 ? `${r.stage + 1}. ${Log.STAGES[r.stage].label}` : '—';
+      const st = r.stage >= 0 ? `${r.stage + 1}. ${Log.STAGES[r.stage].label}` : '-';
       return `<tr><td>${UI.escapeHTML(r.name)}</td><td>${UI.escapeHTML(r.klass)}</td><td>${st}</td>
         <td>${r.compare}</td><td>${r.revise}</td><td>${r.evidence}</td><td>${r.answer}/${r.ask}</td>
         <td>${r.critique}</td><td>${r.reflect ? '✅' : ''}</td>
-        <td>${r.last ? new Date(r.last).toLocaleDateString('ko-KR') : '—'}</td></tr>`;
+        <td>${r.last ? new Date(r.last).toLocaleDateString('ko-KR') : '-'}</td></tr>`;
     }).join('');
     document.querySelector('#tbl-judge tbody').innerHTML = rows || '<tr><td colspan="10" class="muted">아직 기록이 없어요. 학생이 스튜디오에서 활동하면 채워집니다.</td></tr>';
   }

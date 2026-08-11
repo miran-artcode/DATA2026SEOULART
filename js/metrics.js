@@ -1,5 +1,5 @@
 /*
- * metrics.js — 과정 지표 계산 (교사 대시보드 · 학생 포트폴리오 공용)
+ * metrics.js: 과정 지표 계산 (교사 대시보드 · 학생 포트폴리오 공용)
  * -----------------------------------------------------------------------------
  * 작품 목록이 아니라 '판단의 과정'을 숫자로 읽는다.
  *   D-1 학급 진행 현황(7단계 도달)   D-2 판단 활동 지표   D-3 학생별 타임라인
@@ -19,7 +19,7 @@
 
   /* ============================ 신원 해석(가명 코드 → 별명) ============================
    * 로그에는 학번·별명이 없다. 교사 화면에서만, 별명(by)을 가진 works/notes 와 조인해 되찾는다.
-   * (별명↔학생 대조는 학급 명단을 가진 교사의 몫 — 화면·CSV 어디에도 실명은 없다.)
+   * (별명↔학생 대조는 학급 명단을 가진 교사의 몫: 화면·CSV 어디에도 실명은 없다.)
    */
   function nameMap(works, notes) {
     const m = {};
@@ -65,7 +65,7 @@
     });
     return STAGES.map(s => ({ key: s.key, label: s.label, desc: s.desc, n: perStage[s.key].size, uids: [...perStage[s.key]] }));
   }
-  // 한 학생이 '어디까지 갔는가' — 도달한 가장 높은 단계
+  // 한 학생이 '어디까지 갔는가': 도달한 가장 높은 단계
   function furthestStage(uid, logs) {
     let best = -1;
     (logs || []).forEach(l => { if (l.uid !== uid) return; const i = Log.stageIndex(l.stage); if (i > best) best = i; });
@@ -135,7 +135,7 @@
     const { works = [], notes = [], logs = [], versions = [] } = data || {};
     const items = [];
     logs.filter(l => l.uid === anon).forEach(l => {
-      // 버전 저장은 아래 versions 에서 한 줄로 나온다 — 근거 한 줄이 없는 revise 로그는 중복이라 건너뛴다.
+      // 버전 저장은 아래 versions 에서 한 줄로 나온다. 근거 한 줄이 없는 revise 로그는 중복이라 건너뛴다.
       if (l.action === 'revise' && !(l.payload && l.payload.reason)) return;
       items.push({
         t: l.ts, type: 'log', stage: l.stage, icon: '·',

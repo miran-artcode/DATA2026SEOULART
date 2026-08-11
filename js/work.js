@@ -1,5 +1,5 @@
 /*
- * work.js — 작품 단독 페이지: 작가노트 + 감상·비평(펠드먼 4단계)
+ * work.js: 작품 단독 페이지: 작가노트 + 감상·비평(펠드먼 4단계)
  * QR/갤러리에서 work.html?id=<workId> 로 진입.
  */
 (function () {
@@ -15,7 +15,7 @@
   function story(w) {
     const s = w.settings || {}, parts = [];
     if (w.kind === 'data') {
-      parts.push('데이터: ' + (w.dataName || '—'));
+      parts.push('데이터: ' + (w.dataName || '-'));
       const m = (window.Docent && Docent.mapSummary) ? Docent.mapSummary(s.mapping) : [];
       if (m.length) parts.push('매핑: ' + m.join(' · '));
       const cm = s.mapping && s.mapping.colorMode;

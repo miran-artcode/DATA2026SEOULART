@@ -1,5 +1,5 @@
 /*
- * studio-color-glue.js — 색 군집 스튜디오를 사이트(코치·전시·허브)와 연결
+ * studio-color-glue.js: 색 군집 스튜디오를 사이트(코치·전시·허브)와 연결
  * -----------------------------------------------------------------------------
  * 단일 파일(오프라인 백업) 동작을 해치지 않도록, 자체 토스트/모달을 쓰고
  * 공용 site.css/ui.js 에 의존하지 않는다. window.ColorStudio 훅을 통해 맥락을 읽는다.
@@ -49,7 +49,7 @@
     bCoach.addEventListener('click', coach);
     bExhibit.addEventListener('click', exhibitForm);
 
-    /* 작업실(색 스튜디오)은 항상 다크 — 테마 토글 제거(HANDOFF 컨셉 분리) */
+    /* 작업실(색 스튜디오)은 항상 다크: 테마 토글 제거(HANDOFF 컨셉 분리) */
   }
 
   async function coach() {
@@ -120,13 +120,13 @@
           const wid = await Store.saveWork(work);
           if (window.Log) {
             await Log.push({ stage: 'share', action: 'exhibit', workId: draftId, payload: { workRealId: wid } });
-            Log.newWork();   // 다음 작품은 새 자리표로 — 이전 작품의 버전·로그와 섞이지 않게
+            Log.newWork();   // 다음 작품은 새 자리표로: 이전 작품의 버전·로그와 섞이지 않게
             mountTrace.remount && mountTrace.remount();
           }
           document.getElementById('glue-modal').style.display = 'none';
           toast(useVideo ? '🎉 인터랙티브 영상으로 전시했습니다!' : '🎉 갤러리에 전시했습니다!');
         } catch (e) {
-          // 영상이 너무 커 저장 용량을 초과한 경우 등 — 영상 없이 다시 시도
+          // 영상이 너무 커 저장 용량을 초과한 경우 등: 영상 없이 다시 시도
           if (useVideo) {
             delete work.video;
             try { await Store.saveWork(work); document.getElementById('glue-modal').style.display = 'none'; toast('영상이 너무 커서 영상 없이 전시했어요(짧게 녹화하면 영상으로 전시돼요).'); return; } catch (e2) {}
@@ -171,7 +171,7 @@
       });
     };
     mountTrace.remount();
-    // 분석 실행도 판단의 출발점 — 버튼 클릭을 한 번만 기록한다.
+    // 분석 실행도 판단의 출발점: 버튼 클릭을 한 번만 기록한다.
     const ba = document.getElementById('btn-analyze');
     if (ba && window.Log) ba.addEventListener('click', () => {
       const c = window.ColorStudio ? window.ColorStudio.context() : {};

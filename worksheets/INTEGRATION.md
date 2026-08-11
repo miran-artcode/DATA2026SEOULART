@@ -20,12 +20,12 @@ match /{document=**} { allow read, write: if false; }
 
 ```js
 {
-  id: 'ws_2-3-k7f2_data-eye_s3',   // ★ 미리 정해진 id — 자동 저장이 겹쳐도 한 장에 한 건
-  userId, by,                      // 별명(실명 아님) — 교사 화면이 이것으로 조인한다
+  id: 'ws_2-3-k7f2_data-eye_s3',   // ★ 미리 정해진 id: 자동 저장이 겹쳐도 한 장에 한 건
+  userId, by,                      // 별명(실명 아님): 교사 화면이 이것으로 조인한다
   klass: '2-3', code: '2-3·k7f2',  // 반 + 가명 코드
   kind: 'worksheet', unit: 'data-eye', sheet: 's3', session: 3,
   stage: 1,                        // 4단계 여정에서의 자리(숫자)
-  procStage: 'make',               // 창작 7단계에서의 자리(키) — metrics.js 의 D-1 이 쓴다
+  procStage: 'make',               // 창작 7단계에서의 자리(키): metrics.js 의 D-1 이 쓴다
   title: '3차시 · 규칙 두 개 만들기',
   answers: { 's3.report.data_name': '…', 's3.selfcheck.why': 'good' },
   filled: 12, total: 24,           // 진행률을 매번 세지 않아도 되도록 저장 시점에 함께 적는다

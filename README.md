@@ -14,7 +14,7 @@
 ## 사이트맵
 
 ```
-index.html  (로그인 · 학번/별명/PIN — 실명 없음, 반은 학번에서 자동)
+index.html  (로그인 · 학번/별명/PIN: 실명 없음, 반은 학번에서 자동)
       │
 hub.html  학생 허브
    ├─ 만들기(4단계, 순서대로) : studio-color.html(그림·1단계) · studio-life.html(내 사진·2단계) · studio-sound.html(내 소리·3단계) · project.html(사회 문제·4단계)
@@ -24,14 +24,14 @@ hub.html  학생 허브
 
 work.html?id=…  작품 단독 페이지 (QR 진입 · 감상·비평 펠드먼 4단계)
 
-worksheet.html 학습지 (차시마다 한 장 · 자동 저장 · A4 인쇄) — 내용은 worksheets/ 폴더
+worksheet.html 학습지 (차시마다 한 장 · 자동 저장 · A4 인쇄): 내용은 worksheets/ 폴더
 admin.html  교사 대시보드 (과정 지표 · 학생 타임라인 · 학급 유사도 · 학습지 · 취합 · 내보내기)
 
-[공유 데이터 계층] store.js — 기본 로컬, config/cloud-config.js 설정 시 실시간 클라우드
-[학습 로그 계층]  log.js — 판단의 행동 11가지를 익명 코드로 기록(대시보드의 원료)
+[공유 데이터 계층] store.js: 기본 로컬, config/cloud-config.js 설정 시 실시간 클라우드
+[학습 로그 계층]  log.js: 판단의 행동 11가지를 익명 코드로 기록(대시보드의 원료)
 [판단 흔적 위젯]  cards.js(질문 카드 4종) · version.js(버전 스냅샷·A/B 비교)
-[지표 계산]      metrics.js — 7단계 진행 · 판단 지표 · 타임라인 · 학급 유사도 지수
-[AI 감상 코치]   coach.js — 기본 오프라인(질문 생성), 선택 시 모델 호출(rate-limit 보호)
+[지표 계산]      metrics.js: 7단계 진행 · 판단 지표 · 타임라인 · 학급 유사도 지수
+[AI 감상 코치]   coach.js: 기본 오프라인(질문 생성), 선택 시 모델 호출(rate-limit 보호)
 ```
 
 설명 아이콘 **ⓘ**(쉬운 예시 → 깊은 원리 → 놓친 것 → 아이디어)와 안내 **💡**가 모든 페이지 곳곳에 있습니다.
@@ -148,7 +148,7 @@ admin.html  교사 대시보드 (과정 지표 · 학생 타임라인 · 학급 
 ```
 worksheet.html            학습지 화면 (왼쪽 단원 차례 · 오른쪽 학습지 한 장 · A4 인쇄)
 js/worksheet.js           차시 ↔ 4단계 ↔ 화면을 잇는 표(COURSE) · 자동 저장 · 순차 진행
-worksheets/               내용 꾸러미 — 내용(JSON)과 표시(렌더러)를 나눠 둔 폴더
+worksheets/               내용 꾸러미: 내용(JSON)과 표시(렌더러)를 나눠 둔 폴더
   manifest.json           자동 생성 색인(칸 163개 · 라벨 · 증거층 · 루브릭 대상 68개)
   build.mjs · smoke.mjs   내용 검사 + 색인 갱신 / 렌더러 시험 (node 로 실행)
   render/                 렌더러 한 벌(의존성 0 · 화면과 A4 인쇄를 같은 코드로)

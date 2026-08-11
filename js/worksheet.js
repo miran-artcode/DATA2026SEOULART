@@ -1,5 +1,5 @@
 /*
- * worksheet.js — 학습지 꾸러미를 '수업의 순서'에 붙이는 계층
+ * worksheet.js: 학습지 꾸러미를 '수업의 순서'에 붙이는 계층
  * -----------------------------------------------------------------------------
  * 내용(worksheets/**.json)과 표시(worksheets/render/worksheet.js)는 이미 나뉘어 있다.
  * 이 파일이 하는 일은 그 둘을 이 사이트의 과정에 붙이는 것 하나다.
@@ -11,7 +11,7 @@
  *   순서    앞 차시를 어느 정도 채우면 다음 차시가 열린다. 잠금은 '안내'지 '차단'이 아니다
  *           (결석·보충처럼 순서가 흐트러지는 일은 교실에서 늘 생긴다).
  *
- * ⚠ 차시 순서와 4단계 순서는 서로 다르다 — 일부러 그렇게 두었다.
+ * ⚠ 차시 순서와 4단계 순서는 서로 다르다. 일부러 그렇게 두었다.
  *   4단계 지도는 사진(2단계) → 소리(3단계)인데, 학습지는 소리(4차시) → 삶(5차시)다.
  *   학습지끼리 '다음 시간으로 넘기는 한 줄'(carryOver)이 4차시 → 5차시로 이어져 있어서,
  *   단계 순서대로 배치하면 아직 쓰지 않은 학습지의 한 줄을 앞 차시가 요구하게 된다.
@@ -48,7 +48,7 @@
     { sheet: 's8',    stage: 4, badge: '마무리 · 전시',   pages: ['exhibit.html', 'gallery.html', 'work.html'],            logStage: 'share' }
   ];
 
-  /* 4단계 여정의 이름 — 허브·여정 화면과 같은 말을 쓴다 */
+  /* 4단계 여정의 이름: 허브·여정 화면과 같은 말을 쓴다 */
   const STAGE_NAME = { 1: '그림을 데이터로', 2: '내 사진을 데이터로', 3: '내 소리를 데이터로', 4: '사회 문제를 데이터로' };
 
   const page = () => (location.pathname.split('/').pop() || 'index.html');
@@ -58,12 +58,12 @@
   /* ----------------------------- 꾸러미 읽기 ----------------------------- */
   let packPromise = null, manifestPromise = null;
 
-  // 학습지 전체(단원 + 9장) — 학습지 화면에서만 필요하다
+  // 학습지 전체(단원 + 9장): 학습지 화면에서만 필요하다
   function load() {
     if (!packPromise) packPromise = Worksheet.load(BASE, UNIT);
     return packPromise;
   }
-  // 색인만(칸 목록·라벨·루브릭 표시) — 허브·교사 대시보드가 쓴다
+  // 색인만(칸 목록·라벨·루브릭 표시): 허브·교사 대시보드가 쓴다
   function loadManifest() {
     if (!manifestPromise) manifestPromise = fetch(BASE + '/manifest.json', { cache: 'no-cache' })
       .then(r => { if (!r.ok) throw new Error('manifest ' + r.status); return r.json(); })
@@ -95,7 +95,7 @@
       kind: 'worksheet', unit: UNIT, sheet: sheet.id,
       session: sheet.session || 0,
       stage: c.stage != null ? c.stage : null,   // 4단계 여정에서의 자리(숫자)
-      procStage: c.logStage || 'make',           // 창작 7단계에서의 자리(키) — metrics.js 가 D-1 에 쓴다
+      procStage: c.logStage || 'make',           // 창작 7단계에서의 자리(키): metrics.js 가 D-1 에 쓴다
       title: (sheet.session ? sheet.session + '차시 · ' : '') + (sheet.title || '학습지'),
       answers: {}, filled: 0, total: 0
     };
@@ -133,7 +133,7 @@
       const sheets = (raw.userId === user.userId && raw.sheets) || {};
       Object.keys(stats).forEach(k => { sheets[k] = stats[k]; });
       localStorage.setItem(K_PROG, JSON.stringify({ userId: user.userId, sheets }));
-    } catch (e) { /* 용량 초과 — 요약은 없어도 화면이 동작한다 */ }
+    } catch (e) { /* 용량 초과: 요약은 없어도 화면이 동작한다 */ }
   }
 
   /* ----------------------------- 진행 상태 ----------------------------- */
@@ -154,7 +154,7 @@
     return out;
   }
 
-  // 단원 전체 계획 — 차시별 상태(완료/하는 중/열림/잠김)와 '다음에 할 차시'
+  // 단원 전체 계획: 차시별 상태(완료/하는 중/열림/잠김)와 '다음에 할 차시'
   function planOf(entryIndex, stats) {
     const bySheet = {};
     (entryIndex.fieldIndex || []).forEach(f => { (bySheet[f.sheet] = bySheet[f.sheet] || []).push(f.path); });
@@ -190,7 +190,7 @@
     const acts = readActs();
     if (acts[key]) return;
     acts[key] = 1;
-    try { localStorage.setItem(K_ACTS, JSON.stringify(acts)); } catch (e) { /* 용량 초과 — 기록만 건너뛴다 */ }
+    try { localStorage.setItem(K_ACTS, JSON.stringify(acts)); } catch (e) { /* 용량 초과: 기록만 건너뛴다 */ }
     if (global.Log) Log.push(rec);
   }
 
@@ -220,7 +220,7 @@
     writeProgress(user, stats);                      // 단추·허브가 저장소를 다시 읽지 않도록
     const plan = planOf(pack.entry, stats);
 
-    // 어느 학습지를 열 것인가 — ?s=s3 > 마지막으로 보던 것 > 다음에 할 차시
+    // 어느 학습지를 열 것인가: ?s=s3 > 마지막으로 보던 것 > 다음에 할 차시
     const want = new URLSearchParams(location.search).get('s');
     const row = plan.rows.find(r => r.course.sheet === want) || plan.next;
     const sheet = pack.sheets.find(s => s.id === row.course.sheet) || pack.sheets[0];
@@ -293,7 +293,7 @@
 
     /*
      * 화면을 벗어날 때 아직 안 넘긴 입력을 흘리지 않는다.
-     * beforeunload 안에서는 클라우드 저장(setDoc)이 끝날 시간이 없다 — 그래서 링크를 먼저 가로채
+     * beforeunload 안에서는 클라우드 저장(setDoc)이 끝날 시간이 없다. 그래서 링크를 먼저 가로채
      * 저장이 끝난 뒤에 옮겨 간다. beforeunload 는 뒤로가기·탭 닫기용 마지막 방책으로만 남긴다.
      */
     document.addEventListener('click', async (e) => {
@@ -386,7 +386,7 @@
   /* --------------------- 스튜디오 화면의 '학습지 열기' 단추 --------------------- */
   /*
    * 학습지를 따로 찾아 들어가게 하면 수업 중에 아무도 열지 않는다.
-   * 그래서 그 차시가 쓰는 화면 위에 작은 단추로 띄운다 — 도구 옆에 종이가 놓여 있는 모양.
+   * 그래서 그 차시가 쓰는 화면 위에 작은 단추로 띄운다. 도구 옆에 종이가 놓여 있는 모양.
    */
   function mountLauncher() {
     const list = forPage();
@@ -394,7 +394,7 @@
     const user = Auth.current();
     if (!user) return;
 
-    // 저장소를 읽지 않는다 — 이 기기에 남은 진행률 요약만 본다(14개 화면에 뜨는 단추라서).
+    // 저장소를 읽지 않는다. 이 기기에 남은 진행률 요약만 본다(14개 화면에 뜨는 단추라서).
     const prog = readProgress(user);
 
     // 한 화면을 여러 차시가 쓸 때(데이터 점 스튜디오)는 아직 덜 채운 앞 차시를 고른다
@@ -444,7 +444,7 @@
       '학습지끼리 넘기는 한 줄이 그 순서로 이어지기 때문이에요.</p>';
   }
 
-  /* 4단계 여정 노드에 '학습지 N차시' 꼬리표 달기 — 단계와 차시를 한 화면에서 잇는다 */
+  /* 4단계 여정 노드에 '학습지 N차시' 꼬리표 달기: 단계와 차시를 한 화면에서 잇는다 */
   function tagStageNodes(sel) {
     document.querySelectorAll((sel || '#spine') + ' .dn-node').forEach(node => {
       const stage = +node.dataset.stage;

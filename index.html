@@ -21,7 +21,7 @@
     box-shadow: var(--shadow); }
   .hero-inner { position: relative; z-index: 2; text-align: center; max-width: 660px; margin: 0 auto; }
 
-  /* 깔끔한 산세리프 대문자 — 진한 남색 + 슬레이트 그라데이션 */
+  /* 깔끔한 산세리프 대문자: 진한 남색 + 슬레이트 그라데이션 */
   .typo-hero { font-family: 'Pretendard','Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif;
     font-weight: 800; font-size: clamp(44px,8.4vw,86px); line-height: 1.06; letter-spacing: -.012em;
     text-transform: uppercase; margin: 18px 0 22px; color: var(--text); }
@@ -73,7 +73,7 @@
     color: var(--accent); font-weight: 800; font-size: 16px; display: grid; place-items: center; }
   .pstage { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--muted2); }
   .pcard h3 { margin: 2px 0 0; font-size: 16px; }
-  /* 메타 칩 — '출처/방법/산출물'이라는 뜻을 눈으로도, 텍스트로 읽어도 알 수 있게 라벨을 함께 넣는다.
+  /* 메타 칩: '출처/방법/산출물'이라는 뜻을 눈으로도, 텍스트로 읽어도 알 수 있게 라벨을 함께 넣는다.
      라벨이 없으면 텍스트 추출 시 "명화·그림색 군집 분석점·인터랙션"처럼 붙어 읽힌다. */
   .pflow { display: flex; flex-direction: column; gap: 3px; }
   .pflow span { font-size: 10.5px; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
@@ -119,9 +119,6 @@
 <div id="app-header"></div>
 
 <div class="wrap">
-
-  <!-- 시작 화면 표기(연구보고서 제목·대상 학년) — ui.js 의 UI.REPORT 한 곳에서 관리 -->
-  <div id="report-head"></div>
 
   <!-- ════════ 히어로 ════════ -->
   <section class="lp-hero">
@@ -334,9 +331,6 @@
 <script src="js/auth.js"></script>
 <script src="js/ui.js"></script>
 <script>
-/* ── 시작 화면 표기(연구보고서 제목·대상 학년) ────────── */
-UI.mountReportHeader('report-head');
-
 /* ── 개인정보 안내 ───────────────────────────────────── */
 document.getElementById('privacy-note').innerHTML = UI.callout(
   '<b>개인정보 안내</b> · 이 사이트는 <b>실명을 받지 않습니다</b>. 화면·작품·전시에 보이는 이름은 언제나 <b>별명</b>이고, ' +

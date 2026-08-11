@@ -1,5 +1,5 @@
 /*
- * portfolio.js — 학생 포트폴리오(A4 인쇄용)
+ * portfolio.js: 학생 포트폴리오(A4 인쇄용)
  * -----------------------------------------------------------------------------
  * 학생에게는 '내가 무엇을 보고 의심하고 골랐는가'가 한 장으로 돌아오고,
  * 교사에게는 그대로 과정중심평가의 근거가 된다.
@@ -45,7 +45,7 @@
     const literacy = pick('literacy'), cards = pick('card'), revisions = pick('revision');
     const reflections = pick('reflection'), statements = pick('statement');
 
-    /* ---------- 학습지 — 차시별 진행과 '다음 시간으로 넘긴 한 줄' ----------
+    /* ---------- 학습지: 차시별 진행과 '다음 시간으로 넘긴 한 줄' ----------
      * 넘긴 한 줄은 차시와 차시를 잇는 문장이라, 시간 순으로 모아 두면
      * 한 학기 동안 생각이 어떻게 옮겨 갔는지가 A4 한 장에서 읽힌다. */
     const sheets = pick('worksheet').sort((a, b) => (a.session || 0) - (b.session || 0));
@@ -85,7 +85,7 @@
         <h2>판단의 지표</h2>
         <div class="pf-metrics">
           ${[['작품', me.works], ['비교(A/B)', me.compare], ['수정', me.revise], ['근거 작성', me.evidence],
-             ['질문 카드 답', me.answer], ['비평', me.critique], ['성찰', me.reflect ? 'O' : '—']]
+             ['질문 카드 답', me.answer], ['비평', me.critique], ['성찰', me.reflect ? 'O' : '-']]
             .map(([k, v]) => `<div><b>${v}</b><span>${k}</span></div>`).join('')}
         </div>
         <p class="pf-note">숫자는 성적이 아니라 <b>과정의 흔적</b>입니다. 얼마나 견주었고 얼마나 고쳤는지를 보여 줘요.</p>

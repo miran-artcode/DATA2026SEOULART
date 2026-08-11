@@ -1,5 +1,5 @@
 /*
- * studio-data.js — 「데이터가 춤추는 점」 · 다중 열 CSV + 매핑 설계
+ * studio-data.js: 「데이터가 춤추는 점」 · 다중 열 CSV + 매핑 설계
  * -----------------------------------------------------------------------------
  * 데이터의 '어떤 열'을 점의 '어떤 특성'(크기·속도·방향·밀도·투명도·형태·색)으로
  * 매핑할지 학생이 직접 설계한다. 색은 색상환(color picker)에서 고르고, 범주(라벨)별로
@@ -13,7 +13,7 @@
   const BGS = { night: [7, 8, 13], black: [0, 0, 0], ink: [18, 10, 26], slate: [22, 26, 34], paper: [244, 240, 230], white: [248, 249, 252] };
   const bgRGB = () => { const c = BGS[state.bg] || BGS.night; return c[0] + ',' + c[1] + ',' + c[2]; };
 
-  // 예시 데이터 — 뻔하지 않지만 교육적인 '진짜' 공개 데이터(수천~수만 행). data/ 폴더에 CSV·엑셀로 번들.
+  // 예시 데이터: 뻔하지 않지만 교육적인 '진짜' 공개 데이터(수천~수만 행). data/ 폴더에 CSV·엑셀로 번들.
   // 고르면 추천 매핑이 함께 적용되고, 전체 데이터는 엑셀/CSV로 바로 받거나 원본(캐글)으로 연결된다.
   // 스튜디오는 부드러운 작품을 위해 균등 표본 일부만 그리고, '받은 파일'엔 더 많은 행이 들어 있다.
   const SAMPLES = {
@@ -35,7 +35,7 @@
     chocolate: { name: '맛을 숫자로(초콜릿)', file: 'chocolate', bundleRows: 2530, fullRows: 2530, source: 'https://www.kaggle.com/datasets/rtatman/chocolate-bar-ratings',
       map: { size: '평점', colorMode: 'category', colorField: '원산지', layout: 'flowField', motionStyle: 'orbit', vib: 0.5 },
       issue: '🍫 맛을 숫자로: 평점=크기, 원산지=색. 코코아%가 높다고 평점이 높진 않아요. 맛을 숫자로 옮길 때 잃는 것은?(데이터 휴머니즘) 2,530개 바.' },
-    // 6차시 학습지가 쓰는 자료. 열 이름을 원본(영문) 그대로 두었다 — 단위가 파운드·인치·센티미터로
+    // 6차시 학습지가 쓰는 자료. 열 이름을 원본(영문) 그대로 두었다. 단위가 파운드·인치·센티미터로
     // 섞여 있는 것까지가 '번역'이라는 단원 개념의 재료다. 열 설명은 worksheets/unit-data-eye/data/bodyfat.meta.json 에 있다.
     bodyfat: { name: '숫자가 사람을 말할 수 있을까(신체측정 252명)', file: 'bodyfat', bundleRows: 252, fullRows: 252, xlsx: false,
       map: { size: 'BodyFat', colorMode: 'gradient', colorField: 'Age', gradLow: '#2740c8', gradHigh: '#ffd23c', layout: 'flowField', motionStyle: 'vibrate', vib: 0.6 },
@@ -61,7 +61,7 @@
   let ruleA = null, ruleB = null, abFlag = false, P = null, p5i = null;
 
   /* ----------------------------- CSV 파싱 ----------------------------- */
-  // 따옴표 인식 분할 — "값, 쉼표 포함"·""(이스케이프)을 올바로 처리(실제 CSV 필수).
+  // 따옴표 인식 분할: "값, 쉼표 포함"·""(이스케이프)을 올바로 처리(실제 CSV 필수).
   function splitLine(line, delim) {
     if (delim !== ',' && delim !== '\t') return line.split(delim);
     const out = []; let cur = '', q = false;
@@ -239,7 +239,7 @@
   }
 
   /* ----------------------------- 입자 생성 ----------------------------- */
-  // 배치(레이아웃): 점이 '어디에서' 살지 — 시간축/원형/격자/값 산포
+  // 배치(레이아웃): 점이 '어디에서' 살지: 시간축/원형/격자/값 산포
   function homeOf(i, n, W, H, marg, sizeNorm) {
     const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.42;
     if (state.layout === 'radial') {
@@ -611,7 +611,7 @@
       fields: state.dataset ? state.dataset.fields : [], rows: state.dataset ? state.dataset.rows : [] };
   }
   function requireUser() { const u = Auth.current(); if (!u) { UI.toast('로그인이 필요합니다.'); setTimeout(() => location.href = 'index.html?next=studio-data.html', 900); return null; } return u; }
-  // 판단의 흔적 위젯(질문 카드·버전 스냅샷) — 처음 한 번, 그리고 전시로 새 작품이 시작될 때 다시 그린다.
+  // 판단의 흔적 위젯(질문 카드·버전 스냅샷): 처음 한 번, 그리고 전시로 새 작품이 시작될 때 다시 그린다.
   function mountTrace() {
     if (window.Cards) Cards.mount($('#dn-cards'), {
       ctx: () => ({ kind: 'data', intent: $('#in-intent').value, dataName: $('#in-dataname').value || state.dataName,
@@ -640,7 +640,7 @@
     const id = await Store.saveWork({ userId: u.userId, by: u.display, klass: u.klass, kind: 'data', title: ($('#in-dataname').value || state.dataName), intent, evidence, dataName: $('#in-dataname').value || state.dataName, settings: settings(), thumb: thumb(), exhibited: true, consent: true, draftId, stage: state.stageFrom || null });
     if (window.Log) {
       await Log.push({ stage: 'share', action: 'exhibit', workId: draftId, payload: { workRealId: id } });
-      Log.newWork();   // 다음 작품은 새 자리표로 — 이전 작품의 버전·로그와 섞이지 않게
+      Log.newWork();   // 다음 작품은 새 자리표로: 이전 작품의 버전·로그와 섞이지 않게
     }
     mountTrace();   // 새 작품 기준으로 질문 카드·버전 목록을 다시 그린다
     UI.toast('🎉 갤러리에 전시했습니다!');
@@ -661,7 +661,7 @@
     UI.mountIdeaBar('idea', 'data');
     p5i = new p5(sketch);
 
-    // 요소별 안내(마우스 오버) — 학생이 무엇을 할지/왜 흥미로운지
+    // 요소별 안내(마우스 오버): 학생이 무엇을 할지/왜 흥미로운지
     (function () {
       const tips = [
         '먼저 데이터를 골라요. 사회문제 샘플 또는 직접 입력/CSV·엑셀. 작성 양식도 받을 수 있어요.',
@@ -740,7 +740,7 @@
     $('#btn-note').addEventListener('click', saveNote);
     $('#btn-exhibit').addEventListener('click', exhibit);
 
-    // 판단의 흔적 — 질문 카드 4종 · 버전 스냅샷(공통 위젯)
+    // 판단의 흔적: 질문 카드 4종 · 버전 스냅샷(공통 위젯)
     if (window.Log) Log.view('make');
     mountTrace();
     // (보낸 데이터 수신은 p5 setup의 loadIncoming()에서 결정적으로 처리)

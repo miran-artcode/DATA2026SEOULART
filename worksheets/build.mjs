@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * build.mjs — 학습지 폴더를 훑어 manifest.json 을 다시 만든다.
+ * build.mjs: 학습지 폴더를 훑어 manifest.json 을 다시 만든다.
  * ---------------------------------------------------------------------------
  * 쓰는 법
  *   node content/worksheets/build.mjs            검사 + manifest.json 다시 쓰기
@@ -12,10 +12,10 @@
  *   그래서 '폴더를 훑는 일'은 여기서(작업 시점) 하고, 실행 시점에는
  *   manifest.json 한 개만 읽는다. 정적 사이트와 Next.js 양쪽에서 똑같이 동작한다.
  *
- * 파일을 넣는 규칙 — 이것만 지키면 알아서 정리된다
+ * 파일을 넣는 규칙: 이것만 지키면 알아서 정리된다
  *   content/worksheets/<단원폴더>/unit.json        단원 메타 (필수, 폴더당 1개)
  *   content/worksheets/<단원폴더>/NN-이름.json     학습지 한 장 (NN = 정렬용 두 자리)
- *   content/worksheets/roster/*.csv               (선택) 학급 명부 — 코드만, 이름 금지
+ *   content/worksheets/roster/*.csv               (선택) 학급 명부: 코드만, 이름 금지
  *   → 파일을 넣고 이 스크립트를 한 번 돌리면 끝. 기존 파일은 고치지 않는다.
  */
 
@@ -29,7 +29,7 @@ const ARGV = process.argv.slice(2);
 const CHECK_ONLY = ARGV.includes('--check');
 const MAKE_INSTANCES = ARGV.includes('--instances');
 
-/* js/log.js 가 기록하는 11개 action — 이 밖의 값은 오류로 잡는다 */
+/* js/log.js 가 기록하는 11개 action: 이 밖의 값은 오류로 잡는다 */
 const LOG_ACTIONS = [
   'view', 'analyze', 'map_apply', 'ab_switch', 'coach_ask', 'coach_answer',
   'note_save', 'revise', 'exhibit', 'critique_write', 'reflect_submit'
@@ -38,8 +38,8 @@ const BLOCK_KINDS = ['fields', 'table', 'conceptTable', 'cloze', 'freewrite', 's
 
 const errors = [];
 const warns = [];
-const err = (where, msg) => errors.push(`${where} — ${msg}`);
-const warn = (where, msg) => warns.push(`${where} — ${msg}`);
+const err = (where, msg) => errors.push(`${where}: ${msg}`);
+const warn = (where, msg) => warns.push(`${where}: ${msg}`);
 
 const isDir = async (p) => { try { return (await stat(p)).isDirectory(); } catch { return false; } };
 const readJSON = async (p) => {
@@ -48,7 +48,7 @@ const readJSON = async (p) => {
 };
 
 /* --------------------------------------------------------------------------
- * 칸(=답이 저장되는 자리) 열거 — 저장 경로는 sheetId.blockId.fieldId
+ * 칸(=답이 저장되는 자리) 열거: 저장 경로는 sheetId.blockId.fieldId
  * 이 경로가 학생 답의 영구 주소다. 순서·문구가 바뀌어도 id 는 바꾸지 않는다.
  * -------------------------------------------------------------------------- */
 function fieldsOfBlock(sheet, b) {
@@ -178,7 +178,7 @@ async function buildUnit(unitDir) {
     });
   });
 
-  /* 화면·자료 공백 — 통합 전에 결정해야 할 것들을 매번 눈에 띄게 */
+  /* 화면·자료 공백: 통합 전에 결정해야 할 것들을 매번 눈에 띄게 */
   sheets.forEach(({ sheet, file }) => {
     (sheet.screens || []).forEach(sc => {
       if (sc.exists === false) warn(file, `화면 공백: '${sc.label}' 는 아직 사이트에 없다`);
@@ -186,7 +186,7 @@ async function buildUnit(unitDir) {
     if (sheet.dataset && sheet.dataset.exists === false) {
       warn(file, `자료 공백: '${sheet.dataset.label}' 파일이 아직 없다`);
     }
-    /* exists:true 라고 적어 놨는데 파일이 없으면 통합 때 404 가 난다 — 지금 잡는다 */
+    /* exists:true 라고 적어 놨는데 파일이 없으면 통합 때 404 가 난다. 지금 잡는다 */
     if (sheet.dataset && sheet.dataset.exists === true) {
       [sheet.dataset.file, sheet.dataset.meta].filter(Boolean).forEach(p => {
         if (!existsSync(join(unitDir, p))) err(file, `dataset 파일을 찾을 수 없음: ${p}`);
@@ -261,7 +261,7 @@ async function readRoster() {
     const iC = head.findIndex(h => /코드|code/i.test(h));
     if (iC < 0) { err(f, "roster CSV 에 '코드'(code) 열이 필요하다"); continue; }
     if (head.some(h => /이름|name/i.test(h))) {
-      err(f, "roster 에 이름 열이 있다 — 개인정보를 저장하지 않는 설계다. 코드만 남겨 주세요.");
+      err(f, "roster 에 이름 열이 있다. 개인정보를 저장하지 않는 설계다. 코드만 남겨 주세요.");
       continue;
     }
     lines.slice(1).forEach(l => {
@@ -281,7 +281,7 @@ async function writeInstances(units, roster) {
     for (const st of roster) {
       const name = `${(st.klass || 'x').replace(/[^\w가-힣-]/g, '')}-${st.code}.json`;
       const p = join(dir, name);
-      try { await stat(p); continue; } catch { /* 없으면 만든다 — 있으면 절대 덮지 않는다 */ }
+      try { await stat(p); continue; } catch { /* 없으면 만든다. 있으면 절대 덮지 않는다 */ }
       await writeFile(p, JSON.stringify({
         schemaVersion: 1, unit: u.id, code: st.code, klass: st.klass,
         createdAt: null, updatedAt: null, answers: {}, selfCheck: {}, submitted: {}
@@ -320,15 +320,15 @@ const manifest = {
 warns.forEach(w => console.log(`⚠ ${w}`));
 if (errors.length) {
   errors.forEach(e => console.error(`✕ ${e}`));
-  console.error(`\n오류 ${errors.length}개 — manifest 를 쓰지 않았다.`);
+  console.error(`\n오류 ${errors.length}개: manifest 를 쓰지 않았다.`);
   process.exit(1);
 }
 
 if (CHECK_ONLY) {
-  console.log(`✓ 검사 통과 — 단원 ${units.length}, 학습지 ${units.reduce((a, u) => a + u.counts.sheets, 0)}, 칸 ${units.reduce((a, u) => a + u.counts.fields, 0)}`);
+  console.log(`✓ 검사 통과: 단원 ${units.length}, 학습지 ${units.reduce((a, u) => a + u.counts.sheets, 0)}, 칸 ${units.reduce((a, u) => a + u.counts.fields, 0)}`);
 } else {
   await writeFile(join(ROOT, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');
-  console.log(`✓ manifest.json 갱신 — 단원 ${units.length}, 학습지 ${units.reduce((a, u) => a + u.counts.sheets, 0)}, 칸 ${units.reduce((a, u) => a + u.counts.fields, 0)}`);
+  console.log(`✓ manifest.json 갱신: 단원 ${units.length}, 학습지 ${units.reduce((a, u) => a + u.counts.sheets, 0)}, 칸 ${units.reduce((a, u) => a + u.counts.fields, 0)}`);
   units.forEach(u => console.log(`  · ${u.id}: 학습지 ${u.counts.sheets}장 · 저장 칸 ${u.counts.fields}개 · 루브릭 대상 ${u.counts.rubricFields}개`));
   if (MAKE_INSTANCES) await writeInstances(units, roster);
 }
