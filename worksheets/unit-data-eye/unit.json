@@ -49,9 +49,9 @@
   },
 
   "evidenceLayers": [
-    { "id": "product", "label": "작품 증거", "what": "최종 작품과 진술문" },
-    { "id": "process", "label": "과정 증거", "what": "고르고 버린 흔적, 수정 이유" },
-    { "id": "understanding", "label": "이해 증거", "what": "개념을 자기 말로 쓰는가, 일반화에 도달하는가" }
+    { "id": "product", "label": "작품", "what": "최종 작품과 진술문" },
+    { "id": "process", "label": "과정", "what": "고르고 버린 흔적, 수정 이유" },
+    { "id": "understanding", "label": "이해", "what": "개념을 자기 말로 설명하는가, 여러 차시에서 배운 것을 하나로 묶어 말하는가" }
   ],
 
   "scaffoldLadder": {

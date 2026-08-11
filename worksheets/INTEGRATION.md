@@ -67,7 +67,7 @@ match /{document=**} { allow read, write: if false; }
 | `worksheet.html` | 학습지 화면. 왼쪽 단원 차례 · 오른쪽 학습지 한 장 · 머리에 그 차시의 배우기·만들기·나누기 · 인쇄는 학습지만 |
 | `js/worksheet.js` | `COURSE`(차시↔단계↔배우기·만들기·나누기 화면) · 자동 저장 · 순차 진행 · 이월 한 줄 · 스튜디오 단추 · 통합 여정 |
 | `js/ui.js` | 상단 메뉴 다섯 묶음(오늘·8차시·도구함·내 기록·교사). 「8차시」 묶음을 `COURSE` 에서 자동 생성한다 |
-| `hub.html` · `journey.html` | `WS.mountJourney()` 통합 여정(한 줄 = 한 차시: 배우기·만들기·나누기 + 학습지). `journey.html` 은 `WS.loadUnit()` 으로 unit.json 의 목표·증거·루브릭도 그린다(여정 서술의 정본) |
+| `hub.html` · `journey.html` | `WS.mountJourney()` 통합 여정(한 줄 = 한 차시: 배우기·만들기·나누기 + 학습지). `journey.html` 은 `WS.loadUnit()` 으로 unit.json 의 목표·확인 방법·루브릭도 그린다(여정 서술의 정본) |
 | 척추 18개 화면(각 차시의 배우기·만들기·나누기 전부) | 끝에 `js/worksheet.js` + `WS.mountContext()`(위쪽 위치 스트립) + `WS.mountLauncher()`(오른쪽 아래 학습지 단추) |
 | `admin.html` | **D-6 학습지 탭**: 차시별 제출률 · 학생×차시 격자 · 칸별 답 · CSV 2종 |
 | `js/metrics.js` | 학습지 노트를 D-1(7단계 진행)·D-3(타임라인)에 반영. 노트가 가진 `klass` 로 가명 코드를 맞춘다 |

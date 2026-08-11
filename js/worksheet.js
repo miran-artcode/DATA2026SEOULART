@@ -1,10 +1,11 @@
 /*
  * worksheet.js: 단원의 '학습 계획' 층: 차시 ↔ 단계 ↔ 만들기·배우기·나누기 ↔ 학습지
  * -----------------------------------------------------------------------------
- * 이 단원은 백워드 설계(목표 → 증거 → 계획)로 짜여 있고, 세 층의 원본은 이렇다.
+ * 이 단원은 목표를 먼저 정하고 그것을 확인할 방법을 정한 다음, 그 둘에 맞춰 차시를
+ * 짰다. 세 층의 원본은 이렇다.
  *
- *   ① 목표  worksheets/unit-data-eye/unit.json  (개념·전이 목표·본질적 질문·일반화)
- *   ② 증거  같은 파일의 performanceTask·rubric·evidenceLayers + 학습지의 칸(증거 3층 표시)
+ *   ① 목표  worksheets/unit-data-eye/unit.json  (큰 개념·이 단원이 남기는 힘·되풀이해 묻는 질문)
+ *   ② 확인  같은 파일의 performanceTask·rubric·evidenceLayers + 학습지의 칸(무엇을 남기는지 세 갈래로 표시)
  *   ③ 계획  이 파일의 COURSE 표. 차시마다 만들기·배우기·나누기 화면과 학습지를 한 묶음으로 든다.
  *
  *   COURSE  차시 ↔ 4단계 ↔ 화면·활동. 배치를 바꾸려면 이 표 한 곳만 고친다.
@@ -121,7 +122,7 @@
       .then(m => m.units.find(u => u.id === UNIT) || m.units[0]);
     return manifestPromise;
   }
-  // 단원 메타(백워드 설계의 목표·증거 층): 여정 지도가 쓴다
+  // 단원 메타(목표·확인 방법의 원본): 여정 지도가 쓴다
   let unitPromise = null;
   function loadUnit() {
     if (!unitPromise) unitPromise = loadManifest().then(u =>
@@ -629,8 +630,8 @@
   /* --------------------- 통합 여정: 차시마다 배우기·만들기·나누기·학습지 한 묶음 --------------------- */
   /*
    * 허브와 여정 지도가 같은 화면을 그린다(지도가 두 장이 되지 않게).
-   * 한 줄 = 한 차시. 그 차시의 본질적 질문 아래에 배우기 → 만들기 → 나누기 화면과
-   * 학습지 단추·진행 상태가 함께 놓인다. 백워드 설계의 '학습 계획'을 학생 말로 그린 것.
+   * 한 줄 = 한 차시. 그 차시가 되풀이해 묻는 질문 아래에 배우기 → 만들기 → 나누기 화면과
+   * 학습지 단추·진행 상태가 함께 놓인다. 목표에서 시작해 짠 '학습 계획'을 학생 말로 그린 것.
    */
   async function mountJourney(elId, opts) {
     opts = opts || {};
@@ -678,7 +679,7 @@
             '<div class="jr-acts">' + actHTML('배우기', c.learn, c.sheet) + actHTML('만들기', c.make, c.sheet) +
               actHTML('나누기', c.share, c.sheet) + '</div>' +
             '<div class="jr-foot"><a class="btn sm" href="worksheet.html?s=' + c.sheet + '">📄 학습지 쓰기</a>' +
-              (r.yield ? '<span class="jr-yield">남는 것 · ' + esc(r.yield) + '</span>' : '') + '</div>' +
+              (r.yield ? '<span class="jr-yield">결과물 · ' + esc(r.yield) + '</span>' : '') + '</div>' +
           '</div></div>';
       }).join('') + '</div>' +
       '<p class="muted" style="font-size:12px;margin:10px 0 0"><b>' +
@@ -701,7 +702,7 @@
     else location.href = url;
   }
 
-  /* 이 차시가 남기는 증거를 저장할 때 붙일 꼬리표.
+  /* 이 차시가 남기는 기록을 저장할 때 붙일 꼬리표.
      이게 없으면 비평·프로젝트·리터러시에 남긴 기록이 어느 차시 것인지 알 수 없어
      교사 화면의 차시별 진행에 한 칸도 들어가지 않는다. */
   function stampOf(pageName) {

@@ -103,7 +103,7 @@
         const rows = (ctx.toc || []).map(t => h('tr', {},
           h('td', { class: 'ws-c', text: t.session }), h('td', { text: t.title }), h('td', { text: t.yield || '' })));
         return h('table', { class: 'ws-t' },
-          h('thead', {}, h('tr', {}, h('th', { text: '차시' }), h('th', { text: '학습지 제목' }), h('th', { text: '완성하면 남는 것' }))),
+          h('thead', {}, h('tr', {}, h('th', { text: '차시' }), h('th', { text: '학습지 제목' }), h('th', { text: '결과물' }))),
           h('tbody', {}, rows));
       }
       return h('p', { class: 'ws-note', text: `(알 수 없는 static source: ${src})` });
