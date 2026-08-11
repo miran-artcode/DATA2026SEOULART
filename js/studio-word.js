@@ -736,7 +736,7 @@
   function requireUser() { const u = Auth.current(); if (!u) { UI.toast('로그인이 필요합니다.'); setTimeout(() => location.href = 'index.html?next=studio-word.html', 900); return null; } return u; }
   async function saveNote() {
     const u = requireUser(); if (!u) return;
-    await Store.saveNote({ userId: u.userId, by: u.display, kind: 'word', title: ($('#in-title').value || state.name || '낱말 구름'), intent: $('#in-intent').value, evidence: $('#in-evidence').value, settings: settings() });
+    await Store.saveNote({ ...(window.WS && WS.stampOf ? WS.stampOf() : {}), userId: u.userId, by: u.display, kind: 'word', title: ($('#in-title').value || state.name || '낱말 구름'), intent: $('#in-intent').value, evidence: $('#in-evidence').value, settings: settings() });
     UI.toast('작업노트에 저장했습니다.');
   }
   async function exhibit() {

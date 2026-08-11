@@ -51,6 +51,7 @@
 <body>
 <div id="app-header"></div>
 <div class="wrap">
+  <div id="spine-strip"></div>
   <div class="page-head">
     <span class="eyebrow">포트폴리오</span>
     <h1>작품과 판단 과정 한 장 정리</h1>
@@ -74,6 +75,6 @@
 <script src="js/metrics.js"></script>
 <script src="js/portfolio.js"></script>
 <script src="js/worksheet.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountContext(); WS.mountLauncher(); });</script>
 </body>
 </html>

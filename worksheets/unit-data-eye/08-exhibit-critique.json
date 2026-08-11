@@ -10,14 +10,55 @@
   "pages": 2,
   "_note_pages": "종이로는 두 장(전시·비평 / 마무리 되돌아보기). 8차시 한 장이므로 sheet 를 쪼개지 않는다. 설계원리 문서가 '8차시 ④번 칸'으로 참조하는 것이 아래 unit_generalizations 블록이다.",
   "screens": [
-    { "label": "키오스크 전시", "page": "exhibit.html", "exists": true },
-    { "label": "작품 페이지", "page": "work.html", "exists": true },
-    { "label": "유사도 지수", "page": "admin.html", "exists": true, "note": "metrics.js 학급 유사도 지수. 학생용으로 열어 줄 화면을 통합 시 정한다." }
+    {
+      "label": "배우기 · AI 리터러시 4장 · 그럴듯함의 함정과 우리 반 유사도",
+      "page": "literacy.html",
+      "exists": true
+    },
+    {
+      "label": "만들기 · 내 포트폴리오 · 여덟 차시를 한 장으로",
+      "page": "portfolio.html",
+      "exists": true
+    },
+    {
+      "label": "나누기 · 키오스크 전시",
+      "page": "exhibit.html",
+      "exists": true
+    },
+    {
+      "label": "나누기 · 전시 갤러리 · 친구 작품 비평",
+      "page": "gallery.html",
+      "exists": true
+    },
+    {
+      "label": "나누기 · 작품 페이지 · 갤러리나 QR 로 작품을 고른 뒤 열려요",
+      "page": "work.html",
+      "exists": true
+    },
+    {
+      "label": "유사도 지수",
+      "page": "admin.html",
+      "exists": false,
+      "teacherOnly": true,
+      "note": "metrics.js 학급 유사도 지수. 교사 화면(admin-gate 잠금)이라 학생 단추로 내보내지 않는다. 학생은 AI 리터러시 4장에서 같은 지수를 직접 잰다(literacy.html#ch4)."
+    }
   ],
-  "eq": ["EQ2", "EQ3", "EQ4"],
-  "generalizations": ["G1", "G2", "G3", "G4"],
-  "microConcepts": ["비평", "다양성", "전이"],
-
+  "eq": [
+    "EQ2",
+    "EQ3",
+    "EQ4"
+  ],
+  "generalizations": [
+    "G1",
+    "G2",
+    "G3",
+    "G4"
+  ],
+  "microConcepts": [
+    "비평",
+    "다양성",
+    "전이"
+  ],
   "blocks": [
     {
       "id": "critique_friend",
@@ -31,14 +72,33 @@
       "framework": "Feldman",
       "page": 1,
       "columns": [
-        { "id": "step", "label": "단계", "fixed": true },
-        { "id": "text", "label": "" }
+        {
+          "id": "step",
+          "label": "단계",
+          "fixed": true
+        },
+        {
+          "id": "text",
+          "label": ""
+        }
       ],
       "rows": [
-        { "id": "describe", "step": "기술" },
-        { "id": "analyze", "step": "분석" },
-        { "id": "interpret", "step": "해석" },
-        { "id": "judge", "step": "평가" }
+        {
+          "id": "describe",
+          "step": "기술"
+        },
+        {
+          "id": "analyze",
+          "step": "분석"
+        },
+        {
+          "id": "interpret",
+          "step": "해석"
+        },
+        {
+          "id": "judge",
+          "step": "평가"
+        }
       ]
     },
     {
@@ -51,8 +111,14 @@
       "logAction": "revise",
       "page": 1,
       "columns": [
-        { "id": "sharpest", "label": "가장 뾰족했던 한 마디" },
-        { "id": "what_to_fix", "label": "그것으로 무엇을 고칠까" }
+        {
+          "id": "sharpest",
+          "label": "가장 뾰족했던 한 마디"
+        },
+        {
+          "id": "what_to_fix",
+          "label": "그것으로 무엇을 고칠까"
+        }
       ],
       "rows": 1
     },
@@ -66,9 +132,21 @@
       "rubric": true,
       "page": 1,
       "items": [
-        { "id": "similarity_level", "label": "우리 반 작품의 닮음 정도", "lines": 1 },
-        { "id": "most_different", "label": "가장 닮지 않은 작품은 어떤 작품인가", "lines": 2 },
-        { "id": "is_different_good", "label": "닮지 않은 작품은 좋은 작품인가? 왜 그렇게 생각하는가", "lines": 3 }
+        {
+          "id": "similarity_level",
+          "label": "우리 반 작품의 닮음 정도",
+          "lines": 1
+        },
+        {
+          "id": "most_different",
+          "label": "가장 닮지 않은 작품은 어떤 작품인가",
+          "lines": 2
+        },
+        {
+          "id": "is_different_good",
+          "label": "닮지 않은 작품은 좋은 작품인가? 왜 그렇게 생각하는가",
+          "lines": 3
+        }
       ]
     },
     {
@@ -84,14 +162,37 @@
       "page": 2,
       "sectionLabel": "마무리 · 단원 되돌아보기",
       "columns": [
-        { "id": "topic", "label": "", "fixed": true },
-        { "id": "sentence", "label": "" }
+        {
+          "id": "topic",
+          "label": "",
+          "fixed": true
+        },
+        {
+          "id": "sentence",
+          "label": ""
+        }
       ],
       "rows": [
-        { "id": "g1", "topic": "요약과 손실에 대하여", "target": "G1" },
-        { "id": "g2", "topic": "데이터와 관점에 대하여", "target": "G2" },
-        { "id": "g3", "topic": "그럴듯함과 타당함에 대하여", "target": "G3" },
-        { "id": "g4", "topic": "도구와 나의 관계에 대하여", "target": "G4" }
+        {
+          "id": "g1",
+          "topic": "요약과 손실에 대하여",
+          "target": "G1"
+        },
+        {
+          "id": "g2",
+          "topic": "데이터와 관점에 대하여",
+          "target": "G2"
+        },
+        {
+          "id": "g3",
+          "topic": "그럴듯함과 타당함에 대하여",
+          "target": "G3"
+        },
+        {
+          "id": "g4",
+          "topic": "도구와 나의 관계에 대하여",
+          "target": "G4"
+        }
       ]
     },
     {
@@ -104,13 +205,24 @@
       "rubric": true,
       "page": 2,
       "items": [
-        { "id": "first", "label": "먼저 할 일", "lines": 2 },
-        { "id": "next", "label": "그다음", "lines": 2 },
-        { "id": "last_check", "label": "마지막에 확인할 것", "lines": 2 }
+        {
+          "id": "first",
+          "label": "먼저 할 일",
+          "lines": 2
+        },
+        {
+          "id": "next",
+          "label": "그다음",
+          "lines": 2
+        },
+        {
+          "id": "last_check",
+          "label": "마지막에 확인할 것",
+          "lines": 2
+        }
       ]
     }
   ],
-
   "carryOver": null,
   "selfCheck": "final"
 }

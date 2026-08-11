@@ -38,6 +38,7 @@
 <body>
 <div id="app-header"></div>
 <div class="wrap">
+  <div id="spine-strip"></div>
   <div class="page-head">
     <span class="eyebrow">객체 감지 렌즈 · AI의 눈</span>
     <h1>그림·사진 속 ‘무엇이 있나’를 데이터로</h1>
@@ -177,6 +178,6 @@
 <script src="js/audio.js"></script>
 <script src="js/studio-object.js"></script>
 <script src="js/worksheet.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountContext(); WS.mountLauncher(); });</script>
 </body>
 </html>

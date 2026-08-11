@@ -37,8 +37,10 @@
           "yield": "요약과 손실을 읽은 기록",
           "pages": 1,
           "screens": [
+            "learn.html",
+            "literacy.html",
             "lab.html",
-            "learn.html"
+            "quiz.html"
           ],
           "dataset": null,
           "eq": [
@@ -63,7 +65,9 @@
           "yield": "설정을 바꾸며 비교한 표",
           "pages": 1,
           "screens": [
-            "studio-color.html"
+            "literacy.html",
+            "studio-color.html",
+            "gallery.html"
           ],
           "dataset": null,
           "eq": [
@@ -89,7 +93,9 @@
           "yield": "내 매핑 규칙 A·B 와 고른 이유",
           "pages": 1,
           "screens": [
-            "studio-data.html"
+            "critique.html",
+            "studio-data.html",
+            "notes.html"
           ],
           "dataset": null,
           "eq": [
@@ -114,8 +120,10 @@
           "yield": "무엇을 세고 무엇을 버렸는지",
           "pages": 1,
           "screens": [
+            "learn.html",
             "studio-sound.html",
-            "studio-data.html"
+            "studio-data.html",
+            "gallery.html"
           ],
           "dataset": null,
           "eq": [
@@ -140,8 +148,11 @@
           "yield": "숨긴 선택과 데이터가 놓친 것",
           "pages": 1,
           "screens": [
+            "studio-object.html",
+            "literacy.html",
             "studio-life.html",
-            "studio-data.html"
+            "studio-data.html",
+            "gallery.html"
           ],
           "dataset": null,
           "eq": [
@@ -167,9 +178,11 @@
           "yield": "기본값을 되물은 기록",
           "pages": 1,
           "screens": [
-            "studio-data.html",
             "society.html",
-            "literacy.html"
+            "literacy.html",
+            "project.html",
+            "studio-data.html",
+            "gallery.html"
           ],
           "dataset": {
             "file": "data/bodyfat.csv",
@@ -200,8 +213,10 @@
           "yield": "창작 진술문과 주체성 기록",
           "pages": 1,
           "screens": [
+            "literacy.html",
             "studio-word.html",
-            "notes.html"
+            "notes.html",
+            "portfolio.html"
           ],
           "dataset": null,
           "eq": [
@@ -227,7 +242,10 @@
           "yield": "최종 일반화 네 문장과 전이 계획",
           "pages": 2,
           "screens": [
+            "literacy.html",
+            "portfolio.html",
             "exhibit.html",
+            "gallery.html",
             "work.html",
             "admin.html"
           ],

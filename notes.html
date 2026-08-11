@@ -9,6 +9,7 @@
 <body>
 <div id="app-header"></div>
 <div class="wrap narrow">
+  <div id="spine-strip"></div>
   <div class="page-head">
     <span class="eyebrow">작업 노트</span>
     <h1>과정·버전·성찰 기록</h1>
@@ -86,6 +87,6 @@
   UI.mountIdeaBar('idea', 'notes'); render();
 </script>
 <script src="js/worksheet.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountContext(); WS.mountLauncher(); });</script>
 </body>
 </html>

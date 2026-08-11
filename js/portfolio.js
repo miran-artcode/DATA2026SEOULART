@@ -137,7 +137,7 @@
           `<li>${n.aiHelp ? `<b>🤖 AI가 도운 것</b> ${esc(n.aiHelp)}<br>` : ''}${n.myDecision ? `<b>🙋 내가 결정한 것</b> ${esc(n.myDecision)}<br>` : ''}${esc(n.line || '')}</li>`).join('')}</ul>
       </section>` : ''}
 
-      <footer class="pf-foot">오늘의 시선 · Seoul Arts High School · 학습 로그는 이름 없이 가명 코드로만 기록됩니다.</footer>`;
+      <footer class="pf-foot">오늘의 시선 · © 2026 데이터 미디어아트 스튜디오 (저작자·소속 정보는 심사용 블라인드 처리) · 학습 로그는 이름 없이 가명 코드로만 기록됩니다.</footer>`;
 
     if (global.Log && !params.get('uid')) Log.view('own');
   }

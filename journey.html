@@ -69,11 +69,7 @@
     <p class="muted" style="font-size:12.5px;margin:0">수행과제·루브릭을 불러오는 중이에요…</p>
   </div>
   <div class="dn-cluster" style="margin-top:14px">
-    <div class="evi">
-      <div class="card"><b>작품 증거</b><p>최종 작품과 창작 진술문 150자. <b>전시 갤러리·작품 페이지</b>에 남아요.</p></div>
-      <div class="card"><b>과정 증거</b><p>고르고 버린 흔적, 버전 스냅샷, 수정 이유. <b>스튜디오의 질문 카드·작업 노트</b>에 남아요.</p></div>
-      <div class="card"><b>이해 증거</b><p>개념을 내 말로 다시 쓴 칸, 알게 된 것 한 문장. <b>차시마다 학습지</b>에 남아요.</p></div>
-    </div>
+    <div class="evi" id="evi"></div>
     <p class="muted" style="font-size:12.5px;margin:10px 0 0">세 층의 증거는 쓰는 즉시 자동 저장되어 <b>교사 대시보드</b>와 <b>내 포트폴리오(A4)</b>로 모입니다.</p>
   </div>
 
@@ -164,6 +160,20 @@
       '<p style="margin:14px 0 0;font-size:13.5px"><b>루브릭 「' + esc((u.rubric || {}).title || '') + '」</b> · 학습지의 별표 칸이 이 4수준으로 읽혀요.</p>' +
       '<table class="rub"><tbody>' + ((u.rubric || {}).levels || []).map(l =>
         '<tr><td class="lv">' + l.level + '</td><td>' + esc(l.text) + '</td></tr>').join('') + '</tbody></table>';
+
+    /* 증거 3층도 unit.json 이 원본이다. 각 층이 '어느 화면에 쌓이는지'를 함께 건다. */
+    const WHERE = {
+      product:       { tx: '전시 갤러리와 작품 페이지에 남아요', href: 'gallery.html', go: '전시 갤러리 →' },
+      process:       { tx: '스튜디오의 질문 카드와 작업 노트에 남아요', href: 'notes.html', go: '작업 노트 →' },
+      understanding: { tx: '차시마다 학습지에 남아요', href: 'worksheet.html', go: '학습지 →' }
+    };
+    document.getElementById('evi').innerHTML = (u.evidenceLayers || []).map(l => {
+      const w = WHERE[l.id] || {};
+      return '<div class="card"><b>' + esc(l.label) + '</b>' +
+        '<p>' + esc(l.what) + '. ' + esc(w.tx || '') + '</p>' +
+        (w.href ? '<p style="margin:7px 0 0"><a href="' + w.href + '" style="font-size:12.5px;font-weight:700">' +
+          esc(w.go) + '</a></p>' : '') + '</div>';
+    }).join('');
   })();
 
   /* 창작 과정 7단계: 내 학습 로그·작품·노트를 읽어 도달 여부를 표시 */

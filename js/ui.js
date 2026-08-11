@@ -11,49 +11,76 @@
   /* 테마는 페이지별로 <html data-theme>로 고정(HANDOFF: 한 화면=한 컨셉). 전역 토글 없음. */
 
   /*
-   * 내비의 세 묶음(만들기·배우기·나누기)은 별개의 지도가 아니라 한 여정의 세 면이다.
-   * 그래서 부제에 그 화면이 쓰이는 '차시'를 함께 적는다. 차시 ↔ 화면의 원본은
-   * js/worksheet.js 의 COURSE 표이고, 통합 여정은 허브·여정 지도에서 그린다.
-   * 단계 순서 = 차시 순서: 그림(1~3차시) → 내 소리(4차시) → 내 사진(5차시) → 사회(6차시~).
+   * 내비는 '차시'를 축으로 선다.
+   * -----------------------------------------------------------------------------
+   * 예전에는 만들기 9 · 배우기 5 · 나누기 5 를 세 개의 평평한 목록으로 폈다. 그러면
+   * 같은 화면이 여기서는 만들기, 표에서는 배우기로 갈리고, 학생은 스무 개 링크 중
+   * 무엇이 오늘 것인지 알 수 없다. 교사가 말한 '산발적'의 정체가 이것이었다.
+   *
+   * 만들기·배우기·나누기라는 말은 버리지 않는다. 다만 그 세 낱말은 '한 차시 안에서만'
+   * 뜻을 가지므로, 「8차시」 메뉴의 각 차시 줄 안에서만 나타난다.
+   * 차시 ↔ 화면의 원본은 js/worksheet.js 의 COURSE 표 하나이고, 이 메뉴는 그것을 읽어 만든다.
    */
-  const NAV = [
-    { label: '사용 안내', href: 'start.html' },
-    { label: '만들기', drop: [
-      { href: 'studio-color.html', t: '그림을 데이터로', s: '명화를 대표색 점으로 · 1단계 (2차시)' },
-      { href: 'studio-sound.html', t: '내 소리를 데이터로', s: '녹음에서 특징 추출 · 2단계 (4차시)' },
-      { href: 'studio-life.html', t: '내 사진을 데이터로', s: '소재를 내가 고름 · 3단계 (5차시)' },
-      { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터로 사회적 발언 · 4단계 (6차시)' },
-      { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '모든 차시의 데이터가 작품이 되는 공용 화면 · 도구' },
-      { href: 'society.html', t: '사회 분석 · 비평 렌즈', s: '세계 데이터(SDG)를 비평 렌즈로 · 도구 (6차시)' },
-      { href: 'studio-word.html', t: '낱말 구름 스튜디오', s: '작가의 말을 자연어 분석해 굿즈로 · 도구 (7차시)' },
-      { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: 'AI가 무엇을 놓치는지 · 도구 (5차시)' },
-      { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구 (1차시)' }
-    ] },
-    { label: '배우기', drop: [
-      { href: 'journey.html', t: '학습 여정 지도', s: '단원의 목표 · 증거 · 차시 계획 한눈에' },
-      { href: 'worksheet.html', t: '학습지', s: '차시마다 한 장 · 쓰면 자동 저장' },
-      { href: 'learn.html', t: '알고리즘 배움터', s: '쉬운→깊은 설명 (1차시)' },
-      { href: 'literacy.html', t: 'AI 리터러시 7장', s: '읽고 → 해 보고 → 한 줄 답하기 (차시마다 한 장씩)' },
-      { href: 'critique.html', t: '데이터 비평 읽기', s: '차트를 비판적으로 · 질문 3층위 (3차시)' }
-    ] },
-    { label: '나누기', drop: [
-      { href: 'gallery.html', t: '전시 갤러리', s: '작품 감상 + 또래 피드백 (2차시부터 상시)' },
-      { href: 'exhibit.html', t: '키오스크 전시', s: '큰 화면 슬라이드쇼 + QR 비평 (8차시)' },
-      { href: 'quiz.html', t: '분석 퀴즈', s: '출제하고 맞히고 겨루기 (1차시)' },
-      { href: 'notes.html', t: '작업 노트', s: '과정·버전·성찰 기록 (3·7차시)' },
-      { href: 'portfolio.html', t: '내 포트폴리오', s: '판단의 과정을 A4 한 장으로 (마무리)' }
-    ] },
-    { label: '교사', href: 'admin.html' }
+  const SLOT_KO = { learn: '배우기', make: '만들기', share: '나누기' };
+
+  // 차시가 없는 화면(언제든 꺼내 쓰는 것)과 내 기록. 이 둘만 손으로 적는다.
+  const NAV_TOOLS = [
+    { href: 'start.html', t: '사용 안내', s: '슬라이더·프리셋·ⓘ 조작법 · 순서와 상관없이' },
+    { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '3~6차시가 함께 쓰는 공용 화면' },
+    { href: 'learn.html', t: '알고리즘 배움터', s: '개념을 쉬운 말에서 깊은 원리로' }
   ];
+  const NAV_MINE = [
+    { href: 'worksheet.html', t: '학습지', s: '차시마다 한 장 · 쓰면 자동 저장' },
+    { href: 'notes.html', t: '작업 노트', s: '과정·버전·성찰 기록' },
+    { href: 'portfolio.html', t: '내 포트폴리오', s: '판단의 과정을 A4 한 장으로' },
+    { href: 'gallery.html', t: '전시 갤러리', s: '내 작품과 친구 작품 감상·비평' }
+  ];
+
+  /* COURSE 에서 「8차시」 메뉴를 만든다. worksheet.js 가 없는 화면(index·start)에서는 이 묶음을 뺀다. */
+  function sessionItems() {
+    const WS = global.WS;
+    if (!WS || !Array.isArray(WS.COURSE)) return null;
+    return WS.COURSE.filter(c => c.sheet !== 'cover').map(c => {
+      const n = c.sheet.replace('s', '');
+      const faces = ['learn', 'make', 'share']
+        .filter(k => (c[k] || []).length)
+        .map(k => ({ ko: SLOT_KO[k], href: WS.hrefOf(c[k][0], c.sheet) }));
+      return { n, sheet: c.sheet, badge: c.badge, faces };
+    });
+  }
 
   const UI = {};
   const cur = () => location.pathname.split('/').pop() || 'index.html';
+
+  /* 메뉴 다섯 묶음: 오늘 · 8차시 · 도구함 · 내 기록 · 교사 */
+  function buildNav() {
+    const nav = [{ label: '오늘', href: 'hub.html' }];
+    const ses = sessionItems();
+    if (ses) nav.push({ label: '8차시', sessions: ses });
+    nav.push({ label: '도구함', drop: NAV_TOOLS });
+    nav.push({ label: '내 기록', drop: NAV_MINE });
+    nav.push({ label: '교사', href: 'admin.html' });
+    return nav;
+  }
 
   UI.mountHeader = function (activeOverride) {
     const host = document.getElementById('app-header');
     if (!host) return;
     const active = activeOverride || cur();
-    const navHTML = NAV.map((n, i) => {
+    const navHTML = buildNav().map((n, i) => {
+      if (n.sessions) {
+        // 차시 메뉴: 한 줄 = 한 차시. 그 안에서만 배우기·만들기·나누기가 나타난다.
+        const isActive = active === 'worksheet.html' || active === 'journey.html';
+        const rows = n.sessions.map(s =>
+          `<a class="navses" href="worksheet.html?s=${s.sheet}">
+             <span class="ns-n">${s.n}차시</span>
+             <span class="ns-t"><b class="ns-title" data-sheet="${s.sheet}">${escapeHTML(s.badge)}</b>
+               <small>${s.faces.map(f => `<i data-go="${f.href}">${f.ko}</i>`).join('')}</small></span></a>`).join('');
+        return `<div class="navdrop navdrop-ses" data-drop="${i}">
+            <button class="${isActive ? 'active' : ''}">${n.label} ▾</button>
+            <div class="navdrop-menu navdrop-wide">${rows}
+              <a class="navmore" href="journey.html">🗺 여정 지도 · 목표와 평가까지 한눈에</a></div></div>`;
+      }
       if (n.drop) {
         const isActive = n.drop.some(d => d.href === active);
         const items = n.drop.map(d =>
@@ -98,6 +125,24 @@
         if (hdr) { hdr.classList.remove('nav-open'); const b = hdr.querySelector('.nav-burger'); if (b) b.setAttribute('aria-expanded', 'false'); }
       }
     });
+    // 차시 줄의 배우기·만들기·나누기: 그 차시의 첫 화면으로 곧장 간다(줄 전체는 학습지로).
+    document.querySelectorAll('.navses [data-go]').forEach(el => {
+      el.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); location.href = el.dataset.go; });
+    });
+    /*
+     * 차시 제목(「한 그림, 일곱 개의 눈」)은 학습지 색인에만 있다.
+     * 메뉴는 색인을 기다리지 않고 배지로 먼저 서고, 색인이 도착하면 제목으로 갈아 끼운다.
+     * file:// 로 열어 색인을 못 읽어도 메뉴는 이미 온전하다.
+     */
+    if (global.WS && WS.loadManifest) {
+      WS.loadManifest().then(ix => {
+        (ix.sheets || []).forEach(s => {
+          if (!s.title) return;
+          const el = document.querySelector('.ns-title[data-sheet="' + s.id + '"]');
+          if (el) el.textContent = s.title;
+        });
+      }).catch(() => { /* 색인이 없으면 배지 그대로 둔다 */ });
+    }
 
     UI.renderUser();
   };
@@ -216,7 +261,7 @@
     f.innerHTML = '<div class="ft-inner">'
       + '<a class="ft-brand" href="hub.html"><span class="ft-logo">◎</span> 오늘의 시선</a>'
       + '<nav class="ft-nav"><a href="hub.html">HUB</a><a href="lab.html">ANALYSIS</a><a href="studio-color.html">STUDIO</a><a href="gallery.html">GALLERY</a></nav>'
-      + '<p class="ft-credit">© 2025 <b>Miran Hwang</b> · Seoul Arts High School · Art Teacher</p>'
+      + '<p class="ft-credit">© 2026 <b>「오늘의 시선」 데이터 미디어아트 스튜디오</b> · All rights reserved (저작자·소속 정보는 심사용 블라인드 처리)</p>'
       + '</div>';
     document.body.appendChild(f);
   };

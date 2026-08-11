@@ -8,13 +8,38 @@
   "yield": "창작 진술문과 주체성 기록",
   "todayQuestion": "이 작품이 왜 나에게 의미가 있고 미술 작품으로 가치가 있는가?",
   "screens": [
-    { "label": "낱말 구름 스튜디오", "page": "studio-word.html", "exists": true },
-    { "label": "작업 노트", "page": "notes.html", "exists": true }
+    {
+      "label": "배우기 · AI 리터러시 7장 · 창작의 책임과 진술문",
+      "page": "literacy.html",
+      "exists": true
+    },
+    {
+      "label": "만들기 · 낱말 구름 스튜디오",
+      "page": "studio-word.html",
+      "exists": true
+    },
+    {
+      "label": "나누기 · 작업 노트",
+      "page": "notes.html",
+      "exists": true
+    },
+    {
+      "label": "나누기 · 내 포트폴리오",
+      "page": "portfolio.html",
+      "exists": true
+    }
   ],
-  "eq": ["EQ3", "EQ4"],
-  "generalizations": ["G4"],
-  "microConcepts": ["의도", "당위성"],
-
+  "eq": [
+    "EQ3",
+    "EQ4"
+  ],
+  "generalizations": [
+    "G4"
+  ],
+  "microConcepts": [
+    "의도",
+    "당위성"
+  ],
   "blocks": [
     {
       "id": "analyze_my_text",
@@ -25,9 +50,21 @@
       "rubric": false,
       "logAction": "analyze",
       "items": [
-        { "id": "top_words", "label": "가장 크게 나온 낱말 세 개", "lines": 1 },
-        { "id": "surprise", "label": "예상과 달랐던 것", "lines": 2 },
-        { "id": "color_source", "label": "글자에 입힌 색은 어느 그림에서 왔는가", "lines": 2 }
+        {
+          "id": "top_words",
+          "label": "가장 크게 나온 낱말 세 개",
+          "lines": 1
+        },
+        {
+          "id": "surprise",
+          "label": "예상과 달랐던 것",
+          "lines": 2
+        },
+        {
+          "id": "color_source",
+          "label": "글자에 입힌 색은 어느 그림에서 왔는가",
+          "lines": 2
+        }
       ]
     },
     {
@@ -51,8 +88,14 @@
       "rubric": true,
       "logAction": "note_save",
       "columns": [
-        { "id": "tool_did", "label": "도구(AI)가 도운 것" },
-        { "id": "i_decided", "label": "내가 결정한 것" }
+        {
+          "id": "tool_did",
+          "label": "도구(AI)가 도운 것"
+        },
+        {
+          "id": "i_decided",
+          "label": "내가 결정한 것"
+        }
       ],
       "rows": 3
     },
@@ -64,13 +107,28 @@
       "evidence": "understanding",
       "rubric": true,
       "columns": [
-        { "id": "term", "label": "개념어" },
-        { "id": "seen", "label": "수업에서 본 장면" },
-        { "id": "reworded", "label": "내 말로 다시 쓰면" }
+        {
+          "id": "term",
+          "label": "개념어"
+        },
+        {
+          "id": "seen",
+          "label": "수업에서 본 장면"
+        },
+        {
+          "id": "reworded",
+          "label": "내 말로 다시 쓰면"
+        }
       ],
       "terms": [
-        { "id": "intent", "term": "의도" },
-        { "id": "warrant", "term": "당위성(왜 이것이어야 하는가)" }
+        {
+          "id": "intent",
+          "term": "의도"
+        },
+        {
+          "id": "warrant",
+          "term": "당위성(왜 이것이어야 하는가)"
+        }
       ]
     },
     {
@@ -82,18 +140,23 @@
       "rubric": true,
       "logAction": "reflect_submit",
       "scaffold": "blank",
-      "slots": [{ "id": "sentence", "hint": "" }],
+      "slots": [
+        {
+          "id": "sentence",
+          "hint": ""
+        }
+      ],
       "lines": 3
     }
   ],
-
   "carryOver": {
     "id": "next_line",
     "label": "다음 시간으로 넘기는 한 줄",
     "prompt": "전시에서 내 작품이 어떻게 보이기를 바라는가?",
-    "to": ["s8.critique_friend"],
+    "to": [
+      "s8.critique_friend"
+    ],
     "as": "전시 배치"
   },
-
   "selfCheck": "standard"
 }

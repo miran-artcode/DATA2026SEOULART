@@ -8,13 +8,43 @@
   "yield": "숨긴 선택과 데이터가 놓친 것",
   "todayQuestion": "나를 숫자로 옮기면 나는 얼마나 남는가?",
   "screens": [
-    { "label": "내 삶을 데이터로", "page": "studio-life.html", "exists": true },
-    { "label": "데이터 점 스튜디오", "page": "studio-data.html", "exists": true }
+    {
+      "label": "배우기 · 객체 감지 · AI 눈이 놓치는 것",
+      "page": "studio-object.html",
+      "exists": true
+    },
+    {
+      "label": "배우기 · AI 리터러시 6장 · 저작권과 초상권",
+      "page": "literacy.html",
+      "exists": true
+    },
+    {
+      "label": "만들기 · 내 사진을 데이터로",
+      "page": "studio-life.html",
+      "exists": true
+    },
+    {
+      "label": "만들기 · 데이터 점 스튜디오",
+      "page": "studio-data.html",
+      "exists": true
+    },
+    {
+      "label": "나누기 · 내 삶 작품 전시하고 감상",
+      "page": "gallery.html",
+      "exists": true
+    }
   ],
-  "eq": ["EQ1"],
-  "generalizations": ["G2", "G4"],
-  "microConcepts": ["재현", "남은 것과 사라진 것"],
-
+  "eq": [
+    "EQ1"
+  ],
+  "generalizations": [
+    "G2",
+    "G4"
+  ],
+  "microConcepts": [
+    "재현",
+    "남은 것과 사라진 것"
+  ],
   "blocks": [
     {
       "id": "report",
@@ -25,8 +55,16 @@
       "rubric": false,
       "logAction": "analyze",
       "items": [
-        { "id": "collected", "label": "내가 모은 자료(사진 몇 장·대화 기록 등)", "lines": 2 },
-        { "id": "extracted_values", "label": "화면이 뽑아낸 값", "lines": 2 }
+        {
+          "id": "collected",
+          "label": "내가 모은 자료(사진 몇 장·대화 기록 등)",
+          "lines": 2
+        },
+        {
+          "id": "extracted_values",
+          "label": "화면이 뽑아낸 값",
+          "lines": 2
+        }
       ]
     },
     {
@@ -40,8 +78,14 @@
       "rubric": false,
       "logAction": "coach_answer",
       "columns": [
-        { "id": "removed", "label": "일부러 뺀 것" },
-        { "id": "reason", "label": "뺀 이유" }
+        {
+          "id": "removed",
+          "label": "일부러 뺀 것"
+        },
+        {
+          "id": "reason",
+          "label": "뺀 이유"
+        }
       ],
       "rows": 2
     },
@@ -63,13 +107,28 @@
       "evidence": "understanding",
       "rubric": true,
       "columns": [
-        { "id": "term", "label": "개념어" },
-        { "id": "seen", "label": "수업에서 본 장면" },
-        { "id": "reworded", "label": "내 말로 다시 쓰면" }
+        {
+          "id": "term",
+          "label": "개념어"
+        },
+        {
+          "id": "seen",
+          "label": "수업에서 본 장면"
+        },
+        {
+          "id": "reworded",
+          "label": "내 말로 다시 쓰면"
+        }
       ],
       "terms": [
-        { "id": "representation", "term": "재현" },
-        { "id": "left_and_lost", "term": "남은 것과 사라진 것" }
+        {
+          "id": "representation",
+          "term": "재현"
+        },
+        {
+          "id": "left_and_lost",
+          "term": "남은 것과 사라진 것"
+        }
       ]
     },
     {
@@ -83,18 +142,23 @@
       "scaffold": "starter",
       "note": "이번에는 문장 첫머리만 주어진다. 나머지는 스스로 쓴다.",
       "starter": "내 삶을 데이터로 옮길 때 ......",
-      "slots": [{ "id": "rest", "hint": "" }],
+      "slots": [
+        {
+          "id": "rest",
+          "hint": ""
+        }
+      ],
       "lines": 3
     }
   ],
-
   "carryOver": {
     "id": "next_line",
     "label": "다음 시간으로 넘기는 한 줄",
     "prompt": "내 데이터가 아니라 다른 사람의 데이터라면 무엇을 조심해야 할까?",
-    "to": ["s6.read_data"],
+    "to": [
+      "s6.read_data"
+    ],
     "as": "사회 데이터와 윤리"
   },
-
   "selfCheck": "standard"
 }

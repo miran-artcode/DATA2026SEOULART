@@ -8,13 +8,47 @@
   "yield": "기본값을 되물은 기록",
   "todayQuestion": "평균이라는 기준은 누구의 기준인가? 그럴듯한 화면은 언제 타당한가?",
   "screens": [
-    { "label": "데이터 점 스튜디오", "page": "studio-data.html", "exists": true },
-    { "label": "사회 분석", "page": "society.html", "exists": true },
-    { "label": "AI 리터러시 5장 · 무엇을 셀 것인가", "page": "literacy.html", "exists": true, "note": "현재 사이트에서 신체측정 활동은 여기에 있다(가상 10명)." }
+    {
+      "label": "배우기 · 사회 분석 · 비평 렌즈",
+      "page": "society.html",
+      "exists": true
+    },
+    {
+      "label": "배우기 · AI 리터러시 5장 · 데이터는 관점이다",
+      "page": "literacy.html",
+      "exists": true,
+      "note": "현재 사이트에서 신체측정 활동은 여기에 있다(가상 10명)."
+    },
+    {
+      "label": "만들기 · 사회문제 프로젝트",
+      "page": "project.html",
+      "exists": true
+    },
+    {
+      "label": "만들기 · 데이터 점 스튜디오",
+      "page": "studio-data.html",
+      "exists": true
+    },
+    {
+      "label": "나누기 · 사회 작품 전시하고 감상",
+      "page": "gallery.html",
+      "exists": true
+    }
   ],
-  "eq": ["EQ2", "EQ4"],
-  "generalizations": ["G2", "G3"],
-  "microConcepts": ["기본값", "평균", "비정형", "그럴듯함"],
+  "eq": [
+    "EQ2",
+    "EQ4"
+  ],
+  "generalizations": [
+    "G2",
+    "G3"
+  ],
+  "microConcepts": [
+    "기본값",
+    "평균",
+    "비정형",
+    "그럴듯함"
+  ],
   "dataset": {
     "label": "공개 신체측정 자료",
     "n": 252,
@@ -23,7 +57,6 @@
     "meta": "data/bodyfat.meta.json",
     "exists": true
   },
-
   "blocks": [
     {
       "id": "read_data",
@@ -35,8 +68,14 @@
       "rubric": false,
       "logAction": "analyze",
       "columns": [
-        { "id": "measures", "label": "이 데이터가 재고 있는 것" },
-        { "id": "not_measures", "label": "이 데이터가 재지 않는 것" }
+        {
+          "id": "measures",
+          "label": "이 데이터가 재고 있는 것"
+        },
+        {
+          "id": "not_measures",
+          "label": "이 데이터가 재지 않는 것"
+        }
       ],
       "rows": 2
     },
@@ -50,8 +89,16 @@
       "rubric": false,
       "logAction": "map_apply",
       "items": [
-        { "id": "made_visible", "label": "화면에서 잘 보이게 된 것", "lines": 2 },
-        { "id": "made_invisible", "label": "화면에서 사라지거나 뭉개진 것", "lines": 2 }
+        {
+          "id": "made_visible",
+          "label": "화면에서 잘 보이게 된 것",
+          "lines": 2
+        },
+        {
+          "id": "made_invisible",
+          "label": "화면에서 사라지거나 뭉개진 것",
+          "lines": 2
+        }
       ]
     },
     {
@@ -64,9 +111,21 @@
       "rubric": true,
       "logAction": "coach_answer",
       "items": [
-        { "id": "auto_decided", "label": "화면이 알아서 정해 버린 조건은 무엇인가", "lines": 2 },
-        { "id": "outside_average", "label": "평균 밖에 있는 사람은 화면 어디에 있는가", "lines": 2 },
-        { "id": "whose_values", "label": "이 기준은 누구의 가치에서 나왔는가", "lines": 2 }
+        {
+          "id": "auto_decided",
+          "label": "화면이 알아서 정해 버린 조건은 무엇인가",
+          "lines": 2
+        },
+        {
+          "id": "outside_average",
+          "label": "평균 밖에 있는 사람은 화면 어디에 있는가",
+          "lines": 2
+        },
+        {
+          "id": "whose_values",
+          "label": "이 기준은 누구의 가치에서 나왔는가",
+          "lines": 2
+        }
       ]
     },
     {
@@ -78,8 +137,14 @@
       "rubric": true,
       "logAction": "revise",
       "columns": [
-        { "id": "changed", "label": "바꾼 것" },
-        { "id": "why", "label": "바꾼 이유" }
+        {
+          "id": "changed",
+          "label": "바꾼 것"
+        },
+        {
+          "id": "why",
+          "label": "바꾼 이유"
+        }
       ],
       "rows": 2
     },
@@ -93,18 +158,23 @@
       "logAction": "reflect_submit",
       "scaffold": "blank",
       "note": "이번에는 빈칸이 없다. 오늘 본 것으로 스스로 한 문장을 만든다.",
-      "slots": [{ "id": "sentence", "hint": "" }],
+      "slots": [
+        {
+          "id": "sentence",
+          "hint": ""
+        }
+      ],
       "lines": 3
     }
   ],
-
   "carryOver": {
     "id": "next_line",
     "label": "다음 시간으로 넘기는 한 줄",
     "prompt": "전시에서 관람객에게 던지고 싶은 질문 하나는?",
-    "to": ["s8.critique_friend"],
+    "to": [
+      "s8.critique_friend"
+    ],
     "as": "전시 구성"
   },
-
   "selfCheck": "standard"
 }

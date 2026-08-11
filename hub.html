@@ -3,95 +3,53 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>학생 허브 · 오늘의 시선</title>
+<title>오늘 · 오늘의 시선</title>
 <link rel="stylesheet" href="css/site.css" />
 <style>
-  /* 여정 노드의 진행 상태: 학습 로그·작품에서 읽어 표시(교수·학습 진행 효율) */
-  .dn-node .state { display: block; font-size: 10.5px; font-weight: 800; margin-top: 6px; letter-spacing: .02em; }
-  .dn-node .state.done { color: var(--good); }
-  .dn-node .state.doing { color: var(--accent); }
-  .dn-node .state.todo { color: var(--muted2); }
-  .quest { counter-reset: q; display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
-  .quest li { display: grid; grid-template-columns: 84px 1fr; gap: 10px; align-items: baseline; font-size: 13.5px; line-height: 1.65; }
-  @media (max-width: 560px) { .quest li { grid-template-columns: 1fr; gap: 2px; } }
-  .quest .qk { font-size: 11px; font-weight: 800; color: var(--accent2); }
   .teach-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  /* 오늘 카드 안의 세 얼굴: 배우기 → 만들기 → 나누기 */
+  .today-faces { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 0; }
+  @media (max-width: 700px) { .today-faces { grid-template-columns: 1fr; } }
+  .today-face { border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; background: var(--panel2);
+    text-decoration: none; color: inherit; display: block; }
+  .today-face:hover { border-color: var(--accent); text-decoration: none; }
+  .today-face i { display: block; font-style: normal; font-weight: 800; font-size: 10.5px; color: var(--muted2);
+    letter-spacing: .04em; margin-bottom: 2px; }
+  .today-face b { font-size: 13px; font-weight: 700; }
+  .today-face.off { opacity: .55; }
 </style>
 </head>
 <body>
 <div id="app-header"></div>
 
 <div class="wrap">
-  <!-- 무대(Stage): 이 페이지가 무엇을 위한 곳인지 1초에 -->
-  <div class="page-head" style="text-align:center; max-width:700px; margin:8px auto 18px">
-    <span class="eyebrow">학생 허브</span>
-    <h1>오늘 할 차시, 그리고 한 학기의 여정</h1>
-    <p>이 단원의 순서는 <b>하나</b>예요. 차시마다 <b>배우기 → 만들기 → 나누기</b>가 한 묶음으로 가고,
-      학습지 한 장이 그 기록을 받아 둡니다. 대상만 그림에서 내 소리·내 삶·사회로 넓어져요.</p>
-    <p class="muted" style="font-size:13px; margin:8px 0 0">
-      <b>1차시부터 순서대로 하세요.</b> 앞 차시에서 넘긴 한 줄을 다음 차시가 다시 씁니다.
-      아래 <b>도구</b>는 순서와 상관없이 필요할 때 꺼내 쓰면 돼요.</p>
+  <!-- 이 페이지가 소유하는 것: '오늘 할 한 차시' 하나. 단원 전체의 지도는 journey.html 이 소유한다. -->
+  <div class="page-head" style="text-align:center; max-width:660px; margin:8px auto 18px">
+    <span class="eyebrow">오늘</span>
+    <h1>오늘 할 차시</h1>
+    <p>차시마다 <b>배우기 → 만들기 → 나누기</b>가 한 묶음이고, 학습지 한 장이 그 기록을 받아 둡니다.
+      단원 전체의 목표와 평가 기준은 <a href="journey.html">여정 지도</a>에 있어요.</p>
   </div>
   <div id="idea"></div>
 
-  <!-- 주연(Lead): 지금 할 한 가지 -->
+  <!-- 주연: 지금 할 한 차시. 문구는 학습지 진행에서 읽어 채운다(손으로 적지 않는다). -->
   <div class="dn-feature">
     <div>
       <div class="badge-row">
         <span class="badge core" id="feat-badge">여기서 시작</span>
-        <span class="dn-progress" id="feat-progress"><i class="on"></i><i></i><i></i><i></i> <span id="feat-progress-tx">1 / 4 단계</span></span>
+        <span class="dn-progress" id="feat-progress"><span id="feat-progress-tx">차시 진행을 읽는 중…</span></span>
       </div>
-      <h2 id="feat-title">1단계 · 그림을 데이터로</h2>
-      <p id="feat-desc">교사가 준 명화를 대표색 점으로 바꾸고, 마우스·소리로 ‘연주’해요. 그림에서 분석을 거쳐 창작에 이르는 흐름을 처음 익히는 출발점입니다.</p>
-      <div class="dn-feature-cta">
-        <a class="btn primary" id="feat-cta" href="studio-color.html">색 군집 스튜디오 열기 →</a>
+      <h2 id="feat-title">1차시</h2>
+      <p id="feat-desc">첫 차시는 한 그림을 일곱 가지 알고리즘으로 뜯어보는 데서 시작해요. 무엇이 보이고 무엇이 사라지는지 확인합니다.</p>
+      <div class="today-faces" id="feat-faces"></div>
+      <div class="dn-feature-cta" style="margin-top:14px">
+        <a class="btn primary" id="feat-cta" href="worksheet.html">📄 오늘 학습지 열기</a>
       </div>
     </div>
     <div class="dn-feature-vis" aria-hidden="true"><small>미리보기 · 춤추는 점</small></div>
   </div>
 
-  <!-- 목표: 활동 '앞'에 둔다. 단원이 겨누는 질문은 뒤에 있으면 읽히지 않는다. -->
-  <div class="dn-cluster">
-    <div class="card">
-      <h3 class="with-info" style="margin:0">만들기 전에 품고 갈 질문 <span data-info="kmeans" class="info-ic">ⓘ</span></h3>
-      <p class="muted" style="font-size:12.5px;margin:6px 0 0">다섯 질문은 작품마다 되돌아옵니다. 스튜디오 안 <b>질문 카드</b>가 알맞은 순간에 다시 물어요.
-        단원 전체의 목표·평가는 <a href="journey.html">여정 지도</a>에 있어요.</p>
-      <ol class="quest">
-        <li><span class="qk">설정 변화</span><span>K나 매핑을 바꾸면 작품의 구조는 어떻게 달라지나?</span></li>
-        <li><span class="qk">선택의 근거</span><span>나는 왜 이 설정을 골랐나? 고려했다가 <b>버린 것</b>은 무엇인가?</span></li>
-        <li><span class="qk">결과의 타당성</span><span>이 결과에서 <b>사라지거나 왜곡된 것</b>은 무엇인가? 매끈함과 맞음은 같은 말인가?</span></li>
-        <li><span class="qk">기본값 되묻기</span><span>자동 추천은 <b>누구의 평균</b>인가? 그 바깥에 있는 사람은 화면 어디에 있나?</span></li>
-        <li><span class="qk">창작의 책임</span><span>왜 <b>내가</b> 이것을 만들었고, 왜 이것을 작품이라 할 수 있나?</span></li>
-      </ol>
-    </div>
-  </div>
-
-  <!-- 여정 큰 그림: 4단계 = 차시를 주체성 기준으로 묶은 것. 순서는 차시와 같다. -->
-  <div class="dn-cluster">
-    <div class="dn-cluster-head">
-      <div><span class="eyebrow">Journey</span><h3>4단계 창작 여정</h3>
-        <p>오른쪽으로 갈수록 <b>내가 정하는 몫이 커집니다</b>. 교사가 준 그림에서 시작해 내 소리를 남기고, 내 삶을 고르고, 마지막엔 문제까지 내가 정해요.</p></div>
-      <a class="more" href="journey.html">여정 지도(목표·평가·계획) →</a>
-    </div>
-    <nav class="dn-spine" id="spine" aria-label="4단계 창작 여정">
-      <a class="dn-node" href="studio-color.html" data-stage="1" aria-label="1단계 그림을 데이터로: 색 군집 스튜디오">
-        <div class="n" aria-hidden="true">1</div><h4><span aria-hidden="true">🖼</span> 그림</h4>
-        <p>교사가 준 그림 · 색 군집</p><span class="state todo">아직 시작 전</span></a>
-      <a class="dn-node" href="studio-sound.html" data-stage="2" aria-label="2단계 내 소리를 데이터로: 소리 스튜디오">
-        <div class="n" aria-hidden="true">2</div><h4><span aria-hidden="true">🎤</span> 내 소리</h4>
-        <p>무엇을 남길지 내가 · 세어 보기</p><span class="state todo">아직 시작 전</span></a>
-      <a class="dn-node" href="studio-life.html" data-stage="3" aria-label="3단계 내 사진을 데이터로: 내 삶 스튜디오">
-        <div class="n" aria-hidden="true">3</div><h4><span aria-hidden="true">🧑</span> 내 사진</h4>
-        <p>무엇을 셀지 내가 · 숨긴 선택</p><span class="state todo">아직 시작 전</span></a>
-      <a class="dn-node" href="project.html" data-stage="4" aria-label="4단계 사회 문제를 데이터로: 사회문제 프로젝트">
-        <div class="n" aria-hidden="true">4</div><h4><span aria-hidden="true">📣</span> 사회</h4>
-        <p>문제를 내가 정함 · 공공데이터</p><span class="state todo">아직 시작 전</span></a>
-    </nav>
-    <p class="muted" style="font-size:12px;margin:10px 0 0">2·3·4단계에서 만든 데이터는 모두 <b>데이터 점 스튜디오</b>로 흘러 들어가 작품이 됩니다.
-      기록(의도·근거·버전·성찰)은 각 스튜디오 안에서 그때그때 남으니, 마지막에 몰아 쓸 필요가 없어요.</p>
-  </div>
-
-  <!-- 통합 여정: 한 차시 = 배우기 → 만들기 → 나누기 + 학습지 (worksheet.js 가 그린다) -->
+  <!-- 여덟 차시 전체: 한 줄 = 한 차시 (worksheet.js 가 COURSE 에서 그린다) -->
   <div class="dn-cluster" id="jr"></div>
 
   <!-- 최근 내 작업: 저장 작업이 있을 때만 노출 -->
@@ -109,38 +67,6 @@
     <cite>학습의 척추 · 감각 → 질문 → 비평 → 연결 → 창작</cite>
   </div>
 
-  <!-- 도구: 단계가 아니라, 모든 차시에서 꺼내 쓰는 것 -->
-  <div class="dn-cluster">
-    <div class="dn-cluster-head">
-      <div><span class="eyebrow">Toolkit</span><h3>차시와 상관없이 꺼내 쓰는 도구</h3>
-        <p>순서가 없으니 필요한 순간에 열면 됩니다. 각 차시의 묶음에도 알맞은 도구가 이미 끼워져 있어요.</p></div>
-    </div>
-    <div class="dn-list">
-      <a class="dn-row" href="studio-data.html"><span class="ic" aria-hidden="true">📊</span><span class="tx"><b>데이터 점 스튜디오</b><span>모든 차시의 데이터가 작품이 되는 공용 화면. CSV·엑셀을 올리면 자동 분석과 매핑 제안까지.</span></span><span class="arr" aria-hidden="true">→</span></a>
-      <a class="dn-row" href="lab.html"><span class="ic" aria-hidden="true">🔬</span><span class="tx"><b>알고리즘 분석실</b><span>한 그림을 일곱 가지 눈으로 분석해요. 차트와 재창조 결과에 각 분석이 놓친 것까지 함께 봅니다.</span></span><span class="arr" aria-hidden="true">→</span></a>
-      <a class="dn-row" href="studio-object.html"><span class="ic" aria-hidden="true">🤖</span><span class="tx"><b>객체 감지 · AI의 눈</b><span>AI가 사진에서 무엇을 찾아내고 <b>무엇을 놓치는지</b> 직접 확인해요.</span></span><span class="arr" aria-hidden="true">→</span></a>
-      <a class="dn-row" href="critique.html"><span class="ic" aria-hidden="true">🔍</span><span class="tx"><b>데이터 비평 읽기</b><span>같은 데이터도 축을 자르면 이야기가 달라져요. 사실 → 해석 → 가치의 세 층위로 묻는 법을 익힙니다.</span></span><span class="arr" aria-hidden="true">→</span></a>
-      <a class="dn-row" href="society.html"><span class="ic" aria-hidden="true">🌍</span><span class="tx"><b>사회 분석 · 비평 렌즈</b><span>실제 세계 데이터(SDG)를 추세·격차·기준선으로 읽고 일곱 가지 렌즈로 비평해요.</span></span><span class="arr" aria-hidden="true">→</span></a>
-      <a class="dn-row" href="studio-word.html"><span class="ic" aria-hidden="true">🔤</span><span class="tx"><b>낱말 구름 스튜디오</b><span>작가의 말을 자연어 분석해 낱말 빈도로. 그림 색과 모양 틀을 입혀 엽서·카드 굿즈까지 만들어요.</span></span><span class="arr" aria-hidden="true">→</span></a>
-    </div>
-  </div>
-
-  <!-- 나누기 공간: 차시 묶음에도 끼워져 있지만, 언제든 열어 보는 상시 공간이기도 하다 -->
-  <div class="dn-cluster">
-    <div class="dn-cluster-head">
-      <div><span class="eyebrow">Share</span><h3>언제든 여는 나누기 공간</h3>
-        <p>전시하고, 겨루고, 쌓인 과정을 모아 봐요. 8차시 전시·비평이 이 단원의 도착점입니다.</p></div>
-    </div>
-    <div class="grid c4">
-      <a class="card hover" href="gallery.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">🖼</span> 전시 갤러리</h3><p class="muted" style="font-size:12px;margin:0">감상하고 또래 피드백 남기기</p></a>
-      <a class="card hover" href="exhibit.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">📺</span> 키오스크 전시</h3><p class="muted" style="font-size:12px;margin:0">큰 화면 슬라이드쇼와 QR 비평 · 8차시</p></a>
-      <a class="card hover" href="quiz.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">🎯</span> 분석 퀴즈</h3><p class="muted" style="font-size:12px;margin:0">출제하고 맞히며 겨루기</p></a>
-      <a class="card hover" href="notes.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">📝</span> 작업 노트</h3><p class="muted" style="font-size:12px;margin:0">스튜디오에서 쌓인 기록 모아 보기</p></a>
-      <a class="card hover" href="portfolio.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">🖨</span> 내 포트폴리오</h3><p class="muted" style="font-size:12px;margin:0">판단의 과정을 A4 한 장으로</p></a>
-      <a class="card hover" href="learn.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">📚</span> 알고리즘 배움터</h3><p class="muted" style="font-size:12px;margin:0">쉬운 설명에서 깊은 원리로</p></a>
-    </div>
-  </div>
-
   <!-- 교사 진입점: 다른 교사가 이 사이트를 처음 열었을 때의 첫 관문 -->
   <div class="dn-cluster">
     <div class="card">
@@ -154,13 +80,7 @@
     </div>
   </div>
 
-  <!-- 다음으로 -->
-  <div class="dn-next" id="nextbox">
-    <div class="t" id="next-tx"><b>다음 추천</b> · 1단계 ‘그림을 데이터로’부터 시작하세요</div>
-    <a class="btn primary" id="next-cta" href="studio-color.html">1단계 열기 →</a>
-  </div>
-
-  <p class="footer-note">스튜디오 화면 안의 <b>ⓘ</b>를 누르면 어려운 말을 쉬운 말로 풀어 줘요 · AI 결과는 정답이 아니라 해석입니다</p>
+  <p class="footer-note">화면 속 <b>ⓘ</b>를 누르면 어려운 말을 쉬운 말로 풀어 줘요 · AI 결과는 정답이 아니라 해석입니다</p>
 </div>
 
 <script src="js/explain.js"></script>
@@ -174,79 +94,61 @@
 <script>
   UI.mountIdeaBar('idea', 'hub');
 
-  /* 통합 여정(차시마다 배우기·만들기·나누기·학습지)과 4단계 노드의 차시 꼬리표 */
+  /* 여덟 차시 전체(한 줄 = 한 차시) */
   WS.mountJourney('jr');
-  WS.tagStageNodes('#spine');
 
   /*
-   * 진행 상태: 학생이 어디까지 왔는지 허브에서 바로 보여 준다.
-   *   작품 있음(완료) : 1단계는 kind='color', 2~4단계는 보낸 쪽이 남긴 work.stage 로 구분
-   *   열어 봄(진행 중): 그 스튜디오 화면의 학습 로그(view 등)
-   * 데이터가 없으면 '아직 시작 전' 그대로: 로그인 전에도 화면이 깨지지 않는다.
-   * 단계 번호는 차시 순서와 같다: 1 그림 · 2 내 소리 · 3 내 사진 · 4 사회 (worksheet.js STAGE_NAME 과 동일).
+   * 주연 카드 = '지금 할 한 차시' 하나.
+   * 예전에는 저장된 작품 개수로 단계를 짐작해 '다음 추천'을 따로 계산했다. 그러면 한 화면에
+   * 다음이 두 개가 되고(차시 진행 하나, 작품 기반 추천 하나) 서로 다른 곳을 가리켰다.
+   * 이제 기준은 학습지 진행 하나뿐이고, 그것이 곧 오늘 할 차시다.
    */
-  const STAGE_PAGE = { 1: 'studio-color.html', 2: 'studio-sound.html', 3: 'studio-life.html', 4: 'project.html' };
-  const STAGE_NAME = WS.STAGE_NAME;
-
-  (async function () {
-    let works = [], logs = [];
-    try {
-      const u = window.Auth && Auth.current && Auth.current();
-      if (u && window.Store) {
-        works = (await Store.listWorks({ userId: u.userId })) || [];
-        const uid = window.Log && Log.uid();
-        if (uid) logs = (await Log.list({ uid })) || [];
+  (async function today() {
+    const SLOT = { learn: '배우기', make: '만들기', share: '나누기' };
+    const face = (k, list, sheet) => {
+      if (!list || !list.length) {
+        return '<span class="today-face off"><i>' + SLOT[k] + '</i><b>이 차시에는 없어요</b></span>';
       }
-    } catch (e) { /* 보조 기능: 실패해도 허브는 그대로 동작 */ }
+      const x = list[0];
+      return '<a class="today-face" href="' + WS.hrefOf(x, sheet) + '"><i>' + SLOT[k] + '</i><b>' +
+        UI.escapeHTML(x.label) + '</b></a>';
+    };
 
-    // 단계별 상태 계산
-    const done = {}, seen = {};
-    works.forEach(w => {
-      const s = w.stage || (w.kind === 'color' ? 1 : null);
-      if (s) done[s] = (done[s] || 0) + 1;
-    });
-    logs.forEach(l => { for (const s in STAGE_PAGE) if (l.page === STAGE_PAGE[s]) seen[s] = true; });
-
-    document.querySelectorAll('#spine .dn-node').forEach(node => {
-      const s = node.dataset.stage, el = node.querySelector('.state');
-      if (done[s]) { el.className = 'state done'; el.textContent = '✔ 작품 ' + done[s] + '점'; }
-      else if (seen[s]) { el.className = 'state doing'; el.textContent = '· 하는 중'; }
-      else { el.className = 'state todo'; el.textContent = '아직 시작 전'; }
-    });
-
-    // 다음에 할 단계 = 아직 작품이 없는 가장 앞 단계
-    let next = 0;
-    for (let s = 1; s <= 4; s++) if (!done[s]) { next = s; break; }
-    const cnt = [1, 2, 3, 4].filter(s => done[s]).length;
-    const prog = document.getElementById('feat-progress');
-    if (prog) {
-      prog.querySelectorAll('i').forEach((dot, i) => dot.className = done[i + 1] ? 'on' : '');
-      document.getElementById('feat-progress-tx').textContent = cnt + ' / 4 단계 완료';
-      prog.title = '4단계 여정 중 ' + cnt + '단계 완료';
+    let plan = null;
+    try {
+      const ix = await WS.loadManifest();
+      plan = WS.planOf(ix, WS.readProgress(Auth.current()));
+    } catch (e) {
+      // 색인을 못 읽는 경우(file:// 로 열기 등): 첫 차시를 가리키고 조용히 물러난다
+      document.getElementById('feat-progress-tx').textContent = '';
     }
 
-    if (!next) {                       // 네 단계를 모두 마친 학생
-      document.getElementById('next-tx').innerHTML = '<b>네 단계를 모두 지났어요</b> · 포트폴리오에서 내 판단의 과정을 확인해 보세요';
-      const nc = document.getElementById('next-cta'); nc.href = 'portfolio.html'; nc.textContent = '내 포트폴리오 →';
-    } else if (next > 1 || cnt) {
-      document.getElementById('next-tx').innerHTML = '<b>다음 추천</b> · ' + next + '단계 ‘' + STAGE_NAME[next] + '’로 이어가요';
-      const nc = document.getElementById('next-cta'); nc.href = STAGE_PAGE[next]; nc.textContent = next + '단계 열기 →';
-    }
+    const row = plan && plan.next;
+    const c = row ? row.course : WS.COURSE.find(x => x.sheet === 's1');
+    const n = c.sheet.replace('s', '');
 
-    // 주력 카드: 이어서 할 것이 있으면 그쪽으로
-    if (works.length) {
-      const last = works[0];
-      const studio = last.kind === 'data' ? 'studio-data.html' : 'studio-color.html';
-      const studioName = last.kind === 'data' ? '데이터 점 스튜디오' : '색 군집 스튜디오';
-      document.getElementById('feat-badge').textContent = '이어서 만들기';
-      document.getElementById('feat-title').textContent = '이어서 · ' + studioName;
+    document.getElementById('feat-title').textContent =
+      n + '차시' + (row && row.title ? ' · ' + row.title : '');
+    document.getElementById('feat-badge').textContent =
+      row && row.state === 'doing' ? '이어서 하기' : row && plan.doneCnt ? '다음 차시' : '여기서 시작';
+    if (row) {
       document.getElementById('feat-desc').innerHTML =
-        '지난 작업 <b>‘' + UI.escapeHTML(last.title || '제목 없음') + '’</b>에 이어, 같은 도구로 새 작품을 만들어요.';
-      const cta = document.getElementById('feat-cta');
-      cta.setAttribute('href', studio); cta.textContent = studioName + ' 열기 →';
-      cta.setAttribute('aria-label', studioName + ' 열어 이어서 만들기');
+        UI.escapeHTML(c.badge) + ' · 이 차시를 마치면 <b>' + UI.escapeHTML(row.yield || '기록') + '</b>이 남아요.';
+      document.getElementById('feat-progress-tx').textContent =
+        plan.doneCnt ? '여덟 차시 중 ' + plan.doneCnt + '차시 마침' : '여덟 차시 가운데 첫 차시';
+    }
+    document.getElementById('feat-faces').innerHTML =
+      face('learn', c.learn, c.sheet) + face('make', c.make, c.sheet) + face('share', c.share, c.sheet);
+    document.getElementById('feat-cta').setAttribute('href', 'worksheet.html?s=' + c.sheet);
+    document.getElementById('feat-cta').textContent = '📄 ' + n + '차시 학습지 열기';
 
-      const kindLabel = k => k === 'data' ? '데이터 점' : '색 군집';
+    /* 최근 내 작업: 있을 때만 */
+    try {
+      const u = Auth.current();
+      if (!u) return;
+      const works = (await Store.listWorks({ userId: u.userId })) || [];
+      if (!works.length) return;
+      const kindLabel = k => k === 'data' ? '데이터 점' : k === 'word' ? '낱말 구름' : '색 군집';
       const when = ts => { const d = Math.floor((Date.now() - (ts || Date.now())) / 86400000); return d <= 0 ? '오늘' : d === 1 ? '어제' : d + '일 전'; };
       document.getElementById('recent-rail').innerHTML = works.slice(0, 8).map(w => {
         const img = w.thumb ? `<img class="ph" src="${w.thumb}" alt="">` : `<div class="ph"></div>`;
@@ -255,7 +157,7 @@
           `<span>${kindLabel(w.kind)} · ${when(w.updatedAt || w.createdAt)}</span></a>`;
       }).join('');
       document.getElementById('recent').style.display = '';
-    }
+    } catch (e) { /* 최근 작업은 덤이다. 없어도 오늘 할 일은 보인다 */ }
   })();
 </script>
 </body>

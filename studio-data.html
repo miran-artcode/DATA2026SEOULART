@@ -59,6 +59,7 @@
 <div id="app-header"></div>
 
 <div class="wrap" style="max-width:1280px">
+  <div id="spine-strip"></div>
   <div class="page-head">
     <span class="eyebrow">데이터 점 스튜디오 · 공용 도구 (3차시부터)</span>
     <h1>데이터가 춤추는 점</h1>
@@ -261,6 +262,6 @@
 <script src="js/version.js"></script>
 <script src="js/studio-data.js"></script>
 <script src="js/worksheet.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountContext(); WS.mountLauncher(); });</script>
 </body>
 </html>

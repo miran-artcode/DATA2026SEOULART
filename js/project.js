@@ -21,6 +21,7 @@
     if (!u) { UI.toast('저장하려면 로그인하세요.'); setTimeout(() => location.href = 'index.html?next=project.html', 900); return; }
     const v = id => ($('#' + id) ? $('#' + id).value.trim() : '');
     await Store.saveNote({
+      ...(window.WS && WS.stampOf ? WS.stampOf() : {}),
       userId: u.userId, by: u.display, kind: 'project', title: '사회문제 프로젝트 · ' + topic(),
       aiHelp: '주제: ' + topic() + ' / 이유: ' + v('pj-why'),
       myDecision: '정제·선택: ' + v('pj-omit') + ' / 점검 ' + [$('#pj-c1').checked, $('#pj-c2').checked, $('#pj-c3').checked].filter(Boolean).length + '/3',

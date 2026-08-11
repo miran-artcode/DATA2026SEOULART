@@ -52,6 +52,7 @@
 <body>
 <div id="app-header"></div>
 <div class="wrap">
+  <div id="spine-strip"></div>
   <div class="page-head">
     <span class="eyebrow">AI 리터러시</span>
     <h1>이미지가 숫자가 되는 원리부터 창작의 책임까지</h1>
@@ -89,6 +90,6 @@
 <script src="js/metrics.js"></script>
 <script src="js/literacy.js"></script>
 <script src="js/worksheet.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountContext(); WS.mountLauncher(); });</script>
 </body>
 </html>

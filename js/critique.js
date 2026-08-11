@@ -51,7 +51,7 @@
     if (!u) { UI.toast('저장하려면 로그인하세요.'); setTimeout(() => location.href = 'index.html?next=critique.html', 900); return; }
     const v = id => ($('#' + id).value || '').trim();
     if (!v('q1') && !v('q2') && !v('q3')) { UI.toast('비평을 한 가지 이상 적어 주세요.'); return; }
-    await Store.saveNote({ userId: u.userId, by: u.display, kind: 'reflection', title: '데이터 비평 · ' + DATA[cur].title,
+    await Store.saveNote({ ...(window.WS && WS.stampOf ? WS.stampOf() : {}), userId: u.userId, by: u.display, kind: 'reflection', title: '데이터 비평 · ' + DATA[cur].title,
       aiHelp: '사실: ' + v('q1'), myDecision: '해석: ' + v('q2'), line: '가치/응답: ' + v('q3') });
     if (window.Log) Log.push({ stage: 'judge', action: 'critique_write',
       payload: { topic: cur, layers: [!!v('q1'), !!v('q2'), !!v('q3')].filter(Boolean).length } });

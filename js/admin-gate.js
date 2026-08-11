@@ -3,12 +3,13 @@
  * -----------------------------------------------------------------------------
  * ⚠ 정적 사이트의 '가벼운 잠금'입니다(강한 보안 아님). 비밀번호는 평문 대신
  *   SHA-256 해시로만 비교하지만, 클라이언트에서 우회 가능하므로 민감정보는 올리지 마세요.
- *   관리자: sooremond@gmail.com / 비밀번호 해시는 'admin2026'.
+ *   관리자 계정 표기는 심사용 블라인드 처리(표시 전용 문자열이며 인증에 쓰이지 않음).
+ *   인증은 아래 HASH 와의 SHA-256 비교로만 이뤄집니다.
  */
 (function (global) {
   'use strict';
   const HASH = '6051fc84a7a0d74c225fb18a496b09952da5642e60723ecae543298edd7d82d6';
-  const EMAIL = 'sooremond@gmail.com';
+  const EMAIL = '관리자 계정 (블라인드)'; // 표시 전용: 인증은 HASH 비교로만 한다
   const KEY = 'dn_admin_ok';
 
   function sha256(ascii) {

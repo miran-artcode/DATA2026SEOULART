@@ -10,6 +10,7 @@
 <div id="app-header"></div>
 
 <div class="wrap">
+  <div id="spine-strip"></div>
   <div class="page-head">
     <span class="eyebrow">배움터</span>
     <h1>알고리즘, 쉽게 → 깊게</h1>
@@ -97,6 +98,6 @@
   UI.mountIdeaBar('idea', 'learn');
 </script>
 <script src="js/worksheet.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountContext(); WS.mountLauncher(); });</script>
 </body>
 </html>

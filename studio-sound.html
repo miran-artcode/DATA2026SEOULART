@@ -27,6 +27,7 @@
 <body>
 <div id="app-header"></div>
 <div class="wrap">
+  <div id="spine-strip"></div>
   <div class="page-head">
     <span class="eyebrow">내 소리를 데이터로 · 학습 2단계 (4차시)</span>
     <h1>내 소리를 데이터로</h1>
@@ -136,6 +137,6 @@
 <script src="js/log.js"></script>
 <script src="js/studio-sound.js"></script>
 <script src="js/worksheet.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountContext(); WS.mountLauncher(); });</script>
 </body>
 </html>

@@ -399,7 +399,7 @@
       if (!u) { UI.toast('로그인이 필요합니다.'); return; }
       const w = works.find(x => x.id === sel.value);
       if (w) { w.statement = txt; await Store.saveWork(w); }
-      await Store.saveNote({ userId: u.userId, by: u.display, kind: 'statement', title: '창작 진술문' + (w ? ' · ' + (w.title || '') : ''), line: txt });
+      await Store.saveNote({ ...(window.WS && WS.stampOf ? WS.stampOf() : {}), userId: u.userId, by: u.display, kind: 'statement', title: '창작 진술문' + (w ? ' · ' + (w.title || '') : ''), line: txt });
       if (global.Log) Log.push({ stage: 'own', action: 'reflect_submit', workId: w ? w.id : null, payload: { ch: 7, len: txt.length } });
       $('#w7-msg', host).innerHTML = w
         ? '<b>저장했어요.</b> 이 진술문은 작품 페이지와 포트폴리오에 함께 표시됩니다.'
@@ -436,7 +436,7 @@
       const a = answers(); a[id] = v; saveAns(a);
       const u = global.Auth && Auth.current();
       if (u) {
-        await Store.saveNote({ userId: u.userId, by: u.display, kind: 'literacy',
+        await Store.saveNote({ ...(window.WS && WS.stampOf ? WS.stampOf() : {}), userId: u.userId, by: u.display, kind: 'literacy',
           title: `리터러시 ${c.n}장 · ${c.title}`, line: v });
       }
       if (global.Log) await Log.push({ stage: c.stage, action: 'coach_answer', payload: { ch: c.n, len: v.length } });

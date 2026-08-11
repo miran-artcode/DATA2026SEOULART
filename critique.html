@@ -13,6 +13,7 @@
 <body>
 <div id="app-header"></div>
 <div class="wrap narrow">
+  <div id="spine-strip"></div>
   <div class="page-head">
     <span class="eyebrow">데이터 비평 읽기</span>
     <h1>차트의 축·척도·색 읽기</h1>
@@ -65,6 +66,6 @@
 <script src="js/log.js"></script>
 <script src="js/critique.js"></script>
 <script src="js/worksheet.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountContext(); WS.mountLauncher(); });</script>
 </body>
 </html>

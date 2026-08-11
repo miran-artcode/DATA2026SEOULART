@@ -23,6 +23,7 @@
 <body>
 <div id="app-header"></div>
 <div class="wrap narrow">
+  <div id="spine-strip"></div>
   <div class="page-head">
     <span class="eyebrow">사회문제 프로젝트 · 학습 4단계 (6차시)</span>
     <h1>데이터로 말하는 사회</h1>
@@ -112,6 +113,6 @@
 <script src="js/log.js"></script>
 <script src="js/project.js"></script>
 <script src="js/worksheet.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountContext(); WS.mountLauncher(); });</script>
 </body>
 </html>

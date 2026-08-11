@@ -69,6 +69,7 @@
 <div id="app-header"></div>
 
 <div class="wrap" style="max-width:1280px">
+  <div id="spine-strip"></div>
   <div class="page-head">
     <span class="eyebrow">낱말 구름 스튜디오 · 자연어 분석</span>
     <h1>작가의 말을 그림으로: 낱말 구름과 굿즈</h1>
@@ -338,6 +339,6 @@
 <script src="js/analysis.js"></script>
 <script src="js/studio-word.js"></script>
 <script src="js/worksheet.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded', function () { WS.mountLauncher(); });</script>
+<script>document.addEventListener('DOMContentLoaded', function () { WS.mountContext(); WS.mountLauncher(); });</script>
 </body>
 </html>

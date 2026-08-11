@@ -88,6 +88,21 @@ a:hover { text-decoration: underline; }
 .navdrop.open .navdrop-menu { display: flex; }
 .navdrop-menu a { padding: 9px 11px; border-radius: 8px; color: var(--text); font-size: 13.5px; }
 .navdrop-menu a small { display: block; color: var(--muted); font-size: 11px; }
+
+/* 「8차시」 메뉴: 한 줄 = 한 차시. 배우기·만들기·나누기는 이 줄 안에서만 나타난다. */
+.navdrop-wide { min-width: 332px; }
+.navses { display: grid !important; grid-template-columns: 52px 1fr; gap: 10px; align-items: baseline; }
+.navses .ns-n { font-size: 11.5px; font-weight: 800; color: var(--accent2); }
+.navses .ns-t b { display: block; font-size: 13.5px; font-weight: 700; }
+.navses .ns-t small { display: flex; gap: 6px; margin-top: 3px; }
+.navses .ns-t small i {
+  font-style: normal; font-size: 11px; font-weight: 700; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; cursor: pointer;
+}
+.navses .ns-t small i:hover { color: var(--accent); border-color: var(--accent); }
+.navmore { margin-top: 4px; border-top: 1px solid var(--line); padding-top: 9px !important;
+  font-size: 12.5px !important; color: var(--accent) !important; font-weight: 700; }
+@media (max-width: 900px) { .navdrop-wide { min-width: 0; } }
 .site-user { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--muted); white-space: nowrap; }
 .site-user b { color: var(--text); }
 .site-user .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px var(--good); }

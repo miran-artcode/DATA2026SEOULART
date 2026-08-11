@@ -263,7 +263,7 @@
     } catch (e) {}
     const u = curUser();
     if (u && window.Store) {
-      try { await Store.saveNote({ userId: u.userId, by: u.display || u.userId, kind: 'society', title: '사회분석 · ' + st.title, intent: st.tag, settings: st }); UI.toast('계정+기기에 저장했어요.'); }
+      try { await Store.saveNote({ ...(window.WS && WS.stampOf ? WS.stampOf() : {}), userId: u.userId, by: u.display || u.userId, kind: 'society', title: '사회분석 · ' + st.title, intent: st.tag, settings: st }); UI.toast('계정+기기에 저장했어요.'); }
       catch (e) { UI.toast('계정 저장 실패. 이 기기에만 저장됐어요.'); }
     } else UI.toast('이 기기에 저장했어요. (로그인하면 계정에도 보관)');
     setSaveInfo();
