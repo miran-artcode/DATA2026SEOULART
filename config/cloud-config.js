@@ -75,6 +75,12 @@
     async listFeedback(workId) { return (await all('feedback')).filter(f => f.workId === workId).sort((a, b) => a.createdAt - b.createdAt); },
     async saveNote(n) { n.updatedAt = Date.now(); if (!n.createdAt) n.createdAt = Date.now(); return add('notes', n, n.id); },
     async listNotes(userId) { return (await all('notes')).filter(n => !userId || n.userId === userId).sort((a, b) => b.updatedAt - a.updatedAt); },
+    /* 한 건씩 지우기: 교사가 올린 '우수 사례'만 걷어 내기 위한 길.
+       규칙(firestore.rules)이 notes·logs·versions 의 delete 를 열어 두었기에 가능하다.
+       feedback·quizAnswers 는 기록 보존을 위해 규칙이 삭제를 막아 두었으므로 여기에도 없다. */
+    async deleteNote(id) { const r = await ready; if (r) await r.fs.deleteDoc(r.fs.doc(r.db, 'notes', id)); },
+    async deleteLog(id) { const r = await ready; if (r) await r.fs.deleteDoc(r.fs.doc(r.db, 'logs', id)); },
+    async deleteVersion(id) { const r = await ready; if (r) await r.fs.deleteDoc(r.fs.doc(r.db, 'versions', id)); },
     async saveQuiz(q) { if (!q.createdAt) q.createdAt = Date.now(); return add('quizzes', q, q.id); },
     async listQuizzes() { return (await all('quizzes')).sort((a, b) => b.createdAt - a.createdAt); },
     async getQuiz(id) { return (await all('quizzes')).find(q => q.id === id) || null; },

@@ -75,6 +75,7 @@
     async listNotes(userId) {
       return read(K_NOTES).filter(n => !userId || n.userId === userId).sort((a, b) => b.updatedAt - a.updatedAt);
     },
+    async deleteNote(id) { write(K_NOTES, read(K_NOTES).filter(n => n.id !== id)); },
     async saveQuiz(q) {
       const list = read(K_QUIZ); q.id = q.id || uid(); q.createdAt = q.createdAt || Date.now();
       const i = list.findIndex(x => x.id === q.id); if (i >= 0) list[i] = q; else list.push(q);
@@ -94,6 +95,7 @@
     },
     async listLogs() { return read(K_LOGS); },
     async clearLogs() { write(K_LOGS, []); },
+    async deleteLog(id) { write(K_LOGS, read(K_LOGS).filter(l => l.id !== id)); },
 
     // ---- 버전 스냅샷(version.js) ----
     async saveVersion(v) {
@@ -109,7 +111,8 @@
     },
     async listVersions(workId) {
       return read(K_VER).filter(v => !workId || v.workId === workId).sort((a, b) => a.createdAt - b.createdAt);
-    }
+    },
+    async deleteVersion(id) { write(K_VER, read(K_VER).filter(v => v.id !== id)); }
   };
 
   // 클라우드가 있으면 우선 사용하되, 실패 시 로컬로 폴백(네트워크가 끊겨도 수업이 멈추지 않도록)
@@ -141,6 +144,11 @@
     listFeedback: (id) => call('listFeedback', id),
     saveNote: (n) => call('saveNote', n),
     listNotes: (u) => call('listNotes', u),
+    /* 한 건씩 지우기: 교사가 올린 '우수 사례'를 되돌리는 길이다.
+       clearLogs 처럼 통째로 비우는 것과 달리 실제 학생 기록은 건드리지 않는다. */
+    deleteNote: (id) => call('deleteNote', id),
+    deleteLog: (id) => call('deleteLog', id),
+    deleteVersion: (id) => call('deleteVersion', id),
     saveQuiz: (q) => call('saveQuiz', q),
     listQuizzes: () => call('listQuizzes'),
     getQuiz: (id) => call('getQuiz', id),
