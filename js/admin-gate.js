@@ -11,6 +11,9 @@
   const HASH = '6051fc84a7a0d74c225fb18a496b09952da5642e60723ecae543298edd7d82d6';
   const EMAIL = '관리자 계정 (블라인드)'; // 표시 전용: 인증은 HASH 비교로만 한다
   const KEY = 'dn_admin_ok';
+  // 시연 편의: 비밀번호를 입력칸에 미리 채워 둔다(바로 '입장'만 누르면 됨).
+  // 잠금이 사실상 열려 있는 상태가 되므로, 민감정보는 이 페이지에 올리지 않는다.
+  const PREFILL = 'admin2026';
 
   function sha256(ascii) {
     function rr(v, a) { return (v >>> a) | (v << (32 - a)); }
@@ -75,7 +78,7 @@
       <h2 style="margin:0 0 6px">🔒 교사 관리자 로그인</h2>
       <p class="muted" style="font-size:12.5px;margin:0 0 14px">관리자 전용 페이지입니다. 관리자 <b>${EMAIL}</b></p>
       <label class="field">관리자 비밀번호</label>
-      <input id="admin-pw" type="password" placeholder="비밀번호" autocomplete="off">
+      <input id="admin-pw" type="password" placeholder="비밀번호" autocomplete="off" value="${PREFILL}">
       <button id="admin-go" class="btn primary wide" style="margin-top:12px">입장</button>
       <p class="muted" style="font-size:11px;margin-top:10px">※ 정적 사이트의 가벼운 잠금입니다(강한 보안 아님). 민감정보는 올리지 마세요.</p>
       <p style="font-size:12px;margin-top:8px"><a href="hub.html">← 학생 허브로</a></p>
@@ -88,7 +91,7 @@
     };
     document.getElementById('admin-go').addEventListener('click', tryUnlock);
     document.getElementById('admin-pw').addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
-    setTimeout(() => { const el = document.getElementById('admin-pw'); el && el.focus(); }, 50);
+    setTimeout(() => { const el = document.getElementById('admin-pw'); if (el) { el.focus(); el.select(); } }, 50);
   }
 
   global.AdminGate = { email: EMAIL, isUnlocked: unlocked, lock: () => { sessionStorage.removeItem(KEY); location.reload(); } };
