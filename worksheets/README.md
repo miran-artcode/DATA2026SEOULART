@@ -1,7 +1,8 @@
 # 학습지 꾸러미: 내용 패키지
 
 > 학습지를 **내용(JSON)** 과 **표시(렌더러)** 로 나눠 둔 폴더입니다.
-> 지금 하시는 다른 작업과 파일이 겹치지 않습니다. 이 폴더만 통째로 옮기면 어느 사이트에서든 그대로 씁니다.
+> 이 사이트에 붙어 있는 상태이고(`worksheet.html` 이 읽습니다), 폴더째 옮기면 다른 사이트에서도 그대로 씁니다.
+> 붙어 있는 방식은 `INTEGRATION.md` 를 보세요.
 
 ## 이 폴더가 하는 일
 
@@ -10,7 +11,7 @@
 | 차시를 하나 더 넣기 | `unit-data-eye/09-이름.json` 파일을 넣고 `node build.mjs` |
 | 단원을 하나 더 넣기 | 새 폴더 + `unit.json` + `NN-*.json` 넣고 `node build.mjs` |
 | 학생마다 사본 만들기 | `roster/반이름.csv` 넣고 `node build.mjs --instances` |
-| 종이로 인쇄하기 | `preview.html` → 학습지 고르고 [인쇄 / PDF] (A4 맞춤) |
+| 종이로 인쇄하기 | `worksheet.html` 에서 학습지를 열고 🖨 (A4 맞춤) |
 | 화면에서 쓰게 하기 | `render/worksheet.js` 를 수업 사이트에 붙이기 → `INTEGRATION.md` |
 
 **기존 파일을 고칠 일이 없습니다.** 파일을 넣고 스크립트를 한 번 돌리면 차례·색인·검사가 알아서 갱신됩니다.
@@ -18,15 +19,15 @@
 ## 폴더 구조
 
 ```
-content/worksheets/
+worksheets/
+├─ .gitignore             ← 학생 사본·명부 CSV 가 저장소에 올라가지 않게 막는다
 ├─ manifest.json          ← 자동 생성. 실행 시점에는 이 파일 하나만 읽는다
 ├─ build.mjs              ← 폴더를 훑어 manifest 를 만들고 내용을 검사
-├─ preview.html           ← 미리보기 · 인쇄 (작업용)
 ├─ render/
 │  ├─ worksheet.js        ← 렌더러 (의존성 0 · 어느 사이트에나 붙음)
 │  └─ worksheet.css       ← 화면 + A4 인쇄 한 벌
-├─ roster/                ← (선택) 학급 명부 CSV(코드만, 이름 금지)
-├─ instances/             ← (자동) 학생별 빈 사본. git 에 올리지 않음
+├─ roster/                ← (선택) 학급 명부 CSV(코드만, 이름 금지). `.gitignore` 가 막는다
+├─ instances/             ← (자동) 학생별 빈 사본. `.gitignore` 가 막는다
 └─ unit-data-eye/
    ├─ unit.json           ← 단원 메타: 개념·본질적 질문·일반화·루브릭·자기점검
    ├─ 00-cover.json       ← 표지 (차례는 자동)
@@ -36,16 +37,17 @@ content/worksheets/
 ## 만드는 법 (터미널 한 줄)
 
 ```bash
-node content/worksheets/build.mjs             # 검사 + manifest 갱신
-node content/worksheets/build.mjs --check     # 검사만 (파일 안 씀)
-node content/worksheets/build.mjs --instances # 명부로 학생 사본 만들기
-node content/worksheets/smoke.mjs             # 렌더러가 전부 그려지는지 + 저장 경로 일치 확인
+node worksheets/build.mjs             # 검사 + manifest 갱신
+node worksheets/build.mjs --check     # 검사만 (파일 안 씀)
+node worksheets/build.mjs --instances # 명부로 학생 사본 만들기
+node worksheets/smoke.mjs             # 렌더러가 전부 그려지는지 + 저장 경로 일치 확인
 ```
 
-미리보기는 간이 서버가 필요합니다(브라우저가 `file://` 에서 JSON 을 못 읽습니다).
+학습지를 눈으로 확인하려면 `worksheet.html` 을 열면 됩니다. 저장소를 통째로 로컬에서 볼 때는
+간이 서버가 필요합니다(브라우저가 `file://` 에서 JSON 을 못 읽습니다).
 
 ```bash
-cd content/worksheets && npx serve .     # 또는 python -m http.server 8000
+npx serve .     # 또는 python -m http.server 8000
 ```
 
 ## 학습지 한 장의 구조
