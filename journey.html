@@ -6,19 +6,32 @@
 <title>학습 여정 지도 · 오늘의 시선</title>
 <link rel="stylesheet" href="css/site.css" />
 <style>
-  .stage-row { display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: stretch; margin-bottom: 12px; }
-  .stage-n { display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; color: #fff;
-    background: var(--accent); border-radius: 14px; }
-  .stage-card { display: flex; flex-direction: column; }
-  .stage-card .chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
-  .stage-card .chips .b { font-size: 11px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
-  .stage-card .chips .src { color: var(--accent2); border-color: rgba(78,195,255,.4); }
-  .stage-card .chips .agency { color: var(--good); border-color: rgba(81,216,138,.4); }
-  .spine { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px dashed var(--accent); border-radius: 14px; padding: 16px 18px; margin-top: 8px; }
+  /* 백워드 설계 3단 표시: 목표 → 증거 → 계획 */
+  .bwd-step { display: flex; align-items: center; gap: 10px; margin: 26px 0 10px; }
+  .bwd-step .n { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); color: #fff;
+    font-weight: 800; display: grid; place-items: center; font-size: 14px; flex: none; }
+  .bwd-step h2 { margin: 0; font-size: 18px; }
+  .bwd-step small { color: var(--muted); font-size: 12px; }
+  .eq-list { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+  .eq-list li { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: baseline;
+    border: 1px solid var(--line); border-radius: 11px; padding: 9px 12px; font-size: 13.5px; background: var(--panel); }
+  .eq-list .k { font-size: 11px; font-weight: 800; color: var(--accent2); }
+  .eq-list small { display: block; color: var(--muted2); font-size: 11px; margin-top: 2px; }
+  .grasps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  @media (max-width: 700px) { .grasps { grid-template-columns: 1fr; } }
+  .grasps .g { border: 1px solid var(--line); border-radius: 11px; padding: 9px 12px; font-size: 13px; background: var(--panel); }
+  .grasps .g i { display: block; font-style: normal; font-weight: 800; font-size: 11px; color: var(--muted2); margin-bottom: 2px; }
+  .rub { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  .rub td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+  .rub .lv { width: 54px; font-weight: 800; color: var(--accent); text-align: center; }
+  .evi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 700px) { .evi { grid-template-columns: 1fr; } }
+  .evi .card p { font-size: 12.5px; color: var(--muted); margin: 5px 0 0; }
+  .spine { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px dashed var(--accent); border-radius: 14px; padding: 16px 18px; margin-top: 14px; }
   .spine .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
   @media (max-width: 700px) { .spine .three { grid-template-columns: 1fr; } }
-  .axis-note { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 6px 0 16px; }
-  .rubric-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+  .axis-note { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 8px 0 14px; }
+  .rubric-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-top: 10px; }
   @media (max-width: 700px) { .rubric-grid { grid-template-columns: 1fr; } }
   /* 7단계 창작 과정 진행 바: 학습 로그에서 내 위치를 읽어 표시 */
   .proc { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 10px 0 6px; }
@@ -39,69 +52,63 @@
 <div class="wrap">
   <div class="page-head">
     <span class="eyebrow">학습 여정 지도</span>
-    <h1>한 학기 4단계와 평가 4영역</h1>
-    <p>한 학기는 두 축으로 나아갑니다. <b>데이터 출처가 넓어지고</b>(그림→소리→삶→사회) <b>학생의 주체성이 깊어져요</b>(교사 데이터→내 삶→내가 정한 사회문제).</p>
+    <h1>이 단원은 거꾸로 설계되었어요</h1>
+    <p>먼저 <b>어디에 닿을지(목표)</b>를 정하고, <b>무엇으로 확인할지(증거)</b>를 정한 다음, 그제야 <b>차시(계획)</b>를 짰습니다.
+      그래서 매 차시는 배우기 → 만들기 → 나누기가 한 묶음이고, 학습지 한 장이 그 증거를 받아 둡니다.</p>
   </div>
-  <!-- 창작 과정 7단계: 아래 4단계 지도와 '다른 축'이다.
-       4단계 = 무엇을 데이터로 삼는가(한 학기의 지도) · 7단계 = 한 작품을 만드는 동안 거치는 과정. -->
-  <div class="card" style="margin-bottom:18px">
-    <h2 style="margin:0 0 2px;font-size:17px">창작 과정 7단계: 지금 내 위치</h2>
-    <p class="muted" style="font-size:12.5px;margin:2px 0 0">아래 <b>4단계 지도</b>가 “무엇을 데이터로 삼는가”라면, 이 7단계는 <b>한 작품을 만드는 동안</b> 거치는 과정이에요.
+
+  <!-- ═══════ ① 목표: 어디에 닿는가 ═══════ -->
+  <div class="bwd-step"><span class="n">1</span><div><h2>목표 · 어디에 닿는가</h2><small>단원이 끝났을 때 남아야 하는 것</small></div></div>
+  <div class="card" id="goal-card">
+    <p class="muted" style="font-size:12.5px;margin:0">단원 정보를 불러오는 중이에요…</p>
+  </div>
+
+  <!-- ═══════ ② 증거: 무엇으로 확인하는가 ═══════ -->
+  <div class="bwd-step"><span class="n">2</span><div><h2>증거 · 무엇으로 확인하는가</h2><small>점수가 아니라 ‘남긴 것’으로 확인해요</small></div></div>
+  <div class="card" id="evidence-card">
+    <p class="muted" style="font-size:12.5px;margin:0">수행과제·루브릭을 불러오는 중이에요…</p>
+  </div>
+  <div class="dn-cluster" style="margin-top:14px">
+    <div class="evi">
+      <div class="card"><b>작품 증거</b><p>최종 작품과 창작 진술문 150자. <b>전시 갤러리·작품 페이지</b>에 남아요.</p></div>
+      <div class="card"><b>과정 증거</b><p>고르고 버린 흔적, 버전 스냅샷, 수정 이유. <b>스튜디오의 질문 카드·작업 노트</b>에 남아요.</p></div>
+      <div class="card"><b>이해 증거</b><p>개념을 내 말로 다시 쓴 칸, 알게 된 것 한 문장. <b>차시마다 학습지</b>에 남아요.</p></div>
+    </div>
+    <p class="muted" style="font-size:12.5px;margin:10px 0 0">세 층의 증거는 쓰는 즉시 자동 저장되어 <b>교사 대시보드</b>와 <b>내 포트폴리오(A4)</b>로 모입니다.</p>
+  </div>
+
+  <h3 style="margin:18px 0 4px">평가 4영역 <span class="info-ic" data-info="rubric">ⓘ</span></h3>
+  <p class="muted" style="font-size:13px;margin:0">점수가 아니라 ‘무엇을 보았는지’의 언어예요. 자기·동료 평가의 기준으로 씁니다.</p>
+  <div class="rubric-grid">
+    <div class="card"><b style="color:var(--accent)">① 매핑의 의도성</b><p class="muted" style="font-size:13px;margin:6px 0 0">데이터를 시각으로 옮긴 선택에 <b>해석적 의도</b>가 담겼는가? (감각·비평의 언어)</p></div>
+    <div class="card"><b style="color:var(--accent)">② 판단의 흔적</b><p class="muted" style="font-size:13px;margin:6px 0 0">무엇을 고르고 무엇을 버렸는지, 그 <b>선택의 근거</b>가 보이는가? (비평의 언어)</p></div>
+    <div class="card"><b style="color:var(--accent)">③ 도구에 대한 주체성</b><p class="muted" style="font-size:13px;margin:6px 0 0">도구·AI가 의도를 <b>뒤따랐는가</b>, 아니면 의도를 대체했는가? (창작 주체성)</p></div>
+    <div class="card"><b style="color:var(--accent)">④ 감각으로의 귀환</b><p class="muted" style="font-size:13px;margin:6px 0 0">데이터·도구를 거친 뒤 <b>자기 감각으로 돌아와 책임</b>졌는가? (연결·성찰)</p></div>
+  </div>
+
+  <!-- ═══════ ③ 계획: 어떻게 가는가 ═══════ -->
+  <div class="bwd-step"><span class="n">3</span><div><h2>계획 · 어떻게 가는가</h2><small>차시 번호가 곧 순서 · 한 차시 = 배우기 → 만들기 → 나누기 + 학습지</small></div></div>
+
+  <div class="axis-note">
+    <span>↕ 진행의 기준 <b style="color:var(--good)">누가·왜 고르는가</b>: 교사가 준 그림 → 내가 녹음한 소리 → 내가 고른 내 삶 → 내가 정한 사회 문제</span>
+    <span>↔ 그 결과 <b style="color:var(--accent2)">데이터 출처가 넓어짐</b>: 그림(1~3차시) → 내 소리(4차시) → 내 사진(5차시) → 사회(6차시~)</span>
+  </div>
+
+  <!-- 통합 여정: 차시마다 배우기·만들기·나누기 + 학습지 (worksheet.js 가 그린다) -->
+  <div class="dn-cluster" id="jr" style="margin:0 0 18px"></div>
+
+  <!-- 창작 과정 7단계: 위 차시 계획과 '다른 축'이 아니라, 한 작품을 만드는 동안 도는 안쪽 바퀴다. -->
+  <div class="card" style="margin-bottom:14px">
+    <h3 style="margin:0 0 2px;font-size:16px">한 작품이 지나는 7단계: 지금 내 위치</h3>
+    <p class="muted" style="font-size:12.5px;margin:2px 0 0">위의 차시가 <b>한 학기의 순서</b>라면, 이 7단계는 <b>작품 하나를 만드는 동안</b> 되풀이해 도는 과정이에요.
       스튜디오·리터러시·노트에 남긴 기록을 읽어 자동으로 채워집니다.</p>
     <div class="proc" id="proc"></div>
     <p class="muted" style="font-size:11.5px;margin:6px 0 0" id="proc-msg"></p>
   </div>
 
-  <!-- 진행의 기준은 '주체성' 하나로 둔다. 데이터 출처(그림·사진·소리·사회)는 그 결과로 넓어질 뿐,
-       그 자체를 진행 기준으로 삼으면 2단계에서 개념이 급증했다가 3단계에서 내려오는 역전이 생긴다. -->
-  <div class="axis-note">
-    <span>↕ 진행의 기준 <b style="color:var(--good)">누가·왜 고르는가</b>: 교사가 준 것 → 내 소재 → 내가 정한 문제</span>
-    <span>↔ 그 결과 <b style="color:var(--accent2)">데이터 출처가 넓어짐</b>: 그림 → 내 사진 → 내 소리 → 사회</span>
-  </div>
-
-  <div class="stage-row">
-    <div class="stage-n">1</div>
-    <a class="card stage-card hover" href="studio-color.html">
-      <h3>그림을 데이터로</h3>
-      <div class="chips"><span class="b src">출처: 교사가 준 그림(픽셀)</span><span class="b agency">주체성: 매핑을 내가</span><span class="b">새 개념: K-means·대표색</span></div>
-      <p class="muted" style="font-size:13.3px;margin:0">명화를 픽셀로 읽으면 색·밝기·위치가 모두 숫자가 됩니다. 그 숫자를 다시 점으로 재구성하며 <b>그림과 데이터를 오가는 과정</b>을 처음 겪는 단계예요.</p>
-    </a>
-  </div>
-  <div class="stage-row">
-    <div class="stage-n">2</div>
-    <a class="card stage-card hover" href="studio-life.html">
-      <h3>내 사진을 데이터로</h3>
-      <div class="chips"><span class="b src">출처: 내가 찍은 사진</span><span class="b agency">주체성: 무엇을 셀지 내가</span><span class="b">새 개념: 거의 없음(1단계 재사용)</span></div>
-      <p class="muted" style="font-size:13.3px;margin:0">‘오늘 가장 즐거운 순간’ 사진의 밝기·생생함·북적임을 재요. 분석 방법은 1단계와 같아서 <b>새로 배울 것이 거의 없고</b>, 그 대신 <b>무엇을 데이터로 삼을지 내가 정하는 일</b>에만 집중할 수 있어요.</p>
-    </a>
-  </div>
-  <div class="stage-row">
-    <div class="stage-n">3</div>
-    <a class="card stage-card hover" href="studio-sound.html">
-      <h3>내 소리를 데이터로</h3>
-      <div class="chips"><span class="b src">출처: 내가 녹음한 소리(시간)</span><span class="b agency">주체성: 무엇을 남길지 내가</span><span class="b">새 개념: 음량·주파수·변화량 등</span></div>
-      <p class="muted" style="font-size:13.3px;margin:0">소리는 시간에 따라 흐르는 데이터라 다룰 개념이 한 번에 늘어납니다. 그래서 앞의 두 단계를 지난 뒤에 와요. 숫자 뒤의 <b>정서</b>를 점의 움직임으로 옮깁니다. <span style="opacity:.75">(학생 작품 예시: 「아빠의 한 달 코골이」)</span></p>
-    </a>
-  </div>
-  <div class="stage-row">
-    <div class="stage-n">4</div>
-    <a class="card stage-card hover" href="project.html">
-      <h3>사회 문제 프로젝트</h3>
-      <div class="chips"><span class="b src">출처: 공공데이터</span><span class="b agency">주체성: 내가 정한 사회문제</span></div>
-      <p class="muted" style="font-size:13.3px;margin:0">관심 있는 사회 문제를 스스로 정해 공공데이터로 작품을 만듭니다. 미술이 <b>사회적 발언</b>이 되는 단계로, “이 문제를 세상에 어떻게 보여줄 것인가”를 묻습니다.</p>
-    </a>
-  </div>
-
-  <!-- 학습지: '차시' 축. 위의 4단계(무엇을 데이터로 삼는가)와 다른 축이라 관계를 밝혀 둔다. -->
-  <div class="dn-cluster" id="ws-hub" style="margin:18px 0"></div>
-  <p class="muted" style="font-size:12.5px;margin:-6px 0 18px">
-    ⚠ <b>선생님께</b>: 순차 진행의 기준은 <b>차시 번호</b>입니다. 학습지끼리 <b>‘다음 시간으로 넘기는 한 줄’</b>이
-    1→2→3→4→5→6→8차시(7차시는 8차시로)로 이어져 있어, 단계 순서대로 배치하면 아직 쓰지 않은 학습지의 한 줄을 앞 차시가 요구하게 됩니다.
-    배치를 바꾸려면 <code>js/worksheet.js</code>의 <code>COURSE</code> 표 한 곳만 고치면 됩니다.</p>
-
   <div class="spine">
-    <h3 style="margin:0">🦴 단계가 올라가도 변하지 않는 척추</h3>
-    <p class="muted" style="font-size:12.5px;margin:4px 0 0">데이터 출처(그림·소리·삶·사회)는 바뀌어도 아래 세 가지는 모든 단계에서 같습니다.</p>
+    <h3 style="margin:0">🦴 차시가 바뀌어도 변하지 않는 척추</h3>
+    <p class="muted" style="font-size:12.5px;margin:4px 0 0">데이터 출처(그림·소리·삶·사회)는 바뀌어도 아래 세 가지는 모든 차시에서 같습니다.</p>
     <div class="three">
       <div class="card"><b>① 감각을 먼저</b><p class="muted" style="font-size:12.5px;margin:6px 0 0">데이터가 되기 전에 그 경험을 몸으로 먼저 느껴 둡니다. 데이터가 경험을 식민화하지 않게 하는 순서예요.</p></div>
       <div class="card"><b>② 매핑은 학생이 결정</b><p class="muted" style="font-size:12.5px;margin:6px 0 0">무엇을 크기·색·움직임으로 옮길지는 학생이 정합니다.</p></div>
@@ -109,14 +116,6 @@
     </div>
   </div>
 
-  <h2 style="margin:26px 0 10px">평가 4영역 <span class="info-ic" data-info="rubric">ⓘ</span></h2>
-  <p class="muted" style="font-size:13px;margin:0 0 12px">점수가 아니라 ‘무엇을 보았는지’의 언어예요. 자기·동료 평가의 기준으로 씁니다.</p>
-  <div class="rubric-grid">
-    <div class="card"><b style="color:var(--accent)">① 매핑의 의도성</b><p class="muted" style="font-size:13px;margin:6px 0 0">데이터를 시각으로 옮긴 선택에 <b>해석적 의도</b>가 담겼는가? (감각·비평의 언어)</p></div>
-    <div class="card"><b style="color:var(--accent)">② 판단의 흔적</b><p class="muted" style="font-size:13px;margin:6px 0 0">무엇을 고르고 무엇을 버렸는지, 그 <b>선택의 근거</b>가 보이는가? (비평의 언어)</p></div>
-    <div class="card"><b style="color:var(--accent)">③ 도구에 대한 주체성</b><p class="muted" style="font-size:13px;margin:6px 0 0">도구·AI가 의도를 <b>뒤따랐는가</b>, 아니면 의도를 대체했는가? (창작 주체성)</p></div>
-    <div class="card"><b style="color:var(--accent)">④ 감각으로의 귀환</b><p class="muted" style="font-size:13px;margin:6px 0 0">데이터·도구를 거친 뒤 <b>자기 감각으로 돌아와 책임</b>졌는가? (연결·성찰)</p></div>
-  </div>
   <p class="footer-note">감각 → 질문 → 비평 → 연결 → 창작 → 메타비평 · 작품 페이지에서 4영역으로 자기·동료 평가를 남길 수 있어요</p>
 </div>
 
@@ -130,7 +129,42 @@
 <script src="js/worksheet.js"></script>
 <script>
   UI.mountIdeaBar && UI.mountIdeaBar('idea', 'general');
-  WS.mountHub('ws-hub');
+  WS.mountJourney('jr');
+
+  /* ①·②: 목표와 증거는 단원 파일(unit.json)이 원본이다. 여기서 다시 쓰지 않고 읽어서 그린다.
+     ⚠ 일반화(G1~G4)는 교사 전용: 8차시에서 학생이 스스로 도달하므로 학생 화면에 출력하지 않는다. */
+  (async function renderUnit() {
+    const goal = document.getElementById('goal-card');
+    const evi = document.getElementById('evidence-card');
+    let u;
+    try { u = await WS.loadUnit(); }
+    catch (e) {
+      const warn = UI.callout('<b>단원 정보를 불러오지 못했어요.</b> 학교 주소(https://…)나 간이 서버로 열어 주세요.', 'warn');
+      goal.innerHTML = warn; evi.innerHTML = warn;
+      return;
+    }
+    const esc = UI.escapeHTML;
+    const eqSess = q => (q.sessions && q.sessions.length) ? q.sessions.map(n => n + '차시').join(' · ') : '';
+    goal.innerHTML =
+      '<p style="margin:0;font-size:14px"><b>큰 개념 「' + esc(u.concept.name) + '」</b> · ' + esc(u.concept.statement) + '</p>' +
+      '<p style="margin:10px 0 0;font-size:13.5px"><b>전이 목표</b> · ' + esc(u.transferGoal) + '</p>' +
+      '<p class="muted" style="margin:12px 0 0;font-size:12.5px">단원 내내 되돌아오는 <b>본질적 질문</b> 네 가지. 각 차시의 머리에 다시 떠요.</p>' +
+      '<ol class="eq-list">' + u.essentialQuestions.map(q =>
+        '<li><span class="k">' + esc(q.id) + '</span><span>' + esc(q.text) +
+        (eqSess(q) ? '<small>주로 ' + eqSess(q) + '에서</small>' : '') + '</span></li>').join('') + '</ol>';
+
+    const pt = u.performanceTask || {};
+    const G = (label, text) => text ? '<div class="g"><i>' + label + '</i>' + esc(text) + '</div>' : '';
+    evi.innerHTML =
+      '<p style="margin:0 0 8px;font-size:13.5px"><b>수행과제</b> · 단원의 도착점이자 8차시 전시의 실체예요.</p>' +
+      '<div class="grasps">' +
+        G('목표', pt.goal) + G('역할', pt.role) + G('관람객', pt.audience) + G('상황', pt.situation) +
+        (pt.product ? '<div class="g"><i>산출물</i>' + pt.product.map(esc).join(' · ') + '</div>' : '') +
+      '</div>' +
+      '<p style="margin:14px 0 0;font-size:13.5px"><b>루브릭 「' + esc((u.rubric || {}).title || '') + '」</b> · 학습지의 별표 칸이 이 4수준으로 읽혀요.</p>' +
+      '<table class="rub"><tbody>' + ((u.rubric || {}).levels || []).map(l =>
+        '<tr><td class="lv">' + l.level + '</td><td>' + esc(l.text) + '</td></tr>').join('') + '</tbody></table>';
+  })();
 
   /* 창작 과정 7단계: 내 학습 로그·작품·노트를 읽어 도달 여부를 표시 */
   (async function renderProcess() {

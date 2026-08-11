@@ -1,22 +1,23 @@
 /*
- * worksheet.js: 학습지 꾸러미를 '수업의 순서'에 붙이는 계층
+ * worksheet.js: 단원의 '학습 계획' 층: 차시 ↔ 단계 ↔ 만들기·배우기·나누기 ↔ 학습지
  * -----------------------------------------------------------------------------
- * 내용(worksheets/**.json)과 표시(worksheets/render/worksheet.js)는 이미 나뉘어 있다.
- * 이 파일이 하는 일은 그 둘을 이 사이트의 과정에 붙이는 것 하나다.
+ * 이 단원은 백워드 설계(목표 → 증거 → 계획)로 짜여 있고, 세 층의 원본은 이렇다.
  *
- *   COURSE  차시 ↔ 4단계 ↔ 스튜디오 화면. 배치를 바꾸려면 이 표 한 곳만 고친다.
+ *   ① 목표  worksheets/unit-data-eye/unit.json  (개념·전이 목표·본질적 질문·일반화)
+ *   ② 증거  같은 파일의 performanceTask·rubric·evidenceLayers + 학습지의 칸(증거 3층 표시)
+ *   ③ 계획  이 파일의 COURSE 표. 차시마다 만들기·배우기·나누기 화면과 학습지를 한 묶음으로 든다.
+ *
+ *   COURSE  차시 ↔ 4단계 ↔ 화면·활동. 배치를 바꾸려면 이 표 한 곳만 고친다.
  *   저장    학습지 한 장 = 작업노트 한 건(kind:'worksheet').
  *           새 컬렉션을 만들지 않으므로 firestore.rules·cloud-config 를 손대지 않아도 되고,
  *           교사 대시보드·포트폴리오·내보내기가 이미 notes 를 읽으므로 저장하는 순간 취합된다.
  *   순서    앞 차시를 어느 정도 채우면 다음 차시가 열린다. 잠금은 '안내'지 '차단'이 아니다
  *           (결석·보충처럼 순서가 흐트러지는 일은 교실에서 늘 생긴다).
  *
- * ⚠ 차시 순서와 4단계 순서는 서로 다르다. 일부러 그렇게 두었다.
- *   4단계 지도는 사진(2단계) → 소리(3단계)인데, 학습지는 소리(4차시) → 삶(5차시)다.
- *   학습지끼리 '다음 시간으로 넘기는 한 줄'(carryOver)이 4차시 → 5차시로 이어져 있어서,
- *   단계 순서대로 배치하면 아직 쓰지 않은 학습지의 한 줄을 앞 차시가 요구하게 된다.
- *   그래서 순차 진행의 척추는 '차시 번호'로 두고, 각 차시에 단계 배지를 달아
- *   어느 단계의 도구를 쓰는지 알려 준다. 뒤집으려면 아래 COURSE 의 stage 값만 고치면 된다.
+ * 순서의 척추는 '차시 번호' 하나다. 학습지끼리 '다음 시간으로 넘기는 한 줄'(carryOver)이
+ * 차시 순서로 이어져 있고, 4단계 여정(그림 → 내 소리 → 내 사진 → 사회)은 차시를
+ * 주체성 기준으로 묶은 것이라 순서가 서로 같다. 지도가 두 장이 아니라 한 장이 되도록,
+ * 다른 화면(허브·여정·내비)도 이 표를 기준으로 그린다.
  */
 (function (global) {
   'use strict';
@@ -27,29 +28,64 @@
   const OPEN_PCT = 40;                // 앞 차시가 이만큼 차면 다음 차시가 열린다
 
   /*
-   * 차시 ↔ 단계 ↔ 화면.
-   *   stage  : 4단계 여정에서 이 차시가 쓰는 단계(0 = 단계 이전 · 표지)
+   * 차시 ↔ 단계 ↔ 화면·활동. 한 차시가 한 묶음이다: 배우기 → 만들기 → 나누기 + 학습지.
+   *   stage  : 4단계 여정에서 이 차시가 속한 단계(0 = 단계 이전 · 표지)
    *   badge  : 학생 화면에 보이는 배지 글
-   *   pages  : 이 차시가 쓰는 사이트 화면들(학습지 JSON 의 screens 와 같다).
-   *            스튜디오에 뜨는 '학습지 열기' 단추가 이 목록으로 자기 차시를 찾는다.
+   *   learn  : 이 차시의 배우기(개념·판별 자료). 비어 있으면 화면 속 ⓘ 설명이 그 몫을 한다.
+   *   make   : 이 차시의 만들기(스튜디오·도구)
+   *   share  : 이 차시의 나누기(기록·전시·소통)
+   *   pages  : '학습지 열기' 단추가 뜨는 화면(learn·make·share 의 합집합).
+   *            도구 옆에도, 배우기·나누기 화면 옆에도 그 차시의 종이가 함께 놓인다.
    *   logStage: 이 차시의 기록이 창작 7단계 중 어디에 해당하는가(교사 D-1 지표의 원료)
    */
+  const L = (page, label) => ({ page, label });
   const COURSE = [
-    { sheet: 'cover', stage: 0, badge: '표지',            pages: [],                                                       logStage: 'sense' },
-    { sheet: 's1',    stage: 1, badge: '1단계 · 그림',    pages: ['lab.html', 'learn.html'],                               logStage: 'sense' },
-    { sheet: 's2',    stage: 1, badge: '1단계 · 그림',    pages: ['studio-color.html'],                                    logStage: 'make'  },
-    { sheet: 's3',    stage: 1, badge: '1단계 · 규칙',    pages: ['studio-data.html'],                                     logStage: 'make'  },
-    { sheet: 's4',    stage: 3, badge: '3단계 · 내 소리', pages: ['studio-sound.html', 'studio-data.html'],                logStage: 'make'  },
-    { sheet: 's5',    stage: 2, badge: '2단계 · 내 사진', pages: ['studio-life.html', 'studio-data.html'],                 logStage: 'make'  },
-    { sheet: 's6',    stage: 4, badge: '4단계 · 사회',    pages: ['society.html', 'literacy.html', 'studio-data.html', 'project.html'], logStage: 'judge' },
-    { sheet: 's7',    stage: 4, badge: '마무리 · 진술문', pages: ['studio-word.html', 'notes.html'],                       logStage: 'own'   },
+    { sheet: 'cover', stage: 0, badge: '표지', logStage: 'sense', learn: [], make: [], share: [] },
+    { sheet: 's1', stage: 1, badge: '1단계 · 그림', logStage: 'sense',
+      learn: [L('learn.html', '알고리즘 배움터'), L('literacy.html', 'AI 리터러시 1·2장 · 픽셀과 K')],
+      make:  [L('lab.html', '알고리즘 분석실 · 일곱 개의 눈')],
+      share: [L('quiz.html', '분석 퀴즈 · 출제하고 겨루기')] },
+    { sheet: 's2', stage: 1, badge: '1단계 · 그림', logStage: 'make',
+      learn: [L('literacy.html', 'AI 리터러시 3장 · 같은 조건, 다른 결과')],
+      make:  [L('studio-color.html', '색 군집 스튜디오')],
+      share: [L('gallery.html', '첫 작품 전시하고 감상')] },
+    { sheet: 's3', stage: 1, badge: '1단계 · 규칙', logStage: 'make',
+      learn: [L('critique.html', '데이터 비평 읽기 · 축과 수사')],
+      make:  [L('studio-data.html', '데이터 점 스튜디오 · 규칙 A/B')],
+      share: [L('notes.html', '작업 노트 · 버전과 A/B 근거')] },
+    { sheet: 's4', stage: 2, badge: '2단계 · 내 소리', logStage: 'make',
+      learn: [],
+      make:  [L('studio-sound.html', '내 소리를 데이터로'), L('studio-data.html', '데이터 점 스튜디오')],
+      share: [L('gallery.html', '소리 작품 전시')] },
+    { sheet: 's5', stage: 3, badge: '3단계 · 내 사진', logStage: 'make',
+      learn: [L('studio-object.html', '객체 감지 · AI 눈이 놓치는 것')],
+      make:  [L('studio-life.html', '내 사진을 데이터로'), L('studio-data.html', '데이터 점 스튜디오')],
+      share: [L('gallery.html', '내 삶 작품 전시')] },
+    { sheet: 's6', stage: 4, badge: '4단계 · 사회', logStage: 'judge',
+      learn: [L('society.html', '사회 분석 · 비평 렌즈'), L('literacy.html', 'AI 리터러시 5장 · 무엇을 셀 것인가')],
+      make:  [L('project.html', '사회문제 프로젝트'), L('studio-data.html', '데이터 점 스튜디오')],
+      share: [L('gallery.html', '사회 작품 전시')] },
+    { sheet: 's7', stage: 4, badge: '마무리 · 진술문', logStage: 'own',
+      learn: [L('literacy.html', 'AI 리터러시 7장 · 창작 진술문')],
+      make:  [L('studio-word.html', '낱말 구름 스튜디오')],
+      share: [L('notes.html', '작업 노트'), L('portfolio.html', '내 포트폴리오')] },
     // 8차시 학습지는 '유사도 지수'(admin.html)도 화면으로 적어 두었지만, 그 화면은 교사 전용이다.
     // 학생 단추는 달지 않고 교사가 큰 화면으로 함께 본다.
-    { sheet: 's8',    stage: 4, badge: '마무리 · 전시',   pages: ['exhibit.html', 'gallery.html', 'work.html'],            logStage: 'share' }
+    { sheet: 's8', stage: 4, badge: '마무리 · 전시', logStage: 'share',
+      learn: [L('literacy.html', 'AI 리터러시 4장 · 우리 반 유사도')],
+      make:  [],
+      share: [L('exhibit.html', '키오스크 전시'), L('gallery.html', '전시 갤러리'), L('work.html', '작품 페이지 · QR 비평')] }
   ];
+  // '학습지 열기' 단추가 뜨는 화면 = 그 차시의 세 활동 화면 전부
+  COURSE.forEach(c => {
+    const seen = {};
+    c.pages = [].concat(c.learn, c.make, c.share).map(x => x.page)
+      .filter(p => (seen[p] ? false : (seen[p] = true)));
+  });
 
-  /* 4단계 여정의 이름: 허브·여정 화면과 같은 말을 쓴다 */
-  const STAGE_NAME = { 1: '그림을 데이터로', 2: '내 사진을 데이터로', 3: '내 소리를 데이터로', 4: '사회 문제를 데이터로' };
+  /* 4단계 여정의 이름: 허브·여정 화면·내비와 같은 말을 쓴다.
+     단계 순서는 차시 순서를 그대로 따른다: 그림(1~3차시) → 내 소리(4차시) → 내 사진(5차시) → 사회(6차시~). */
+  const STAGE_NAME = { 1: '그림을 데이터로', 2: '내 소리를 데이터로', 3: '내 사진을 데이터로', 4: '사회 문제를 데이터로' };
 
   const page = () => (location.pathname.split('/').pop() || 'index.html');
   const esc = (s) => (global.UI && UI.escapeHTML) ? UI.escapeHTML(s) : String(s == null ? '' : s)
@@ -69,6 +105,14 @@
       .then(r => { if (!r.ok) throw new Error('manifest ' + r.status); return r.json(); })
       .then(m => m.units.find(u => u.id === UNIT) || m.units[0]);
     return manifestPromise;
+  }
+  // 단원 메타(백워드 설계의 목표·증거 층): 여정 지도가 쓴다
+  let unitPromise = null;
+  function loadUnit() {
+    if (!unitPromise) unitPromise = loadManifest().then(u =>
+      fetch(BASE + '/' + u.dir + '/' + (u.unitFile || 'unit.json'), { cache: 'no-cache' })
+        .then(r => { if (!r.ok) throw new Error('unit ' + r.status); return r.json(); }));
+    return unitPromise;
   }
 
   const entryOf = (sheetId) => COURSE.find(c => c.sheet === sheetId) || null;
@@ -341,6 +385,12 @@
     const prev = plan.rows[i - 1], next = plan.rows[i + 1];
     const links = (sheet.screens || []).filter(s => s.page && s.exists)
       .map(s => '<a class="btn sm" href="' + s.page + '">' + esc(s.label) + ' 열기 →</a>').join('');
+    // 이 차시의 세 활동: 학습지 머리에서 배우기 → 만들기 → 나누기가 한 묶음으로 보인다
+    const actLine = (label, list) => (list && list.length)
+      ? '<span class="ws-acts-g"><i>' + label + '</i>' +
+        list.map(x => '<a href="' + x.page + '">' + esc(x.label) + '</a>').join('') + '</span>'
+      : '';
+    const acts = actLine('배우기', course.learn) + actLine('만들기', course.make) + actLine('나누기', course.share);
 
     el.innerHTML =
       '<div class="ws-bar">' +
@@ -351,9 +401,10 @@
       '<div class="ws-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="이 학습지 진행률">' +
         '<i id="ws-progress"></i></div>' +
       '<div class="ws-bar"><span class="muted" style="font-size:12px" id="ws-count"></span>' + links + '</div>' +
+      (acts ? '<div class="ws-acts">' + acts + '</div>' : '') +
       /*
-       * 잠김 안내는 꾸중이 아니다. 사이트의 4단계 순서(사진 → 소리)를 따라온 학생은
-       * 5차시를 먼저 열게 되는데, 그때 "먼저 쓰세요"라고 하면 사이트가 데려다 놓고 나무라는 꼴이 된다.
+       * 잠김 안내는 꾸중이 아니다. 결석·보충으로 순서가 흐트러진 학생이 뒤 차시를 먼저
+       * 열 수 있는데, 그때 "먼저 쓰세요"라고 하면 사이트가 데려다 놓고 나무라는 꼴이 된다.
        * 그래서 '무슨 일이 벌어지는지'만 알리고 가는 길을 함께 준다.
        */
       (row.state === 'locked' && prev ? UI.callout('<b>' +
@@ -413,35 +464,62 @@
     document.body.appendChild(a);
   }
 
-  /* --------------------- 허브의 학습지 묶음 --------------------- */
-  async function mountHub(elId) {
-    const el = document.getElementById(elId || 'ws-hub');
+  /* --------------------- 통합 여정: 차시마다 배우기·만들기·나누기·학습지 한 묶음 --------------------- */
+  /*
+   * 허브와 여정 지도가 같은 화면을 그린다(지도가 두 장이 되지 않게).
+   * 한 줄 = 한 차시. 그 차시의 본질적 질문 아래에 배우기 → 만들기 → 나누기 화면과
+   * 학습지 단추·진행 상태가 함께 놓인다. 백워드 설계의 '학습 계획'을 학생 말로 그린 것.
+   */
+  async function mountJourney(elId, opts) {
+    opts = opts || {};
+    const el = document.getElementById(elId || 'jr');
     if (!el) return;
     const user = Auth.current();
-    let entryIndex;
-    try { entryIndex = await loadManifest(); } catch (e) { el.style.display = 'none'; return; }
-    // 진행률은 이 기기의 요약에서 읽는다(허브를 열 때마다 학급 전체 노트를 읽지 않도록).
+    let entryIndex, unit = null;
+    try { entryIndex = await loadManifest(); } catch (e) {
+      el.innerHTML = (global.UI && UI.callout)
+        ? UI.callout('<b>차시 목록을 불러오지 못했어요.</b> 파일을 직접 열면(<code>file://</code>) 브라우저가 JSON 을 막습니다. 학교 주소나 간이 서버로 열어 주세요.', 'warn')
+        : '';
+      return;
+    }
+    try { unit = await loadUnit(); } catch (e) { /* 질문 문구만 빠진 채 그린다 */ }
+
+    const eqText = {};
+    ((unit && unit.essentialQuestions) || []).forEach(q => { eqText[q.id] = q.text; });
+    const metaOf = id => (entryIndex.sheets || []).find(s => s.id === id) || {};
     const plan = planOf(entryIndex, readProgress(user));
-    const MARK = { done: '✔ 다 씀', doing: '· 쓰는 중', open: '열림', locked: '🔒 앞 차시 먼저' };
+    const MARK = { done: '✔ 다 씀', doing: '· 하는 중', open: '이번 차례', locked: '🔒 아직' };
     const rows = plan.rows.filter(r => r.course.sheet !== 'cover');
 
+    const actHTML = (label, list) => (list && list.length)
+      ? '<div class="jr-act"><i>' + label + '</i><span>' +
+        list.map(x => '<a href="' + x.page + '">' + esc(x.label) + '</a>').join('') + '</span></div>'
+      : '<div class="jr-act off"><i>' + label + '</i><span class="muted">화면 속 ⓘ 설명으로</span></div>';
+
     el.innerHTML =
-      '<div class="dn-cluster-head"><div><span class="eyebrow">Worksheet</span><h3>학습지: 차시대로 한 장씩</h3>' +
-      '<p>수업 시간마다 한 장씩 채웁니다. 쓴 내용은 <b>자동 저장</b>되어 선생님 화면과 내 포트폴리오로 이어져요.' +
-      (user ? '' : ' 로그인하면 진행률이 표시돼요.') + '</p></div>' +
+      '<div class="dn-cluster-head"><div><span class="eyebrow">Plan</span><h3>' +
+      (opts.title || '한 차시가 한 묶음: 배우기 → 만들기 → 나누기') + '</h3>' +
+      '<p>차시 번호가 곧 순서예요. 매 차시 <b>학습지 한 장</b>이 함께 가고, 쓴 내용은 자동 저장되어 ' +
+      '선생님 화면과 내 포트폴리오로 이어집니다.' + (user ? '' : ' 로그인하면 진행률이 표시돼요.') + '</p></div>' +
       '<a class="more" href="worksheet.html">학습지 열기 →</a></div>' +
-      '<div class="ws-grid">' + rows.map(r =>
-        '<a class="ws-card ' + r.state + '" href="worksheet.html?s=' + r.course.sheet + '">' +
-        '<span class="n">' + r.session + '차시</span>' +
-        '<b>' + esc(r.title) + '</b>' +
-        '<small>' + esc(r.course.badge) + '</small>' +
-        '<span class="st">' + MARK[r.state] + (r.stat.pct ? ' · ' + r.stat.pct + '%' : '') + '</span></a>').join('') +
-      '</div>' +
-      '<p class="muted" style="font-size:12px;margin:10px 0 0">차시 번호가 곧 순서예요. ' +
-      '<b>' + (plan.next.session ? plan.next.session + '차시 「' + esc(plan.next.title) + '」' : '표지') + '</b> 차례입니다 · ' +
-      '완료 ' + plan.doneCnt + ' / ' + rows.length + '장<br>' +
-      '단계 배지의 번호와 차시 번호는 한 곳에서 어긋나요. <b>4차시(소리)가 5차시(내 사진)보다 앞섭니다.</b> ' +
-      '학습지끼리 넘기는 한 줄이 그 순서로 이어지기 때문이에요.</p>';
+      '<div class="jr">' + rows.map(r => {
+        const c = r.course, m = metaOf(c.sheet);
+        const q = (m.eq || []).map(id => eqText[id]).filter(Boolean)[0] || '';
+        const isNext = plan.next && plan.next.course.sheet === c.sheet;
+        return '<div class="jr-row ' + r.state + (isNext ? ' now' : '') + '">' +
+          '<div class="jr-n"><b>' + r.session + '차시</b><span class="jr-stage">' + esc(c.badge) + '</span>' +
+            '<span class="jr-state ' + r.state + '">' + MARK[r.state] + (r.stat.pct ? ' · ' + r.stat.pct + '%' : '') + '</span></div>' +
+          '<div class="jr-main">' +
+            '<b class="jr-title">' + esc(r.title) + '</b>' +
+            (q ? '<p class="jr-q">' + esc(q) + '</p>' : '') +
+            '<div class="jr-acts">' + actHTML('배우기', c.learn) + actHTML('만들기', c.make) + actHTML('나누기', c.share) + '</div>' +
+            '<div class="jr-foot"><a class="btn sm" href="worksheet.html?s=' + c.sheet + '">📄 학습지 쓰기</a>' +
+              (r.yield ? '<span class="jr-yield">남는 것 · ' + esc(r.yield) + '</span>' : '') + '</div>' +
+          '</div></div>';
+      }).join('') + '</div>' +
+      '<p class="muted" style="font-size:12px;margin:10px 0 0"><b>' +
+      (plan.next.session ? plan.next.session + '차시 「' + esc(plan.next.title) + '」' : '표지') + '</b> 차례입니다 · ' +
+      '완료 ' + plan.doneCnt + ' / ' + rows.length + '장 · 결석했더라도 잠금은 안내일 뿐, 어느 차시든 열 수 있어요.</p>';
   }
 
   /* 4단계 여정 노드에 '학습지 N차시' 꼬리표 달기: 단계와 차시를 한 화면에서 잇는다 */
@@ -459,7 +537,9 @@
 
   global.WS = {
     BASE, UNIT, UNIT_ID: UNIT, COURSE, STAGE_NAME, DONE_PCT, OPEN_PCT,
-    load, loadManifest, entryOf, indexOf, forPage, noteIdOf, blankNote, myNotes,
-    statOf, statsFromNotes, readProgress, planOf, mountPage, mountLauncher, mountHub, tagStageNodes
+    load, loadManifest, loadUnit, entryOf, indexOf, forPage, noteIdOf, blankNote, myNotes,
+    statOf, statsFromNotes, readProgress, planOf, mountPage, mountLauncher,
+    mountJourney, mountHub: mountJourney,   // mountHub 는 옛 이름: 같은 통합 여정을 그린다
+    tagStageNodes
   };
 })(window);

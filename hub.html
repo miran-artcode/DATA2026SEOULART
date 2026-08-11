@@ -11,11 +11,6 @@
   .dn-node .state.done { color: var(--good); }
   .dn-node .state.doing { color: var(--accent); }
   .dn-node .state.todo { color: var(--muted2); }
-  /* 카드 안 메타 칩: 뜻(출처·방법·산출물)을 텍스트로도 읽히게 라벨을 붙인다 */
-  .meta-rows { display: flex; flex-direction: column; gap: 3px; margin: 6px 0 0; }
-  .meta-rows span { font-size: 10.5px; color: var(--muted); background: var(--panel2); border: 1px solid var(--line);
-    border-radius: 8px; padding: 3px 9px; display: flex; gap: 6px; }
-  .meta-rows span i { font-style: normal; font-weight: 700; color: var(--muted2); flex: none; width: 34px; }
   .quest { counter-reset: q; display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
   .quest li { display: grid; grid-template-columns: 84px 1fr; gap: 10px; align-items: baseline; font-size: 13.5px; line-height: 1.65; }
   @media (max-width: 560px) { .quest li { grid-template-columns: 1fr; gap: 2px; } }
@@ -30,11 +25,11 @@
   <!-- 무대(Stage): 이 페이지가 무엇을 위한 곳인지 1초에 -->
   <div class="page-head" style="text-align:center; max-width:700px; margin:8px auto 18px">
     <span class="eyebrow">학생 허브</span>
-    <h1>오늘 할 작업과 4단계 여정</h1>
-    <p>대상이 무엇이든 흐름은 하나예요. <b>데이터로 분석하고, 내가 매핑을 설계하고, 인터랙티브 미디어아트로 다시 만듭니다.</b>
-      이 흐름을 네 단계에 걸쳐 되풀이하면서 내가 정하는 몫을 점점 키워요.</p>
+    <h1>오늘 할 차시, 그리고 한 학기의 여정</h1>
+    <p>이 단원의 순서는 <b>하나</b>예요. 차시마다 <b>배우기 → 만들기 → 나누기</b>가 한 묶음으로 가고,
+      학습지 한 장이 그 기록을 받아 둡니다. 대상만 그림에서 내 소리·내 삶·사회로 넓어져요.</p>
     <p class="muted" style="font-size:13px; margin:8px 0 0">
-      <b>1단계부터 순서대로 하세요.</b> 앞 단계에서 익힌 것을 다음 단계가 다시 씁니다.
+      <b>1차시부터 순서대로 하세요.</b> 앞 차시에서 넘긴 한 줄을 다음 차시가 다시 씁니다.
       아래 <b>도구</b>는 순서와 상관없이 필요할 때 꺼내 쓰면 돼요.</p>
   </div>
   <div id="idea"></div>
@@ -55,11 +50,12 @@
     <div class="dn-feature-vis" aria-hidden="true"><small>미리보기 · 춤추는 점</small></div>
   </div>
 
-  <!-- 탐구 문제: 활동 '앞'에 둔다. 목표를 세우는 질문은 뒤에 있으면 읽히지 않는다. -->
+  <!-- 목표: 활동 '앞'에 둔다. 단원이 겨누는 질문은 뒤에 있으면 읽히지 않는다. -->
   <div class="dn-cluster">
     <div class="card">
       <h3 class="with-info" style="margin:0">만들기 전에 품고 갈 질문 <span data-info="kmeans" class="info-ic">ⓘ</span></h3>
-      <p class="muted" style="font-size:12.5px;margin:6px 0 0">다섯 질문은 작품마다 되돌아옵니다. 스튜디오 안 <b>질문 카드</b>가 알맞은 순간에 다시 물어요.</p>
+      <p class="muted" style="font-size:12.5px;margin:6px 0 0">다섯 질문은 작품마다 되돌아옵니다. 스튜디오 안 <b>질문 카드</b>가 알맞은 순간에 다시 물어요.
+        단원 전체의 목표·평가는 <a href="journey.html">여정 지도</a>에 있어요.</p>
       <ol class="quest">
         <li><span class="qk">설정 변화</span><span>K나 매핑을 바꾸면 작품의 구조는 어떻게 달라지나?</span></li>
         <li><span class="qk">선택의 근거</span><span>나는 왜 이 설정을 골랐나? 고려했다가 <b>버린 것</b>은 무엇인가?</span></li>
@@ -70,40 +66,23 @@
     </div>
   </div>
 
-  <!-- 판별·의심: 첫 결과가 나온 '직후'에 놓는다. 창작을 다 마친 뒤가 아니라. -->
-  <div class="dn-cluster">
-    <div class="dn-cluster-head">
-      <div><span class="eyebrow">Check</span><h3>첫 결과가 나온 뒤 의심하는 법</h3>
-        <p>매끈한 결과가 맞는 결과는 아니에요. 1단계에서 첫 화면이 나온 <b>그 자리에서</b> 판별을 배웁니다.</p></div>
-    </div>
-    <div class="dn-list">
-      <div class="dn-row" style="cursor:default">
-        <span class="ic" aria-hidden="true">🃏</span>
-        <span class="tx"><b>질문 카드는 스튜디오 안에 있어요</b><span>분석 직후·첫 결과 직후·규칙을 정할 때·자동 추천을 쓸 때, 화면 오른쪽 ‘판단의 흔적’에서 되물어요. 여기에 남긴 한 줄이 그대로 평가의 근거가 됩니다.</span></span>
-      </div>
-      <a class="dn-row" href="critique.html"><span class="ic" aria-hidden="true">🔍</span><span class="tx"><b>데이터 비평 읽기</b><span>같은 데이터도 축을 자르면 이야기가 달라져요. 사실 → 해석 → 가치의 세 층위로 묻는 법을 익힙니다.</span></span><span class="arr" aria-hidden="true">→</span></a>
-      <a class="dn-row" href="studio-object.html"><span class="ic" aria-hidden="true">🤖</span><span class="tx"><b>객체 감지 · AI의 눈</b><span>AI가 사진에서 무엇을 찾아내고 <b>무엇을 놓치는지</b> 직접 확인해요.</span></span><span class="arr" aria-hidden="true">→</span></a>
-      <a class="dn-row" href="literacy.html"><span class="ic" aria-hidden="true">🧠</span><span class="tx"><b>AI 리터러시 7장</b><span>이미지가 숫자가 되는 원리부터 그럴듯함의 함정까지. 읽고 → 해 보고 → 한 줄 답하기.</span></span><span class="arr" aria-hidden="true">→</span></a>
-    </div>
-  </div>
-
-  <!-- 여정: 4단계, 진행 상태 표시 -->
+  <!-- 여정 큰 그림: 4단계 = 차시를 주체성 기준으로 묶은 것. 순서는 차시와 같다. -->
   <div class="dn-cluster">
     <div class="dn-cluster-head">
       <div><span class="eyebrow">Journey</span><h3>4단계 창작 여정</h3>
-        <p>오른쪽으로 갈수록 <b>내가 정하는 몫이 커집니다</b>. 2단계에서는 소재를 내가 고르고, 4단계에서는 문제까지 내가 정해요.</p></div>
-      <a class="more" href="journey.html">여정 지도 →</a>
+        <p>오른쪽으로 갈수록 <b>내가 정하는 몫이 커집니다</b>. 교사가 준 그림에서 시작해 내 소리를 남기고, 내 삶을 고르고, 마지막엔 문제까지 내가 정해요.</p></div>
+      <a class="more" href="journey.html">여정 지도(목표·평가·계획) →</a>
     </div>
     <nav class="dn-spine" id="spine" aria-label="4단계 창작 여정">
       <a class="dn-node" href="studio-color.html" data-stage="1" aria-label="1단계 그림을 데이터로: 색 군집 스튜디오">
         <div class="n" aria-hidden="true">1</div><h4><span aria-hidden="true">🖼</span> 그림</h4>
         <p>교사가 준 그림 · 색 군집</p><span class="state todo">아직 시작 전</span></a>
-      <a class="dn-node" href="studio-life.html" data-stage="2" aria-label="2단계 내 사진을 데이터로: 내 삶 스튜디오">
-        <div class="n" aria-hidden="true">2</div><h4><span aria-hidden="true">🧑</span> 내 사진</h4>
-        <p>소재를 내가 고름 · 같은 분석</p><span class="state todo">아직 시작 전</span></a>
-      <a class="dn-node" href="studio-sound.html" data-stage="3" aria-label="3단계 내 소리를 데이터로: 소리 스튜디오">
-        <div class="n" aria-hidden="true">3</div><h4><span aria-hidden="true">🎤</span> 내 소리</h4>
-        <p>시간의 데이터 · 개념이 늘어요</p><span class="state todo">아직 시작 전</span></a>
+      <a class="dn-node" href="studio-sound.html" data-stage="2" aria-label="2단계 내 소리를 데이터로: 소리 스튜디오">
+        <div class="n" aria-hidden="true">2</div><h4><span aria-hidden="true">🎤</span> 내 소리</h4>
+        <p>무엇을 남길지 내가 · 세어 보기</p><span class="state todo">아직 시작 전</span></a>
+      <a class="dn-node" href="studio-life.html" data-stage="3" aria-label="3단계 내 사진을 데이터로: 내 삶 스튜디오">
+        <div class="n" aria-hidden="true">3</div><h4><span aria-hidden="true">🧑</span> 내 사진</h4>
+        <p>무엇을 셀지 내가 · 숨긴 선택</p><span class="state todo">아직 시작 전</span></a>
       <a class="dn-node" href="project.html" data-stage="4" aria-label="4단계 사회 문제를 데이터로: 사회문제 프로젝트">
         <div class="n" aria-hidden="true">4</div><h4><span aria-hidden="true">📣</span> 사회</h4>
         <p>문제를 내가 정함 · 공공데이터</p><span class="state todo">아직 시작 전</span></a>
@@ -112,8 +91,8 @@
       기록(의도·근거·버전·성찰)은 각 스튜디오 안에서 그때그때 남으니, 마지막에 몰아 쓸 필요가 없어요.</p>
   </div>
 
-  <!-- 학습지: 차시대로 한 장씩. 여정(무엇을 데이터로 삼는가)과 짝을 이루는 '수업의 순서'. -->
-  <div class="dn-cluster" id="ws-hub"></div>
+  <!-- 통합 여정: 한 차시 = 배우기 → 만들기 → 나누기 + 학습지 (worksheet.js 가 그린다) -->
+  <div class="dn-cluster" id="jr"></div>
 
   <!-- 최근 내 작업: 저장 작업이 있을 때만 노출 -->
   <div class="dn-cluster" id="recent" style="display:none">
@@ -130,33 +109,35 @@
     <cite>학습의 척추 · 감각 → 질문 → 비평 → 연결 → 창작</cite>
   </div>
 
-  <!-- 도구: 단계가 아니라, 모든 단계에서 꺼내 쓰는 것 -->
+  <!-- 도구: 단계가 아니라, 모든 차시에서 꺼내 쓰는 것 -->
   <div class="dn-cluster">
     <div class="dn-cluster-head">
-      <div><span class="eyebrow">Toolkit</span><h3>단계와 상관없이 꺼내 쓰는 도구</h3>
-        <p>이 넷은 순서가 없으니 필요한 순간에 열면 됩니다.</p></div>
+      <div><span class="eyebrow">Toolkit</span><h3>차시와 상관없이 꺼내 쓰는 도구</h3>
+        <p>순서가 없으니 필요한 순간에 열면 됩니다. 각 차시의 묶음에도 알맞은 도구가 이미 끼워져 있어요.</p></div>
     </div>
     <div class="dn-list">
-      <a class="dn-row" href="studio-data.html"><span class="ic" aria-hidden="true">📊</span><span class="tx"><b>데이터 점 스튜디오</b><span>모든 단계의 데이터가 작품이 되는 공용 화면. CSV·엑셀을 올리면 자동 분석과 매핑 제안까지.</span></span><span class="arr" aria-hidden="true">→</span></a>
-      <a class="dn-row" href="studio-word.html"><span class="ic" aria-hidden="true">🔤</span><span class="tx"><b>낱말 구름 스튜디오</b><span>작가의 말을 자연어 분석해 낱말 빈도로. 그림 색과 모양 틀을 입혀 엽서·카드 굿즈까지 만들어요.</span></span><span class="arr" aria-hidden="true">→</span></a>
+      <a class="dn-row" href="studio-data.html"><span class="ic" aria-hidden="true">📊</span><span class="tx"><b>데이터 점 스튜디오</b><span>모든 차시의 데이터가 작품이 되는 공용 화면. CSV·엑셀을 올리면 자동 분석과 매핑 제안까지.</span></span><span class="arr" aria-hidden="true">→</span></a>
       <a class="dn-row" href="lab.html"><span class="ic" aria-hidden="true">🔬</span><span class="tx"><b>알고리즘 분석실</b><span>한 그림을 일곱 가지 눈으로 분석해요. 차트와 재창조 결과에 각 분석이 놓친 것까지 함께 봅니다.</span></span><span class="arr" aria-hidden="true">→</span></a>
+      <a class="dn-row" href="studio-object.html"><span class="ic" aria-hidden="true">🤖</span><span class="tx"><b>객체 감지 · AI의 눈</b><span>AI가 사진에서 무엇을 찾아내고 <b>무엇을 놓치는지</b> 직접 확인해요.</span></span><span class="arr" aria-hidden="true">→</span></a>
+      <a class="dn-row" href="critique.html"><span class="ic" aria-hidden="true">🔍</span><span class="tx"><b>데이터 비평 읽기</b><span>같은 데이터도 축을 자르면 이야기가 달라져요. 사실 → 해석 → 가치의 세 층위로 묻는 법을 익힙니다.</span></span><span class="arr" aria-hidden="true">→</span></a>
       <a class="dn-row" href="society.html"><span class="ic" aria-hidden="true">🌍</span><span class="tx"><b>사회 분석 · 비평 렌즈</b><span>실제 세계 데이터(SDG)를 추세·격차·기준선으로 읽고 일곱 가지 렌즈로 비평해요.</span></span><span class="arr" aria-hidden="true">→</span></a>
+      <a class="dn-row" href="studio-word.html"><span class="ic" aria-hidden="true">🔤</span><span class="tx"><b>낱말 구름 스튜디오</b><span>작가의 말을 자연어 분석해 낱말 빈도로. 그림 색과 모양 틀을 입혀 엽서·카드 굿즈까지 만들어요.</span></span><span class="arr" aria-hidden="true">→</span></a>
     </div>
   </div>
 
-  <!-- 배우기·나누기 -->
+  <!-- 나누기 공간: 차시 묶음에도 끼워져 있지만, 언제든 열어 보는 상시 공간이기도 하다 -->
   <div class="dn-cluster">
     <div class="dn-cluster-head">
-      <div><span class="eyebrow">Learn &amp; Share</span><h3>배우기 · 나누기</h3>
-        <p>개념을 익히고, 전시하고, 겨루고, 쌓인 과정을 모아 봐요.</p></div>
+      <div><span class="eyebrow">Share</span><h3>언제든 여는 나누기 공간</h3>
+        <p>전시하고, 겨루고, 쌓인 과정을 모아 봐요. 8차시 전시·비평이 이 단원의 도착점입니다.</p></div>
     </div>
     <div class="grid c4">
-      <a class="card hover" href="learn.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">📚</span> 알고리즘 배움터</h3><p class="muted" style="font-size:12px;margin:0">쉬운 설명에서 깊은 원리로</p></a>
       <a class="card hover" href="gallery.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">🖼</span> 전시 갤러리</h3><p class="muted" style="font-size:12px;margin:0">감상하고 또래 피드백 남기기</p></a>
+      <a class="card hover" href="exhibit.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">📺</span> 키오스크 전시</h3><p class="muted" style="font-size:12px;margin:0">큰 화면 슬라이드쇼와 QR 비평 · 8차시</p></a>
       <a class="card hover" href="quiz.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">🎯</span> 분석 퀴즈</h3><p class="muted" style="font-size:12px;margin:0">출제하고 맞히며 겨루기</p></a>
       <a class="card hover" href="notes.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">📝</span> 작업 노트</h3><p class="muted" style="font-size:12px;margin:0">스튜디오에서 쌓인 기록 모아 보기</p></a>
       <a class="card hover" href="portfolio.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">🖨</span> 내 포트폴리오</h3><p class="muted" style="font-size:12px;margin:0">판단의 과정을 A4 한 장으로</p></a>
-      <a class="card hover" href="exhibit.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">📺</span> 키오스크 전시</h3><p class="muted" style="font-size:12px;margin:0">큰 화면 슬라이드쇼와 QR 비평</p></a>
+      <a class="card hover" href="learn.html"><h3 style="font-size:14.5px;margin:0 0 3px"><span aria-hidden="true">📚</span> 알고리즘 배움터</h3><p class="muted" style="font-size:12px;margin:0">쉬운 설명에서 깊은 원리로</p></a>
     </div>
   </div>
 
@@ -164,10 +145,10 @@
   <div class="dn-cluster">
     <div class="card">
       <h3 style="margin:0 0 4px"><span aria-hidden="true">👩‍🏫</span> 선생님이신가요?</h3>
-      <p class="muted" style="font-size:13px;margin:0 0 12px">수업 설계와 평가에 필요한 것들이 여기 모여 있어요. 설치·계정 없이 링크 하나로 학급 전체가 씁니다.</p>
+      <p class="muted" style="font-size:13px;margin:0 0 12px">이 단원은 백워드 설계(목표 → 증거 → 계획)로 짜여 있어요. 여정 지도에서 한눈에 보이고, 대시보드가 증거를 자동으로 모읍니다.</p>
       <div class="teach-row">
         <a class="btn primary" href="admin.html">📊 교사 대시보드 · 과정 지표·유사도</a>
-        <a class="btn" href="journey.html">🗺 학습 여정 · 평가 4영역</a>
+        <a class="btn" href="journey.html">🗺 여정 지도 · 목표·증거·계획</a>
         <a class="btn" href="start.html">🧭 5분 사용 안내</a>
       </div>
     </div>
@@ -193,8 +174,8 @@
 <script>
   UI.mountIdeaBar('idea', 'hub');
 
-  /* 학습지: 차시 목록과 진행률. 여정 노드에는 '이 단계에서 쓰는 차시' 꼬리표를 단다. */
-  WS.mountHub('ws-hub');
+  /* 통합 여정(차시마다 배우기·만들기·나누기·학습지)과 4단계 노드의 차시 꼬리표 */
+  WS.mountJourney('jr');
   WS.tagStageNodes('#spine');
 
   /*
@@ -202,9 +183,10 @@
    *   작품 있음(완료) : 1단계는 kind='color', 2~4단계는 보낸 쪽이 남긴 work.stage 로 구분
    *   열어 봄(진행 중): 그 스튜디오 화면의 학습 로그(view 등)
    * 데이터가 없으면 '아직 시작 전' 그대로: 로그인 전에도 화면이 깨지지 않는다.
+   * 단계 번호는 차시 순서와 같다: 1 그림 · 2 내 소리 · 3 내 사진 · 4 사회 (worksheet.js STAGE_NAME 과 동일).
    */
-  const STAGE_PAGE = { 1: 'studio-color.html', 2: 'studio-life.html', 3: 'studio-sound.html', 4: 'project.html' };
-  const STAGE_NAME = { 1: '그림을 데이터로', 2: '내 사진을 데이터로', 3: '내 소리를 데이터로', 4: '사회 문제를 데이터로' };
+  const STAGE_PAGE = { 1: 'studio-color.html', 2: 'studio-sound.html', 3: 'studio-life.html', 4: 'project.html' };
+  const STAGE_NAME = WS.STAGE_NAME;
 
   (async function () {
     let works = [], logs = [];

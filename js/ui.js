@@ -10,32 +10,38 @@
   // 저장된 테마를 가능한 한 일찍 적용(깜빡임 최소화)
   /* 테마는 페이지별로 <html data-theme>로 고정(HANDOFF: 한 화면=한 컨셉). 전역 토글 없음. */
 
+  /*
+   * 내비의 세 묶음(만들기·배우기·나누기)은 별개의 지도가 아니라 한 여정의 세 면이다.
+   * 그래서 부제에 그 화면이 쓰이는 '차시'를 함께 적는다. 차시 ↔ 화면의 원본은
+   * js/worksheet.js 의 COURSE 표이고, 통합 여정은 허브·여정 지도에서 그린다.
+   * 단계 순서 = 차시 순서: 그림(1~3차시) → 내 소리(4차시) → 내 사진(5차시) → 사회(6차시~).
+   */
   const NAV = [
     { label: '사용 안내', href: 'start.html' },
     { label: '만들기', drop: [
-      { href: 'studio-color.html', t: '그림을 데이터로', s: '명화를 대표색 점으로 · 1단계' },
-      { href: 'studio-life.html', t: '내 사진을 데이터로', s: '소재를 내가 고름 · 2단계' },
-      { href: 'studio-sound.html', t: '내 소리를 데이터로', s: '녹음에서 특징 추출 · 3단계' },
-      { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터로 사회적 발언 · 4단계' },
-      { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '모든 단계의 데이터가 작품이 되는 공용 화면 · 도구' },
-      { href: 'society.html', t: '사회 분석 · 비평 렌즈', s: '세계 데이터(SDG)를 비평 렌즈로 · 도구' },
-      { href: 'studio-word.html', t: '낱말 구름 스튜디오', s: '작가의 말을 자연어 분석해 굿즈로 · 도구' },
-      { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: 'AI가 무엇을 놓치는지 · 도구' },
-      { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구' }
+      { href: 'studio-color.html', t: '그림을 데이터로', s: '명화를 대표색 점으로 · 1단계 (2차시)' },
+      { href: 'studio-sound.html', t: '내 소리를 데이터로', s: '녹음에서 특징 추출 · 2단계 (4차시)' },
+      { href: 'studio-life.html', t: '내 사진을 데이터로', s: '소재를 내가 고름 · 3단계 (5차시)' },
+      { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터로 사회적 발언 · 4단계 (6차시)' },
+      { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '모든 차시의 데이터가 작품이 되는 공용 화면 · 도구' },
+      { href: 'society.html', t: '사회 분석 · 비평 렌즈', s: '세계 데이터(SDG)를 비평 렌즈로 · 도구 (6차시)' },
+      { href: 'studio-word.html', t: '낱말 구름 스튜디오', s: '작가의 말을 자연어 분석해 굿즈로 · 도구 (7차시)' },
+      { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: 'AI가 무엇을 놓치는지 · 도구 (5차시)' },
+      { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구 (1차시)' }
     ] },
     { label: '배우기', drop: [
+      { href: 'journey.html', t: '학습 여정 지도', s: '단원의 목표 · 증거 · 차시 계획 한눈에' },
       { href: 'worksheet.html', t: '학습지', s: '차시마다 한 장 · 쓰면 자동 저장' },
-      { href: 'literacy.html', t: 'AI 리터러시 7장', s: '읽고 → 해 보고 → 한 줄 답하기' },
-      { href: 'learn.html', t: '알고리즘 배움터', s: '쉬운→깊은 설명' },
-      { href: 'critique.html', t: '데이터 비평 읽기', s: '차트를 비판적으로 (질문 3층위)' },
-      { href: 'journey.html', t: '학습 여정 지도', s: '7단계 과정 · 4단계 지도' }
+      { href: 'learn.html', t: '알고리즘 배움터', s: '쉬운→깊은 설명 (1차시)' },
+      { href: 'literacy.html', t: 'AI 리터러시 7장', s: '읽고 → 해 보고 → 한 줄 답하기 (차시마다 한 장씩)' },
+      { href: 'critique.html', t: '데이터 비평 읽기', s: '차트를 비판적으로 · 질문 3층위 (3차시)' }
     ] },
     { label: '나누기', drop: [
-      { href: 'gallery.html', t: '전시 갤러리', s: '작품 감상 + 또래 피드백' },
-      { href: 'exhibit.html', t: '키오스크 전시', s: '큰 화면 슬라이드쇼 + QR 비평' },
-      { href: 'quiz.html', t: '분석 퀴즈', s: '출제하고 맞히고 겨루기' },
-      { href: 'notes.html', t: '작업 노트', s: '과정·버전·성찰 기록' },
-      { href: 'portfolio.html', t: '내 포트폴리오', s: '판단의 과정을 A4 한 장으로' }
+      { href: 'gallery.html', t: '전시 갤러리', s: '작품 감상 + 또래 피드백 (2차시부터 상시)' },
+      { href: 'exhibit.html', t: '키오스크 전시', s: '큰 화면 슬라이드쇼 + QR 비평 (8차시)' },
+      { href: 'quiz.html', t: '분석 퀴즈', s: '출제하고 맞히고 겨루기 (1차시)' },
+      { href: 'notes.html', t: '작업 노트', s: '과정·버전·성찰 기록 (3·7차시)' },
+      { href: 'portfolio.html', t: '내 포트폴리오', s: '판단의 과정을 A4 한 장으로 (마무리)' }
     ] },
     { label: '교사', href: 'admin.html' }
   ];

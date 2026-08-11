@@ -1,5 +1,5 @@
 /*
- * studio-life.js: 내 사진을 데이터로 (학습 2단계)
+ * studio-life.js: 내 사진을 데이터로 (학습 3단계 · 5차시)
  * 사진(즐거운 순간) → 밝기·따뜻함·색다양성, 챗봇 대화 → 화자·길이·물음표 를 데이터로.
  * 무엇을 데이터로 삼을지 학생이 정한다(그 선택이 곧 해석).
  */
@@ -107,7 +107,7 @@
   function send() {
     if (!rows.length) return;
     // stage: 데이터 점 스튜디오에서 만든 작품이 '몇 단계에서 온 것'인지 남긴다(허브의 진행 표시용).
-    const payload = { name: dataName, csv: toCSV(), intent: $('#life-intent').value.trim(), stage: 2, issue: '🧑 내 삶에서 온 데이터: 무엇을 셀지 내가 정했어요' };
+    const payload = { name: dataName, csv: toCSV(), intent: $('#life-intent').value.trim(), stage: 3, issue: '🧑 내 삶에서 온 데이터: 무엇을 셀지 내가 정했어요' };
     try { localStorage.setItem('dn_data_incoming', JSON.stringify(payload)); } catch (e) { UI.toast('전송 실패(용량).'); return; }
     UI.toast('데이터 점 스튜디오로 보냅니다…'); setTimeout(() => location.href = 'studio-data.html', 600);
   }
