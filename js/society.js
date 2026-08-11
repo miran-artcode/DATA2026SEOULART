@@ -252,23 +252,152 @@
   function applyState(st) { const c = LOCAL.custom; ['subjects', 'ties', 'perspectives', 'lenses', 'issues', 'title', 'sdg', 'tag'].forEach(k => { if (st[k]) c[k] = st[k]; }); }
   function curUser() { return (window.Auth && Auth.current) ? Auth.current() : null; }
   function setSaveInfo() { const u = curUser(), el = $('#soc-save-info'); if (el) el.textContent = u ? ('로그인: ' + (u.display || u.userId) + ' — 계정에 보관돼요') : '비로그인 — 이 기기에만 저장(로그인하면 계정에)'; }
+  function localSaves() { try { return JSON.parse(localStorage.getItem('dn_society_saves') || '[]'); } catch (e) { return []; } }
   async function saveAnalysis() {
     const st = scenarioState();
-    try { localStorage.setItem('dn_society_save', JSON.stringify(st)); } catch (e) {}
+    try {
+      const list = localSaves();
+      list.unshift({ title: st.title, sdg: st.sdg, ts: Date.now(), state: st });
+      localStorage.setItem('dn_society_saves', JSON.stringify(list.slice(0, 24)));
+      localStorage.setItem('dn_society_save', JSON.stringify(st));
+    } catch (e) {}
     const u = curUser();
     if (u && window.Store) {
-      try { await Store.saveNote({ userId: u.userId, by: u.display || u.userId, kind: 'society', title: '사회분석 · ' + st.title, intent: st.tag, settings: st }); UI.toast('계정에 저장했어요(작업노트에서 확인).'); }
+      try { await Store.saveNote({ userId: u.userId, by: u.display || u.userId, kind: 'society', title: '사회분석 · ' + st.title, intent: st.tag, settings: st }); UI.toast('계정+기기에 저장했어요.'); }
       catch (e) { UI.toast('계정 저장 실패 — 이 기기에만 저장됨.'); }
-    } else UI.toast('이 기기에 저장했어요. (로그인하면 계정에 보관됩니다)');
+    } else UI.toast('이 기기에 저장했어요. (로그인하면 계정에도 보관)');
     setSaveInfo();
   }
+  // 저장한 분석들을 목록으로 보여주고 골라 불러오기(계정 노트 + 이 기기)
   async function loadAnalysis() {
-    let st = null; const u = curUser();
-    if (u && window.Store) { try { const notes = await Store.listNotes(u.userId); const n = (notes || []).find(x => x.kind === 'society'); if (n) st = n.settings; } catch (e) {} }
-    if (!st) { try { st = JSON.parse(localStorage.getItem('dn_society_save') || 'null'); } catch (e) {} }
-    if (!st) { UI.toast('저장된 분석이 없어요. 먼저 저장해 보세요.'); return; }
-    applyState(st); current = 'custom'; type = 'local'; $('#soc-scenario').value = 'custom'; renderLocal();
-    UI.toast('저장된 분석을 불러왔어요.');
+    const items = [], u = curUser();
+    if (u && window.Store) {
+      try { (await Store.listNotes(u.userId) || []).filter(n => n.kind === 'society' && n.settings)
+        .forEach(n => items.push({ title: (n.settings.title || n.title || '무제'), src: '계정', meta: new Date(n.updatedAt || Date.now()).toLocaleDateString('ko-KR') + (n.settings.sdg ? ' · ' + n.settings.sdg : ''), state: n.settings })); } catch (e) {}
+    }
+    localSaves().forEach(s => items.push({ title: s.title || '무제', src: '이 기기', meta: new Date(s.ts).toLocaleDateString('ko-KR') + (s.sdg ? ' · ' + s.sdg : ''), state: s.state }));
+    if (!items.length) { UI.toast('저장된 분석이 없어요. 먼저 ‘저장’해 보세요.'); return; }
+    window.__socLoadItems = items;
+    const body = '<div class="load-list">' + items.map((it, i) =>
+      '<button class="load-item" data-i="' + i + '"><div class="lt">' + esc(it.title) + '</div><div class="lm"><span class="pill">' + esc(it.src) + '</span><span>' + esc(it.meta) + '</span></div></button>').join('') + '</div>';
+    UI.modal('📂 저장된 내 분석', body, items.length + '개 · 눌러서 불러오기');
+    document.querySelectorAll('#ui-modal-body .load-item').forEach(btn => btn.addEventListener('click', () => {
+      const it = window.__socLoadItems[+btn.dataset.i]; applyState(it.state);
+      current = 'custom'; type = 'local'; $('#soc-scenario').value = 'custom'; renderLocal();
+      UI.closeModal(); UI.toast('불러왔어요: ' + it.title);
+    }));
+  }
+
+  /* ============ 작품 캔버스(이미지 내보내기 · 썸네일 · 포스터) ============ */
+  function rrect(c, x0, y0, w, h, r) { c.beginPath(); c.moveTo(x0 + r, y0); c.arcTo(x0 + w, y0, x0 + w, y0 + h, r); c.arcTo(x0 + w, y0 + h, x0, y0 + h, r); c.arcTo(x0, y0 + h, x0, y0, r); c.arcTo(x0, y0, x0 + w, y0, r); c.closePath(); }
+  function drawRow(c, F, lbl, frac, X, Y, Wb, H, color, valStr) {
+    const lblW = Wb * 0.28, barX = X + lblW, barW = Wb * 0.55, barH = H * 0.022;
+    c.fillStyle = '#cdd9ff'; c.textAlign = 'left'; c.font = '600 ' + Math.round(H * 0.024) + 'px ' + F; c.fillText(lbl, X, Y);
+    c.fillStyle = '#11203f'; c.fillRect(barX, Y - barH * 0.85, barW, barH);
+    c.fillStyle = color; c.fillRect(barX, Y - barH * 0.85, barW * Math.max(0.02, Math.min(1, frac)), barH);
+    c.fillStyle = '#9fb0d0'; c.textAlign = 'right'; c.font = '600 ' + Math.round(H * 0.022) + 'px ' + F; c.fillText(valStr, X + Wb, Y);
+  }
+  // 관계망(로컬)/세계 격차(SDG)를 한 장의 작품 이미지로. poster=true면 렌즈·관점·지표·추세까지 합친 포스터.
+  function renderArtCanvas(W, H, poster) {
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const x = cv.getContext('2d');
+    const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#0d1226'); g.addColorStop(1, '#05060e');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    const F = 'Pretendard, "Apple SD Gothic Neo", system-ui, sans-serif';
+    if (type === 'local' && netPos) {
+      const s = L();
+      x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = '800 ' + Math.round(H * 0.05) + 'px ' + F;
+      x.fillText('〈' + s.title + '〉', W * 0.05, H * 0.11);
+      x.fillStyle = '#93a4e8'; x.font = '600 ' + Math.round(H * 0.026) + 'px ' + F;
+      x.fillText(s.sdg + ' · 관계망' + (poster ? ' · 7비평 렌즈·관점' : ''), W * 0.05, H * 0.11 + H * 0.04);
+      const netW = poster ? W * 0.54 : W, mX = netW * 0.1, mY = H * 0.22, sw = netW - mX * 2, sh = H - mY - H * 0.09;
+      const P = k => [mX + netPos[k][0] / 360 * sw, mY + netPos[k][1] / 250 * sh];
+      s.ties.forEach(([a, b, t, w]) => {
+        if (!netPos[a] || !netPos[b]) return; const A = P(a), B = P(b);
+        x.strokeStyle = t === '공감' ? 'rgba(47,182,168,0.8)' : 'rgba(208,86,106,0.8)';
+        x.lineWidth = 1.5 + w * 5; x.shadowColor = x.strokeStyle; x.shadowBlur = H * 0.018;
+        x.beginPath(); x.moveTo(A[0], A[1]); x.lineTo(B[0], B[1]); x.stroke();
+      });
+      x.shadowBlur = 0;
+      s.subjects.forEach(k => {
+        const [cx, cy] = P(k), r = Math.max(7, H * 0.015);
+        const rg = x.createRadialGradient(cx, cy, 0, cx, cy, r * 2.6); rg.addColorStop(0, 'rgba(125,155,245,0.9)'); rg.addColorStop(1, 'rgba(125,155,245,0)');
+        x.fillStyle = rg; x.beginPath(); x.arc(cx, cy, r * 2.6, 0, 7); x.fill();
+        x.fillStyle = '#d7e1ff'; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.fill();
+        x.fillStyle = '#eef3ff'; x.font = '600 ' + Math.round(H * 0.026) + 'px ' + F; x.textAlign = 'center';
+        x.fillText(k, cx, cy - r - H * 0.012);
+      });
+      if (poster) {
+        const PX = W * 0.58, PW = W * 0.37; let py = H * 0.24;
+        x.textAlign = 'left'; x.fillStyle = '#cdd9ff'; x.font = '700 ' + Math.round(H * 0.03) + 'px ' + F; x.fillText('7가지 비평 렌즈', PX, py); py += H * 0.05;
+        LENS.forEach(k => { drawRow(x, F, k, s.lenses[k] || 0, PX, py, PW, H, '#6E84B8', (s.lenses[k] || 0).toFixed(2)); py += H * 0.046; });
+        py += H * 0.03;
+        x.fillStyle = '#cdd9ff'; x.font = '700 ' + Math.round(H * 0.03) + 'px ' + F; x.fillText('관점 분포', PX, py); py += H * 0.05;
+        const PAL = ['#182F49', '#8FC0B5', '#E6F5A6', '#3A4F7A', '#6E84B8', '#CFE0D6'];
+        s.perspectives.slice(0, 6).forEach((pp, i) => { drawRow(x, F, pp[0], pp[1] / 100, PX, py, PW, H, PAL[i % PAL.length], pp[1] + '%'); py += H * 0.046; });
+      }
+    } else if (type === 'sdg') {
+      const d = SDG[current];
+      x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = '800 ' + Math.round(H * 0.05) + 'px ' + F;
+      x.fillText(d.label, W * 0.05, H * 0.11);
+      x.fillStyle = '#93a4e8'; x.font = '600 ' + Math.round(H * 0.026) + 'px ' + F;
+      x.fillText(d.sdg + ' · 세계 격차 (' + d.rows + '개국)', W * 0.05, H * 0.11 + H * 0.04);
+      let topY = H * 0.2;
+      if (poster) {
+        const stats = [[fmt(d.globalNow) + (d.unit || ''), '세계 최근 ' + d.latestYear], [(d.changePct != null ? (d.changePct > 0 ? '+' : '') + d.changePct + '%' : '–'), '변화 ' + d.yearThen + '→' + d.latestYear], [(d.gap ? d.gap + '배' : '–'), '최고/중앙 격차']];
+        const sw = W * 0.28; stats.forEach((st, i) => { const sx = W * 0.05 + i * (sw + W * 0.025); x.fillStyle = '#11203f'; rrect(x, sx, topY, sw, H * 0.12, 12); x.fill(); x.fillStyle = '#9fc0ff'; x.textAlign = 'center'; x.font = '800 ' + Math.round(H * 0.044) + 'px ' + F; x.fillText(st[0], sx + sw / 2, topY + H * 0.062); x.fillStyle = '#93a4e8'; x.font = '500 ' + Math.round(H * 0.021) + 'px ' + F; x.fillText(st[1], sx + sw / 2, topY + H * 0.098); });
+        const tx = W * 0.05, ty = topY + H * 0.18, tw = W * 0.9, th = H * 0.08, arr = d.trend, mn = Math.min.apply(null, arr), mxv = Math.max.apply(null, arr), rg = (mxv - mn) || 1;
+        x.fillStyle = '#93a4e8'; x.textAlign = 'left'; x.font = '500 ' + Math.round(H * 0.02) + 'px ' + F; x.fillText('전세계 추세 ' + d.yearThen + '–' + d.latestYear, tx, ty - H * 0.012);
+        x.strokeStyle = '#6E84B8'; x.lineWidth = 2.5; x.beginPath(); arr.forEach((v, i) => { const px = tx + i / (arr.length - 1) * tw, py = ty + th - (v - mn) / rg * th; i ? x.lineTo(px, py) : x.moveTo(px, py); }); x.stroke();
+        topY = ty + th + H * 0.06;
+      }
+      const rows = d.top5.concat(d.bottom5), mx = Math.abs(d.top5[0][1]) || 1, bx = W * 0.28, bw = W * 0.62;
+      let y = topY; const bh = poster ? H * 0.036 : H * 0.05, gap = poster ? H * 0.016 : H * 0.028;
+      rows.forEach(([n, v], i) => {
+        const top = i < 5;
+        x.fillStyle = '#cdd9ff'; x.textAlign = 'right'; x.font = '600 ' + Math.round(bh * 0.6) + 'px ' + F; x.fillText(n, bx - W * 0.012, y + bh * 0.72);
+        x.fillStyle = '#11203f'; x.fillRect(bx, y, bw, bh);
+        x.fillStyle = top ? 'rgba(120,150,240,0.95)' : 'rgba(143,192,181,0.9)'; x.fillRect(bx, y, bw * Math.max(0.02, Math.abs(v) / mx), bh);
+        x.fillStyle = '#eef3ff'; x.textAlign = 'right'; x.font = '600 ' + Math.round(bh * 0.55) + 'px ' + F; x.fillText(fmt(v), bx + bw - 6, y + bh * 0.72);
+        y += bh + gap;
+      });
+    }
+    x.fillStyle = 'rgba(255,255,255,0.5)'; x.textAlign = 'right'; x.font = '500 ' + Math.round(H * 0.022) + 'px ' + F;
+    x.fillText('데이터의 눈 · 사회 분석', W - W * 0.04, H - H * 0.035);
+    return cv;
+  }
+  function downloadImage(poster) {
+    const cv = renderArtCanvas(poster ? 1240 : 1120, poster ? 820 : 760, poster), a = document.createElement('a');
+    a.download = 'society_' + (poster ? 'poster_' : '') + current + '.png';
+    a.href = cv.toDataURL('image/png'); a.click();
+    UI.toast(poster ? '포스터 이미지를 저장했어요.' : '작품 이미지를 저장했어요.');
+  }
+  function thumbDataURL() { try { return renderArtCanvas(360, 252).toDataURL('image/jpeg', 0.72); } catch (e) { return ''; } }
+
+  /* ============ 갤러리에 전시 ============ */
+  async function exhibitWork() {
+    const u = curUser();
+    if (!u) { UI.toast('전시하려면 로그인이 필요해요.'); setTimeout(() => location.href = 'index.html?next=society.html', 900); return; }
+    const intent = ($('#soc-intent') ? $('#soc-intent').value.trim() : '');
+    if (!intent) { UI.toast('전시 전에 ‘이 분석으로 무엇을 말하려는지’ 한 문장을 적어 주세요.'); if ($('#soc-intent')) $('#soc-intent').focus(); return; }
+    let title, evidence, settings;
+    if (type === 'sdg') {
+      const d = SDG[current];
+      title = '사회 분석 · ' + d.title;
+      evidence = d.label + ' ' + d.yearThen + '→' + d.latestYear + (d.changePct != null ? ' (' + (d.changePct > 0 ? '+' : '') + d.changePct + '%)' : '')
+        + ' · 최고 ' + d.top5[0][0] + ' / 최저 ' + d.bottom5[0][0] + ' · 세계 ' + d.rows + '개국 (출처 OWID·World Bank)';
+      settings = { sdgKey: current, meta: d };
+    } else {
+      const s = L();
+      title = '사회 분석 · ' + s.title;
+      evidence = '주체 ' + s.subjects.length + ' · 관점 ' + s.perspectives.length + ' · 렌즈 ' + LENS.slice(0, 4).map(k => k + ' ' + s.lenses[k].toFixed(2)).join(', ') + '…';
+      settings = scenarioState();
+    }
+    try {
+      await Store.saveWork({ userId: u.userId, by: u.display || u.userId, klass: u.klass, kind: 'society', title, intent, evidence, dataName: title, settings, thumb: thumbDataURL(), exhibited: true });
+      UI.toast('🎉 갤러리에 전시했어요!');
+      setTimeout(() => location.href = 'gallery.html', 1000);
+    } catch (e) { UI.toast('전시 실패: ' + (e && e.message ? e.message : e)); }
   }
 
   /* ============ 전환·초기화 ============ */
@@ -297,6 +426,9 @@
     const ap = $('#soc-apply-subjects'); if (ap) ap.addEventListener('click', applySubjects);
     const sv = $('#soc-save'); if (sv) sv.addEventListener('click', saveAnalysis);
     const ld = $('#soc-load'); if (ld) ld.addEventListener('click', loadAnalysis);
+    const im = $('#soc-image'); if (im) im.addEventListener('click', () => downloadImage(false));
+    const pos = $('#soc-poster'); if (pos) pos.addEventListener('click', () => downloadImage(true));
+    const ex = $('#soc-exhibit'); if (ex) ex.addEventListener('click', exhibitWork);
     document.querySelectorAll('[data-send]').forEach(b => b.addEventListener('click', handoff));
     // 저장된 내 분석을 custom에 복원(있으면)
     try { const st = JSON.parse(localStorage.getItem('dn_society_save') || 'null'); if (st) applyState(st); } catch (e) {}

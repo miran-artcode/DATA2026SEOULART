@@ -150,8 +150,8 @@
     function init() {
       size();
       if (work.kind === 'data') { st = buildData(work, canvas.width, canvas.height); st && (st.settings_size = 1); loop(); }
-      else {
-        // 점 애니메이션은 색을 픽셀로 읽으므로 같은 출처 샘플(srcSample)을 우선 → 교차출처 Storage URL 의 CORS 오염 회피.
+      else if (work.kind === 'color') {
+        // 색 군집 작품만 원본 이미지를 점묘로 '재생'. 같은 출처 샘플(srcSample) 우선 → 교차출처 Storage URL 의 CORS 오염 회피.
         const url = work.srcSample || (work.settings && work.settings.srcImg) || work.srcImg;
         if (url) {
           const img = new Image();
@@ -164,6 +164,7 @@
           img.onerror = poster; img.src = url;
         } else poster();
       }
+      else poster();   // word(낱말 구름) 등 정적 작품: 저장된 썸네일(완성 굿즈/구름)을 그대로 표시
     }
     function poster() { const url = work.thumb || work.srcSample || (work.settings && work.settings.srcImg); if (!url) return; const img = new Image(); img.onload = () => { ctx.drawImage(img, 0, 0, canvas.width, canvas.height); }; img.src = url; }
     function loop() {

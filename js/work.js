@@ -7,7 +7,7 @@
   const $ = s => document.querySelector(s);
   const esc = (s) => UI.escapeHTML(s);
   const rubSel = id => '<select id="' + id + '"><option value="0">— 미평가 —</option><option value="3">상 ●●●</option><option value="2">중 ●●</option><option value="1">하 ●</option></select>';
-  const KIND = { color: '색 군집', data: '데이터 점', lab: '분석' };
+  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', lab: '분석', society: '사회 분석' };
   const COLORLBL = { value: '값 그라데이션', warm: '난색', cool: '한색' };
   const id = new URLSearchParams(location.search).get('id');
   let work = null;
@@ -25,6 +25,17 @@
       if (s.K) parts.push('대표색 K=' + s.K);
       if (s.space) parts.push('색공간 ' + String(s.space).toUpperCase());
       if (s.N) parts.push('점 N=' + s.N);
+    } else if (w.kind === 'society') {
+      const m = s.meta;
+      if (m) {
+        parts.push(m.sdg + ' · ' + m.label);
+        if (m.changePct != null) parts.push('변화 ' + m.yearThen + '→' + m.latestYear + ' ' + (m.changePct > 0 ? '+' : '') + m.changePct + '%');
+        if (m.top5 && m.top5[0]) parts.push('최고 ' + m.top5[0][0] + (m.bottom5 && m.bottom5[0] ? ' / 최저 ' + m.bottom5[0][0] : ''));
+      } else if (s.lenses) {
+        const LK = ['공감', '대립', '형평', '참여', '책임', '연대', '지속가능'];
+        parts.push('주체 ' + (s.subjects ? s.subjects.length : 0) + ' · 관점 ' + (s.perspectives ? s.perspectives.length : 0));
+        parts.push(LK.filter(k => s.lenses[k] != null).map(k => k + ' ' + (+s.lenses[k]).toFixed(2)).join(' · '));
+      }
     }
     return parts;
   }

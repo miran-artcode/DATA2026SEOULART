@@ -29,7 +29,8 @@
       { href: 'studio-sound.html', t: '내 소리를 데이터로', s: '녹음에서 특징 추출 · 3단계' },
       { href: 'project.html', t: '사회문제 프로젝트', s: '공공데이터로 사회적 발언 · 4단계' },
       { href: 'studio-data.html', t: '데이터 점 스튜디오', s: '모든 단계의 데이터가 작품이 되는 공용 화면 · 도구' },
-      { href: 'society.html', t: '사회 분석 · 비평 렌즈', s: '관점·관계·맥락으로 〈우리 동네〉를 · 도구' },
+      { href: 'society.html', t: '사회 분석 · 비평 렌즈', s: '세계 데이터(SDG)를 비평 렌즈로 · 도구' },
+      { href: 'studio-word.html', t: '낱말 구름 스튜디오', s: '작가의 말을 자연어 분석해 굿즈로 · 도구' },
       { href: 'studio-object.html', t: '객체 감지 · AI의 눈', s: 'AI가 무엇을 놓치는지 · 도구' },
       { href: 'lab.html', t: '알고리즘 분석실', s: '7가지 분석 + 재창조 · 도구' }
     ] },

@@ -5,7 +5,7 @@
   'use strict';
   const $ = s => document.querySelector(s);
   const esc = s => UI.escapeHTML(s);
-  const KIND = { color: '색 군집', data: '데이터 점', lab: '분석' };
+  const KIND = { color: '색 군집', data: '데이터 점', word: '낱말 구름', lab: '분석' };
   const COLORLBL = { value: '값 그라데이션', warm: '난색', cool: '한색' };
   const ADVANCE = 9000;
 

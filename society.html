@@ -52,6 +52,14 @@
   .eedge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 6px 2px 8px; margin: 3px 4px 0 0; }
   .eedge .ex { border: 0; background: none; color: var(--danger); cursor: pointer; font-size: 13px; padding: 0 2px; line-height: 1; }
   #edit-addedge select { flex: 1; min-width: 80px; }
+  /* 불러오기 목록 */
+  .load-list { display: flex; flex-direction: column; gap: 7px; max-height: 56vh; overflow: auto; margin-top: 4px; }
+  .load-item { text-align: left; width: 100%; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; cursor: pointer; color: var(--ink); transition: border-color .15s, background .15s; }
+  .load-item:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, var(--panel2)); }
+  .load-item .lt { font-weight: 700; font-size: 13.5px; }
+  .load-item .lm { font-size: 11.5px; color: var(--muted); margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .load-item .lm .pill { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; }
+  .load-empty { color: var(--muted); font-size: 12.5px; padding: 8px 2px; }
 </style>
 </head>
 <body>
@@ -160,9 +168,17 @@
   </div>
 
   <div class="card" style="margin-top:14px; border-left:3px solid var(--good)" id="soc-step2">
-    <h3>STEP 2 · 다음 단계 <small>이 데이터를 재료로, 나만의 미디어아트를</small></h3>
+    <h3>STEP 2 · 다음 단계 <small>작품으로 만들고, 전시하고, 이미지로</small></h3>
     <p class="muted" style="font-size:12.5px;margin:0 0 10px">무엇을 강조할지는 작가인 당신의 선택입니다. 분석 데이터가 점 작품의 재료가 돼요 — <b>색=분류/대륙 · 크기=값</b>으로 매핑해 보세요.</p>
-    <button class="btn primary" data-send>작업실로 (데이터 점 스튜디오) →</button>
+    <label class="field">전시 의도(한 문장) — 이 분석으로 무엇을 말하려나요?</label>
+    <input id="soc-intent" type="text" placeholder="예: 같은 지구인데 식수 격차가 이렇게 크다는 걸 점의 크기로 보여주고 싶다">
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+      <button class="btn primary" data-send>작업실로 (점 작품) →</button>
+      <button id="soc-exhibit" class="btn accent2">🎨 갤러리에 전시</button>
+      <button id="soc-image" class="btn sm">🖼 작품 이미지 저장</button>
+      <button id="soc-poster" class="btn sm">📋 포스터 이미지(분석 요약)</button>
+    </div>
+    <p class="muted" style="font-size:11px;margin-top:8px">⚠ 전시는 로그인 필요 · 표본·출처의 한계를 의도에 함께 밝혀 주세요.</p>
   </div>
 
   <p class="footer-note">관점·관계·맥락으로 사회를 읽고 — 미술로 다시 말하기. 표본·출처의 한계를 작품 설명에 밝히세요. (세계 데이터: Our World in Data)</p>
