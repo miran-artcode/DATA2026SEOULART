@@ -156,12 +156,13 @@
       <!-- 우수 사례(가상 학급): 수업을 처음 여는 자리에서 '다 채워진 화면'을 보여 준다.
            실제 학생 기록과 섞이지 않도록 모든 항목에 demo 표시가 붙어 있고 한 번에 지울 수 있다. -->
       <div class="card" style="margin-top:16px">
-        <h3>🎓 우수 사례 학급(가상) 불러오기</h3>
-        <p class="muted" style="font-size:12.5px;margin:0 0 10px">여덟 명이 8차시를 마친 <b>가상</b> 기록입니다. 작품 48점·학습지 72장·또래 비평·학습 로그·버전이 한 번에 들어옵니다.
-          갤러리·키오스크·포트폴리오·지표가 어떻게 채워지는지 실제 데이터 없이 보여 줄 때 씁니다.<br>
-          실제 학생의 기록이 아니며 실명·학교 정보를 담지 않습니다. 불러온 기록에는 <b>demo</b> 표시가 붙어 언제든 한 번에 지울 수 있습니다.</p>
+        <h3>🎓 우수 사례 학급(가상)</h3>
+        <p class="muted" style="font-size:12.5px;margin:0 0 10px">여덟 명이 8차시를 마친 <b>가상</b> 기록입니다. 작품 48점·학습지 72장·또래 비평·학습 로그·버전.
+          <b>아직 기록이 없는 기기라면 처음 열 때 자동으로 한 번 실립니다</b>(<code>data/showcase-class.json</code>) — 아래 지표도 갤러리도 처음부터 채워져 있습니다.
+          이미 학급 기록이 쌓인 기기에서는 <b>자동으로 싣지 않습니다</b>(저장 공간이 모자라면 학생 기록이 밀려나므로). 그때는 아래 단추로 직접 부르세요.<br>
+          실제 학생의 기록이 아니며 실명·학교 정보를 담지 않습니다. 실린 기록에는 <b>demo</b> 표시가 붙어 언제든 한 번에 지울 수 있고, 지운 뒤에는 자동으로 다시 실리지 않습니다.</p>
         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
-          <button id="btn-demo-load" class="btn accent2">🎓 이 기기에만 불러오기</button>
+          <button id="btn-demo-load" class="btn accent2">🎓 이 기기에 다시 불러오기</button>
           <button id="btn-demo-push" class="btn">☁️ 클라우드에 올려 모두에게 보이기</button>
           <button id="btn-demo-clear" class="btn">🧹 우수 사례만 지우기</button>
           <span id="demo-msg" class="muted" style="font-size:12px"></span>
@@ -243,6 +244,7 @@
 <script src="js/auth.js"></script>
 <script src="config/cloud-config.js"></script>
 <script src="js/store.js"></script>
+<script src="js/showcase.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/ratelimit.js"></script>
 <script src="js/coach.js"></script>
@@ -566,8 +568,10 @@
    * 지우기만 저장소를 직접 만진다. Store 에 '지우기'가 없기 때문이다.
    *   ⚠ 아래 키 목록은 js/store.js 의 상수와 같아야 한다(그쪽을 바꾸면 여기도 바꾼다).
    */
-  const DEMO_URL = 'data/showcase-class.json';
-  const DEMO_KEYS = ['dn_works', 'dn_feedback', 'dn_notes', 'dn_quizzes', 'dn_quizans', 'dn_logs', 'dn_versions'];
+  /* 자료의 자리는 js/showcase.js 한 곳에서만 정한다. 다만 그 파일이 안 실렸을 때
+     여기서 곧바로 터지면 대시보드 스크립트 전체가 멈춘다(표·지표·내보내기까지 함께).
+     이 칸 하나만 조용히 못 쓰게 두고 나머지는 그대로 열리도록, 없을 때의 값을 함께 적는다. */
+  const DEMO_URL = (window.Showcase && Showcase.URL) || 'data/showcase-class.json';
   const demoMsg = (t) => { const el = document.getElementById('demo-msg'); if (el) el.textContent = t || ''; };
 
   // 학생 화면(포트폴리오·학습지)은 '로그인한 사람의 것'만 그린다. 계정이 없으면
@@ -628,17 +632,44 @@
    * 대시보드·갤러리는 클라우드를 읽으므로 화면은 그대로 비어 있다. 그 어긋남이
    * "불러왔는데 데이터가 안 보인다"의 정체였다. 그래서 상태를 글로 적어 둔다.
    */
-  function renderDemoMode() {
+  function renderDemoMode(res) {
     const el = document.getElementById('demo-mode');
     if (!el) return;
-    el.innerHTML = Store.mode === 'cloud'
-      ? '지금 이 사이트는 <b>클라우드(학급 공유) 모드</b>입니다. 화면은 클라우드를 읽으므로, ' +
-        '「이 기기에만 불러오기」로 넣은 자료는 <b>이 화면에 보이지 않습니다</b> — ' +
+    const st = (window.Showcase && Showcase.status()) || { mode: 'none' };
+    /*
+     * 자동 적재 상태를 먼저 알려 준다. "누른 적이 없는데 자료가 있다"가 가장 먼저 드는 의문이고,
+     * 반대로 "자동으로 실린다더니 왜 없나"가 그 다음이다. 자동 적재에는 조건이 있으므로
+     * (js/showcase.js 의 잠금 다섯), 실리지 않았을 때는 그 이유까지 적는다.
+     * res 는 Showcase.ensure() 가 돌려준 결과. 아직 없으면 이번 적재가 끝나기 전이다.
+     */
+    const why = res && res.why;
+    const auto = st.mode === 'on'
+      ? '✅ 우수 사례가 <b>이 기기에 실려 있습니다</b>(기록이 없는 기기라 처음 열 때 자동으로 한 번 실렸습니다). ' +
+        '갤러리·키오스크·작품 페이지·포트폴리오·아래 지표가 모두 이 자료로 채워져 있습니다.'
+      : st.mode === 'off'
+        ? '🧹 이 기기에서는 우수 사례를 <b>지운 상태</b>입니다. 자동으로 다시 실리지 않으며, 필요하면 아래 단추로 다시 부릅니다.'
+        : !window.Showcase
+          ? '⚠ <code>js/showcase.js</code> 를 불러오지 못해 우수 사례 기능만 쉬고 있습니다(대시보드의 나머지는 그대로 씁니다).'
+          : !res
+          ? '우수 사례를 불러오는 중…'
+          : why === 'busy'
+            ? '⏸ 이 기기에는 <b>이미 학급 기록이 있어</b> 우수 사례를 자동으로 싣지 않았습니다. ' +
+              '저장 공간이 모자라면 학생 기록이 밀려날 수 있어서예요. 필요하면 아래 단추로 직접 부릅니다(용량이 넉넉한 기기에서 쓰세요).'
+            : (why === 'error' || why === 'failed')
+              ? '⚠ 우수 사례를 <b>자동으로 싣지 못했습니다</b>(자료를 받지 못했거나 저장 공간이 모자랐습니다). 아래 단추로 다시 시도할 수 있습니다.'
+              : '우수 사례가 아직 실리지 않았습니다.';
+    el.innerHTML = auto + '<br>' + (Store.mode === 'cloud'
+      ? '지금 이 사이트는 <b>클라우드(학급 공유) 모드</b>라 자동 적재를 하지 않습니다(학급이 함께 쓰는 저장소를 건드리지 않기 위해서). ' +
+        '화면은 클라우드를 읽으므로 「이 기기에만 불러오기」로 넣은 자료는 <b>이 화면에 보이지 않습니다</b> — ' +
         '<a href="admin.html?local=1">?local=1 로 열면</a> 이 기기 자료로 봅니다. ' +
         '모두에게 보이려면 <b>☁️ 클라우드에 올리기</b>를 쓰세요.'
-      : '지금 이 사이트는 <b>이 기기 저장(로컬) 모드</b>입니다. 불러온 자료가 곧바로 화면에 보입니다.';
+      : '지금 이 사이트는 <b>이 기기 저장(로컬) 모드</b>입니다. 불러온 자료가 곧바로 화면에 보입니다.');
   }
   renderDemoMode();
+  /* 첫 방문에서는 이 둘이 그려지는 순간 자동 적재가 아직 끝나지 않았다(자료를 받는 중).
+     그대로 두면 아래 표는 채워지는데 이 칸만 "아직 실리지 않았습니다"라고 말한다.
+     적재가 끝나면 한 번 더 그린다(ensure 는 이미 한 번만 도는 약속이라 값이 들지 않는다). */
+  if (window.Showcase) Showcase.ensure().then(r => { renderDemoAccounts(); renderDemoMode(r); });
 
   /* 클라우드에 올리기·지우기 공통: 한 번에 여러 건을 보내되 동시에 너무 많이 열지 않는다. */
   async function eachLimited(items, worker, onTick, limit) {
@@ -661,11 +692,9 @@
     const btn = document.getElementById('btn-demo-load');
     btn.disabled = true; demoMsg('불러오는 중…');
     try {
-      const res = await fetch(DEMO_URL, { cache: 'no-cache' });
-      if (!res.ok) throw new Error(DEMO_URL + ' (' + res.status + ')');
-      const bundle = await res.json();
-      const r = Store.importJSON(bundle);
-      const users = seedDemoUsers(bundle);
+      // 적재는 js/showcase.js 한 곳에서만 한다. 여기서 따로 넣으면 '자동으로 한 번 실어 두는'
+      // 표시와 어긋나, 지운 자료가 다음 새로고침에 되살아난다.
+      const { counts: r, users } = await Showcase.load();
       demoMsg(`작품 ${r.works} · 학습지 포함 노트 ${r.notes} · 비평 ${r.feedback} · 로그 ${r.logs} · 계정 ${users}개`);
       renderDemoAccounts();
       UI.toast('우수 사례를 이 기기에 불러왔습니다.');
@@ -784,23 +813,12 @@
       } finally { btn.disabled = false; }
     }
 
-    let removed = 0;
-    DEMO_KEYS.forEach(k => {
-      try {
-        const list = JSON.parse(localStorage.getItem(k) || '[]');
-        if (!Array.isArray(list)) return;
-        const keep = list.filter(x => !(x && x.demo === true));
-        removed += list.length - keep.length;
-        localStorage.setItem(k, JSON.stringify(keep));
-      } catch (e) { /* 이 키만 건너뛴다 */ }
-    });
-    try {
-      const users = JSON.parse(localStorage.getItem('dn_users') || '{}');
-      Object.keys(users).forEach(k => { if (users[k] && users[k].demo) delete users[k]; });
-      localStorage.setItem('dn_users', JSON.stringify(users));
-    } catch (e) { /* 계정이 남아도 화면에는 영향이 없다 */ }
+    /* 이 기기에서 걷어 내기. Showcase 가 '꺼짐'으로 표시하므로 자동 적재가 다시 싣지 않는다
+       (표시를 남기지 않고 지우기만 하면 다음 새로고침에 되살아난다). */
+    const removed = Showcase.clear();
     if (removed) demoMsg(`이 기기에서 ${removed}건을 지웠습니다.`);
-    UI.toast('우수 사례를 지웠습니다.'); renderDemoAccounts(); load();
+    UI.toast('우수 사례를 지웠습니다. 이 기기에서는 자동으로 다시 실리지 않습니다.');
+    renderDemoAccounts(); renderDemoMode(); load();
   });
   document.getElementById('tbl-works').addEventListener('change', async (e) => {
     const t = e.target, idv = t.dataset ? t.dataset.id : null; if (!idv) return;

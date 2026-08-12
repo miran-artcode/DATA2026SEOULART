@@ -109,7 +109,10 @@
         ${liveMedia}
         ${canLive || work.video ? '<p class="muted" style="font-size:11px;margin:6px 0 0">▶ 살아 움직이는 재생 · 마우스를 올려 반응을 느껴 보세요</p>' : ''}
         <h1 style="margin:14px 0 4px;font-size:24px">${esc(work.title || '제목 없음')}</h1>
-        <p class="muted" style="margin:0">${esc(work.by || '익명')} · <span class="badge">${KIND[work.kind] || work.kind}</span></p>
+        <p class="muted" style="margin:0">${esc(work.by || '익명')} · <span class="badge">${KIND[work.kind] || work.kind}</span>${
+          /* 우수 사례(가상 학급)의 작품이면 그렇다고 적는다. QR 로 들어온 관람객은 이 화면만 보므로,
+             여기에 표시가 없으면 가상 기록을 실제 학생 작품으로 읽게 된다. */
+          work.demo ? ' <span class="badge" style="background:rgba(127,140,180,.18)">예시 · 가상 학급</span>' : ''}</p>
       </div>
 
       <div class="card" style="margin-top:16px">

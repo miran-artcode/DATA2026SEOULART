@@ -15,6 +15,9 @@
   const kindLabel = w => (KIND[w.kind] || w.kind) +
     (w.kind === 'data' && ORIGIN[w.stage] ? ' · ' + ORIGIN[w.stage] : '');
   const COLORLBL = { value: '값 그라데이션', warm: '난색', cool: '한색' };
+  /* 우수 사례(가상 학급)에서 온 작품임을 명제에 적는다. 키오스크는 관람객이 보는 화면이라,
+     표시가 없으면 지어낸 작품이 실제 학생 작품과 똑같은 얼굴로 전시된다. 갤러리도 같은 규칙. */
+  const demoTag = w => w && w.demo ? ' <span class="badge">예시 · 가상 학급</span>' : '';
   const ADVANCE = 9000;
 
   let works = [], allWorks = [], themeFilter = '', idx = 0, playing = true, timer = null, progTimer = null, progStart = 0, liveCtl = null;
@@ -73,7 +76,7 @@
         <div class="info">
           <div class="eyebrow2">오늘의 시선 · 학생 전시</div>
           <h1>${esc(w.title || '제목 없음')}</h1>
-          <div class="artist">${esc(w.by || '익명')} <span class="badge">${esc(kindLabel(w))}</span></div>
+          <div class="artist">${esc(w.by || '익명')} <span class="badge">${esc(kindLabel(w))}</span>${demoTag(w)}</div>
           ${w.statement ? `<div class="statement">${esc(w.statement)}</div>` : ''}
           ${w.intent ? `<div class="statement"><b>작가노트</b>: ${esc(w.intent)}</div>` : ''}
           ${w.evidence ? `<div class="statement muted">근거 · ${esc(w.evidence)}</div>` : ''}

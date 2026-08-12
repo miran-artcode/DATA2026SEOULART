@@ -208,6 +208,7 @@
 <script src="js/auth.js"></script>
 <script src="config/cloud-config.js"></script>
 <script src="js/store.js"></script>
+<script src="js/showcase.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/log.js"></script>
 <script src="js/player.js"></script>
@@ -250,12 +251,15 @@
     if (w.video) return `<video src="${w.video}" loop muted autoplay playsinline preload="metadata"${w.thumb ? ` poster="${w.thumb}"` : ''}></video>`;
     return w.thumb ? `<img src="${w.thumb}" alt="${esc(w.title || '')}">` : `<canvas width="200" height="150"></canvas>`;
   }
+  /* 예시 작품 표시: 우수 사례(가상 학급)에서 온 작품은 실제 학생 작품과 눈으로 구분돼야 한다.
+     같은 벽에 걸리되 명제에 한 글자를 더 단다. 숨기면 관람객이 둘을 구분할 길이 없다. */
+  const demoTag = (w) => w && w.demo ? ' <span class="badge" style="font-size:9.5px;padding:0 5px">예시</span>' : '';
   function artHTML(w) {
     const full = (w.intent || w.evidence || '').trim();
     const cap = full ? esc(full.slice(0, 92)) + (full.length > 92 ? '…' : '') : '';
     return `<div class="art" data-id="${w.id}" title="${esc(w.title || '무제')}">
       <div class="frame">${mediaHTML(w)}</div>
-      <div class="plate"><b>${esc(w.title || '무제')}</b>${esc(w.by || '익명')} · ${esc(KIND[w.kind] || '')}${cap ? `<span class="cap">${cap}</span>` : ''}</div>
+      <div class="plate"><b>${esc(w.title || '무제')}</b>${esc(w.by || '익명')} · ${esc(KIND[w.kind] || '')}${demoTag(w)}${cap ? `<span class="cap">${cap}</span>` : ''}</div>
     </div>`;
   }
   function renderRoom(theme) {
@@ -297,7 +301,7 @@
     document.getElementById('gal').innerHTML = ALL.map(w => `
       <div class="item" data-id="${w.id}" style="cursor:pointer">
         ${w.thumb ? `<img src="${w.thumb}" alt="">` : `<canvas></canvas>`}
-        <div class="meta"><h4>${esc(w.title || '무제')}</h4><p>${esc(w.by || '익명')} · ${esc(KIND[w.kind] || w.kind || '')}</p></div>
+        <div class="meta"><h4>${esc(w.title || '무제')}</h4><p>${esc(w.by || '익명')} · ${esc(KIND[w.kind] || w.kind || '')}${demoTag(w)}</p></div>
       </div>`).join('');
     document.querySelectorAll('#gal .item').forEach(el => el.addEventListener('click', () => openViewer(el.dataset.id)));
   }
@@ -371,7 +375,7 @@
   function reportHTML(w, skipPlacard) {
     const s = w.settings || {}, m = w.meta || {};
     let h = '<div class="report">';
-    if (!skipPlacard) h += `<div class="placard"><div><b>${esc(w.title || '무제')}</b><br><span class="muted">${esc(w.by || '익명')}${w.klass ? ' · ' + esc(w.klass) : ''} · ${esc(KIND[w.kind] || w.kind || '')}</span></div>`
+    if (!skipPlacard) h += `<div class="placard"><div><b>${esc(w.title || '무제')}</b><br><span class="muted">${esc(w.by || '익명')}${w.klass ? ' · ' + esc(w.klass) : ''} · ${esc(KIND[w.kind] || w.kind || '')}${demoTag(w)}</span></div>`
        + (w.createdAt ? `<span class="muted" style="white-space:nowrap">${new Date(w.createdAt).toLocaleDateString('ko-KR')}</span>` : '') + '</div>';
     if (w.kind === 'color') {
       if (w.srcImg) h += `<div class="rsrc"><img src="${w.srcImg}" alt="원본"><span><b>원본</b> → 데이터(점)로 재창조한 작품</span></div>`;
@@ -449,7 +453,7 @@
       </div></div>`).join('') : '<p class="muted">아직 피드백이 없어요. 첫 피드백을 남겨 보세요.</p>';
     const sel = n => `<select id="fb-${n}"><option value="3">잘됨 ★★★</option><option value="2" selected>보통 ★★</option><option value="1">아쉬움 ★</option></select>`;
     return `<h2 style="margin:0 0 2px; font-size:21px">${esc(w.title || '무제')}</h2>
-      <p class="muted" style="margin:0 0 14px">${esc(w.by || '익명')}${w.klass ? ' · ' + esc(w.klass) : ''} · ${esc(KIND[w.kind] || w.kind || '')}</p>
+      <p class="muted" style="margin:0 0 14px">${esc(w.by || '익명')}${w.klass ? ' · ' + esc(w.klass) : ''} · ${esc(KIND[w.kind] || w.kind || '')}${demoTag(w)}</p>
       <p style="margin:0 0 4px"><b>의도</b> · ${esc(w.intent || '(없음)')}</p>
       ${w.evidence ? `<p style="margin:4px 0"><b>근거</b> · ${esc(w.evidence)}</p>` : ''}
       ${reportHTML(w, true)}
